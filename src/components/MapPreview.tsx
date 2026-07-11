@@ -6,12 +6,12 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { getMapStyle } from '@/lib/map-styles'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
-interface Props {
+export interface MapPreviewProps {
   lat: number
   lng: number
 }
 
-export default function MapPreview({ lat, lng }: Props) {
+export default function MapPreview({ lat, lng }: MapPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markerRef = useRef<maplibregl.Marker | null>(null)

@@ -420,12 +420,12 @@ export default function ClientDetail({
  </div>
  )}
 
- {client.lat != null && client.lng != null && (
- <div
-   onClick={() => setShowMapConfirm(true)}
-   className="flex-1 aspect-square md:aspect-[2/1] rounded-[10px] overflow-hidden relative flex flex-col cursor-pointer"
-  >
- <MapPreview lat={client.lat} lng={client.lng} />
+  {client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng) && (
+  <div
+    onClick={() => setShowMapConfirm(true)}
+    className="flex-1 aspect-square md:aspect-[2/1] rounded-[10px] overflow-hidden relative flex flex-col cursor-pointer"
+   >
+  <MapPreview lat={client.lat} lng={client.lng} />
  <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium bg-[var(--text-primary)]/80 text-white pointer-events-none">
  <ArrowSquareOut className="w-3 h-3" />
  เปิดแผนที่

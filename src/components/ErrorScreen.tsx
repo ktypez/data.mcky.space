@@ -1,22 +1,26 @@
-'use client'
+import { Component } from 'react'
 
-import { WarningCircle } from '@phosphor-icons/react'
-import { Button } from '@/components/ui/button'
+interface State { error: Error | null }
 
-interface ErrorScreenProps {
-  onRetry: () => void
-}
+export default class ErrorScreen extends Component<{ children: React.ReactNode }, State> {
+  state: State = { error: null }
 
-export default function ErrorScreen({ onRetry }: ErrorScreenProps) {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <WarningCircle size={28} className="text-destructive" />
-        <p className="text-sm text-muted-foreground">Failed to load data</p>
-        <Button variant="outline" onClick={onRetry}>
-          Try again
-        </Button>
-      </div>
-    </div>
-  )
+  static getDerivedStateFromError(error: Error) {
+    return { error }
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-background p-4">
+          <pre className="text-sm text-foreground whitespace-pre-wrap max-w-xl">
+            {this.state.error.message}
+            {'\n\n'}
+            {this.state.error.stack}
+          </pre>
+        </div>
+      )
+    }
+    return this.props.children
+  }
 }

@@ -18,16 +18,19 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   }
 
   const status = url.searchParams.get('status')
-  if (status) {
-    const rows = await db
-      .select()
-      .from(suggestions)
-      .where(eq(suggestions.status, status))
-      .orderBy(suggestions.createdAt)
-    return json(rows.reverse())
+  const clientId = url.searchParams.get('clientId')
+
+  let query = db.select().from(suggestions)
+  const filters = []
+  if (status) filters.push(eq(suggestions.status, status))
+  if (clientId) filters.push(eq(suggestions.clientId, clientId))
+
+  if (filters.length > 0) {
+    // @ts-expect-error drizzle variadic where
+    query = query.where(...filters)
   }
 
-  const rows = await db.select().from(suggestions).orderBy(suggestions.createdAt)
+  const rows = await query.orderBy(suggestions.createdAt)
   return json(rows.reverse())
 }
 

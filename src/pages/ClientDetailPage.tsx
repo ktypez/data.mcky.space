@@ -132,7 +132,6 @@ export default function ClientDetailPage() {
         clients={clients}
         onClientUpdated={handleUpdate}
         onClientDeleted={handleDelete}
-        hideActions={!isAdmin}
       />
     </div>
   )
