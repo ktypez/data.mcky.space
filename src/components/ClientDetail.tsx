@@ -306,7 +306,7 @@ export default function ClientDetail({
      <Copy className="w-4 h-4 shrink-0" />
       <span className="text-xs">ข้อความ</span>
     </Button>
-    {client.lat != null && client.lng != null && (
+    {client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng) && (
      <Button
       variant="outline"
       className={`h-10 ${copied === 'text+maps' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
@@ -316,7 +316,7 @@ export default function ClientDetail({
       <span className="text-xs">ข้อความ + แผนที่</span>
      </Button>
     )}
-    {client.lat != null && client.lng != null && (
+    {client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng) && (
      <Button
       variant="outline"
       className={`h-10 ${copied === 'maps' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}

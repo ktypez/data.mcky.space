@@ -37,7 +37,7 @@ function buildGeoJSON(clients: Client[]): GeoJSON.FeatureCollection {
  return {
  type: 'FeatureCollection',
  features: clients
- .filter((c) => c.lat != null && c.lng != null)
+  .filter((c) => c.lat != null && c.lng != null && !Number.isNaN(c.lat) && !Number.isNaN(c.lng))
  .map((c) => ({
  type: 'Feature',
  geometry: { type: 'Point', coordinates: [c.lng!, c.lat!] },

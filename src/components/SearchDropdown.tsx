@@ -11,7 +11,7 @@ interface Props {
 
 const SearchDropdown = memo(function SearchDropdown({ clients, query, onSelect }: Props) {
   const results = clients
-    .filter((c) => c.lat != null && c.lng != null)
+    .filter((c) => c.lat != null && c.lng != null && !Number.isNaN(c.lat) && !Number.isNaN(c.lng))
     .filter(
       (c) =>
         c.name.toLowerCase().includes(query) ||

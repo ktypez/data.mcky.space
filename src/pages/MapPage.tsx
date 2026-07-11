@@ -82,7 +82,7 @@ export default function MapPage() {
       />
       <div className="relative flex-1">
         <InlineMap
-          clients={filtered.filter((c) => c.lat != null && c.lng != null)}
+          clients={filtered.filter((c) => c.lat != null && c.lng != null && !Number.isNaN(c.lat) && !Number.isNaN(c.lng))}
           focusClientId={mapFocusId}
           onSelectClient={navigateToClient}
         />
