@@ -164,9 +164,10 @@ export function PageClient() {
   }, [suggestRefresh])
 
   function clientText(client: Client) {
-    const parts = [client.name]
-    if (client.shopName) parts.push('\uD83C\uDFEA ' + client.shopName)
-    if (client.address) parts.push('\uD83D\uDCCD ' + client.address)
+    const parts: string[] = []
+    parts.push('\uD83D\uDC64 : ' + client.name)
+    if (client.shopName) parts.push('\uD83D\uDED2 : ' + client.shopName)
+    if (client.address) parts.push('\uD83D\uDCCC : ' + client.address)
     return parts.join('\n')
   }
 
@@ -187,7 +188,7 @@ export function PageClient() {
     (client: Client) => {
       const text = clientText(client)
       if (client.lat && client.lng) {
-        copyToClipboard(text + '\n' + getMapsUrl(client.lat, client.lng))
+        copyToClipboard(text + '\n' + '\uD83D\uDDFA\uFE0F : ' + getMapsUrl(client.lat, client.lng))
       } else {
         copyToClipboard(text)
       }
