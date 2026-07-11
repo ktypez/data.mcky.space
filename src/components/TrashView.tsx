@@ -37,7 +37,11 @@ export default function TrashView({ onClose }: Props) {
   }, [fetchTrash])
 
   const handleRestore = async (id: string) => {
-    const res = await apiFetch(`/api/clients/${id}?action=restore`, { method: 'POST' })
+    const res = await apiFetch('/api/clients/trash?action=restore', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
     if (res.ok) {
       setItems((prev) => prev.filter((c) => c.id !== id))
     }
@@ -45,7 +49,11 @@ export default function TrashView({ onClose }: Props) {
 
   const handleForceDelete = async (id: string) => {
     if (!confirm('ลบถาวร? ไม่สามารถกู้คืนได้')) return
-    const res = await apiFetch(`/api/clients/${id}?action=force`, { method: 'POST' })
+    const res = await apiFetch('/api/clients/trash?action=force-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
     if (res.ok) {
       setItems((prev) => prev.filter((c) => c.id !== id))
     }
