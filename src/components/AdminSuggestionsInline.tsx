@@ -20,9 +20,10 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 interface Props {
   onClose: () => void
+  onAction?: () => void
 }
 
-export default function AdminSuggestionsInline({ onClose }: Props) {
+export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
   const [suggestions, setSuggestions] = useState<PendingSuggestion[]>([])
   const [clients, setClients] = useState<Map<string, Client>>(new Map())
   const [loading, setLoading] = useState(true)
@@ -70,6 +71,7 @@ export default function AdminSuggestionsInline({ onClose }: Props) {
         const data = await res.json()
         throw new Error(data.error || 'ดำเนินการไม่สำเร็จ')
       }
+      onAction?.()
       await fetchData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด')

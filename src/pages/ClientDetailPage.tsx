@@ -1,13 +1,15 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from '@phosphor-icons/react'
 import { Spinner } from '@/components/ui/spinner'
 import { Button } from '@/components/ui/button'
 import ClientDetail from '@/components/ClientDetail'
-import { fetchClients } from '@/lib/storage'
+import { fetchClients, updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth-store'
+import { useClientStore } from '@/stores/client-store'
 import type { Client } from '@/types'
 
 export default function ClientDetailPage() {
@@ -17,14 +19,9 @@ export default function ClientDetailPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-
-  useEffect(() => {
-    const token = localStorage.getItem('ezzylist_admin_token')
-    apiFetch('/api/auth', { headers: token ? { 'x-admin-token': token } : {} })
-      .then((r) => { if (r.ok) setIsAdmin(true) })
-      .catch(() => {})
-  }, [])
+  const { isAdmin } = useAuthStore()
+  const cliStore = useClientStore()
+  const mountedRef = useRef(true)
 
   const loadData = useCallback(async () => {
     if (!id) return
@@ -34,11 +31,13 @@ export default function ClientDetailPage() {
       const res = await apiFetch(`/api/clients/${encodeURIComponent(id)}`)
       if (!res.ok) throw new Error('Not found')
       const data: Client = await res.json()
+      if (!mountedRef.current) return
       setClient(data)
       setClients([data])
     } catch {
       try {
         const all = await fetchClients()
+        if (!mountedRef.current) return
         const found = all.find((c) => c.id === id)
         if (found) {
           setClient(found)
@@ -47,17 +46,17 @@ export default function ClientDetailPage() {
           setFetchError(true)
         }
       } catch {
-        setFetchError(true)
+        if (mountedRef.current) setFetchError(true)
       }
     } finally {
-      setLoading(false)
+      if (mountedRef.current) setLoading(false)
     }
   }, [id])
 
   useEffect(() => {
-    let active = true
+    mountedRef.current = true
     loadData()
-    return () => { active = false }
+    return () => { mountedRef.current = false }
   }, [loadData])
 
   const handleDelete = useCallback(
@@ -67,9 +66,19 @@ export default function ClientDetailPage() {
     [navigate],
   )
 
-  const handleUpdate = useCallback((updated: Client) => {
-    setClient(updated)
-  }, [])
+  const handleUpdate = useCallback(
+    async (updated: Client) => {
+      try {
+        const saved = await updateClient(updated)
+        setClient(saved)
+        cliStore.updateClient(saved.id, saved)
+      } catch {
+        const all = await fetchClients()
+        cliStore.setClients(all)
+      }
+    },
+    [],
+  )
 
   if (loading) {
     return (
@@ -123,7 +132,7 @@ export default function ClientDetailPage() {
         clients={clients}
         onClientUpdated={handleUpdate}
         onClientDeleted={handleDelete}
-        hideActions
+        hideActions={!isAdmin}
       />
     </div>
   )
