@@ -45,7 +45,7 @@ export async function onRequestDelete(context: EventContext<Env, any, any>) {
   const [row] = await db.select().from(clients).where(eq(clients.id, params.id))
   if (!row) return notFound()
 
-  const data = JSON.stringify(row)
+  const data = JSON.stringify({ ...row, deletedAt: Date.now() })
   await db.insert(settings).values({ key: `trash_${params.id}`, value: data }).onConflictDoNothing()
   await db.delete(clients).where(eq(clients.id, params.id))
 
