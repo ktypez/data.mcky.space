@@ -80,7 +80,7 @@ export default function MapPage() {
           ) : undefined
         }
       />
-      <div className="relative flex-1" style={{ minHeight: 0 }}>
+      <div style={{ position: 'relative', height: 'calc(100dvh - 56px)' }}>
         <InlineMap
           clients={filtered.filter((c) => c.lat != null && c.lng != null && !Number.isNaN(c.lat) && !Number.isNaN(c.lng))}
           focusClientId={mapFocusId}
