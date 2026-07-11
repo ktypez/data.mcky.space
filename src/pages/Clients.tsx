@@ -69,7 +69,7 @@ function TableSkeletonLoader() {
 }
 
 function displayStep(): number {
-  return typeof window !== 'undefined' && window.innerWidth >= 900 ? 20 : 10
+  return 20
 }
 
 export function PageClient() {

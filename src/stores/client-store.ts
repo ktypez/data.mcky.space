@@ -39,7 +39,7 @@ interface ClientState {
 export const useClientStore = create<ClientState>((set, get) => ({
   clients: [],
   totalCount: 0,
-  displayLimit: 10,
+  displayLimit: 20,
   selectedIds: new Set(),
   selectionMode: false,
   refreshing: false,
