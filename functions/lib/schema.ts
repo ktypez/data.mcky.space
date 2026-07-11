@@ -34,8 +34,7 @@ export const suggestions = pgTable('suggestions', {
       address: string
       lat: number | null
       lng: number | null
-    }>()
-    .notNull(),
+    }>(),
   status: text('status').notNull().default('pending'),
   createdAt: bigint('created_at', { mode: 'number' }).notNull(),
   updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),

@@ -19,11 +19,13 @@ const DEFAULT_CENTER: [number, number] = [102.8236, 16.4322]
 const DEFAULT_ZOOM = 8
 const PIN_ZOOM = 16
 
-interface Props {
+export interface MapPickerProps {
   lat: number | null
   lng: number | null
   onChange: (lat: number, lng: number) => void
 }
+
+type Props = MapPickerProps
 
 export default function MapPicker({ lat, lng, onChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)

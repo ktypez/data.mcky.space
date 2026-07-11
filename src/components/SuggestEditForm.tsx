@@ -52,6 +52,13 @@ export default function SuggestEditForm({ client, onClose }: Props) {
             lat,
             lng,
           },
+          original: {
+            name: client.name,
+            shopName: client.shopName,
+            address: client.address,
+            lat: client.lat,
+            lng: client.lng,
+          },
         }),
       })
 
