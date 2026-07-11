@@ -1,6 +1,7 @@
 @import 'tailwindcss';
+@custom-variant dark (&:is(.dark *));
 
-@theme {
+@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -17,10 +18,187 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-info: var(--info);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-pin: var(--pin-color);
+  --font-sans: 'Prompt', system-ui, sans-serif;
+  --font-serif: 'Prompt', system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.15);
+}
+
+.dark {
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.35);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.45), 0 8px 10px -6px rgb(0 0 0 / 0.45);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+}
+
+[data-theme='obsidian'],
+[data-theme='ivory'],
+[data-theme='meridian'],
+[data-theme='synthwave'],
+[data-theme='frost'] {
+  --background: initial;
+  --foreground: initial;
+  --card: initial;
+  --card-foreground: initial;
+  --popover: initial;
+  --popover-foreground: initial;
+  --primary: initial;
+  --primary-foreground: initial;
+  --secondary: initial;
+  --secondary-foreground: initial;
+  --muted: initial;
+  --muted-foreground: initial;
+  --accent: initial;
+  --accent-foreground: initial;
+  --destructive: initial;
+  --destructive-foreground: initial;
+  --success: initial;
+  --success-foreground: initial;
+  --warning: initial;
+  --warning-foreground: initial;
+  --info: initial;
+  --info-foreground: initial;
+  --border: initial;
+  --input: initial;
+  --ring: initial;
+  --sidebar: initial;
+  --sidebar-foreground: initial;
+  --sidebar-accent: initial;
+  --sidebar-accent-foreground: initial;
+  --sidebar-border: initial;
+  --sidebar-ring: initial;
+  --radius: initial;
+  --pin-color: initial;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  [role='button']:focus-visible,
+  input:focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 15%, transparent);
+  }
+}
+
+@utility font-display {
+  font-family: 'Prompt', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+@utility glass {
+  background: color-mix(in oklch, var(--card) 70%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@utility glass-strong {
+  background: color-mix(in oklch, var(--card) 85%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+@utility scrollbar-none {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%) }
+  to { transform: translateY(0) }
+}
+@utility animate-slide-up {
+  animation: slide-up 0.25s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+@utility animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95) }
+  to { opacity: 1; transform: scale(1) }
+}
+@utility animate-scale-in {
+  animation: scale-in 0.15s ease-out;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1 }
+  50% { opacity: 0.6 }
+}
+@utility animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg) }
+}
+@utility animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+}
+
+.maplibregl-popup-content {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 10px 12px !important;
+  font-family: 'Prompt', system-ui, sans-serif !important;
+}
+.maplibregl-popup-tip {
+  border-top-color: var(--card) !important;
+}
+.maplibregl-popup-close-button {
+  color: var(--muted-foreground) !important;
+  font-size: 18px !important;
+  padding: 2px 6px !important;
+}
+.maplibregl-popup-close-button:hover {
+  color: var(--foreground) !important;
 }
