@@ -268,9 +268,9 @@ export default function InlineMap({ clients, focusClientId, onSelectClient }: Pr
  )
  }, [])
 
- return (
- <>
- <div ref={mapRef} className="w-full h-full" />
+  return (
+  <>
+  <div ref={mapRef} className="absolute inset-0" />
 
  {/* ── BOTTOM DRAWER ── */}
  {selectedPin && (
