@@ -83,7 +83,7 @@ export default function TrashView({ onClose }: Props) {
                   {client.shopName || client.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  ลบเมื่อ {new Date(client.deletedAt!).toLocaleDateString('th-TH')}
+                  ลบเมื่อ {client.deletedAt ? new Date(client.deletedAt).toLocaleDateString('th-TH') : '-'}
                 </p>
               </div>
               <button
