@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { verifyToken, getTokenFromRequest } from '../../lib/auth'
 import { json, error, unauthorized } from '../../lib/response'
 
-export async function onRequestPost(context: EventContext<Env, any, any>) {
+export async function onRequestPut(context: EventContext<Env, any, any>) {
   const { env, request, params } = context
   const token = getTokenFromRequest(request)
   if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
