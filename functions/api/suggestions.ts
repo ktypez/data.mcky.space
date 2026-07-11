@@ -22,7 +22,7 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
 
   let query = db.select().from(suggestions)
   const filters = []
-  if (status) filters.push(eq(suggestions.status, status))
+  if (status && status !== 'all') filters.push(eq(suggestions.status, status))
   if (clientId) filters.push(eq(suggestions.clientId, clientId))
 
   if (filters.length > 0) {
