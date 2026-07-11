@@ -7,10 +7,6 @@ import { json, error } from '../lib/response'
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, request } = context
 
-  const token = getTokenFromRequest(request)
-  const isAuthed = token ? await verifyToken(token, env.TOKEN_SECRET) : false
-  if (!isAuthed) return json({ error: 'Unauthorized' }, 401)
-
   const db = createDb(env.DATABASE_URL)
   const url = new URL(request.url)
   const limit = url.searchParams.get('limit')

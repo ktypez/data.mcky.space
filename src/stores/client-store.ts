@@ -87,25 +87,26 @@ export const useClientStore = create<ClientState>((set, get) => ({
   initialize: async () => {
     if (get().initialized) return
     set({ loading: true, error: null })
-    const token = typeof window !== 'undefined' ? localStorage.getItem('ezzylist_admin_token') : null
+    let hadIdb = false
     try {
       const idb = await getAllClients()
       if (idb.length > 0) {
+        hadIdb = true
         const sorted = (idb as unknown as Client[]).sort(
           (a, b) => b.updatedAt - a.updatedAt,
         )
-        set({ clients: sorted, loading: false })
+        set({ clients: sorted })
       }
     } catch {}
-    if (token) {
-      try {
-        const data = await fetchClients()
-        set({ clients: data, loading: false, initialized: true })
-      } catch {
+    try {
+      const data = await fetchClients()
+      set({ clients: data, loading: false, initialized: true })
+    } catch {
+      if (hadIdb) {
+        set({ loading: false, initialized: true })
+      } else {
         set({ error: 'Failed to load clients', loading: false, initialized: true })
       }
-    } else {
-      set({ loading: false, initialized: true })
     }
   },
 

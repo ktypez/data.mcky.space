@@ -14,6 +14,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { fetchClients, updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
 import { copyToClipboard, getMapsUrl } from '@/lib/utils'
+import { ErrorScreen as FetchErrorScreen } from '@/components/shared/ErrorScreen'
 import type { Client } from '@/types'
 import { FilterKey } from '@/types'
 
@@ -34,7 +35,6 @@ const DesktopTableView = lazyLoad(() => import('@/components/DesktopTableView'))
 const DesktopCardView = lazyLoad(() => import('@/components/DesktopCardView'))
 const MobileCardList = lazyLoad(() => import('@/components/MobileCardList'))
 const SwUpdateToast = lazyLoad(() => import('@/components/SwUpdateToast'))
-const ErrorScreen = lazyLoad(() => import('@/components/ErrorScreen'))
 
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371
@@ -308,7 +308,7 @@ export function PageClient() {
   const isListView = viewState.view === 'list'
   const showDetail = viewState.view === 'detail'
 
-  if (error) return <ErrorScreen onRetry={() => fetchClients().then((d) => cliStore.setClients(d))} />
+  if (error) return <FetchErrorScreen onRetry={() => fetchClients().then((d) => cliStore.setClients(d))} />
 
   return (
     <div className="flex min-h-screen bg-background">
