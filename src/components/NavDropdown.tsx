@@ -2,27 +2,13 @@
 
 import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/stores/auth-store'
 import { ArrowLeft, MapTrifold, ChatDots, Trash, SignOut, LockKey } from '@phosphor-icons/react'
 
-interface Props {
-  isAdmin: boolean
-  onHome: () => void
-  onMap: () => void
-  onSuggestions?: () => void
-  onTrash?: () => void
-  onLogout: () => void
-  onLoginOpen: () => void
-}
-
-export default function NavDropdown({
-  isAdmin,
-  onHome,
-  onMap,
-  onSuggestions,
-  onTrash,
-  onLogout,
-  onLoginOpen,
-}: Props) {
+export default function NavDropdown() {
+  const navigate = useNavigate()
+  const { isAdmin, logout, setLoginOpen } = useAuthStore()
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState({ top: 0, left: 0 })
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -74,14 +60,14 @@ export default function NavDropdown({
             style={{ top: pos.top, left: pos.left }}
           >
             <button
-              onClick={() => { close(); onHome() }}
+              onClick={() => { close(); navigate('/') }}
               className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
             >
               <ArrowLeft className="w-4 h-4 text-muted-foreground shrink-0" />
               <span className="text-[13px] font-medium">หน้าแรก</span>
             </button>
             <button
-              onClick={() => { close(); onMap() }}
+              onClick={() => { close(); navigate('/maps') }}
               className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
             >
               <MapTrifold className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -92,14 +78,14 @@ export default function NavDropdown({
               <>
                 <div className="my-1 mx-2 h-px bg-border" />
                 <button
-                  onClick={() => { close(); onTrash?.() }}
+                  onClick={() => { close(); navigate('/trash') }}
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
                 >
                   <Trash className="w-4 h-4 text-muted-foreground shrink-0" />
                   <span className="text-[13px] font-medium">ถังขยะ</span>
                 </button>
                 <button
-                  onClick={() => { close(); onSuggestions?.() }}
+                  onClick={() => { close(); navigate('/suggestions') }}
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
                 >
                   <ChatDots className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -111,7 +97,7 @@ export default function NavDropdown({
             <div className="my-1 mx-2 h-px bg-border" />
             {isAdmin ? (
               <button
-                onClick={() => { close(); onLogout() }}
+                onClick={() => { close(); logout() }}
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-destructive hover:bg-destructive/10 transition-colors"
               >
                 <SignOut className="w-4 h-4 shrink-0" />
@@ -119,7 +105,7 @@ export default function NavDropdown({
               </button>
             ) : (
               <button
-                onClick={() => { close(); onLoginOpen() }}
+                onClick={() => { close(); setLoginOpen(true) }}
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
               >
                 <LockKey className="w-4 h-4 text-muted-foreground shrink-0" />

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, lazy, Suspense } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { Plus } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
@@ -10,8 +11,8 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useSuggestionStore } from '@/stores/suggestion-store'
 import { useDebounce } from '@/hooks/useDebounce'
-import { fetchClients, addClient, updateClient } from '@/lib/storage'
-import { apiFetch, authHeaders } from '@/lib/api'
+import { fetchClients, updateClient } from '@/lib/storage'
+import { apiFetch } from '@/lib/api'
 import { copyToClipboard, getMapsUrl } from '@/lib/utils'
 import type { Client } from '@/types'
 import { FilterKey } from '@/types'
@@ -26,18 +27,12 @@ function lazyLoad<T extends React.ComponentType<any>>(imp: () => Promise<{ defau
 }
 
 const ClientDetail = lazyLoad(() => import('@/components/ClientDetail'))
-const InlineMap = lazyLoad(() => import('@/components/InlineMap'))
-const AdminSuggestionsInline = lazyLoad(() => import('@/components/AdminSuggestionsInline'))
-const LoginModal = lazyLoad(() => import('@/components/LoginModal'))
 const SelectionToolbar = lazyLoad(() => import('@/components/SelectionToolbar'))
 const RouteModal = lazyLoad(() => import('@/components/RouteModal'))
 const PageHeader = lazyLoad(() => import('@/components/PageHeader'))
-const TrashView = lazyLoad(() => import('@/components/TrashView'))
 const DesktopTableView = lazyLoad(() => import('@/components/DesktopTableView'))
 const DesktopCardView = lazyLoad(() => import('@/components/DesktopCardView'))
 const MobileCardList = lazyLoad(() => import('@/components/MobileCardList'))
-const SearchDropdown = lazyLoad(() => import('@/components/SearchDropdown'))
-const InlineAddEditView = lazyLoad(() => import('@/components/InlineAddEditView'))
 const SwUpdateToast = lazyLoad(() => import('@/components/SwUpdateToast'))
 const ErrorScreen = lazyLoad(() => import('@/components/ErrorScreen'))
 
@@ -78,6 +73,7 @@ function displayStep(): number {
 }
 
 export function PageClient() {
+  const navigate = useNavigate()
   const {
     clients,
     loading,
@@ -91,7 +87,6 @@ export function PageClient() {
   const { search, filter, viewMode, recentCutoff, setSearch } = useFilterStore()
   const flStore = useFilterStore()
   const { isAdmin } = useAuthStore()
-  const auStore = useAuthStore()
   const {
     viewState,
     routeData,
@@ -278,21 +273,9 @@ export function PageClient() {
     uiStore.openDetail(client.id, client)
   }, [])
 
-  const navToMap = useCallback(() => {
-    uiStore.openMap()
-  }, [])
-
   const navToAdd = useCallback(() => {
-    uiStore.openAddEdit()
-  }, [])
-
-  const navToSuggestions = useCallback(() => {
-    uiStore.openSuggestions()
-  }, [])
-
-  const navToTrash = useCallback(() => {
-    uiStore.openTrash()
-  }, [])
+    navigate('/add')
+  }, [navigate])
 
   const handleRefresh = useCallback(() => {
     if (cliStore.refreshing) return
@@ -321,80 +304,16 @@ export function PageClient() {
       })
   }, [clients.length])
 
-  const handleAddEditSave = useCallback(
-    async (data: Omit<Client, 'createdAt' | 'updatedAt'>) => {
-      const existing = clients.find((c) => c.id === data.id)
-      try {
-        if (existing) {
-          const updated: Client = {
-            ...data,
-            createdAt: existing.createdAt,
-            updatedAt: Date.now(),
-          }
-          const saved = await updateClient(updated)
-          cliStore.updateClient(saved.id, saved)
-        } else {
-          const nc: Client = {
-            ...data,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-          }
-          const saved = await addClient(nc)
-          cliStore.addClient(saved)
-        }
-        uiStore.closeView()
-      } catch {
-        fetchClients()
-          .then((data) => cliStore.setClients(data))
-          .catch(() => {})
-      }
-    },
-    [clients],
-  )
-
-  const handleLogout = useCallback(() => {
-    auStore.logout()
-  }, [])
-
   const isListView = viewState.view === 'list'
   const showDetail = viewState.view === 'detail'
-  const showMap = viewState.view === 'map'
-  const showAddEdit = viewState.view === 'add-edit'
-  const showSuggestions = viewState.view === 'suggestions'
-  const showTrash = viewState.view === 'trash'
 
   if (error) return <ErrorScreen onRetry={() => fetchClients().then((d) => cliStore.setClients(d))} />
 
   return (
     <div className="flex min-h-screen bg-background">
-      <LoginModal
-        open={auStore.loginOpen}
-        onClose={() => auStore.setLoginOpen(false)}
-        onSuccess={() => {
-          auStore.setAdmin(true)
-          cliStore.initialize()
-        }}
-      />
-
       <SwUpdateToast />
 
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        {showAddEdit && (
-          <InlineAddEditView
-            editClient={viewState.view === 'add-edit' && viewState.editClientId ? clients.find((c) => c.id === viewState.editClientId!) ?? null : null}
-            clients={clients}
-            onBack={() => uiStore.closeView()}
-            onSave={handleAddEditSave}
-            isAdmin={isAdmin}
-            onHome={() => uiStore.resetView()}
-            onMap={navToMap}
-            onSuggestions={navToSuggestions}
-            onTrash={navToTrash}
-            onLogout={handleLogout}
-            onLoginOpen={() => auStore.setLoginOpen(true)}
-          />
-        )}
-
         {showDetail && (
           <>
             <PageHeader
@@ -402,13 +321,6 @@ export function PageClient() {
               title="Detail"
               showBack
               onBack={() => uiStore.closeView()}
-              isAdmin={isAdmin}
-              onHome={() => uiStore.resetView()}
-              onMap={navToMap}
-              onSuggestions={navToSuggestions}
-              onTrash={navToTrash}
-              onLogout={handleLogout}
-              onLoginOpen={() => auStore.setLoginOpen(true)}
             />
             <ClientDetail
               client={viewState.client ?? clients.find((c) => c.id === viewState.clientId)!}
@@ -424,73 +336,6 @@ export function PageClient() {
           </>
         )}
 
-        {showMap && (
-          <>
-            <PageHeader
-              variant="map"
-              showBack
-              onBack={() => uiStore.closeView()}
-              search={search}
-              onSearchChange={(v) => {
-                setSearch(v)
-                uiStore.setMapFocusId(null)
-              }}
-              onSearchClear={() => {
-                setSearch('')
-                uiStore.setMapFocusId(null)
-              }}
-              onSearchKeyDown={(e) => {
-                if (e.key === 'Escape') {
-                  setSearch('')
-                  uiStore.setMapFocusId(null)
-                  ;(e.target as HTMLInputElement).blur()
-                }
-              }}
-              searchDropdown={
-                search.trim() ? (
-                  <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-60 overflow-y-auto rounded-lg border bg-card shadow-xl">
-                    <SearchDropdown
-                      clients={clients}
-                      query={query}
-                      onSelect={(id) => {
-                        setSearch('')
-                        uiStore.setMapFocusId(id)
-                      }}
-                    />
-                  </div>
-                ) : undefined
-              }
-              isAdmin={isAdmin}
-              onHome={() => uiStore.resetView()}
-              onMap={navToMap}
-              onSuggestions={navToSuggestions}
-              onTrash={navToTrash}
-              onLogout={handleLogout}
-              onLoginOpen={() => auStore.setLoginOpen(true)}
-            />
-            <div className="relative flex-1">
-              <InlineMap
-                clients={filtered.filter((c) => c.lat != null && c.lng != null)}
-                focusClientId={mapFocusId}
-                onSelectClient={(c) => {
-                  uiStore.closeView()
-                  navToDetail(c)
-                }}
-              />
-            </div>
-          </>
-        )}
-
-        {showSuggestions && (
-          <AdminSuggestionsInline
-            onClose={() => uiStore.closeView()}
-          />
-        )}
-
-        {showTrash && (
-          <TrashView onClose={() => uiStore.closeView()} />
-        )}
-
         {isListView && (
           <>
             <PageHeader
@@ -500,13 +345,6 @@ export function PageClient() {
               onSearchClear={() => setSearch('')}
               showAddButton={isAdmin}
               onAdd={navToAdd}
-              isAdmin={isAdmin}
-              onHome={() => uiStore.resetView()}
-              onMap={navToMap}
-              onSuggestions={navToSuggestions}
-              onTrash={navToTrash}
-              onLogout={handleLogout}
-              onLoginOpen={() => auStore.setLoginOpen(true)}
             />
 
             <SelectionToolbar

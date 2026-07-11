@@ -18,13 +18,6 @@ interface PageHeaderProps {
   searchDropdown?: React.ReactNode
   showAddButton?: boolean
   onAdd?: () => void
-  isAdmin: boolean
-  onHome: () => void
-  onMap: () => void
-  onSuggestions?: () => void
-  onTrash?: () => void
-  onLogout: () => void
-  onLoginOpen: () => void
 }
 
 export default function PageHeader({
@@ -39,26 +32,11 @@ export default function PageHeader({
   searchDropdown,
   showAddButton,
   onAdd,
-  isAdmin,
-  onHome,
-  onMap,
-  onSuggestions,
-  onTrash,
-  onLogout,
-  onLoginOpen,
 }: PageHeaderProps) {
   const { theme, setTheme } = useTheme()
   return (
     <header className="h-14 bg-card flex items-center gap-3 px-4 sticky top-0 z-30 shadow-[0_1px_4px_rgba(0,0,0,.07)] border-b border-border">
-      <NavDropdown
-        isAdmin={isAdmin}
-        onHome={onHome}
-        onMap={onMap}
-        onSuggestions={onSuggestions}
-        onTrash={onTrash}
-        onLogout={onLogout}
-        onLoginOpen={onLoginOpen}
-      />
+      <NavDropdown />
 
       {showBack && onBack && (
         <Button

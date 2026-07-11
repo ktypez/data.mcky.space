@@ -10,13 +10,6 @@ interface InlineAddEditViewProps {
   clients: Client[]
   onBack: () => void
   onSave: (data: Omit<Client, 'createdAt' | 'updatedAt'>) => void
-  isAdmin: boolean
-  onHome: () => void
-  onMap: () => void
-  onSuggestions?: () => void
-  onTrash?: () => void
-  onLogout: () => void
-  onLoginOpen: () => void
 }
 
 export default function InlineAddEditView({
@@ -24,13 +17,6 @@ export default function InlineAddEditView({
   clients,
   onBack,
   onSave,
-  isAdmin,
-  onHome,
-  onMap,
-  onSuggestions,
-  onTrash,
-  onLogout,
-  onLoginOpen,
 }: InlineAddEditViewProps) {
   return (
     <>
@@ -39,13 +25,6 @@ export default function InlineAddEditView({
         title={editClient ? editClient.shopName || editClient.name : 'เพิ่มลูกค้าใหม่'}
         showBack
         onBack={onBack}
-        isAdmin={isAdmin}
-        onHome={onHome}
-        onMap={onMap}
-        onSuggestions={onSuggestions}
-        onTrash={onTrash}
-        onLogout={onLogout}
-        onLoginOpen={onLoginOpen}
       />
       <div className="flex-1 overflow-auto p-4 md:p-6 max-w-4xl mx-auto w-full">
         <Card>
