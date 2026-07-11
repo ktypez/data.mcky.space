@@ -281,22 +281,20 @@ export default function InlineMap({ clients, focusClientId, onSelectClient }: Pr
  <div className="flex justify-center pt-2 pb-1 md:hidden">
  <div className="w-9 h-1 rounded-full bg-[var(--border)] " />
  </div>
- <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-[var(--border)] ">
- {selectedPin.images[0] ? (
- <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-[var(--surface)] ">
- {/* eslint-disable-next-line @next/next/no-img-element */}
- <img
- src={selectedPin.images[0]}
- alt=""
- loading="lazy"
- className="w-full h-full object-cover"
- />
- </div>
- ) : (
- <div className="w-10 h-10 rounded-lg shrink-0 bg-[var(--surface-hover)] flex items-center justify-center">
- <User className="w-4 h-4 text-[var(--text-muted)] " />
- </div>
- )}
+  <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-[var(--border)] ">
+  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-[var(--surface)] flex items-center justify-center">
+  {selectedPin.images[0] ? (
+  /* eslint-disable-next-line @next/next/no-img-element */
+  <img
+  src={selectedPin.images[0]}
+  alt=""
+  loading="lazy"
+  className="w-full h-full object-cover"
+  />
+  ) : (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="text-muted-foreground/30" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z"/></svg>
+  )}
+  </div>
  <div className="min-w-0 flex-1">
  <div className="text-[15px] font-bold text-[var(--text-primary)] truncate">
  {selectedPin.shopName || selectedPin.name}
