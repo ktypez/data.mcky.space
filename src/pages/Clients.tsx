@@ -170,8 +170,8 @@ export function PageClient() {
 
   function clientText(client: Client) {
     const parts = [client.name]
-    if (client.shopName) parts.push(client.shopName)
-    if (client.address) parts.push(client.address)
+    if (client.shopName) parts.push('\uD83C\uDFEA ' + client.shopName)
+    if (client.address) parts.push('\uD83D\uDCCD ' + client.address)
     return parts.join('\n')
   }
 
