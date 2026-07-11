@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { PageClient as Clients } from './pages/Clients'
 import ClientDetailPage from './pages/ClientDetailPage'
@@ -13,6 +13,12 @@ const LoginModal = lazy(() => import('./components/LoginModal'))
 
 function App() {
   const { loginOpen, setLoginOpen, setAdmin } = useAuthStore()
+
+  useEffect(() => {
+    if (localStorage.getItem('ezzylist_admin_token')) {
+      useAuthStore.getState().checkAuth()
+    }
+  }, [])
 
   return (
     <>
