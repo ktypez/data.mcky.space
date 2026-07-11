@@ -15,6 +15,15 @@ function App() {
   const { loginOpen, setLoginOpen, setAdmin } = useAuthStore()
 
   useEffect(() => {
+    if ('serviceWorker' in navigator && !localStorage.getItem('sw_killed')) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((r) => r.unregister())
+        localStorage.setItem('sw_killed', 'true')
+      })
+    }
+  }, [])
+
+  useEffect(() => {
     if (localStorage.getItem('ezzylist_admin_token')) {
       useAuthStore.getState().checkAuth()
     }
