@@ -27,14 +27,16 @@ export async function fetchClients(limit?: number): Promise<Client[]> {
 }
 
 export async function addClient(client: Client): Promise<Client> {
-  await putClient(toRaw(client))
   const res = await apiFetch('/api/clients', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(client),
   })
   if (!res.ok) throw new Error('Failed to add client')
-  return (await res.json()) as Client
+  const { id } = await res.json() as { id: string }
+  const saved: Client = { ...client, id }
+  await putClient(toRaw(saved))
+  return saved
 }
 
 export async function updateClient(client: Client): Promise<Client> {
