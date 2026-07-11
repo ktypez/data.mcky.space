@@ -366,7 +366,7 @@ export function PageClient() {
   if (error) return <ErrorScreen onRetry={() => fetchClients().then((d) => cliStore.setClients(d))} />
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <LoginModal
         open={auStore.loginOpen}
         onClose={() => auStore.setLoginOpen(false)}

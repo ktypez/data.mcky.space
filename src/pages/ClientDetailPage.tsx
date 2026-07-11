@@ -73,7 +73,7 @@ export default function ClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex items-center gap-3 text-muted-foreground">
           <Spinner size={20} />
           <span className="text-sm">Loading...</span>
@@ -84,7 +84,7 @@ export default function ClientDetailPage() {
 
   if (fetchError) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="space-y-3 text-center">
           <p className="text-lg font-medium text-foreground">Failed to load data</p>
           <p className="text-sm text-muted-foreground">Check your connection</p>
@@ -96,7 +96,7 @@ export default function ClientDetailPage() {
 
   if (!client) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="space-y-3 text-center">
           <p className="text-2xl font-bold text-foreground">Client not found</p>
           <p className="text-sm text-muted-foreground">This link may be expired or the data was deleted</p>
@@ -109,7 +109,7 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <div className="sticky top-0 z-30 flex h-11 shrink-0 items-center gap-2 bg-card px-3">
         <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
           <ArrowLeft className="size-3.5" />
