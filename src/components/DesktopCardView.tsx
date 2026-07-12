@@ -1,6 +1,7 @@
 'use client'
 
 import { memo } from 'react'
+import { Note } from '@phosphor-icons/react'
 import type { Client, FilterKey } from '@/types'
 import CopyDropdown from '@/components/CopyDropdown'
 import EmptyState from '@/components/EmptyState'
@@ -94,6 +95,11 @@ const DesktopCardView = memo(function DesktopCardView({
   )}
  {pendingSuggestionIds.has(client.id) && <SuggestionBadge size="md" />}
   {client.badge && <div className="absolute -top-2 -right-2 w-3 h-3 rounded-full bg-destructive animate-pulse" />}
+  {client.notes && (
+    <div className="absolute -bottom-1 -left-1 bg-accent rounded-full p-1">
+      <Note className="w-3 h-3 text-accent-foreground" />
+    </div>
+  )}
  </div>
   <div className="min-w-0 flex-1">
   <div className="font-semibold text-[14px] text-[var(--text-primary)] truncate">

@@ -1,6 +1,7 @@
 'use client'
 
 import { memo } from 'react'
+import { Note } from '@phosphor-icons/react'
 import CopyDropdown from '@/components/CopyDropdown'
 import EmptyState from '@/components/EmptyState'
 import SuggestionBadge from '@/components/SuggestionBadge'
@@ -84,6 +85,11 @@ const MobileCardList = memo(function MobileCardList({
   </div>
   )}
  {pendingSuggestionIds.has(client.id) && <SuggestionBadge size="sm" />}
+ {client.notes && (
+    <div className="absolute -bottom-1 -right-1 bg-accent rounded-full p-1">
+      <Note className="w-3 h-3 text-accent-foreground" />
+    </div>
+  )}
  </div>
   <div className="flex-1 min-w-0 text-left">
   <div className="font-semibold text-[15px] text-[var(--text-primary)] truncate">
