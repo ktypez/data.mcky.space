@@ -12,7 +12,7 @@ export default function SuggestionBadge({ size = 'sm', className = '' }: Suggest
 
   return (
     <div
-      className={`absolute ${badgeSize} rounded-full bg-[var(--warning)] ${border} border-[var(--card)] flex items-center justify-center animate-in fade-in zoom-in-75 duration-200 ${className}`}
+      className={`h-4 w-4 rounded-full bg-[var(--warning)] ${border} border-[var(--card)] flex items-center justify-center animate-in fade-in zoom-in-75 duration-200 ${className}`}
       title="มีคำแนะนำรอตรวจสอบ"
     >
       <Lightbulb className={`${iconSize} text-white`} weight="fill" />
