@@ -1,7 +1,7 @@
 'use client'
 
 import { memo } from 'react'
-import { Note, CurrencyBht } from '@phosphor-icons/react'
+import { Note, CurrencyDollar } from '@phosphor-icons/react'
 import CopyDropdown from '@/components/CopyDropdown'
 import EmptyState from '@/components/EmptyState'
 import SuggestionBadge from '@/components/SuggestionBadge'
@@ -87,7 +87,7 @@ const MobileCardList = memo(function MobileCardList({
  {pendingSuggestionIds.has(client.id) && <SuggestionBadge size="sm" />}
  {client.badge && (
     <div className="absolute -top-2 -right-2 bg-[var(--destructive)] rounded-full p-1">
-      <CurrencyBht className="w-3 h-3 text-[var(--destructive-foreground)]" />
+      <CurrencyDollar className="w-3 h-3 text-[var(--destructive-foreground)]" />
     </div>
   )}
  {client.notes && (
