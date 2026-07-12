@@ -37,6 +37,7 @@ export default function AddClientForm({
   const [lng, setLng] = useState<number | null>(() => editClient?.lng ?? null)
   const [images, setImages] = useState<string[]>(() => editClient?.images ?? [])
   const [badge, setBadge] = useState<string | null>(() => editClient?.badge ?? null)
+  const [notes, setNotes] = useState<string>(() => editClient?.notes ?? '')
   const { getCurrentLocation, locating } = useGeolocation()
   const [locQuery, setLocQuery] = useState('')
   const [locSearching, setLocSearching] = useState(false)
@@ -73,6 +74,7 @@ export default function AddClientForm({
       lng,
       images,
       badge,
+      notes: notes.trim() || null,
     })
     onOpenChange(false)
   }
@@ -251,6 +253,18 @@ export default function AddClientForm({
       <div className="space-y-1">
         <label className={labelClass}>รูปร้านค้า</label>
         <ImageUpload images={images} onChange={setImages} />
+      </div>
+
+      {/* Notes */}
+      <div className="space-y-1">
+        <label className={labelClass}>บันทึก</label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          maxLength={1000}
+          rows={3}
+          className={`${inputClass} h-auto py-2 resize-y`}
+        />
       </div>
 
       {/* Badge (edit only) */}

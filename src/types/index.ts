@@ -7,6 +7,7 @@ export interface Client {
   lng: number | null
   images: string[]
   badge: string | null
+  notes: string | null
   createdAt: number
   updatedAt: number
 }

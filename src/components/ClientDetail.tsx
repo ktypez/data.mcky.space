@@ -484,6 +484,20 @@ export default function ClientDetail({
   </CardContent>
  </Card>
 
+ {/* ── NOTES CARD ── */}
+ {client.notes && client.notes.trim() && (
+  <Card>
+   <CardContent className="px-3 py-2 space-y-2">
+    <h2 className="text-[12px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] flex items-center gap-1.5">
+     <ChatDots className="w-3.5 h-3.5 inline-block" /> บันทึก
+    </h2>
+    <p className="text-[14px] text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words">
+     {client.notes}
+    </p>
+   </CardContent>
+  </Card>
+ )}
+
  {/* ── SUGGESTIONS CARD ── */}
   {suggestions.length > 0 && (
    <Card>
