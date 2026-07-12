@@ -86,25 +86,19 @@ const MobileCardList = memo(function MobileCardList({
   </div>
   )}
  </div>
- {client.notes && (
-    <div className="absolute bottom-0 right-0 z-20 flex flex-row-reverse items-center gap-1">
-      <div className="rounded-full bg-green-500 p-1">
-        <Note className="w-3 h-3 text-white" />
-      </div>
+ {client.notes ? (
+    <div className="absolute bottom-0 right-0 z-20 rounded-full bg-green-500 p-1">
+      <Note className="w-3 h-3 text-white" />
     </div>
-  )}
- {client.badge && (
-    <div className="absolute bottom-0 right-0 z-10 flex flex-row-reverse items-center gap-1">
-      <div className="rounded-full bg-[var(--destructive)] p-1">
-        <CurrencyDollar className="w-3 h-3 text-[var(--destructive-foreground)]" />
-      </div>
+  ) : client.badge ? (
+    <div className="absolute bottom-0 right-0 z-10 rounded-full bg-[var(--destructive)] p-1">
+      <CurrencyDollar className="w-3 h-3 text-[var(--destructive-foreground)]" />
     </div>
-  )}
- {pendingSuggestionIds.has(client.id) && (
-    <div className="absolute bottom-0 right-0 z-0 flex flex-row-reverse items-center gap-1">
+  ) : pendingSuggestionIds.has(client.id) ? (
+    <div className="absolute bottom-0 right-0 z-0">
       <SuggestionBadge size="sm" />
     </div>
-  )}
+  ) : null}
  </div>
   <div className="flex-1 min-w-0 text-left">
   <div className="font-semibold text-[15px] text-[var(--text-primary)] truncate">
