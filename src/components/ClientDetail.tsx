@@ -332,46 +332,18 @@ export default function ClientDetail({
   </CardContent>
  </Card>
 
-  {!hideActions && !isAdmin && (
-   <div className="flex gap-2">
-    <Button
-     variant="outline"
-     className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
-     onClick={() => setPhotoRequestOpen(true)}
-    >
-     <Camera className="w-4 h-4" />
-     ขอแก้ไขรูป
-    </Button>
-    <Button
-     variant="outline"
-     className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
-     onClick={() => setSuggestOpen(true)}
-    >
-     <PencilSimple className="w-4 h-4" />
-     แจ้งแก้ไขข้อมูล
-    </Button>
-   </div>
-  )}
-
- {isAdmin && !hideActions && (
-  <div className="flex gap-2">
-     <Button
-      variant="outline"
-      className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
-      onClick={() => setEditOpen(true)}
-     >
-     <Pencil className="w-4 h-4" />
-     แก้ไข
-    </Button>
-    <Button
-     variant="destructive"
-     className="flex-1 h-12 border-[var(--destructive)]"
-     onClick={() => setDeleteConfirm(true)}
-    >
-     <Trash className="w-4 h-4" />
-     ลบ
-    </Button>
-  </div>
+ {/* ── NOTES CARD ── */}
+ {client.notes && client.notes.trim() && (
+  <Card>
+   <CardContent className="px-3 py-2 space-y-2">
+    <h2 className="text-[12px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] flex items-center gap-1.5">
+     <ChatDots className="w-3.5 h-3.5 inline-block" /> บันทึก
+    </h2>
+    <p className="text-[14px] text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words">
+     {client.notes}
+    </p>
+   </CardContent>
+  </Card>
  )}
 
   {/* ── PHOTOS + MAP (side-by-side on desktop) ── */}
@@ -484,18 +456,46 @@ export default function ClientDetail({
   </CardContent>
  </Card>
 
- {/* ── NOTES CARD ── */}
- {client.notes && client.notes.trim() && (
-  <Card>
-   <CardContent className="px-3 py-2 space-y-2">
-    <h2 className="text-[12px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] flex items-center gap-1.5">
-     <ChatDots className="w-3.5 h-3.5 inline-block" /> บันทึก
-    </h2>
-    <p className="text-[14px] text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words">
-     {client.notes}
-    </p>
-   </CardContent>
-  </Card>
+  {!hideActions && !isAdmin && (
+   <div className="flex gap-2">
+    <Button
+     variant="outline"
+     className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
+     onClick={() => setPhotoRequestOpen(true)}
+    >
+     <Camera className="w-4 h-4" />
+     ขอแก้ไขรูป
+    </Button>
+    <Button
+     variant="outline"
+     className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
+     onClick={() => setSuggestOpen(true)}
+    >
+     <PencilSimple className="w-4 h-4" />
+     แจ้งแก้ไขข้อมูล
+    </Button>
+   </div>
+  )}
+
+ {isAdmin && !hideActions && (
+  <div className="flex gap-2">
+     <Button
+      variant="outline"
+      className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
+      onClick={() => setEditOpen(true)}
+     >
+     <Pencil className="w-4 h-4" />
+     แก้ไข
+    </Button>
+    <Button
+     variant="destructive"
+     className="flex-1 h-12 border-[var(--destructive)]"
+     onClick={() => setDeleteConfirm(true)}
+    >
+     <Trash className="w-4 h-4" />
+     ลบ
+    </Button>
+  </div>
  )}
 
  {/* ── SUGGESTIONS CARD ── */}
