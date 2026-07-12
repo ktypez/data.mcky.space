@@ -93,19 +93,21 @@ const DesktopCardView = memo(function DesktopCardView({
   </div>
   )}
  </div>
-  {client.notes ? (
-    <div className="absolute bottom-0 right-0 z-20 rounded-full bg-green-500 p-1">
-      <Note className="w-3 h-3 text-white" />
+ <div className="absolute bottom-0 right-0 z-20 flex flex-row-reverse items-center gap-0.5">
+  {client.notes && (
+    <div className="rounded-full bg-green-500 p-0.5">
+      <Note className="w-2.5 h-2.5 text-white" />
     </div>
-  ) : client.badge ? (
-    <div className="absolute bottom-0 right-0 z-10 rounded-full bg-[var(--destructive)] p-1">
-      <CurrencyDollar className="w-3 h-3 text-[var(--destructive-foreground)]" />
+  )}
+  {client.badge && (
+    <div className="rounded-full bg-[var(--destructive)] p-0.5">
+      <CurrencyDollar className="w-2.5 h-2.5 text-[var(--destructive-foreground)]" />
     </div>
-  ) : pendingSuggestionIds.has(client.id) ? (
-    <div className="absolute bottom-0 right-0 z-0">
-      <SuggestionBadge size="md" />
-    </div>
-  ) : null}
+  )}
+  {pendingSuggestionIds.has(client.id) && (
+    <SuggestionBadge size="sm" />
+  )}
+ </div>
  </div>
   <div className="min-w-0 flex-1">
   <div className="font-semibold text-[14px] text-[var(--text-primary)] truncate">

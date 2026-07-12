@@ -80,38 +80,42 @@ const DesktopTableView = memo(function DesktopTableView({
    className="w-full h-full object-cover"
   />
   </div>
-  {client.notes ? (
-    <div className="absolute bottom-0 right-0 z-20 rounded-full bg-green-500 p-1">
-      <Note className="w-3 h-3 text-white" />
+ <div className="absolute bottom-0 right-0 z-20 flex flex-row-reverse items-center gap-0.5">
+  {client.notes && (
+    <div className="rounded-full bg-green-500 p-0.5">
+      <Note className="w-2.5 h-2.5 text-white" />
     </div>
-  ) : client.badge ? (
-    <div className="absolute bottom-0 right-0 z-10 rounded-full bg-[var(--destructive)] p-1">
-      <CurrencyDollar className="w-3 h-3 text-[var(--destructive-foreground)]" />
+  )}
+  {client.badge && (
+    <div className="rounded-full bg-[var(--destructive)] p-0.5">
+      <CurrencyDollar className="w-2.5 h-2.5 text-[var(--destructive-foreground)]" />
     </div>
-  ) : pendingSuggestionIds.has(client.id) ? (
-    <div className="absolute bottom-0 right-0 z-0">
-      <SuggestionBadge size="sm" />
-    </div>
-  ) : null}
+  )}
+  {pendingSuggestionIds.has(client.id) && (
+    <SuggestionBadge size="sm" />
+  )}
+ </div>
   </div>
   ) : (
   <div className="w-8 h-8 aspect-square rounded-[4px] bg-[var(--surface-hover)] shrink-0 flex items-center justify-center text-muted-foreground/30 relative">
    <div className="rounded-[4px]">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z"/></svg>
    </div>
-  {client.notes ? (
-    <div className="absolute bottom-0 right-0 z-20 rounded-full bg-green-500 p-1">
-      <Note className="w-3 h-3 text-white" />
+ <div className="absolute bottom-0 right-0 z-20 flex flex-row-reverse items-center gap-0.5">
+  {client.notes && (
+    <div className="rounded-full bg-green-500 p-0.5">
+      <Note className="w-2.5 h-2.5 text-white" />
     </div>
-  ) : client.badge ? (
-    <div className="absolute bottom-0 right-0 z-10 rounded-full bg-[var(--destructive)] p-1">
-      <CurrencyDollar className="w-3 h-3 text-[var(--destructive-foreground)]" />
+  )}
+  {client.badge && (
+    <div className="rounded-full bg-[var(--destructive)] p-0.5">
+      <CurrencyDollar className="w-2.5 h-2.5 text-[var(--destructive-foreground)]" />
     </div>
-  ) : pendingSuggestionIds.has(client.id) ? (
-    <div className="absolute bottom-0 right-0 z-0">
-      <SuggestionBadge size="sm" />
-    </div>
-  ) : null}
+  )}
+  {pendingSuggestionIds.has(client.id) && (
+    <SuggestionBadge size="sm" />
+  )}
+ </div>
   </div>
   )}
   </td>
