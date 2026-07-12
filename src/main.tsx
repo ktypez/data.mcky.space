@@ -17,3 +17,11 @@ createRoot(document.getElementById('root')!).render(
     </ThemeProvider>
   </StrictMode>,
 )
+
+// Register the self-healing service worker (handles stale hashed-asset chunks
+// after a new deploy by forcing a hard reload when a chunk import fails).
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+}

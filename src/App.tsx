@@ -15,12 +15,17 @@ function App() {
   const { loginOpen, setLoginOpen, setAdmin } = useAuthStore()
 
   useEffect(() => {
-    if ('serviceWorker' in navigator && !localStorage.getItem('sw_killed')) {
-      navigator.serviceWorker.getRegistrations().then((regs) => {
-        regs.forEach((r) => r.unregister())
-        localStorage.setItem('sw_killed', 'true')
-      })
+    // Self-heal: a stale service-worker-detected chunk failure means the
+    // running bundle is from an older deploy. Hard-reload to pick up the
+    // current entry bundle (the SW triggers this when an asset import 404s).
+    const onSwMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === 'ASSET_STALE') {
+        window.location.reload()
+      }
     }
+    navigator.serviceWorker?.addEventListener('message', onSwMessage)
+    return () =>
+      navigator.serviceWorker?.removeEventListener('message', onSwMessage)
   }, [])
 
   useEffect(() => {
