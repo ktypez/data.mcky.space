@@ -64,6 +64,15 @@ export default function FilterDropdown({ filter, counts, onFilter }: Props) {
       >
         <Funnel className="w-3.5 h-3.5" />
         <span>{currentLabel}</span>
+        <span className="font-mono text-[10px]">
+          {filter === FilterKey.All
+            ? counts.total
+            : filter === FilterKey.WithImages
+              ? counts.withImages
+              : filter === FilterKey.NoImages
+                ? counts.noImages
+                : counts.recent}
+        </span>
       </button>
 
       {open && <div className="fixed inset-0 z-40" onClick={close} />}

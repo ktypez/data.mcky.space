@@ -3,10 +3,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Trash, ArrowCounterClockwise, X } from '@phosphor-icons/react'
 import { apiFetch } from '@/lib/api'
+import { Card, CardAction } from '@/components/ui/card'
+import BadgeTag from '@/components/BadgeTag'
 interface TrashItem {
   id: string
   name: string
   shopName: string
+  images: string[]
+  badge: string | null
   deletedAt: number
 }
 
@@ -80,35 +84,61 @@ export default function TrashView({ onClose }: Props) {
       ) : items.length === 0 ? (
         <p className="text-sm text-muted-foreground">ถังขยะว่าง</p>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {items.map((client) => (
-            <div
-              key={client.id}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/50"
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {client.shopName || client.name}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  ลบเมื่อ {client.deletedAt ? new Date(client.deletedAt).toLocaleDateString('th-TH') : '-'}
-                </p>
+            <Card key={client.id} className="p-3.5 flex flex-col gap-2.5 overflow-visible">
+              <div className="flex items-start gap-3">
+                <div className="relative shrink-0">
+                  {client.images.length > 0 ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={client.images[0]}
+                      alt=""
+                      loading="lazy"
+                      className="w-14 h-14 aspect-square rounded-[6px] object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 aspect-square rounded-[6px] bg-[var(--surface-hover)] shrink-0 flex items-center justify-center text-muted-foreground/30">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z" /></svg>
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-[14px] text-[var(--text-primary)] truncate">
+                    {client.shopName || client.name}
+                  </div>
+                  {client.shopName && (
+                    <div className="text-[12px] text-[var(--text-secondary)] truncate">
+                      {client.name}
+                    </div>
+                  )}
+                </div>
               </div>
-              <button
-                onClick={() => handleRestore(client.id)}
-                className="p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
-                title="กู้คืน"
-              >
-                <ArrowCounterClockwise className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleForceDelete(client.id)}
-                className="p-2 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
-                title="ลบถาวร"
-              >
-                <Trash className="w-4 h-4" />
-              </button>
-            </div>
+
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                  ลบเมื่อ {client.deletedAt ? new Date(client.deletedAt).toLocaleDateString('th-TH') : '-'}
+                </span>
+                <BadgeTag badge={client.badge} size="sm" />
+              </div>
+
+              <CardAction className="justify-end mt-auto">
+                <button
+                  onClick={() => handleRestore(client.id)}
+                  className="p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
+                  title="กู้คืน"
+                >
+                  <ArrowCounterClockwise className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleForceDelete(client.id)}
+                  className="p-2 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
+                  title="ลบถาวร"
+                >
+                  <Trash className="w-4 h-4" />
+                </button>
+              </CardAction>
+            </Card>
           ))}
         </div>
       )}
