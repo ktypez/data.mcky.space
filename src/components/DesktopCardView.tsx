@@ -98,7 +98,7 @@ const DesktopCardView = memo(function DesktopCardView({
     </div>
   )}
   {client.notes && (
-    <div className="absolute -bottom-1 -left-1 bg-accent rounded-full p-1">
+    <div className="absolute -bottom-1 -right-1 bg-accent rounded-full p-1">
       <Note className="w-3 h-3 text-accent-foreground" />
     </div>
   )}
