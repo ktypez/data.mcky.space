@@ -1,7 +1,7 @@
 'use client'
 
 import { memo } from 'react'
-import { Note } from '@phosphor-icons/react'
+import { Note, CurrencyBht } from '@phosphor-icons/react'
 import CopyDropdown from '@/components/CopyDropdown'
 import EmptyState from '@/components/EmptyState'
 import SuggestionBadge from '@/components/SuggestionBadge'
@@ -70,7 +70,7 @@ const MobileCardList = memo(function MobileCardList({
         isSelected ? 'ring-1 ring-[var(--accent-blue)]' : ''
       }`}
     >
- <div className={`relative shrink-0 rounded-[4px] ${client.badge ? 'ring-2 ring-destructive' : ''} ${client.badge ? 'hover:shadow-[0_0_12px_rgba(var(--destructive),0.3)]' : ''}`}>
+ <div className="relative shrink-0 rounded-[4px]">
  {client.images.length > 0 ? (
  // eslint-disable-next-line @next/next/no-img-element
  <img
@@ -85,6 +85,11 @@ const MobileCardList = memo(function MobileCardList({
   </div>
   )}
  {pendingSuggestionIds.has(client.id) && <SuggestionBadge size="sm" />}
+ {client.badge && (
+    <div className="absolute -top-2 -right-2 bg-[var(--destructive)] rounded-full p-1">
+      <CurrencyBht className="w-3 h-3 text-[var(--destructive-foreground)]" />
+    </div>
+  )}
  {client.notes && (
     <div className="absolute -bottom-1 -right-1 bg-accent rounded-full p-1">
       <Note className="w-3 h-3 text-accent-foreground" />

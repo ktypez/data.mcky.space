@@ -104,7 +104,7 @@ export function PageClient() {
   const uiStore = useUIStore()
   const suStore = useSuggestionStore()
 
-  const debouncedSearch = useDebounce(search, 150)
+  const debouncedSearch = useDebounce(search, 50)
   const query = debouncedSearch.trim().toLowerCase()
 
   const counts = useMemo(() => {
