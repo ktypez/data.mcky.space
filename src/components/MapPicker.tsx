@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { OpenLocationCode } from 'open-location-code'
@@ -9,13 +9,18 @@ import { getMapStyle } from '@/lib/map-styles'
 import { cssVarToHex } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
-const olc = new OpenLocationCode()
-
-  function getPinColor(): string {
-    return cssVarToHex('--pin-color', '#2563eb')
-  }
+let olcInstance: OpenLocationCode | null = null
+function getOlc(): OpenLocationCode {
+  if (!olcInstance) olcInstance = new OpenLocationCode()
+  return olcInstance
+}
 
 const DEFAULT_CENTER: [number, number] = [102.8236, 16.4322]
+
+function getPinColor(): string {
+  return cssVarToHex('--pin-color', '#2563eb')
+}
+
 const DEFAULT_ZOOM = 8
 const PIN_ZOOM = 16
 
@@ -31,6 +36,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markerRef = useRef<maplibregl.Marker | null>(null)
+  const [mapFailed, setMapFailed] = useState(false)
   const initializedRef = useRef(false)
   const onChangeRef = useRef(onChange)
   const latRef = useRef(lat)
@@ -42,13 +48,20 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
 
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: getMapStyle(),
-      center: lngRef.current != null && latRef.current != null ? [lngRef.current, latRef.current] : DEFAULT_CENTER,
-      zoom: latRef.current != null ? PIN_ZOOM : DEFAULT_ZOOM,
-      attributionControl: false,
-    })
+    let map: maplibregl.Map
+    try {
+      map = new maplibregl.Map({
+        container: containerRef.current,
+        style: getMapStyle(),
+        center: lngRef.current != null && latRef.current != null ? [lngRef.current, latRef.current] : DEFAULT_CENTER,
+        zoom: latRef.current != null ? PIN_ZOOM : DEFAULT_ZOOM,
+        attributionControl: false,
+      })
+    } catch (err) {
+      console.error('MapPicker init failed', err)
+      setMapFailed(true)
+      return
+    }
 
     map.on('click', (e) => {
       const { lng: mlng, lat: mlat } = e.lngLat
@@ -123,6 +136,14 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
     map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), PIN_ZOOM), duration: 600 })
   }, [lat, lng])
 
+  if (mapFailed) {
+    return (
+      <div className="w-full h-48 rounded-xl overflow-hidden border border-border bg-[var(--surface)] flex items-center justify-center text-[var(--text-muted)] text-xs">
+        ไม่สามารถโหลดแผนที่ได้
+      </div>
+    )
+  }
+
   return (
     <div className="w-full h-48 rounded-xl overflow-hidden border border-border relative">
       <div ref={containerRef} className="w-full h-full" />
@@ -133,7 +154,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
           </span>
           <span className="text-foreground/30">|</span>
           <span className="text-[var(--success)] font-bold tracking-wider">
-            {olc.encode(lat, lng, 10)}
+            {getOlc().encode(lat, lng, 10)}
           </span>
         </div>
       )}

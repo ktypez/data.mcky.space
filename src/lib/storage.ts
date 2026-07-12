@@ -47,7 +47,15 @@ export async function updateClient(client: Client): Promise<Client> {
     body: JSON.stringify(client),
   })
   if (!res.ok) throw new Error('Failed to update client')
-  return (await res.json()) as Client
+  try {
+    const data = (await res.json()) as Partial<Client> | { ok: boolean }
+    if (data && typeof data === 'object' && 'id' in data && (data as Client).id) {
+      return data as Client
+    }
+  } catch {
+    // ignore non-JSON / { ok: true } responses — fall back to input client
+  }
+  return client
 }
 
 export async function deleteClient(id: string): Promise<void> {
