@@ -78,30 +78,30 @@ const DesktopTableView = memo(function DesktopTableView({
    loading="lazy"
    className="w-full h-full object-cover"
   />
-  {pendingSuggestionIds.has(client.id) && <SuggestionBadge size="sm" />}
+  {pendingSuggestionIds.has(client.id) && <SuggestionBadge size="sm" className="-top-1 -right-1 z-0" />}
   {client.badge && (
-    <div className="absolute -top-2 -right-2 bg-[var(--destructive)] rounded-full p-1">
+    <div className="absolute -top-2 -right-2 bg-[var(--destructive)] rounded-full p-1 z-10">
       <CurrencyDollar className="w-3 h-3 text-[var(--destructive-foreground)]" />
     </div>
   )}
   {client.notes && (
-    <div className="absolute -bottom-1 -right-1 bg-accent rounded-full p-1">
-      <Note className="w-3 h-3 text-accent-foreground" />
+    <div className="absolute -top-1 -right-4 bg-green-500 rounded-full p-1 z-20">
+      <Note className="w-3 h-3 text-white" />
     </div>
   )}
   </div>
   ) : (
   <div className="w-8 h-8 aspect-square rounded-[4px] bg-[var(--surface-hover)] shrink-0 flex items-center justify-center text-muted-foreground/30 relative">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z"/></svg>
-    {pendingSuggestionIds.has(client.id) && <SuggestionBadge size="sm" />}
+    {pendingSuggestionIds.has(client.id) && <SuggestionBadge size="sm" className="-top-1 -right-1 z-0" />}
     {client.badge && (
-      <div className="absolute -top-2 -right-2 bg-[var(--destructive)] rounded-full p-1">
+      <div className="absolute -top-2 -right-2 bg-[var(--destructive)] rounded-full p-1 z-10">
         <CurrencyDollar className="w-3 h-3 text-[var(--destructive-foreground)]" />
       </div>
     )}
     {client.notes && (
-      <div className="absolute -bottom-1 -right-1 bg-accent rounded-full p-1">
-        <Note className="w-3 h-3 text-accent-foreground" />
+      <div className="absolute -top-1 -right-4 bg-green-500 rounded-full p-1 z-20">
+        <Note className="w-3 h-3 text-white" />
       </div>
     )}
   </div>
