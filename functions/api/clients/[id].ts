@@ -30,6 +30,7 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
     lng: typeof data.lng === 'number' ? data.lng : null,
     images: Array.isArray(data.images) ? data.images : [],
     badge: typeof data.badge === 'string' ? data.badge : null,
+    notes: typeof data.notes === 'string' ? data.notes : null,
     updatedAt: Date.now(),
   }).where(eq(clients.id, params.id))
 

@@ -9,6 +9,7 @@ export const clients = pgTable('clients', {
   lng: real('lng'),
   images: jsonb('images').$type<string[]>().notNull().default([]),
   badge: text('badge'),
+  notes: text('notes'),
   createdAt: bigint('created_at', { mode: 'number' }).notNull(),
   updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
 }, (table) => ({

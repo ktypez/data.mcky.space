@@ -45,6 +45,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
     lng: typeof data.lng === 'number' ? data.lng : null,
     images: Array.isArray(data.images) ? data.images : [],
     badge: typeof data.badge === 'string' ? data.badge : null,
+    notes: typeof data.notes === 'string' ? data.notes : null,
     createdAt: typeof data.createdAt === 'number' ? data.createdAt : Date.now(),
     updatedAt: typeof data.updatedAt === 'number' ? data.updatedAt : Date.now(),
   })
