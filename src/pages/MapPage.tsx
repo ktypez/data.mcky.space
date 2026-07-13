@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
@@ -9,6 +9,10 @@ import { useUIStore } from '@/stores/ui-store'
 import { useDebounce } from '@/hooks/useDebounce'
 import PageHeader from '@/components/PageHeader'
 import SearchDropdown from '@/components/SearchDropdown'
+
+// Lazy-load the map (and maplibre-gl) into its own chunk so a map failure
+// can never break the rest of the app.
+const InlineMap = lazy(() => import('@/components/InlineMap'))
 
 export default function MapPage() {
   const navigate = useNavigate()
@@ -79,14 +83,26 @@ export default function MapPage() {
           ) : undefined
         }
       />
-      <div
-        style={{ position: 'relative', height: 'calc(100dvh - 56px)' }}
-        className="flex items-center justify-center bg-background text-muted-foreground"
-      >
-        <div className="flex flex-col items-center gap-2 px-6 text-center">
-          <p className="text-sm">แผนที่ปิดชั่วคราว</p>
-          <p className="text-xs text-muted-foreground/70">กำลังปรับปรุงระบบแผนที่ใหม่</p>
-        </div>
+      <div style={{ position: 'relative', height: 'calc(100dvh - 56px)' }}>
+        <Suspense
+          fallback={
+            <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+              กำลังโหลดแผนที่…
+            </div>
+          }
+        >
+          <InlineMap
+            clients={filtered.filter(
+              (c) =>
+                c.lat != null &&
+                c.lng != null &&
+                !Number.isNaN(c.lat) &&
+                !Number.isNaN(c.lng),
+            )}
+            focusClientId={mapFocusId}
+            onSelectClient={navigateToClient}
+          />
+        </Suspense>
       </div>
     </div>
   )
