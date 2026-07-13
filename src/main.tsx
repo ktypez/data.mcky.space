@@ -18,10 +18,17 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// Register the self-healing service worker (handles stale hashed-asset chunks
-// after a new deploy by forcing a hard reload when a chunk import fails).
+// Self-healing service worker registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+
+  // Listen for stale asset message from SW → hard reload
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data?.type === 'ASSET_STALE') {
+      console.log('[SW] Stale asset detected — hard reload')
+      window.location.reload()
+    }
   })
 }

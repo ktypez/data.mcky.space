@@ -21,7 +21,7 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   const url = new URL(request.url)
 
   if (url.searchParams.get('check') === 'setup') {
-    const db = createDb(env.DATABASE_URL)
+    const db = createDb(env.DB)
     const stored = await db.select().from(settings).where(eq(settings.key, PASSWORD_KEY))
     return json({ configured: stored.length > 0 && stored[0].value !== '' })
   }
@@ -41,9 +41,9 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
   const { password, newPassword } = body as Record<string, unknown>
   if (typeof password !== 'string' || !password) return error('Invalid request')
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
 
-  // Fetch stored password hash from Neon DB
+  // Fetch stored password hash from D1
   const stored = await db.select().from(settings).where(eq(settings.key, PASSWORD_KEY))
   const currentHash = stored[0]?.value ?? ''
 
@@ -85,7 +85,7 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
     typeof newPassword !== 'string' || !newPassword
   ) return error('Invalid request')
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   const stored = await db.select().from(settings).where(eq(settings.key, PASSWORD_KEY))
   const currentHash = stored[0]?.value ?? ''
 

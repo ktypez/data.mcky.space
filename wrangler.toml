@@ -1,3 +1,11 @@
 name = "data-mcky-space"
 compatibility_date = "2026-07-10"
 pages_build_output_dir = "./dist"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database binding
+# Replace <DATABASE_ID> with your actual database ID (from `npx wrangler d1 create ezzylist-db`)
+[[d1_databases]]
+binding = "DB"
+database_name = "ezzylist-db"
+database_id = "d3f71826-3af4-4950-815a-2965fabb179b"

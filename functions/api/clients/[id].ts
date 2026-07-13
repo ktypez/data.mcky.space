@@ -6,7 +6,7 @@ import { json, error, notFound, unauthorized } from '../../lib/response'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, params } = context
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   const [row] = await db.select().from(clients).where(eq(clients.id, params.id))
   if (!row) return notFound()
   return json(row)
@@ -21,7 +21,7 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
   try { body = await request.json() } catch { return error('Invalid request') }
   const data = body as Record<string, unknown>
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   await db.update(clients).set({
     name: String(data.name ?? ''),
     shopName: String(data.shopName ?? ''),
@@ -42,7 +42,7 @@ export async function onRequestDelete(context: EventContext<Env, any, any>) {
   const token = getTokenFromRequest(request)
   if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   const [row] = await db.select().from(clients).where(eq(clients.id, params.id))
   if (!row) return notFound()
 

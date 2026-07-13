@@ -7,7 +7,7 @@ import { json, error } from '../lib/response'
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, request } = context
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   const url = new URL(request.url)
   const limit = url.searchParams.get('limit')
 
@@ -35,7 +35,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
   const data = body as Record<string, unknown>
   const id = typeof data.id === 'string' ? data.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   await db.insert(clients).values({
     id,
     name: String(data.name ?? ''),

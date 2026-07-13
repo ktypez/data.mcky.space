@@ -9,7 +9,7 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   const token = getTokenFromRequest(request)
   if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   const rows = await db.select().from(settings).where(sql`${settings.key} LIKE 'trash_%'`)
   const parsed: Record<string, unknown>[] = []
   for (const r of rows) {
@@ -28,7 +28,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
   const body = await request.json() as { id?: string }
   if (!body.id) return json({ error: 'Missing id' }, 400)
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   const [row] = await db.select().from(settings).where(eq(settings.key, `trash_${body.id}`))
   if (!row) return notFound()
 

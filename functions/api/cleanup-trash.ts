@@ -4,7 +4,7 @@ import { eq, sql } from 'drizzle-orm'
 import { json } from '../lib/response'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
-  const db = createDb(context.env.DATABASE_URL)
+  const db = createDb(context.env.DB)
   const days = 30
   const cutoff = Date.now() - days * 86_400_000
   const rows = await db.select().from(settings).where(sql`${settings.key} LIKE 'trash_%'`)

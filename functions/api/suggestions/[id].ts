@@ -15,7 +15,7 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
 
   if (action !== 'approve' && action !== 'reject') return error('Invalid action')
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   const [row] = await db.select().from(suggestions).where(eq(suggestions.id, params.id))
   if (!row || row.status !== 'pending') return error('Suggestion not found or already processed', 404)
 

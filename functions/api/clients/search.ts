@@ -1,6 +1,6 @@
 import { createDb } from '../../lib/db'
 import { clients } from '../../lib/schema'
-import { ilike, or, and } from 'drizzle-orm'
+import { like, or, and } from 'drizzle-orm'
 import { json, error } from '../../lib/response'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
@@ -12,10 +12,10 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   const keywords = q.trim().split(/\s+/).filter(Boolean)
   const conditions = keywords.map((kw) => {
     const pattern = `%${kw}%`
-    return or(ilike(clients.name, pattern), ilike(clients.shopName, pattern))
+    return or(like(clients.name, pattern), like(clients.shopName, pattern))
   })
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   const rows = await db.select().from(clients).where(and(...conditions)).limit(10)
   return json(rows)
 }

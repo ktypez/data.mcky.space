@@ -7,7 +7,7 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, request } = context
   const url = new URL(request.url)
   const mode = url.searchParams.get('mode')
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
 
   if (mode === 'pending-client-ids') {
     const rows = await db
@@ -44,7 +44,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
 
   const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
   const now = Date.now()
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   await db.insert(suggestions).values({
     id,
     clientId,

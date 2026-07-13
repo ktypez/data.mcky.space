@@ -16,7 +16,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
 
   if (typeof clientId !== 'string' || !Array.isArray(images)) return error('Invalid request')
 
-  const db = createDb(env.DATABASE_URL)
+  const db = createDb(env.DB)
   const [client] = await db.select().from(clients).where(eq(clients.id, clientId))
   if (!client) return error('Client not found', 404)
 
