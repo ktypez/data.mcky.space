@@ -11,7 +11,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useSuggestionStore } from '@/stores/suggestion-store'
 import { useDebounce } from '@/hooks/useDebounce'
-import { fetchClients, updateClient } from '@/lib/storage'
+import { updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
 import { copyToClipboard, getMapsUrl } from '@/lib/utils'
 import { ErrorScreen as FetchErrorScreen } from '@/components/shared/ErrorScreen'
@@ -153,8 +153,8 @@ export function PageClient() {
 
   useEffect(() => {
     if (suggestRefresh > 0) {
-      fetchClients()
-        .then((data) => cliStore.setClients(data))
+      cliStore.refresh()
+        .then(() => {})
         .catch(() => {})
     }
     apiFetch('/api/suggestions?mode=pending-client-ids')
@@ -257,12 +257,12 @@ export function PageClient() {
         cliStore.updateClient(saved.id, saved)
         uiStore.openDetail(saved.id, saved)
       } catch {
-        fetchClients()
-          .then((data) => cliStore.setClients(data))
+        cliStore.refresh()
+          .then(() => {})
           .catch(() => {})
       }
     },
-    [],
+    [cliStore],
   )
 
   const handleDetailDelete = useCallback((deletedId: string) => {
@@ -288,9 +288,8 @@ export function PageClient() {
       p = Math.min(p + 20, 80)
       cliStore.setProgress(p)
     }, 300)
-    fetchClients()
+    cliStore.refresh()
       .then((data) => {
-        cliStore.setClients(data)
         if (data.length > prevCount) {
           uiStore.setNewClientCount(data.length - prevCount)
           setTimeout(() => uiStore.setNewClientCount(0), 3000)
@@ -308,7 +307,7 @@ export function PageClient() {
   const isListView = viewState.view === 'list'
   const showDetail = viewState.view === 'detail'
 
-  if (error) return <FetchErrorScreen onRetry={() => fetchClients().then((d) => cliStore.setClients(d))} />
+  if (error) return <FetchErrorScreen onRetry={() => cliStore.refresh().then(() => {})} />
 
   return (
     <div className="flex min-h-screen bg-background">

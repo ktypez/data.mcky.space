@@ -6,7 +6,7 @@ import { ArrowLeft } from '@phosphor-icons/react'
 import { Spinner } from '@/components/ui/spinner'
 import { Button } from '@/components/ui/button'
 import ClientDetail from '@/components/ClientDetail'
-import { fetchClients, updateClient } from '@/lib/storage'
+import { updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { useClientStore } from '@/stores/client-store'
@@ -35,23 +35,19 @@ export default function ClientDetailPage() {
       setClient(data)
       setClients([data])
     } catch {
-      try {
-        const all = await fetchClients()
-        if (!mountedRef.current) return
-        const found = all.find((c) => c.id === id)
-        if (found) {
-          setClient(found)
-          setClients(all)
-        } else {
-          setFetchError(true)
-        }
-      } catch {
-        if (mountedRef.current) setFetchError(true)
+      // Fallback to the already-loaded store list (no extra D1 fetch).
+      const all = cliStore.clients
+      const found = all.find((c) => c.id === id)
+      if (found) {
+        setClient(found)
+        setClients(all)
+      } else {
+        setFetchError(true)
       }
     } finally {
       if (mountedRef.current) setLoading(false)
     }
-  }, [id])
+  }, [id, cliStore])
 
   useEffect(() => {
     mountedRef.current = true
@@ -73,11 +69,10 @@ export default function ClientDetailPage() {
         setClient(saved)
         cliStore.updateClient(saved.id, saved)
       } catch {
-        const all = await fetchClients()
-        cliStore.setClients(all)
+        // Keep the current store list; no extra D1 fetch on failure.
       }
     },
-    [],
+    [cliStore],
   )
 
   if (loading) {

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useClientStore } from '@/stores/client-store'
 import { useAuthStore } from '@/stores/auth-store'
-import { addClient, fetchClients, updateClient } from '@/lib/storage'
+import { addClient, updateClient } from '@/lib/storage'
 import type { Client } from '@/types'
 import InlineAddEditView from '@/components/InlineAddEditView'
 
@@ -45,8 +45,8 @@ export default function AddEditPage() {
         }
         navigate('/')
       } catch {
-        fetchClients()
-          .then((data) => cliStore.setClients(data))
+        cliStore.refresh()
+          .then(() => {})
           .catch(() => {})
       }
     },

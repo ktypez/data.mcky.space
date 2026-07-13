@@ -3,7 +3,7 @@
 import { useEffect, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useClientStore } from '@/stores/client-store'
-import { fetchClients } from '@/lib/storage'
+import { updateClient } from '@/lib/storage'
 import AdminSuggestionsInline from '@/components/AdminSuggestionsInline'
 
 export default function SuggestionsPage() {
@@ -17,8 +17,8 @@ export default function SuggestionsPage() {
 
   useEffect(() => {
     if (refreshKey === 0) return
-    fetchClients()
-      .then((data) => cliStore.setClients(data))
+    cliStore.refresh()
+      .then(() => {})
       .catch(() => {})
   }, [refreshKey])
 

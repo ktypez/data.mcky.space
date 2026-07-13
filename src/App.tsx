@@ -42,7 +42,7 @@ function App() {
           onClose={() => setLoginOpen(false)}
           onSuccess={() => {
             setAdmin(true)
-            useClientStore.getState().refresh()
+            // Data already loaded by initialize() on mount; no extra D1 fetch.
           }}
         />
       </Suspense>
