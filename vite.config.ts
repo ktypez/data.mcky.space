@@ -18,12 +18,12 @@ export default defineConfig({
       clsx: path.resolve(__dirname, 'node_modules/clsx'),
       'tailwind-merge': path.resolve(__dirname, 'node_modules/tailwind-merge'),
       'maplibre-gl': path.resolve(__dirname, 'node_modules/maplibre-gl'),
-      // react-router@7.x imports { parse, serialize } from "cookie" into the
-      // browser bundle, but pnpm's strict layout hides the deep copy and the
-      // root hoist is cookie@2.x (no named exports). Aliasing the package
-      // folder caused EMFILE (ulimit 1024) from repeated stat calls, so we
-      // point at a tiny local ESM shim (the API react-router uses is tiny).
+      // react-router@7.x imports Node-only modules into the browser bundle.
+      // pnpm's strict layout hides deep copies and root hoists may be wrong
+      // versions. Aliasing package folders caused EMFILE (ulimit 1024), so we
+      // point at tiny local ESM shims (the API react-router uses is small).
       cookie: path.resolve(__dirname, 'src/shims/cookie.js'),
+      'set-cookie-parser': path.resolve(__dirname, 'src/shims/set-cookie-parser.js'),
     },
     dedupe: [
       'react',

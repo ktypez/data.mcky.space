@@ -1,6 +1,6 @@
 const MAX_DIMENSION = 2048
 
-export async function compressImage(file: File, maxSizeMB = 10): Promise<File> {
+export async function compressImage(file: File, maxSizeMB = 3): Promise<File> {
   try {
     const img = await loadImage(file)
 
