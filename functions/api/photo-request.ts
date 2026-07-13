@@ -30,9 +30,19 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
 
   // Merge images: keep existing images that weren't deleted, add new ones
   const existing = Array.isArray(client.images) ? (client.images as string[]) : []
+
+  // Any base64 image sent in this request has been uploaded to R2, so remove
+  // it from existing to avoid keeping a stale copy in D1.
+  const uploadedBase64 = new Set(
+    (images as string[]).filter((s) => s.startsWith('data:image')),
+  )
   const kept = Array.isArray(deletedImages)
-    ? existing.filter((url) => !(deletedImages as string[]).includes(url))
-    : existing
+    ? existing.filter(
+        (url) =>
+          !(deletedImages as string[]).includes(url) &&
+          !uploadedBase64.has(url),
+      )
+    : existing.filter((url) => !uploadedBase64.has(url))
   const merged = [...kept, ...newUrls]
 
   await db.update(clients).set({ images: merged, updatedAt: Date.now() }).where(eq(clients.id, clientId))

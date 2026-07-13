@@ -4,8 +4,15 @@ pages_build_output_dir = "./dist"
 compatibility_flags = ["nodejs_compat"]
 
 # D1 Database binding
-# Replace <DATABASE_ID> with your actual database ID (from `npx wrangler d1 create ezzylist-db`)
 [[d1_databases]]
 binding = "DB"
 database_name = "ezzylist-db"
 database_id = "d3f71826-3af4-4950-815a-2965fabb179b"
+
+# R2 bucket for client photos
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "ezzylist"
+
+[vars]
+R2_PUBLIC_URL = "https://pub-462db07575b84a13b83ba0f2632f6ec2.r2.dev"

@@ -78,7 +78,10 @@ export async function addClient(client: Client): Promise<Client> {
   let finalImages = cleanImages
   if (base64Images.length > 0) {
     const result = await uploadBase64Images(id, base64Images, [])
-    if (result.ok) finalImages = result.images
+    if (result.ok) {
+      // Keep only R2 URLs — strip any base64 that may have been in D1
+      finalImages = result.images.filter((s) => !isBase64Image(s))
+    }
     // result.ok === false → skip photos so entry still saves
   }
 
@@ -109,7 +112,10 @@ export async function updateClient(client: Client): Promise<Client> {
     }
     const deletedImages = prevR2Urls.filter((url) => !cleanImages.includes(url))
     const result = await uploadBase64Images(client.id, base64Images, deletedImages)
-    if (result.ok) finalImages = result.images
+    if (result.ok) {
+      // Keep only R2 URLs — strip any base64 that may have been in D1
+      finalImages = result.images.filter((s) => !isBase64Image(s))
+    }
     // result.ok === false → keep cleanImages (old R2 URLs), entry still saves
   }
 
