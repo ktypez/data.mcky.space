@@ -3,6 +3,7 @@ import { clients, settings } from '../../lib/schema'
 import { eq, sql } from 'drizzle-orm'
 import { verifyToken, getTokenFromRequest } from '../../lib/auth'
 import { json, error, notFound, unauthorized } from '../../lib/response'
+import { deleteClientImages } from '../../lib/r2'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, params } = context
@@ -45,6 +46,11 @@ export async function onRequestDelete(context: EventContext<Env, any, any>) {
   const db = createDb(env.DB)
   const [row] = await db.select().from(clients).where(eq(clients.id, params.id))
   if (!row) return notFound()
+
+  // Delete photos from R2 first
+  if (Array.isArray(row.images) && row.images.length > 0) {
+    await deleteClientImages(env.BUCKET, env.R2_PUBLIC_URL, row.images as string[])
+  }
 
   const data = JSON.stringify({ ...row, deletedAt: Date.now() })
   await db.insert(settings).values({ key: `trash_${params.id}`, value: data }).onConflictDoNothing()
