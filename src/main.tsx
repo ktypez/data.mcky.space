@@ -18,17 +18,17 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// Self-healing service worker registration
+// Service worker registration.
+// On load, first drop any previously-installed SW (an older self-healing
+// version could get stuck in a refresh loop). Then register the current one.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {})
-  })
-
-  // Listen for stale asset message from SW → hard reload
-  navigator.serviceWorker.addEventListener('message', (event) => {
-    if (event.data?.type === 'ASSET_STALE') {
-      console.log('[SW] Stale asset detected — hard reload')
-      window.location.reload()
-    }
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+      .catch(() => {})
+      .finally(() => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {})
+      })
   })
 }

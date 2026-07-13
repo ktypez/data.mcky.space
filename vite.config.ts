@@ -9,8 +9,24 @@ export default defineConfig({
     tailwindcss(),
   ],
   resolve: {
-    alias: { '@': path.resolve(__dirname, './src') },
-    dedupe: ['maplibre-gl', 'react', 'react-dom', 'class-variance-authority'],
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      'class-variance-authority': path.resolve(
+        __dirname,
+        'node_modules/class-variance-authority',
+      ),
+      clsx: path.resolve(__dirname, 'node_modules/clsx'),
+      'tailwind-merge': path.resolve(__dirname, 'node_modules/tailwind-merge'),
+      'maplibre-gl': path.resolve(__dirname, 'node_modules/maplibre-gl'),
+    },
+    dedupe: [
+      'react',
+      'react-dom',
+      'maplibre-gl',
+      'class-variance-authority',
+      'clsx',
+      'tailwind-merge',
+    ],
   },
   optimizeDeps: {
     include: [
