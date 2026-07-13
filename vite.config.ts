@@ -5,41 +5,19 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [
-    react({
-      include: '**/*.{jsx,tsx}',
-    }),
+    react({ include: '**/*.{jsx,tsx}' }),
     tailwindcss(),
   ],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+    alias: { '@': path.resolve(__dirname, './src') },
+    dedupe: ['maplibre-gl', 'react', 'react-dom', 'class-variance-authority'],
   },
-  customLogger: {
-    warn(msg, options) {
-      if (typeof msg === 'string' && msg.includes('Failed to resolve import')) return
-      if (options?.code === 'UNRESOLVED_IMPORT') return
-      console.warn(msg)
-    },
-    info(msg) {
-      console.log(msg)
-    },
-    error(msg) {
-      console.error(msg)
-    },
-    warnOnce(msg, options) {
-      this.warn(msg, options)
-    },
-    clearScreen() {},
-    hasWarned: false,
-    hasErrorLogged: false,
-  },
-  build: {
-    rollupOptions: {
-      onwarn(warning, warn) {
-        if (warning.code === 'UNRESOLVED_IMPORT') return
-        warn(warning)
-      },
-    },
+  optimizeDeps: {
+    include: [
+      'maplibre-gl',
+      'class-variance-authority',
+      'clsx',
+      'tailwind-merge',
+    ],
   },
 })

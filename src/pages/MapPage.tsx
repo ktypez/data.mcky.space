@@ -8,7 +8,6 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useDebounce } from '@/hooks/useDebounce'
 import PageHeader from '@/components/PageHeader'
-import InlineMap from '@/components/InlineMap'
 import SearchDropdown from '@/components/SearchDropdown'
 
 export default function MapPage() {
@@ -80,12 +79,14 @@ export default function MapPage() {
           ) : undefined
         }
       />
-      <div style={{ position: 'relative', height: 'calc(100dvh - 56px)' }}>
-        <InlineMap
-          clients={filtered.filter((c) => c.lat != null && c.lng != null && !Number.isNaN(c.lat) && !Number.isNaN(c.lng))}
-          focusClientId={mapFocusId}
-          onSelectClient={navigateToClient}
-        />
+      <div
+        style={{ position: 'relative', height: 'calc(100dvh - 56px)' }}
+        className="flex items-center justify-center bg-background text-muted-foreground"
+      >
+        <div className="flex flex-col items-center gap-2 px-6 text-center">
+          <p className="text-sm">แผนที่ปิดชั่วคราว</p>
+          <p className="text-xs text-muted-foreground/70">กำลังปรับปรุงระบบแผนที่ใหม่</p>
+        </div>
       </div>
     </div>
   )
