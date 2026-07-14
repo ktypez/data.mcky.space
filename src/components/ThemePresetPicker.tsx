@@ -93,7 +93,7 @@ export default function ThemePresetPicker() {
                       <Swatch color={bgColor} label="background" />
                       <Swatch color={fgColor} label="foreground" />
                     </div>
-                    <span className="text-[13px] font-medium flex-1 truncate">{t.label}</span>
+                    <span className="text-[15px] font-medium flex-1 truncate">{t.label}</span>
                     {isActive && (
                       <Check className="w-3.5 h-3.5 shrink-0 text-primary" />
                     )}

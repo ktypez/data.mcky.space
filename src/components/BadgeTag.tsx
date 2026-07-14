@@ -35,7 +35,7 @@ export default function BadgeTag({ badge, size = 'sm' }: BadgeTagProps) {
   const preset = getBadgePreset(badge)
   if (!preset) return null
 
-  const sizeClasses = size === 'xs' ? 'text-[8px] px-1 py-[0px]' : size === 'sm' ? 'text-[10px] px-1.5 py-[1px]' : 'text-[11px] px-2 py-0.5'
+  const sizeClasses = size === 'xs' ? 'text-[10px] px-1 py-[0px]' : size === 'sm' ? 'text-[12px] px-1.5 py-[1px]' : 'text-[13px] px-2 py-0.5'
 
   return (
     <span

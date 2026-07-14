@@ -31,8 +31,8 @@ export default function CopyDropdown({
 
   const btnClass =
     size === 'sm'
-      ? 'px-2.5 py-1 rounded-[4px] text-[12px]'
-      : 'px-3 py-1.5 rounded-[4px] text-[13px]'
+      ? 'px-2.5 py-1 rounded-[4px] text-[14px]'
+      : 'px-3 py-1.5 rounded-[4px] text-[15px]'
 
   const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'
   const menuIconSize = 'w-4 h-4'
@@ -64,7 +64,7 @@ export default function CopyDropdown({
               onCopyText(client)
               onClose()
             }}
-            className="w-full text-left px-4 py-3 text-[13px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2"
+            className="w-full text-left px-4 py-3 text-[15px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2"
           >
             <Copy className={`${menuIconSize} shrink-0`} />
             <span>ข้อความ</span>
@@ -76,7 +76,7 @@ export default function CopyDropdown({
                 onCopyTextAndMaps(client)
                 onClose()
               }}
-              className="w-full text-left px-4 py-3 text-[13px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2 border-t border-[var(--border)]"
+              className="w-full text-left px-4 py-3 text-[15px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2 border-t border-[var(--border)]"
             >
               <Copy className={`${menuIconSize} shrink-0`} />
               <span>ข้อความ + แผนที่</span>

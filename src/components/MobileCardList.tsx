@@ -103,11 +103,11 @@ const MobileCardList = memo(function MobileCardList({
  </div>
  </div>
   <div className="flex-1 min-w-0 text-left">
-  <div className="font-semibold text-[15px] text-[var(--text-primary)] truncate">
+  <div className="font-semibold text-[17px] text-[var(--text-primary)] truncate">
   {client.shopName || client.name}
   </div>
   {client.shopName && (
-  <div className="font-medium max-md:text-[14px] md:text-[12px] text-[var(--text-secondary)] mt-[1px] truncate">
+  <div className="font-medium max-md:text-[16px] md:text-[14px] text-[var(--text-secondary)] mt-[1px] truncate">
   {client.name}
   </div>
   )}

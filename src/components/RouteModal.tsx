@@ -54,11 +54,11 @@ export default function RouteModal({
               <NavigationArrow className="w-4 h-4 md:w-5 md:h-5" />
             </div>
             <div>
-              <h3 className="max-md:text-[15px] md:text-base font-bold text-[var(--text-primary)]">
+              <h3 className="max-md:text-[17px] md:text-base font-bold text-[var(--text-primary)]">
                 วางแผนเส้นทาง
               </h3>
               {routeData && (
-                <p className="max-md:text-[12px] md:text-[13px] text-[var(--text-muted)]">
+                <p className="max-md:text-[14px] md:text-[15px] text-[var(--text-muted)]">
                   {routeData.clients.length} จุด &middot; เรียงจากใกล้ไปไกล
                 </p>
               )}
@@ -70,10 +70,10 @@ export default function RouteModal({
         {showManualOrigin && !routeData && (
           <div className="p-6 md:p-8 text-center space-y-4">
             <MapPin className="w-9 h-9 md:w-10 md:h-10 mx-auto mb-1 text-[var(--text-muted)] opacity-60" />
-            <p className="max-md:text-[14px] md:text-[15px] font-medium text-[var(--text-primary)]">
+            <p className="max-md:text-[16px] md:text-[17px] font-medium text-[var(--text-primary)]">
               ไม่สามารถเข้าถึงตำแหน่งได้
             </p>
-            <p className="text-[12px] text-[var(--text-muted)]">
+            <p className="text-[14px] text-[var(--text-muted)]">
               กรอกพิกัดตำแหน่งเริ่มต้นด้วยตนเอง
             </p>
             <div className="flex gap-2 max-w-xs mx-auto">
@@ -83,7 +83,7 @@ export default function RouteModal({
                 placeholder="ละติจูด"
                 value={manualOriginLat}
                 onChange={(e) => onManualOriginLatChange?.(e.target.value)}
-                className="flex-1 h-9 px-3 text-[14px] font-sans rounded-[4px] bg-[var(--surface)] text-[var(--text-primary)] outline-none focus:border-[var(--accent-blue)]"
+                className="flex-1 h-9 px-3 text-[16px] font-sans rounded-[4px] bg-[var(--surface)] text-[var(--text-primary)] outline-none focus:border-[var(--accent-blue)]"
               />
               <input
                 type="number"
@@ -91,11 +91,11 @@ export default function RouteModal({
                 placeholder="ลองจิจูด"
                 value={manualOriginLng}
                 onChange={(e) => onManualOriginLngChange?.(e.target.value)}
-                className="flex-1 h-9 px-3 text-[14px] font-sans rounded-[4px] bg-[var(--surface)] text-[var(--text-primary)] outline-none focus:border-[var(--accent-blue)]"
+                className="flex-1 h-9 px-3 text-[16px] font-sans rounded-[4px] bg-[var(--surface)] text-[var(--text-primary)] outline-none focus:border-[var(--accent-blue)]"
               />
             </div>
             {routeError && (
-              <p className="text-[12px] text-[var(--destructive)]">{routeError}</p>
+              <p className="text-[14px] text-[var(--destructive)]">{routeError}</p>
             )}
             <div className="flex gap-2 justify-center">
               <Button variant="outline" className="h-12 px-6" onClick={onClose}>
@@ -110,7 +110,7 @@ export default function RouteModal({
         {!showManualOrigin && routeError && !routeData && (
           <div className="p-8 md:p-10 text-center">
             <MapPin className="w-9 h-9 md:w-10 md:h-10 mx-auto mb-3 text-[var(--destructive)] opacity-60" />
-            <p className="max-md:text-[15px] md:text-base font-medium text-[var(--destructive)]">
+            <p className="max-md:text-[17px] md:text-base font-medium text-[var(--destructive)]">
               {routeError}
             </p>
             <Button variant="outline" className="mt-3 md:mt-4 h-12 px-6" onClick={onClose}>
@@ -125,14 +125,14 @@ export default function RouteModal({
             <div className="flex-1 overflow-y-auto px-4 md:px-5 py-3 md:py-4 space-y-2 md:space-y-3">
               {/* Origin */}
               <div className="flex items-center gap-3 md:gap-4 px-3 md:px-4 py-2.5 md:py-3 rounded-[6px] md:rounded-[8px] bg-[var(--surface)]">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center max-md:text-[12px] md:text-[13px] font-bold shrink-0">
+                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center max-md:text-[14px] md:text-[15px] font-bold shrink-0">
                   A
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="max-md:text-[13px] md:text-[14px] font-medium text-[var(--text-primary)]">
+                  <div className="max-md:text-[15px] md:text-[16px] font-medium text-[var(--text-primary)]">
                     ตำแหน่งปัจจุบัน
                   </div>
-                  <div className="font-mono max-md:text-[11px] md:text-[12px] text-[var(--text-muted)]">
+                  <div className="font-mono max-md:text-[13px] md:text-[14px] text-[var(--text-muted)]">
                     {routeData.origin.lat.toFixed(5)}, {routeData.origin.lng.toFixed(5)}
                   </div>
                 </div>
@@ -172,7 +172,7 @@ export default function RouteModal({
                     )}
                   </div>
                   <div
-                    className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center max-md:text-[11px] md:text-[13px] font-bold shrink-0 ${
+                    className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center max-md:text-[13px] md:text-[15px] font-bold shrink-0 ${
                       i === 0
                         ? 'bg-[var(--success)] text-[var(--success-foreground)]'
                         : i === routeData.clients.length - 1
@@ -183,15 +183,15 @@ export default function RouteModal({
                     {i + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="max-md:text-[13px] md:text-[14px] font-medium text-[var(--text-primary)] truncate">
+                    <div className="max-md:text-[15px] md:text-[16px] font-medium text-[var(--text-primary)] truncate">
                       {item.client.shopName || item.client.name}
                     </div>
-                    <div className="font-mono max-md:text-[11px] md:text-[12px] text-[var(--text-muted)] truncate">
+                    <div className="font-mono max-md:text-[13px] md:text-[14px] text-[var(--text-muted)] truncate">
                       {item.client.shopName ? item.client.name : item.client.address}
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-mono max-md:text-[12px] md:text-[13px] font-semibold text-[var(--text-primary)]">
+                    <div className="font-mono max-md:text-[14px] md:text-[15px] font-semibold text-[var(--text-primary)]">
                       {item.dist < 1
                         ? `${Math.round(item.dist * 1000)} ม.`
                         : `${item.dist.toFixed(1)} กม.`}

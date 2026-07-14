@@ -104,11 +104,11 @@ export default function TrashView({ onClose }: Props) {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-[14px] text-[var(--text-primary)] truncate">
+                  <div className="font-semibold text-[16px] text-[var(--text-primary)] truncate">
                     {client.shopName || client.name}
                   </div>
                   {client.shopName && (
-                    <div className="text-[12px] text-[var(--text-secondary)] truncate">
+                    <div className="text-[14px] text-[var(--text-secondary)] truncate">
                       {client.name}
                     </div>
                   )}
@@ -116,7 +116,7 @@ export default function TrashView({ onClose }: Props) {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                <span className="font-mono text-[12px] text-[var(--text-muted)]">
                   ลบเมื่อ {client.deletedAt ? new Date(client.deletedAt).toLocaleDateString('th-TH') : '-'}
                 </span>
                 <BadgeTag badge={client.badge} size="sm" />

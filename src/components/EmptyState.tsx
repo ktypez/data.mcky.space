@@ -44,7 +44,7 @@ export default function EmptyState({
  <>
  <p className="text-sm font-medium">ยังไม่มีข้อมูลลูกค้า</p>
  {isAdmin && (
- <p className="text-[11px] mt-1">
+ <p className="text-[13px] mt-1">
  กดปุ่ม &ldquo;{mobile ? '+' : 'เพิ่ม'}&rdquo; เพื่อเริ่มต้น
  </p>
  )}
@@ -52,13 +52,13 @@ export default function EmptyState({
  ) : hasSearch ? (
  <>
  <p className="text-sm font-medium">ไม่พบ &ldquo;{search?.trim()}&rdquo;</p>
- <p className="text-[11px] mt-1">ลองเปลี่ยนคำค้นหาหรือล้างตัวกรอง</p>
+ <p className="text-[13px] mt-1">ลองเปลี่ยนคำค้นหาหรือล้างตัวกรอง</p>
  </>
  ) : isFiltered ? (
  <>
  <p className="text-sm font-medium">ไม่มี{filterLabels[filter]}ในขณะนี้</p>
  {!mobile && (
- <p className="text-[11px] mt-1">
+ <p className="text-[13px] mt-1">
  ลองเลิกกรอง &ldquo;{filterLabels[filter]}&rdquo; หรือเพิ่มลูกค้าใหม่
  </p>
  )}
@@ -66,7 +66,7 @@ export default function EmptyState({
  ) : (
  <>
  <p className="text-sm font-medium">ไม่พบข้อมูล</p>
- {!mobile && <p className="text-[11px] mt-1">ลองเปลี่ยนคำค้นหาหรือตัวกรอง</p>}
+ {!mobile && <p className="text-[13px] mt-1">ลองเปลี่ยนคำค้นหาหรือตัวกรอง</p>}
  </>
  )}
  </div>

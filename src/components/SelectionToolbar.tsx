@@ -95,7 +95,7 @@ export default function SelectionToolbar({
 
           {selectedCount > 0 && (
             <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
-              <span className="font-mono max-md:text-[15px] md:text-[13px] text-muted-foreground whitespace-nowrap shrink-0 px-1 inline-flex items-center gap-0.5">
+              <span className="font-mono max-md:text-[17px] md:text-[15px] text-muted-foreground whitespace-nowrap shrink-0 px-1 inline-flex items-center gap-0.5">
                 <Check className="w-3.5 h-3.5 shrink-0" />{' '}
                 <span className="shrink-0">{selectedCount}</span>
               </span>

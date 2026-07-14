@@ -100,7 +100,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
           <ArrowLeft className="w-4 h-4 text-primary" />
         </Button>
         <div className="flex-1 min-w-0">
-          <span className="text-[13px] font-medium text-foreground truncate block">
+          <span className="text-[15px] font-medium text-foreground truncate block">
             คำแนะนำการแก้ไข
           </span>
         </div>
@@ -130,7 +130,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
 
       <div className="flex-1 overflow-y-auto">
         {error && (
-          <div className="mx-4 mt-4 px-3 py-2 rounded-[6px] bg-[var(--primary)]/10 text-[var(--primary)] text-[13px]">
+          <div className="mx-4 mt-4 px-3 py-2 rounded-[6px] bg-[var(--primary)]/10 text-[var(--primary)] text-[15px]">
             {error}
           </div>
         )}
@@ -159,7 +159,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
             {pendingList.length === 0 ? (
               <div className="text-center py-20 text-[var(--text-muted)]">
                 <Check className="w-8 h-8 mx-auto mb-2 text-[var(--success)]" />
-                <p className="text-[13px]">ไม่มีคำแนะนำที่รอตรวจสอบ</p>
+                <p className="text-[15px]">ไม่มีคำแนะนำที่รอตรวจสอบ</p>
               </div>
             ) : (
               pendingList.map((s) => {
@@ -167,14 +167,14 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
                 return (
                   <Card key={s.id} className="p-4 space-y-3">
                     <CardContent className="p-0">
-                      <div className="flex items-center gap-2 text-[13px] text-[var(--text-muted)]">
+                      <div className="flex items-center gap-2 text-[15px] text-[var(--text-muted)]">
                         <MapPin className="w-3.5 h-3.5 shrink-0" />
                         <span className="truncate font-medium text-[var(--text-primary)]">
                           {client ? client.shopName || client.name : 'ไม่พบข้อมูล'}
                         </span>
                       </div>
 
-                      <div className="space-y-1.5 text-[13px]">
+                      <div className="space-y-1.5 text-[15px]">
                         <SuggestionDiff label="ชื่อ" oldVal={s.original.name} newVal={s.suggested.name} />
                         <SuggestionDiff
                           label="ร้าน"
@@ -206,7 +206,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]">
+                      <div className="flex items-center gap-1 text-[13px] text-[var(--text-muted)]">
                         <Clock className="w-3 h-3" />
                         {formatDateTime(s.createdAt)}
                       </div>
@@ -249,7 +249,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
           <div className="p-4 space-y-3">
             {historyList.length === 0 ? (
               <div className="text-center py-20 text-[var(--text-muted)]">
-                <p className="text-[13px]">ไม่มีประวัติ</p>
+                <p className="text-[15px]">ไม่มีประวัติ</p>
               </div>
             ) : (
               historyList.map((s) => {
@@ -265,7 +265,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
                   >
                     <button
                       onClick={() => toggle(s.id)}
-                      className="w-full flex items-center gap-2 text-[13px] cursor-pointer text-left"
+                      className="w-full flex items-center gap-2 text-[15px] cursor-pointer text-left"
                     >
                       {s.status === 'approved' ? (
                         <Check className="w-4 h-4 text-[var(--success)] shrink-0" />
@@ -276,7 +276,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
                         {client ? client.shopName || client.name : 'ไม่พบข้อมูล'}
                       </span>
                       <span
-                        className={`text-[11px] shrink-0 ${s.status === 'approved' ? 'text-[var(--success)]' : 'text-[var(--primary)]'}`}
+                        className={`text-[13px] shrink-0 ${s.status === 'approved' ? 'text-[var(--success)]' : 'text-[var(--primary)]'}`}
                       >
                         {s.status === 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธ'}
                       </span>
@@ -284,12 +284,12 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
                         className={`w-3.5 h-3.5 text-[var(--text-muted)] shrink-0 transition-transform duration-200 ${expanded.has(s.id) ? '' : '-rotate-90'}`}
                       />
                     </button>
-                    <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
+                    <div className="text-[13px] text-[var(--text-muted)] flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {formatDateTime(s.updatedAt)}
                     </div>
                     {expanded.has(s.id) && (
-                      <div className="space-y-1.5 text-[13px] pt-1">
+                      <div className="space-y-1.5 text-[15px] pt-1">
                         <SuggestionDiff label="ชื่อ" oldVal={s.original.name} newVal={s.suggested.name} />
                         <SuggestionDiff
                           label="ร้าน"

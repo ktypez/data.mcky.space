@@ -110,11 +110,11 @@ const DesktopCardView = memo(function DesktopCardView({
  </div>
  </div>
   <div className="min-w-0 flex-1">
-  <div className="font-semibold text-[14px] text-[var(--text-primary)] truncate">
+  <div className="font-semibold text-[16px] text-[var(--text-primary)] truncate">
   {client.shopName || client.name}
   </div>
    {client.shopName && (
-   <div className="text-[12px] text-[var(--text-secondary)] truncate">
+   <div className="text-[14px] text-[var(--text-secondary)] truncate">
    {client.name}
    </div>
    )}
@@ -123,7 +123,7 @@ const DesktopCardView = memo(function DesktopCardView({
 
  {/* Footer: date + badge + copy */}
  <div className="flex items-center justify-between">
- <span className="font-mono text-[10px] text-[var(--text-muted)] ">
+ <span className="font-mono text-[12px] text-[var(--text-muted)] ">
  {formatDate(client.updatedAt)}
  </span>
   <div className="flex items-center gap-1.5">

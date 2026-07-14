@@ -64,14 +64,14 @@ export default function NavDropdown() {
               className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
             >
               <ArrowLeft className="w-4 h-4 text-muted-foreground shrink-0" />
-              <span className="text-[13px] font-medium">หน้าแรก</span>
+              <span className="text-[15px] font-medium">หน้าแรก</span>
             </button>
             <button
               onClick={() => { close(); navigate('/maps') }}
               className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
             >
               <MapTrifold className="w-4 h-4 text-muted-foreground shrink-0" />
-              <span className="text-[13px] font-medium">แผนที่</span>
+              <span className="text-[15px] font-medium">แผนที่</span>
             </button>
 
             {isAdmin && (
@@ -82,14 +82,14 @@ export default function NavDropdown() {
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
                 >
                   <Trash className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <span className="text-[13px] font-medium">ถังขยะ</span>
+                  <span className="text-[15px] font-medium">ถังขยะ</span>
                 </button>
                 <button
                   onClick={() => { close(); navigate('/suggestions') }}
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
                 >
                   <ChatDots className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <span className="text-[13px] font-medium">คำแนะนำการแก้ไข</span>
+                  <span className="text-[15px] font-medium">คำแนะนำการแก้ไข</span>
                 </button>
               </>
             )}
@@ -101,7 +101,7 @@ export default function NavDropdown() {
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-destructive hover:bg-destructive/10 transition-colors"
               >
                 <SignOut className="w-4 h-4 shrink-0" />
-                <span className="text-[13px] font-medium">ออกจากระบบ</span>
+                <span className="text-[15px] font-medium">ออกจากระบบ</span>
               </button>
             ) : (
               <button
@@ -109,7 +109,7 @@ export default function NavDropdown() {
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
               >
                 <LockKey className="w-4 h-4 text-muted-foreground shrink-0" />
-                <span className="text-[13px] font-medium">เข้าระบบ</span>
+                <span className="text-[15px] font-medium">เข้าระบบ</span>
               </button>
             )}
           </div>,

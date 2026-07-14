@@ -40,6 +40,14 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Bump base typography up ~2px (≈1.5–2pt) for better readability */
+  --text-xs: 0.875rem; /* 14px (was 12) */
+  --text-sm: 1rem; /* 16px (was 14) */
+  --text-base: 1.125rem; /* 18px (was 16) */
+  --text-lg: 1.25rem; /* 20px (was 18) */
+  --text-xl: 1.375rem; /* 22px (was 20) */
+  --text-2xl: 1.625rem; /* 26px (was 24) */
 }
 
 :root {

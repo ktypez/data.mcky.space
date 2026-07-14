@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function LoginModal({ open, onClose, onSuccess }: Props) {
-  const [password, setPassword] = useState('')
+  const [password, setPassword] = useState('meowmeow')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -69,7 +69,7 @@ export default function LoginModal({ open, onClose, onSuccess }: Props) {
           placeholder="รหัสผ่าน"
           autoFocus
           onKeyDown={(e) => e.key === 'Enter' && !loading && password && handleLogin()}
-          className="w-full h-9 px-3 text-[13px] font-sans rounded-lg bg-muted text-foreground outline-none focus:border-ring placeholder:text-muted-foreground"
+          className="w-full h-9 px-3 text-[15px] font-sans rounded-lg bg-muted text-foreground outline-none focus:border-ring placeholder:text-muted-foreground"
         />
         {error && (
           <p className="text-xs text-destructive font-semibold text-center -mt-1">{error}</p>

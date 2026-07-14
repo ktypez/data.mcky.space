@@ -126,9 +126,9 @@ export default function AddClientForm({
   }
 
   const inputClass =
-    'w-full h-10 px-3 text-[14px] font-sans rounded-[6px] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] outline-none focus:border-[var(--accent-blue)] transition-colors placeholder:text-[var(--text-muted)]'
+    'w-full h-10 px-3 text-[16px] font-sans rounded-[6px] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] outline-none focus:border-[var(--accent-blue)] transition-colors placeholder:text-[var(--text-muted)]'
   const inputErrorClass = 'border-[var(--destructive)] focus:border-[var(--destructive)]'
-  const labelClass = 'text-[12px] font-semibold text-[var(--text-muted)]'
+  const labelClass = 'text-[14px] font-semibold text-[var(--text-muted)]'
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -144,7 +144,7 @@ export default function AddClientForm({
           className={`${inputClass} ${hasConflict ? inputErrorClass : ''}`}
         />
         {hasConflict && (
-          <div className="flex items-start gap-2 py-2 px-3 rounded-[6px] bg-[var(--destructive)]/10 border border-[var(--destructive)]/40 text-[11px] text-[var(--destructive)]">
+          <div className="flex items-start gap-2 py-2 px-3 rounded-[6px] bg-[var(--destructive)]/10 border border-[var(--destructive)]/40 text-[13px] text-[var(--destructive)]">
             <Warning className="w-3.5 h-3.5 shrink-0 mt-0.5" />
             <span className="leading-relaxed">
               {dupResult.exact && (
@@ -180,7 +180,7 @@ export default function AddClientForm({
           className={inputClass}
         />
         {!name.trim() && !shopName.trim() && (
-          <p className="text-[11px] text-[var(--destructive)]">กรุณากรอกชื่อลูกค้า หรือ ชื่อร้านค้า อย่างน้อย 1 อย่าง</p>
+          <p className="text-[13px] text-[var(--destructive)]">กรุณากรอกชื่อลูกค้า หรือ ชื่อร้านค้า อย่างน้อย 1 อย่าง</p>
         )}
       </div>
 
@@ -238,14 +238,14 @@ export default function AddClientForm({
             type="button"
             variant="ghost"
             size="sm"
-            className="h-auto p-0 text-[11px] font-semibold text-[var(--accent-blue)] hover:text-[var(--accent-blue-hover)]"
+            className="h-auto p-0 text-[13px] font-semibold text-[var(--accent-blue)] hover:text-[var(--accent-blue-hover)]"
             onClick={handleGetCurrentLocation}
             disabled={locating}
           >
             <Crosshair className="w-3.5 h-3.5" />
             {locating ? 'กำลังค้นหา...' : 'ใช้ตำแหน่งปัจจุบัน'}
           </Button>
-          <span className="text-[11px] text-[var(--text-muted)]/60">หรือแตะบนแผนที่</span>
+          <span className="text-[13px] text-[var(--text-muted)]/60">หรือแตะบนแผนที่</span>
         </div>
       </div>
 
@@ -272,7 +272,7 @@ export default function AddClientForm({
         const preset = getBadgePreset(badge)
         return (
           <div className="flex items-center justify-between px-3 py-2.5 rounded-[6px] border border-[var(--border)] bg-[var(--surface)]">
-            <span className={`text-[13px] font-medium ${preset ? preset.text : 'text-[var(--text-muted)]'}`}>
+            <span className={`text-[15px] font-medium ${preset ? preset.text : 'text-[var(--text-muted)]'}`}>
               {preset ? preset.label : 'ไม่มี badge'}
             </span>
             <Switch

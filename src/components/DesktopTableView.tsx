@@ -120,11 +120,11 @@ const DesktopTableView = memo(function DesktopTableView({
   )}
   </td>
   <td className="px-3 py-2 align-middle">
-  <div className="font-semibold max-md:text-[15px] md:text-[13px] text-[var(--text-primary)] ">
+  <div className="font-semibold max-md:text-[17px] md:text-[15px] text-[var(--text-primary)] ">
   {client.shopName || client.name}
   </div>
    {client.shopName && (
-   <div className="font-sans font-medium max-md:text-[14px] md:text-[12px] text-[var(--text-secondary)] mt-[1px]">
+   <div className="font-sans font-medium max-md:text-[16px] md:text-[14px] text-[var(--text-secondary)] mt-[1px]">
    {client.name}
    </div>
    )}

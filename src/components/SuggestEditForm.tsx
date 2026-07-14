@@ -99,8 +99,8 @@ export default function SuggestEditForm({ client, onClose }: Props) {
   }
 
   const inputClass =
-    'w-full h-10 px-3 text-[14px] font-sans rounded-[6px] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] outline-none focus:border-[var(--accent-blue)] transition-colors placeholder:text-[var(--text-muted)]'
-  const labelClass = 'text-[12px] font-semibold text-[var(--text-muted)]'
+    'w-full h-10 px-3 text-[16px] font-sans rounded-[6px] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] outline-none focus:border-[var(--accent-blue)] transition-colors placeholder:text-[var(--text-muted)]'
+  const labelClass = 'text-[14px] font-semibold text-[var(--text-muted)]'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -157,14 +157,14 @@ export default function SuggestEditForm({ client, onClose }: Props) {
             type="button"
             variant="ghost"
             size="sm"
-            className="h-auto p-0 text-[11px] font-semibold text-[var(--accent-blue)] hover:text-[var(--accent-blue-hover)]"
+            className="h-auto p-0 text-[13px] font-semibold text-[var(--accent-blue)] hover:text-[var(--accent-blue-hover)]"
             onClick={handleGetCurrentLocation}
             disabled={locating}
           >
             <Crosshair className="w-3.5 h-3.5" />
             {locating ? 'กำลังค้นหา...' : 'ใช้ตำแหน่งปัจจุบัน'}
           </Button>
-          <span className="text-[11px] text-[var(--text-muted)]/60">หรือแตะบนแผนที่</span>
+          <span className="text-[13px] text-[var(--text-muted)]/60">หรือแตะบนแผนที่</span>
         </div>
       </div>
 
@@ -192,7 +192,7 @@ export default function SuggestEditForm({ client, onClose }: Props) {
         </Button>
       </div>
 
-      <p className="text-[11px] text-[var(--text-muted)] text-center">
+      <p className="text-[13px] text-[var(--text-muted)] text-center">
         คำแนะนำของคุณจะถูกส่งให้ผู้ดูแลตรวจสอบก่อนอัปเดตข้อมูล
       </p>
     </form>

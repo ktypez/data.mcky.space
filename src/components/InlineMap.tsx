@@ -289,11 +289,11 @@ export default function InlineMap({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[15px] font-bold text-[var(--text-primary)] truncate">
+                  <div className="text-[17px] font-bold text-[var(--text-primary)] truncate">
                     {selectedPin.shopName || selectedPin.name}
                   </div>
                   {selectedPin.shopName && (
-                    <div className="text-[13px] text-[var(--text-secondary)] truncate">
+                    <div className="text-[15px] text-[var(--text-secondary)] truncate">
                       {selectedPin.name}
                     </div>
                   )}
@@ -309,7 +309,7 @@ export default function InlineMap({
 
               {selectedPin.address && (
                 <div className="flex items-start gap-2.5 px-5 py-3 border-b border-[var(--border)]">
-                  <span className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
+                  <span className="text-[15px] text-[var(--text-secondary)] leading-relaxed">
                     {selectedPin.address}
                   </span>
                 </div>

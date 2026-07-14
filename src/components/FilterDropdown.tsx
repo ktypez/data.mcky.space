@@ -64,7 +64,7 @@ export default function FilterDropdown({ filter, counts, onFilter }: Props) {
       >
         <Funnel className="w-3.5 h-3.5" />
         <span>{currentLabel}</span>
-        <span className="font-mono text-[10px]">
+        <span className="font-mono text-[12px]">
           {filter === FilterKey.All
             ? counts.total
             : filter === FilterKey.WithImages
@@ -109,8 +109,8 @@ export default function FilterDropdown({ filter, counts, onFilter }: Props) {
                   }`}
                 >
                   <span className="shrink-0 text-muted-foreground">{item.icon}</span>
-                  <span className="text-[13px] font-medium flex-1">{item.label}</span>
-                  <span className="font-mono text-[11px] text-muted-foreground">{count}</span>
+                  <span className="text-[15px] font-medium flex-1">{item.label}</span>
+                  <span className="font-mono text-[13px] text-muted-foreground">{count}</span>
                   {isActive && <Check className="w-3.5 h-3.5 shrink-0 text-primary" />}
                 </button>
               )

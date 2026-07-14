@@ -112,7 +112,7 @@ export default function PhotoRequestDialog({ client, open, onOpenChange }: Props
             onClick={() => fileInputRef.current?.click()}
           >
             <ImageIcon className="w-8 h-8" />
-            <span className="text-[13px]">แตะเพื่อเลือกรูป</span>
+            <span className="text-[15px]">แตะเพื่อเลือกรูป</span>
           </Button>
         ) : (
           <div className="relative">
@@ -145,7 +145,7 @@ export default function PhotoRequestDialog({ client, open, onOpenChange }: Props
           placeholder="หมายเหตุ (ถ้ามี)"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="w-full h-10 px-3 rounded-lg text-[14px] font-sans bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--primary)] transition-colors"
+          className="w-full h-10 px-3 rounded-lg text-[16px] font-sans bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--primary)] transition-colors"
         />
 
         <div className="flex gap-2 pt-2">
@@ -177,7 +177,7 @@ export default function PhotoRequestDialog({ client, open, onOpenChange }: Props
             )}
           </Button>
         </div>
-        {error && <p className="text-[13px] text-[var(--destructive)] text-center">{error}</p>}
+        {error && <p className="text-[15px] text-[var(--destructive)] text-center">{error}</p>}
       </DialogContent>
     </Dialog>
   )

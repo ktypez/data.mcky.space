@@ -253,7 +253,7 @@ export default function ClientDetail({
      <h2 className="text-base font-bold text-[var(--text-primary)] mb-3">
       แจ้งแก้ไขข้อมูล
      </h2>
-     <p className="text-[12px] text-[var(--text-muted)] mb-3">
+     <p className="text-[14px] text-[var(--text-muted)] mb-3">
      คำแนะนำของคุณจะถูกส่งให้ผู้ดูแลตรวจสอบก่อนอัปเดตข้อมูล
     </p>
     <SuggestEditForm
@@ -290,7 +290,7 @@ export default function ClientDetail({
   {client.address && (
   <div className="flex items-start gap-2">
   <MapPin className="w-4 h-4 text-[var(--text-muted)] shrink-0 mt-0.5" />
-  <p className="text-[15px] text-[var(--text-primary)] leading-relaxed">
+  <p className="text-[17px] text-[var(--text-primary)] leading-relaxed">
   {client.address}
   </p>
   </div>
@@ -336,10 +336,10 @@ export default function ClientDetail({
  {client.notes && client.notes.trim() && (
   <Card>
    <CardContent className="px-3 py-2 space-y-2">
-    <h2 className="text-[12px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] flex items-center gap-1.5">
+    <h2 className="text-[14px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] flex items-center gap-1.5">
      <ChatDots className="w-3.5 h-3.5 inline-block" /> บันทึก
     </h2>
-    <p className="text-[14px] text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words">
+    <p className="text-[16px] text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words">
      {client.notes}
     </p>
    </CardContent>
@@ -398,7 +398,7 @@ export default function ClientDetail({
     className="flex-1 aspect-square md:aspect-[2/1] rounded-[10px] overflow-hidden relative flex flex-col cursor-pointer"
    >
   <MapPreview lat={client.lat} lng={client.lng} />
- <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium bg-[var(--text-primary)]/80 text-white pointer-events-none">
+ <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[14px] font-medium bg-[var(--text-primary)]/80 text-white pointer-events-none">
  <ArrowSquareOut className="w-3 h-3" />
  เปิดแผนที่
  </div>
@@ -408,7 +408,7 @@ export default function ClientDetail({
 
   <Card>
    <CardContent className="px-3 py-2 space-y-2">
-    <h2 className="text-[12px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] ">
+    <h2 className="text-[14px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] ">
      <LinkSimple className="w-3.5 h-3.5 inline-block align-text-bottom" /> แชร์แผนที่
     </h2>
    <div className="flex items-center gap-2">
@@ -418,7 +418,7 @@ export default function ClientDetail({
       typeof window !== 'undefined' ? `${window.location.origin}/c/${client.id}` : ''
      }
      onClick={(e) => e.currentTarget.select()}
-      className="flex-1 h-9 px-3 text-[14px] font-sans rounded-[6px] bg-[var(--surface)] text-[var(--text-secondary)] outline-none select-all cursor-text"
+      className="flex-1 h-9 px-3 text-[16px] font-sans rounded-[6px] bg-[var(--surface)] text-[var(--text-secondary)] outline-none select-all cursor-text"
     />
       <Button
        onClick={() => copyToClipboard(`${window.location.origin}/c/${client.id}`)}
@@ -433,21 +433,21 @@ export default function ClientDetail({
   <Card>
    <CardContent className="px-3 py-2 space-y-2">
     <div className="flex items-center justify-between">
-     <h2 className="text-[12px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] ">
+     <h2 className="text-[14px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] ">
       <Calendar className="w-3.5 h-3.5 inline-block align-text-bottom" /> วันที่
      </h2>
    </div>
    <div className="flex flex-wrap gap-x-4 gap-y-1">
     <div className="inline-flex items-center gap-1">
      <Calendar className="w-3 h-3 text-[var(--text-muted)] " />
-     <span className="text-[12px] text-[var(--text-secondary)] ">
+     <span className="text-[14px] text-[var(--text-secondary)] ">
       สร้าง: {formatDateTime(client.createdAt)}
      </span>
     </div>
     {client.updatedAt > client.createdAt && (
      <div className="inline-flex items-center gap-1">
       <Clock className="w-3 h-3 text-[var(--text-muted)] " />
-      <span className="text-[12px] text-[var(--text-secondary)] ">
+      <span className="text-[14px] text-[var(--text-secondary)] ">
        อัปเดต: {formatDateTime(client.updatedAt)}
       </span>
      </div>
@@ -502,11 +502,11 @@ export default function ClientDetail({
   {suggestions.length > 0 && (
    <Card>
     <CardContent className="px-3 py-2 space-y-2">
-     <h2 className="text-[12px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] flex items-center gap-1.5">
+     <h2 className="text-[14px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] flex items-center gap-1.5">
       <ChatDots className="w-3.5 h-3.5 inline-block" /> คำแนะนำการแก้ไข
      </h2>
      {suggestError && (
-       <div className="px-2 py-1.5 rounded-[4px] bg-[var(--destructive)]/10 text-[var(--destructive)] text-[12px]">
+       <div className="px-2 py-1.5 rounded-[4px] bg-[var(--destructive)]/10 text-[var(--destructive)] text-[14px]">
          {suggestError}
        </div>
      )}
@@ -522,22 +522,22 @@ export default function ClientDetail({
  >
  <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
  {s.status === 'pending' && (
- <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--warning)]/10 rounded-[4px] text-[11px] text-[var(--warning)] font-medium">
+ <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--warning)]/10 rounded-[4px] text-[13px] text-[var(--warning)] font-medium">
  <span className="w-1.5 h-1.5 rounded-full bg-[var(--warning)]" />
  รอตรวจสอบ
  </span>
  )}
  {s.status === 'approved' && (
- <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--success)]/10 rounded-[4px] text-[11px] text-[var(--success)] font-medium">
+ <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--success)]/10 rounded-[4px] text-[13px] text-[var(--success)] font-medium">
  <Check className="w-3 h-3" /> อนุมัติแล้ว
  </span>
  )}
  {s.status === 'rejected' && (
- <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--surface)] rounded-[4px] text-[11px] text-[var(--text-muted)] ">
+ <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--surface)] rounded-[4px] text-[13px] text-[var(--text-muted)] ">
  <X className="w-3 h-3" /> ปฏิเสธ
  </span>
  )}
- <span className="font-mono text-[12px] text-[var(--text-secondary)] ">
+ <span className="font-mono text-[14px] text-[var(--text-secondary)] ">
  {formatDateTime(s.createdAt)}
  </span>
  </div>
@@ -565,16 +565,16 @@ export default function ClientDetail({
  />
  {(s.original.lat !== s.suggested.lat ||
  s.original.lng !== s.suggested.lng) && (
- <div className="flex items-center gap-2 text-[13px]">
+ <div className="flex items-center gap-2 text-[15px]">
  <span className="text-[var(--text-muted)] w-12 shrink-0">
  พิกัด
  </span>
- <span className="font-mono text-[11px] text-[var(--text-muted)] line-through">
+ <span className="font-mono text-[13px] text-[var(--text-muted)] line-through">
  {s.original.lat != null
  ? `${s.original.lat.toFixed(4)}, ${s.original.lng?.toFixed(4)}`
  : '-'}
  </span>
- <span className="font-mono text-[11px] text-[var(--success)] font-medium">
+ <span className="font-mono text-[13px] text-[var(--success)] font-medium">
  {s.suggested.lat != null
  ? `${s.suggested.lat.toFixed(4)}, ${s.suggested.lng?.toFixed(4)}`
  : '-'}

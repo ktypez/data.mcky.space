@@ -58,7 +58,7 @@ export default function PageHeader({
             value={search ?? ''}
             onChange={(e) => onSearchChange?.(e.target.value)}
             onKeyDown={onSearchKeyDown}
-            className="h-9 w-full pl-9 pr-9 text-[14px] font-sans rounded-lg bg-muted border border-border text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/30 transition-all duration-200 placeholder:text-muted-foreground"
+            className="h-9 w-full pl-9 pr-9 text-[16px] font-sans rounded-lg bg-muted border border-border text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/30 transition-all duration-200 placeholder:text-muted-foreground"
           />
           {search && (
             <Button
@@ -75,7 +75,7 @@ export default function PageHeader({
         </div>
       ) : (
         <div className="flex-1">
-          <span className="text-[13px] font-medium text-foreground truncate block">
+          <span className="text-[15px] font-medium text-foreground truncate block">
             {title}
           </span>
         </div>

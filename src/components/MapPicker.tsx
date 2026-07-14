@@ -148,7 +148,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
     <div className="w-full h-48 rounded-xl overflow-hidden border border-border relative">
       <div ref={containerRef} className="w-full h-full" />
       {lat != null && lng != null && (
-        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-md bg-background/80 backdrop-blur-sm text-[11px] font-mono text-foreground whitespace-nowrap pointer-events-none flex items-center gap-1.5">
+        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-md bg-background/80 backdrop-blur-sm text-[13px] font-mono text-foreground whitespace-nowrap pointer-events-none flex items-center gap-1.5">
           <span className="text-foreground/90">
             {lat.toFixed(4)}, {lng.toFixed(4)}
           </span>

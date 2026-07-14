@@ -28,7 +28,7 @@ const SearchDropdown = memo(function SearchDropdown({ clients, query, onSelect }
       className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--surface)] transition-colors border-b border-[var(--border)] last:border-b-0"
     >
       <div className="font-medium text-[var(--text-primary)]">{c.shopName || c.name}</div>
-      <div className="text-[10px] text-[var(--text-muted)] truncate">{c.address}</div>
+      <div className="text-[12px] text-[var(--text-muted)] truncate">{c.address}</div>
     </button>
   ))
 })
