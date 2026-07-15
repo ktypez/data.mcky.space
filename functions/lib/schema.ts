@@ -37,6 +37,7 @@ export const suggestions = sqliteTable('suggestions', {
       lng: number | null
     }>(),
   status: text('status').notNull().default('pending'),
+  suggestedPhoto: text('suggested_photo'),
   createdAt: integer('created_at', { mode: 'number' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'number' }).notNull(),
 })

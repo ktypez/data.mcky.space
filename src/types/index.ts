@@ -25,6 +25,7 @@ export interface PendingSuggestion {
   clientId: string
   suggested: SuggestionData
   original: SuggestionData
+  suggestedPhoto?: string | null
   status: 'pending' | 'approved' | 'rejected'
   createdAt: number
   updatedAt: number
@@ -35,6 +36,7 @@ export enum FilterKey {
   WithImages = 'with-images',
   NoImages = 'no-images',
   Recent = 'recent',
+  Penpay = 'penpay',
 }
 
 export type ViewMode = 'table' | 'cards'

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useSwipe } from '@/hooks/useSwipe'
 import type { Client, PendingSuggestion } from '@/types'
 import AppImage from '@/components/AppImage'
@@ -10,7 +10,6 @@ import SuggestEditForm from '@/components/SuggestEditForm'
 import BadgeTag from '@/components/BadgeTag'
 import { deleteClient } from '@/lib/storage'
 import { copyToClipboard, getMapsUrl, formatDateTime } from '@/lib/utils'
-import PhotoRequestDialog from '@/components/PhotoRequestDialog'
 import Lightbox from '@/components/Lightbox'
 import SuggestionDiff from '@/components/SuggestionDiff'
 import {
@@ -43,6 +42,8 @@ interface Props {
  onClientDeleted: (id: string) => void
  onSuggestRefresh?: () => void
  hideActions?: boolean
+ uploading?: boolean
+ uploadProgress?: number
 }
 
 export default function ClientDetail({
@@ -53,10 +54,14 @@ export default function ClientDetail({
  onClientDeleted,
  onSuggestRefresh,
  hideActions,
+ uploading,
+ uploadProgress,
 }: Props) {
  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
  const [photoIdx, setPhotoIdx] = useState(0)
  const [prevClientId, setPrevClientId] = useState(client.id)
+ const [imageSizes, setImageSizes] = useState<Record<string, number>>({})
+ const fetchedUrls = useRef(new Set<string>())
 
  if (client.id !== prevClientId) {
    setPrevClientId(client.id)
@@ -64,6 +69,18 @@ export default function ClientDetail({
  }
 
   const imgs = client.images ?? []
+
+  // Fetch file sizes for images (with dedup via ref)
+  useEffect(() => {
+    for (const src of imgs) {
+      if (fetchedUrls.current.has(src)) continue
+      fetchedUrls.current.add(src)
+      fetch(src, { method: 'HEAD' }).then((r) => {
+        const len = r.headers.get('Content-Length')
+        if (len) setImageSizes((prev) => ({ ...prev, [src]: Number(len) }))
+      }).catch(() => {})
+    }
+  }, [imgs])
 
  const cardSwipe = useSwipe(
  () => { if (photoIdx < imgs.length - 1) setPhotoIdx(photoIdx + 1) },
@@ -79,7 +96,6 @@ export default function ClientDetail({
  const [expandedSuggestions, setExpandedSuggestions] = useState<Set<string>>(new Set())
   const [processingSuggestion, setProcessingSuggestion] = useState<string | null>(null)
   const [suggestError, setSuggestError] = useState('')
-  const [photoRequestOpen, setPhotoRequestOpen] = useState(false)
   const [suggestRefresh, setSuggestRefresh] = useState(0)
 
   const toggleSuggestion = useCallback((id: string) => {
@@ -230,12 +246,14 @@ export default function ClientDetail({
       แก้ไขข้อมูลลูกค้า
      </h2>
     <AddClientForm
-     open={editOpen}
-     onOpenChange={setEditOpen}
-     onSave={handleEditSave}
-     editClient={client}
-     existingClients={clients}
-     variant="inline"
+      open={editOpen}
+      onOpenChange={setEditOpen}
+      onSave={handleEditSave}
+      editClient={client}
+      existingClients={clients}
+      variant="inline"
+      uploading={uploading}
+      uploadProgress={uploadProgress}
     />
    </CardContent>
   </Card>
@@ -297,35 +315,35 @@ export default function ClientDetail({
   )}
   <BadgeTag badge={client.badge} size="md" />
    <div className="border-t border-[var(--border)]" />
-   <div className="grid grid-cols-3 gap-3">
+   <div className="grid grid-cols-3 gap-1.5">
     <Button
      variant="outline"
-     className={`h-10 ${copied === 'text' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
+     className={`h-9 px-1 ${copied === 'text' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
      onClick={() => handleCopy()}
     >
-     <Copy className="w-4 h-4 shrink-0" />
-      <span className="text-xs">ข้อความ</span>
+     <Copy className="w-3.5 h-3.5 shrink-0" />
+      <span className="text-[11px]">ข้อความ</span>
     </Button>
     {client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng) && (
      <Button
       variant="outline"
-      className={`h-10 ${copied === 'text+maps' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
+      className={`h-9 px-1 ${copied === 'text+maps' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
       onClick={() => handleCopy('text+maps')}
      >
-     <Copy className="w-4 h-4 shrink-0" />
-      <span className="text-xs">ข้อความ + แผนที่</span>
+     <Copy className="w-3.5 h-3.5 shrink-0" />
+      <span className="text-[11px]">ข้อความ+แผนที่</span>
      </Button>
     )}
     {client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng) && (
      <Button
       variant="outline"
-      className={`h-10 ${copied === 'maps' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
+      className={`h-9 px-1 ${copied === 'maps' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
       onClick={() => handleCopy('maps')}
      >
-     <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+     <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
      </svg>
-      <span className="text-xs">แผนที่</span>
+      <span className="text-[11px]">แผนที่</span>
      </Button>
     )}
    </div>
@@ -354,6 +372,17 @@ export default function ClientDetail({
    {...cardSwipe}
    className="aspect-square md:aspect-[2/1] rounded-[10px] overflow-hidden relative touch-pan-y"
   >
+  {(() => {
+    const src = client.images[photoIdx]
+    const size = imageSizes[src]
+    return size != null ? (
+      <div className="absolute bottom-2 left-2 z-10 pointer-events-none inline-flex items-center gap-1 px-2 py-1 rounded-[6px] text-[12px] font-medium bg-black/60 text-white">
+        {size < 1024 * 1024
+          ? `${(size / 1024).toFixed(0)} KB`
+          : `${(size / (1024 * 1024)).toFixed(1)} MB`}
+      </div>
+    ) : null
+  })()}
  <div
  className={`flex h-full will-change-transform ${cardSwipe.isDragging ? '' : 'transition-transform duration-200 ease-out'}`}
  style={{ transform: `translateX(calc(-${photoIdx * 100}% + ${cardSwipe.dragOffset}px))` }}
@@ -458,14 +487,6 @@ export default function ClientDetail({
 
   {!hideActions && !isAdmin && (
    <div className="flex gap-2">
-    <Button
-     variant="outline"
-     className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
-     onClick={() => setPhotoRequestOpen(true)}
-    >
-     <Camera className="w-4 h-4" />
-     ขอแก้ไขรูป
-    </Button>
     <Button
      variant="outline"
      className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
@@ -694,13 +715,6 @@ export default function ClientDetail({
       onIndexChange={setLightboxIdx}
     />
   )}
-
-  {/* ── PHOTO REQUEST MODAL ── */}
-  <PhotoRequestDialog
-    client={client}
-    open={photoRequestOpen}
-    onOpenChange={setPhotoRequestOpen}
-  />
   </div>
   )
 }

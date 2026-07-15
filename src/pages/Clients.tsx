@@ -112,7 +112,8 @@ export function PageClient() {
     const withImages = clients.filter((c) => c.images.length > 0).length
     const noImages = total - withImages
     const recent = clients.filter((c) => c.createdAt > recentCutoff).length
-    return { total, withImages, noImages, recent }
+    const penpay = clients.filter((c) => c.badge === 'penpay').length
+    return { total, withImages, noImages, recent, penpay }
   }, [clients, recentCutoff])
 
   const filtered = useMemo(() => {
@@ -135,6 +136,9 @@ export function PageClient() {
         break
       case FilterKey.Recent:
         result = result.filter((c) => c.createdAt > recentCutoff)
+        break
+      case FilterKey.Penpay:
+        result = result.filter((c) => c.badge === 'penpay')
         break
     }
     return result

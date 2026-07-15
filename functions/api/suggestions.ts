@@ -38,7 +38,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
   const { env, request } = context
   let body: unknown
   try { body = await request.json() } catch { return error('Invalid request') }
-  const { clientId, suggested, original } = body as Record<string, unknown>
+  const { clientId, suggested, original, suggestedPhoto } = body as Record<string, unknown>
 
   if (typeof clientId !== 'string') return error('Invalid request')
 
@@ -50,6 +50,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
     clientId,
     suggested: suggested as any,
     original: original as any,
+    suggestedPhoto: typeof suggestedPhoto === 'string' ? suggestedPhoto : null,
     status: 'pending',
     createdAt: now,
     updatedAt: now,
@@ -60,6 +61,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
     clientId,
     suggested,
     original,
+    suggestedPhoto: typeof suggestedPhoto === 'string' ? suggestedPhoto : null,
     status: 'pending',
     createdAt: now,
     updatedAt: now,

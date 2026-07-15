@@ -21,24 +21,41 @@ async function uploadBase64Images(
   clientId: string,
   base64Images: string[],
   deletedImages: string[],
+  onProgress?: (pct: number) => void,
 ): Promise<{ ok: true; images: string[] } | { ok: false }> {
   if (base64Images.length === 0 && deletedImages.length === 0) {
     return { ok: true, images: [] }
   }
   try {
-    const res = await apiFetch('/api/photo-request', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clientId, images: base64Images, deletedImages }),
-    })
-    if (res.ok) {
-      const data = (await res.json()) as { images: string[] }
-      return { ok: true, images: data.images }
-    }
+    const payload = JSON.stringify({ clientId, images: base64Images, deletedImages })
+    const data = await xhrPost<{ images: string[] }>('/api/photo-request', payload, onProgress)
+    if (data) return { ok: true, images: data.images }
   } catch (e) {
     console.warn('Failed to upload images to R2', e)
   }
   return { ok: false }
+}
+
+function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => void): Promise<T | null> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url)
+    xhr.setRequestHeader('Content-Type', 'application/json')
+    const token = localStorage.getItem('ezzylist_admin_token')
+    if (token) xhr.setRequestHeader('x-admin-token', token)
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100))
+    }
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try { resolve(JSON.parse(xhr.responseText) as T) } catch { resolve(null) }
+      } else {
+        reject(new Error(`Upload failed: ${xhr.status}`))
+      }
+    }
+    xhr.onerror = () => reject(new Error('Network error'))
+    xhr.send(body)
+  })
 }
 
 export async function fetchClients(limit?: number): Promise<Client[]> {
@@ -61,7 +78,7 @@ export async function fetchClients(limit?: number): Promise<Client[]> {
   return fresh
 }
 
-export async function addClient(client: Client): Promise<Client> {
+export async function addClient(client: Client, onProgress?: (pct: number) => void): Promise<Client> {
   // Strip base64 images (too large for the POST body / D1), upload to R2
   const base64Images = client.images.filter(isBase64Image)
   const cleanImages = client.images.filter((s) => !isBase64Image(s))
@@ -77,7 +94,7 @@ export async function addClient(client: Client): Promise<Client> {
   // Upload photos to R2 now that we have a real clientId
   let finalImages = cleanImages
   if (base64Images.length > 0) {
-    const result = await uploadBase64Images(id, base64Images, [])
+    const result = await uploadBase64Images(id, base64Images, [], onProgress)
     if (result.ok) {
       // Keep only R2 URLs — strip any base64 that may have been in D1
       finalImages = result.images.filter((s) => !isBase64Image(s))
@@ -90,7 +107,7 @@ export async function addClient(client: Client): Promise<Client> {
   return saved
 }
 
-export async function updateClient(client: Client): Promise<Client> {
+export async function updateClient(client: Client, onProgress?: (pct: number) => void): Promise<Client> {
   const base64Images = client.images.filter(isBase64Image)
   const cleanImages = client.images.filter((s) => !isBase64Image(s))
 
@@ -111,7 +128,7 @@ export async function updateClient(client: Client): Promise<Client> {
       // non-critical — we can still upload, just won't clean up removed ones
     }
     const deletedImages = prevR2Urls.filter((url) => !cleanImages.includes(url))
-    const result = await uploadBase64Images(client.id, base64Images, deletedImages)
+    const result = await uploadBase64Images(client.id, base64Images, deletedImages, onProgress)
     if (result.ok) {
       // Keep only R2 URLs — strip any base64 that may have been in D1
       finalImages = result.images.filter((s) => !isBase64Image(s))

@@ -1,9 +1,13 @@
 import { createDb } from '../lib/db'
 import { settings } from '../lib/schema'
 import { eq, sql } from 'drizzle-orm'
-import { json } from '../lib/response'
+import { json, unauthorized } from '../lib/response'
+import { verifyToken, getTokenFromRequest } from '../lib/auth'
 
-export async function onRequestGet(context: EventContext<Env, any, any>) {
+export async function onRequestPost(context: EventContext<Env, any, any>) {
+  const token = getTokenFromRequest(context.request)
+  if (!token || !(await verifyToken(token, context.env.TOKEN_SECRET))) return unauthorized()
+
   const db = createDb(context.env.DB)
   const days = 30
   const cutoff = Date.now() - days * 86_400_000

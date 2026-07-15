@@ -19,6 +19,8 @@ export default function ClientDetailPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const { isAdmin } = useAuthStore()
   const cliStore = useClientStore()
   const mountedRef = useRef(true)
@@ -65,11 +67,16 @@ export default function ClientDetailPage() {
   const handleUpdate = useCallback(
     async (updated: Client) => {
       try {
-        const saved = await updateClient(updated)
+        setUploading(true)
+        setUploadProgress(0)
+        const saved = await updateClient(updated, setUploadProgress)
         setClient(saved)
         cliStore.updateClient(saved.id, saved)
       } catch {
         // Keep the current store list; no extra D1 fetch on failure.
+      } finally {
+        setUploading(false)
+        setUploadProgress(0)
       }
     },
     [cliStore],
@@ -127,6 +134,8 @@ export default function ClientDetailPage() {
         clients={clients}
         onClientUpdated={handleUpdate}
         onClientDeleted={handleDelete}
+        uploading={uploading}
+        uploadProgress={uploadProgress}
       />
     </div>
   )

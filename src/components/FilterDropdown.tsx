@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { Funnel, Image, Circle, Clock, Check } from '@phosphor-icons/react'
+import { Funnel, Image, Circle, Clock, Check, CurrencyDollar } from '@phosphor-icons/react'
 import { FilterKey } from '@/types'
 
 interface Counts {
@@ -10,6 +10,7 @@ interface Counts {
   withImages: number
   noImages: number
   recent: number
+  penpay: number
 }
 
 interface Props {
@@ -23,6 +24,7 @@ const filterItems: { key: FilterKey; label: string; icon: React.ReactNode }[] = 
   { key: FilterKey.WithImages, label: 'มีรูปภาพ', icon: <Image className="w-3.5 h-3.5" /> },
   { key: FilterKey.NoImages, label: 'ไม่มีรูป', icon: <Circle className="w-3.5 h-3.5" /> },
   { key: FilterKey.Recent, label: 'สร้างใน 7 วัน', icon: <Clock className="w-3.5 h-3.5" /> },
+  { key: FilterKey.Penpay, label: 'จ่ายในวัน', icon: <CurrencyDollar className="w-3.5 h-3.5" /> },
 ]
 
 export default function FilterDropdown({ filter, counts, onFilter }: Props) {
@@ -71,7 +73,9 @@ export default function FilterDropdown({ filter, counts, onFilter }: Props) {
               ? counts.withImages
               : filter === FilterKey.NoImages
                 ? counts.noImages
-                : counts.recent}
+                : filter === FilterKey.Penpay
+                  ? counts.penpay
+                  : counts.recent}
         </span>
       </button>
 
@@ -93,7 +97,9 @@ export default function FilterDropdown({ filter, counts, onFilter }: Props) {
                     ? counts.withImages
                     : item.key === FilterKey.NoImages
                       ? counts.noImages
-                      : counts.recent
+                      : item.key === FilterKey.Penpay
+                        ? counts.penpay
+                        : counts.recent
 
               return (
                 <button

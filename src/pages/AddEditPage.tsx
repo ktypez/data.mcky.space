@@ -14,6 +14,8 @@ export default function AddEditPage() {
   const { clients, initialize } = useClientStore()
   const cliStore = useClientStore()
   const { isAdmin } = useAuthStore()
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   useEffect(() => {
     initialize()
@@ -26,13 +28,16 @@ export default function AddEditPage() {
     async (data: Omit<Client, 'createdAt' | 'updatedAt'>) => {
       const existing = clients.find((c) => c.id === data.id)
       try {
+        setUploading(true)
+        setUploadProgress(0)
+        let saved: Client
         if (existing) {
           const updated: Client = {
             ...data,
             createdAt: existing.createdAt,
             updatedAt: Date.now(),
           }
-          const saved = await updateClient(updated)
+          saved = await updateClient(updated, setUploadProgress)
           cliStore.updateClient(saved.id, saved)
         } else {
           const nc: Client = {
@@ -40,7 +45,7 @@ export default function AddEditPage() {
             createdAt: Date.now(),
             updatedAt: Date.now(),
           }
-          const saved = await addClient(nc)
+          saved = await addClient(nc, setUploadProgress)
           cliStore.addClient(saved)
         }
         navigate('/')
@@ -48,6 +53,9 @@ export default function AddEditPage() {
         cliStore.refresh()
           .then(() => {})
           .catch(() => {})
+      } finally {
+        setUploading(false)
+        setUploadProgress(0)
       }
     },
     [clients, navigate],
@@ -60,6 +68,8 @@ export default function AddEditPage() {
         clients={clients}
         onBack={() => navigate('/')}
         onSave={handleSave}
+        uploading={uploading}
+        uploadProgress={uploadProgress}
       />
     </div>
   )

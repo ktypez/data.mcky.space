@@ -3,6 +3,7 @@ import { suggestions, clients } from '../../lib/schema'
 import { eq } from 'drizzle-orm'
 import { verifyToken, getTokenFromRequest } from '../../lib/auth'
 import { json, error, unauthorized } from '../../lib/response'
+import { uploadClientImages } from '../../lib/r2'
 
 export async function onRequestPut(context: EventContext<Env, any, any>) {
   const { env, request, params } = context
@@ -23,18 +24,33 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
 
   if (action === 'approve') {
     const suggested = row.suggested as Record<string, unknown>
-    await db.update(clients).set({
+    const update: Record<string, unknown> = {
       name: suggested.name as string,
       shopName: suggested.shopName as string,
       address: suggested.address as string,
       lat: suggested.lat as number | null,
       lng: suggested.lng as number | null,
       updatedAt: now,
-    }).where(eq(clients.id, row.clientId))
+    }
+
+    // Upload photo if this is a photo suggestion
+    if (row.suggestedPhoto) {
+      const newUrls = await uploadClientImages(env.BUCKET, env.R2_PUBLIC_URL, row.clientId, [row.suggestedPhoto])
+      if (newUrls.length > 0 && newUrls[0].startsWith('http')) {
+        // Get current images and append new one
+        const [client] = await db.select().from(clients).where(eq(clients.id, row.clientId))
+        const currentImages = (client?.images as string[]) || []
+        update.images = [...currentImages, newUrls[0]]
+      }
+    }
+
+    await db.update(clients).set(update).where(eq(clients.id, row.clientId))
   }
 
+  // Clear suggestedPhoto after processing
   await db.update(suggestions).set({
     status: action === 'approve' ? 'approved' : 'rejected',
+    suggestedPhoto: null,
     updatedAt: now,
   }).where(eq(suggestions.id, params.id))
 

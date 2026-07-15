@@ -10,6 +10,8 @@ interface InlineAddEditViewProps {
   clients: Client[]
   onBack: () => void
   onSave: (data: Omit<Client, 'createdAt' | 'updatedAt'>) => void
+  uploading?: boolean
+  uploadProgress?: number
 }
 
 export default function InlineAddEditView({
@@ -17,6 +19,8 @@ export default function InlineAddEditView({
   clients,
   onBack,
   onSave,
+  uploading,
+  uploadProgress,
 }: InlineAddEditViewProps) {
   return (
     <>
@@ -37,6 +41,8 @@ export default function InlineAddEditView({
               editClient={editClient ?? undefined}
               existingClients={clients}
               variant="inline"
+              uploading={uploading}
+              uploadProgress={uploadProgress}
             />
           </CardContent>
         </Card>

@@ -6,10 +6,11 @@ import { checkDuplicateName } from '@/lib/duplicate-names'
 import { generateId } from '@/lib/utils'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import MapPicker from '@/components/MapPickerDynamic'
-import ImageUpload from '@/components/ImageUpload'
+import PhotoUploadModal from '@/components/PhotoUploadModal'
+import AppImage from '@/components/AppImage'
 import { getBadgePreset } from '@/components/BadgeTag'
 import { Switch } from '@/components/ui/switch'
-import { MapPin, X, Crosshair, MagnifyingGlass, Warning, Plus, Pencil } from '@phosphor-icons/react'
+import { MapPin, X, Crosshair, MagnifyingGlass, Warning, Plus, Pencil, Camera } from '@phosphor-icons/react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 
@@ -20,6 +21,8 @@ interface Props {
   editClient?: Client
   existingClients: Client[]
   variant?: 'sheet' | 'inline'
+  uploading?: boolean
+  uploadProgress?: number
 }
 
 export default function AddClientForm({
@@ -29,6 +32,8 @@ export default function AddClientForm({
   editClient,
   existingClients,
   variant = 'sheet',
+  uploading,
+  uploadProgress,
 }: Props) {
   const [name, setName] = useState(() => editClient?.name ?? '')
   const [shopName, setShopName] = useState(() => editClient?.shopName ?? '')
@@ -41,6 +46,7 @@ export default function AddClientForm({
   const { getCurrentLocation, locating } = useGeolocation()
   const [locQuery, setLocQuery] = useState('')
   const [locSearching, setLocSearching] = useState(false)
+  const [photoModalOpen, setPhotoModalOpen] = useState(false)
   const [debouncedName, setDebouncedName] = useState(() => editClient?.name ?? '')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -252,7 +258,43 @@ export default function AddClientForm({
       {/* Photo */}
       <div className="space-y-1">
         <label className={labelClass}>รูปร้านค้า</label>
-        <ImageUpload images={images} onChange={setImages} />
+        <div className="flex flex-wrap gap-2">
+          {images.map((src, i) => (
+            <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[var(--border)]">
+              {(src.startsWith('data:image') || src.startsWith('http')) ? (
+                <AppImage src={src} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-[var(--surface)] flex items-center justify-center text-xs text-[var(--text-muted)]">?</div>
+              )}
+              <Button
+                variant="default"
+                size="icon-xs"
+                className="absolute top-0.5 right-0.5 rounded-full"
+                onClick={() => setImages(images.filter((_, j) => j !== i))}
+                disabled={uploading}
+                aria-label="ลบรูปภาพ"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+          ))}
+          {images.length < 2 && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-20 h-20 rounded-lg border-dashed flex flex-col gap-1"
+              onClick={() => setPhotoModalOpen(true)}
+            >
+              <Camera className="w-5 h-5" />
+              <span className="text-[10px] font-semibold">{images.length}/2</span>
+            </Button>
+          )}
+        </div>
+          <PhotoUploadModal
+            open={photoModalOpen}
+            onOpenChange={setPhotoModalOpen}
+            onCompressed={(dataUrl) => setImages([...images, dataUrl])}
+          />
       </div>
 
       {/* Notes */}
@@ -292,9 +334,9 @@ export default function AddClientForm({
         >
           ยกเลิก
         </Button>
-        <Button type="submit" className="flex-1 h-12">
+        <Button type="submit" className="flex-1 h-12" disabled={uploading}>
           {editing ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {editing ? 'อัปเดตข้อมูล' : 'เพิ่มลูกค้าใหม่'}
+          {uploading ? 'กำลังอัปโหลด...' : editing ? 'อัปเดตข้อมูล' : 'เพิ่มลูกค้าใหม่'}
         </Button>
       </div>
     </form>

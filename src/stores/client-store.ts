@@ -110,34 +110,6 @@ export const useClientStore = create<ClientState>((set, get) => ({
     }
   },
 
-  initializeLegacy: async () => {
-    if (get().initialized) return
-    set({ loading: true, error: null })
-    // D1 is the source of truth. We no longer trust a stale IndexedDB cache as
-    // the displayed list, because a cached client set missing a freshly-added
-    // client would make new entries "disappear after refresh".
-    // Strategy: try D1 first; on success overwrite everything (incl. cache).
-    // Only fall back to a stale IndexedDB snapshot if the network fully fails.
-    try {
-      const data = await fetchClients()
-      set({ clients: data, loading: false, initialized: true })
-      return
-    } catch {
-      // network/D1 failed — fall back to whatever is in IndexedDB
-      try {
-        const idb = await getAllClients()
-        if (idb.length > 0) {
-          const sorted = (idb as unknown as Client[]).sort(
-            (a, b) => b.updatedAt - a.updatedAt,
-          )
-          set({ clients: sorted, loading: false, initialized: true })
-          return
-        }
-      } catch {}
-      set({ error: 'Failed to load clients', loading: false, initialized: true })
-    }
-  },
-
   refresh: async () => {
     set({ refreshing: true, error: null })
     try {
