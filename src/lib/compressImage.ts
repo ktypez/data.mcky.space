@@ -1,15 +1,27 @@
 const MAX_DIMENSION = 2048
 
+function isHeicFile(file: File): boolean {
+  const type = file.type.toLowerCase()
+  if (type === 'image/heic' || type === 'image/heif') return true
+  const name = file.name.toLowerCase()
+  return name.endsWith('.heic') || name.endsWith('.heif')
+}
+
 export async function compressImage(file: File, maxSizeMB = 3): Promise<File> {
   try {
     const img = await loadImage(file)
 
     let { width, height } = img
-    if (width <= MAX_DIMENSION && height <= MAX_DIMENSION && file.size <= maxSizeMB * 1024 * 1024) {
+    const needsResize = width > MAX_DIMENSION || height > MAX_DIMENSION
+    const needsCompress = file.size > maxSizeMB * 1024 * 1024
+    const isHeic = isHeicFile(file)
+
+    // Skip canvas for non-HEIC files that are already small enough
+    if (!isHeic && !needsResize && !needsCompress) {
       return file
     }
 
-    if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+    if (needsResize) {
       const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height)
       width = Math.round(width * ratio)
       height = Math.round(height * ratio)
@@ -20,6 +32,12 @@ export async function compressImage(file: File, maxSizeMB = 3): Promise<File> {
     canvas.height = height
     const ctx = canvas.getContext('2d')!
     ctx.drawImage(img, 0, 0, width, height)
+
+    // HEIC/HEIF images may draw as all-black on canvas — detect and bail
+    if (isHeic && isCanvasBlack(canvas)) {
+      console.warn('Canvas output is black (HEIC/HEIF not supported by canvas), using original file')
+      return file
+    }
 
     // Binary search for optimal quality
     const targetBytes = maxSizeMB * 1024 * 1024
@@ -49,6 +67,18 @@ export async function compressImage(file: File, maxSizeMB = 3): Promise<File> {
     console.warn('Image compression failed, using original', e)
     return file
   }
+}
+
+function isCanvasBlack(canvas: HTMLCanvasElement): boolean {
+  const ctx = canvas.getContext('2d')!
+  const step = Math.max(1, Math.floor(Math.min(canvas.width, canvas.height) / 10))
+  for (let x = 0; x < canvas.width; x += step) {
+    for (let y = 0; y < canvas.height; y += step) {
+      const pixel = ctx.getImageData(x, y, 1, 1).data
+      if (pixel[0] > 3 || pixel[1] > 3 || pixel[2] > 3) return false
+    }
+  }
+  return true
 }
 
 function loadImage(file: File): Promise<HTMLImageElement> {
