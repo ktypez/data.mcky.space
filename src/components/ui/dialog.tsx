@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { scaleIn, fadeIn, smooth } from '@/lib/motion'
+import { scaleIn, fadeIn, spring } from '@/lib/motion'
 
 interface DialogProps {
   open?: boolean
@@ -23,7 +23,7 @@ function Dialog({ open, onOpenChange, popupClassName, children }: DialogProps) {
           <motion.div
             className="fixed inset-0 bg-black/40 backdrop-blur-sm"
             variants={fadeIn}
-            transition={smooth}
+            transition={spring}
             onClick={() => onOpenChange?.(false)}
           />
           <motion.div
@@ -32,7 +32,7 @@ function Dialog({ open, onOpenChange, popupClassName, children }: DialogProps) {
               popupClassName,
             )}
             variants={scaleIn}
-            transition={smooth}
+            transition={spring}
           >
             {children}
           </motion.div>

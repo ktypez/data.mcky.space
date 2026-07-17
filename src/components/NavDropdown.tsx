@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useAuthStore } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
 import { ArrowLeft, MapTrifold, ChatDots, Trash, SignOut, LockKey } from '@phosphor-icons/react'
-import { scaleIn, fadeIn, smooth } from '@/lib/motion'
+import { scaleIn, fadeIn, spring } from '@/lib/motion'
 
 export default function NavDropdown() {
   const navigate = useNavigate()
@@ -64,7 +64,7 @@ export default function NavDropdown() {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                transition={smooth}
+                transition={spring}
                 onClick={close}
               />
             )}
@@ -85,7 +85,7 @@ export default function NavDropdown() {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                transition={smooth}
+                transition={spring}
               >
                 <button
                   onClick={() => { close(); resetView(); navigate('/') }}

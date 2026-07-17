@@ -7,7 +7,7 @@ import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import BadgeTag from '@/components/BadgeTag'
 import LoadMore from '@/components/LoadMore'
-import { staggerContainer, staggerItem, smooth } from '@/lib/motion'
+import { staggerContainer, staggerItem } from '@/lib/motion'
 
 interface DesktopTableViewProps {
  displayed: Client[]

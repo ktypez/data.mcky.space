@@ -2,7 +2,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { Copy } from '@phosphor-icons/react'
 import type { Client } from '@/types'
-import { scaleIn, smooth } from '@/lib/motion'
+import { scaleIn, spring } from '@/lib/motion'
 
 interface CopyDropdownProps {
   client: Client
@@ -63,7 +63,7 @@ export default function CopyDropdown({
             initial="hidden"
             animate="visible"
             exit="hidden"
-            transition={smooth}
+            transition={spring}
           >
             <button
               onClick={(e) => {

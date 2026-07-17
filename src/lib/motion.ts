@@ -11,17 +11,26 @@ export function useReducedMotion(): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Transition presets
+// Transition presets — tuned for 60fps butter
 // ---------------------------------------------------------------------------
 
-export const spring: Transition = { type: 'spring', stiffness: 300, damping: 24 }
-export const springSlow: Transition = { type: 'spring', stiffness: 200, damping: 20 }
-export const smooth: Transition = { duration: 0.2, ease: [0.16, 1, 0.3, 1] }
-export const snappy: Transition = { duration: 0.12, ease: [0.87, 0, 0.13, 1] }
+/** Smooth UI transition — 180ms with natural deceleration */
+export const smooth: Transition = { duration: 0.18, ease: [0.25, 1, 0.5, 1] }
+
+/** Snappy micro-interaction — 120ms, fast out */
+export const snappy: Transition = { duration: 0.12, ease: [0.25, 1, 0.5, 1] }
+
+/** Spring for dialogs/modals — crisp, minimal overshoot */
+export const spring: Transition = { type: 'spring', stiffness: 400, damping: 30 }
+
+/** Spring for smaller elements — slightly bouncier */
+export const springSmall: Transition = { type: 'spring', stiffness: 500, damping: 28 }
+
+/** Instant — for reduced motion fallback */
 export const instant: Transition = { duration: 0 }
 
 // ---------------------------------------------------------------------------
-// Variant factories
+// Variant factories — minimal movement for 60fps
 // ---------------------------------------------------------------------------
 
 export const fadeIn: Variants = {
@@ -30,35 +39,35 @@ export const fadeIn: Variants = {
 }
 
 export const slideUp: Variants = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0, y: 8 },
   visible: { opacity: 1, y: 0 },
 }
 
 export const slideDown: Variants = {
-  hidden: { opacity: 0, y: -12 },
+  hidden: { opacity: 0, y: -8 },
   visible: { opacity: 1, y: 0 },
 }
 
 export const slideLeft: Variants = {
-  hidden: { opacity: 0, x: 20 },
+  hidden: { opacity: 0, x: 16 },
   visible: { opacity: 1, x: 0 },
 }
 
 export const slideRight: Variants = {
-  hidden: { opacity: 0, x: -20 },
+  hidden: { opacity: 0, x: -16 },
   visible: { opacity: 1, x: 0 },
 }
 
 export const scaleIn: Variants = {
-  hidden: { opacity: 0, scale: 0.95 },
+  hidden: { opacity: 0, scale: 0.96 },
   visible: { opacity: 1, scale: 1 },
 }
 
 // ---------------------------------------------------------------------------
-// Stagger container
+// Stagger container — fast stagger, snappy items
 // ---------------------------------------------------------------------------
 
-export function staggerContainer(staggerAmount = 0.03): Variants {
+export function staggerContainer(staggerAmount = 0.025): Variants {
   return {
     hidden: {},
     visible: { transition: { staggerChildren: staggerAmount } },
@@ -66,19 +75,15 @@ export function staggerContainer(staggerAmount = 0.03): Variants {
 }
 
 export const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: smooth },
+  hidden: { opacity: 0, y: 6 },
+  visible: { opacity: 1, y: 0, transition: snappy },
 }
 
 // ---------------------------------------------------------------------------
 // Sheet slide variants (per side)
 // ---------------------------------------------------------------------------
 
-type Side = 'top' | 'right' | 'bottom' | 'left'
-
-const slideDistance = '100%'
-
-export function sheetVariants(side: Side): Variants {
+export function sheetVariants(side: 'top' | 'right' | 'bottom' | 'left'): Variants {
   const axis = side === 'top' || side === 'bottom' ? 'y' : 'x'
   const sign = side === 'bottom' || side === 'right' ? 1 : -1
 

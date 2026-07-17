@@ -7,7 +7,7 @@ import { Palette, Check } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { useUIStore } from '@/stores/ui-store'
 import { themes } from '@/lib/design/themes'
-import { scaleIn, fadeIn, smooth } from '@/lib/motion'
+import { scaleIn, fadeIn, spring } from '@/lib/motion'
 
 function Swatch({ color, label }: { color: string; label: string }) {
   return (
@@ -70,7 +70,7 @@ export default function ThemePresetPicker() {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                transition={smooth}
+                transition={spring}
                 onClick={close}
               />
             )}
@@ -91,7 +91,7 @@ export default function ThemePresetPicker() {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                transition={smooth}
+                transition={spring}
               >
                 <div className="space-y-0.5">
                   {themes.map((t) => {

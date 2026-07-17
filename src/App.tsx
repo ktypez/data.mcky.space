@@ -9,7 +9,7 @@ import TrashPage from './pages/TrashPage'
 import AddEditPage from './pages/AddEditPage'
 import { useAuthStore } from './stores/auth-store'
 import { useClientStore } from './stores/client-store'
-import { slideUp, smooth } from './lib/motion'
+import { slideUp, spring } from './lib/motion'
 
 const LoginModal = lazy(() => import('./components/LoginModal'))
 
@@ -19,7 +19,7 @@ function PageTransition({ children }: { children: React.ReactNode }) {
       variants={slideUp}
       initial="hidden"
       animate="visible"
-      transition={smooth}
+      transition={spring}
     >
       {children}
     </motion.div>

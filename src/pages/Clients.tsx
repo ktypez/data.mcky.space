@@ -14,7 +14,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
 import { copyToClipboard, getMapsUrl } from '@/lib/utils'
-import { slideLeft, slideRight, smooth } from '@/lib/motion'
+import { slideLeft, slideRight, spring, springSmall } from '@/lib/motion'
 function FetchErrorScreen({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -336,7 +336,7 @@ export function PageClient() {
               initial="hidden"
               animate="visible"
               exit="hidden"
-              transition={smooth}
+              transition={spring}
               className="flex min-h-screen min-w-0 flex-1 flex-col"
             >
               <PageHeader
@@ -366,7 +366,7 @@ export function PageClient() {
               initial="hidden"
               animate="visible"
               exit="hidden"
-              transition={smooth}
+              transition={spring}
               className="flex min-h-screen min-w-0 flex-1 flex-col"
             >
             <PageHeader
@@ -493,18 +493,15 @@ export function PageClient() {
                 className="fixed bottom-5 right-5 z-40 md:hidden"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                transition={springSmall}
               >
                 <Button
                   className="size-12 rounded-full shadow-lg"
                   size="icon"
                   aria-label="Add client"
                   onClick={navToAdd}
-                  asChild
                 >
-                  <motion.div whileTap={{ scale: 0.9 }}>
-                    <Plus className="size-5" />
-                  </motion.div>
+                  <Plus className="size-5" />
                 </Button>
               </motion.div>
             )}

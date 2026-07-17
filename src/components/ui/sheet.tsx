@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { sheetVariants, fadeIn, smooth } from '@/lib/motion'
+import { sheetVariants, fadeIn, spring } from '@/lib/motion'
 
 type Side = 'top' | 'right' | 'bottom' | 'left'
 
@@ -32,13 +32,13 @@ function Sheet({ open, onOpenChange, side = 'right', children }: SheetProps) {
           <motion.div
             className="fixed inset-0 bg-black/40 backdrop-blur-sm"
             variants={fadeIn}
-            transition={smooth}
+            transition={spring}
             onClick={() => onOpenChange?.(false)}
           />
           <motion.div
             className={cn('fixed bg-card shadow-lg border', sideStyles[side])}
             variants={sheetVariants(side)}
-            transition={smooth}
+            transition={spring}
           >
             {children}
           </motion.div>

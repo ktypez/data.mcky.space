@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { Funnel, Image, Circle, Clock, Check, CurrencyDollar } from '@phosphor-icons/react'
 import { FilterKey } from '@/types'
-import { scaleIn, fadeIn, smooth } from '@/lib/motion'
+import { scaleIn, fadeIn, spring } from '@/lib/motion'
 
 interface Counts {
   total: number
@@ -91,7 +91,7 @@ export default function FilterDropdown({ filter, counts, onFilter }: Props) {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                transition={smooth}
+                transition={spring}
                 onClick={close}
               />
             )}
@@ -112,7 +112,7 @@ export default function FilterDropdown({ filter, counts, onFilter }: Props) {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                transition={smooth}
+                transition={spring}
               >
                 {filterItems.map((item) => {
                   const isActive = filter === item.key

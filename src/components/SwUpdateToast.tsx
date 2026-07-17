@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Button } from '@/components/ui/button'
 import { ArrowClockwise } from '@phosphor-icons/react'
-import { slideUp, smooth } from '@/lib/motion'
+import { slideUp, spring } from '@/lib/motion'
 
 export default function SwUpdateToast() {
   const [show, setShow] = useState(false)
@@ -29,7 +29,7 @@ export default function SwUpdateToast() {
           initial="hidden"
           animate="visible"
           exit="hidden"
-          transition={smooth}
+          transition={spring}
         >
           <span className="text-sm text-[var(--text-primary)]">มีเวอร์ชันใหม่</span>
           <Button

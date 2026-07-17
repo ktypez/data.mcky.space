@@ -9,7 +9,7 @@ import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadg
 import BadgeTag from '@/components/BadgeTag'
 import LoadMore from '@/components/LoadMore'
 import { Card } from '@/components/ui/card'
-import { staggerContainer, staggerItem, smooth } from '@/lib/motion'
+import { staggerContainer, staggerItem } from '@/lib/motion'
 
 interface DesktopCardViewProps {
  displayed: Client[]
