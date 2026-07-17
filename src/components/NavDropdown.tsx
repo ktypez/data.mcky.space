@@ -4,11 +4,13 @@ import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth-store'
+import { useUIStore } from '@/stores/ui-store'
 import { ArrowLeft, MapTrifold, ChatDots, Trash, SignOut, LockKey } from '@phosphor-icons/react'
 
 export default function NavDropdown() {
   const navigate = useNavigate()
   const { isAdmin, logout, setLoginOpen } = useAuthStore()
+  const { resetView } = useUIStore()
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState({ top: 0, left: 0 })
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -60,7 +62,7 @@ export default function NavDropdown() {
             style={{ top: pos.top, left: pos.left }}
           >
             <button
-              onClick={() => { close(); navigate('/') }}
+              onClick={() => { close(); resetView(); navigate('/') }}
               className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
             >
               <ArrowLeft className="w-4 h-4 text-muted-foreground shrink-0" />
