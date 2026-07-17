@@ -1,12 +1,10 @@
-'use client'
 
 import { memo } from 'react'
-import { Note, CurrencyDollar } from '@phosphor-icons/react'
 import type { Client, FilterKey } from '@/types'
 import CopyDropdown from '@/components/CopyDropdown'
 import EmptyState from '@/components/EmptyState'
 import { formatDate } from '@/lib/utils'
-import SuggestionBadge from '@/components/SuggestionBadge'
+import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import BadgeTag from '@/components/BadgeTag'
 import LoadMore from '@/components/LoadMore'
 import { Card } from '@/components/ui/card'
@@ -78,9 +76,7 @@ const DesktopCardView = memo(function DesktopCardView({
  {/* Header: photo + name + copy */}
  <div className="flex items-start gap-3">
  <div className="relative shrink-0">
- <div className="rounded-[6px]">
  {client.images.length > 0 ? (
- /* eslint-disable-next-line @next/next/no-img-element */
  <img
  src={client.images[0]}
  alt=""
@@ -88,26 +84,13 @@ const DesktopCardView = memo(function DesktopCardView({
  className="w-14 h-14 aspect-square rounded-[6px] object-cover shrink-0"
  />
   ) : (
-  <div className="w-14 h-14 aspect-square rounded-[6px] bg-[var(--surface-hover)] shrink-0 flex items-center justify-center text-muted-foreground/30">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z"/></svg>
-  </div>
+  <PlaceholderAvatar className="w-14 h-14 aspect-square rounded-[6px] shrink-0" />
   )}
- </div>
- <div className="absolute bottom-0 right-0 z-20 flex flex-row-reverse items-center gap-0.5">
-  {client.notes && (
-    <div className="rounded-full bg-green-500 p-0.5">
-      <Note className="w-2.5 h-2.5 text-white" />
-    </div>
-  )}
-  {client.badge && (
-    <div className="rounded-full bg-[var(--destructive)] p-0.5">
-      <CurrencyDollar className="w-2.5 h-2.5 text-[var(--destructive-foreground)]" />
-    </div>
-  )}
-  {pendingSuggestionIds.has(client.id) && (
-    <SuggestionBadge size="sm" />
-  )}
- </div>
+ <ClientCardBadges
+   hasNotes={!!client.notes}
+   hasBadge={!!client.badge}
+   hasSuggestion={pendingSuggestionIds.has(client.id)}
+ />
  </div>
   <div className="min-w-0 flex-1">
   <div className="font-semibold text-[16px] text-[var(--text-primary)] truncate">

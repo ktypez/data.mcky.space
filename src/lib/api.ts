@@ -1,4 +1,4 @@
-export function authHeaders(): Record<string, string> {
+function authHeaders(): Record<string, string> {
   const token = localStorage.getItem('ezzylist_admin_token')
   return token ? { 'x-admin-token': token } : {}
 }

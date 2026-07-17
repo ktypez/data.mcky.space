@@ -82,13 +82,3 @@ export async function deleteClient(id: string): Promise<void> {
     tx.onerror = () => reject(tx.error)
   })
 }
-
-export async function clearClientsStore(): Promise<void> {
-  const db = await getDb()
-  const tx = db.transaction('clients', 'readwrite')
-  await promisifyRequest(tx.objectStore('clients').clear())
-  await new Promise<void>((resolve, reject) => {
-    tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
-  })
-}

@@ -1,4 +1,3 @@
-'use client'
 
 import { Copy } from '@phosphor-icons/react'
 import type { Client } from '@/types'

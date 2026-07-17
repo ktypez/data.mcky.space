@@ -1,4 +1,3 @@
-'use client'
 
 import { X, List, SquaresFour, ArrowClockwise, NavigationArrow, Check } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'

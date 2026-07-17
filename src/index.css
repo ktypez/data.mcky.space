@@ -68,11 +68,30 @@
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
 }
 
+/* Bubblegum: hard offset shadows (no blur) — pink light, navy dark */
+[data-theme='bubblegum'] {
+  --shadow-xs: 3px 3px 0px 0px hsl(326 58% 57% / 0.5);
+  --shadow-sm: 3px 3px 0px 0px hsl(326 58% 57% / 1), 3px 1px 2px -1px hsl(326 58% 57% / 1);
+  --shadow-md: 3px 3px 0px 0px hsl(326 58% 57% / 1), 3px 2px 4px -1px hsl(326 58% 57% / 1);
+  --shadow-lg: 3px 3px 0px 0px hsl(326 58% 57% / 1), 3px 4px 6px -1px hsl(326 58% 57% / 1);
+  --shadow-xl: 3px 3px 0px 0px hsl(326 58% 57% / 1), 3px 8px 10px -1px hsl(326 58% 57% / 1);
+  --shadow-2xl: 3px 3px 0px 0px hsl(326 58% 57% / 2.5);
+}
+.dark[data-theme='bubblegum'] {
+  --shadow-xs: 3px 3px 0px 0px hsl(206 28% 27% / 0.5);
+  --shadow-sm: 3px 3px 0px 0px hsl(206 28% 27% / 1), 3px 1px 2px -1px hsl(206 28% 27% / 1);
+  --shadow-md: 3px 3px 0px 0px hsl(206 28% 27% / 1), 3px 2px 4px -1px hsl(206 28% 27% / 1);
+  --shadow-lg: 3px 3px 0px 0px hsl(206 28% 27% / 1), 3px 4px 6px -1px hsl(206 28% 27% / 1);
+  --shadow-xl: 3px 3px 0px 0px hsl(206 28% 27% / 1), 3px 8px 10px -1px hsl(206 28% 27% / 1);
+  --shadow-2xl: 3px 3px 0px 0px hsl(206 28% 27% / 2.5);
+}
+
 [data-theme='obsidian'],
 [data-theme='ivory'],
 [data-theme='meridian'],
 [data-theme='synthwave'],
-[data-theme='frost'] {
+[data-theme='frost'],
+[data-theme='bubblegum'] {
   --background: initial;
   --foreground: initial;
   --card: initial;

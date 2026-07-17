@@ -1,4 +1,3 @@
-'use client'
 
 import { useEffect, useRef, useCallback } from 'react'
 import maplibregl from 'maplibre-gl'

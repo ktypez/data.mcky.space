@@ -1,4 +1,3 @@
-'use client'
 
 import { useEffect, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -19,7 +18,7 @@ export default function SuggestionsPage() {
     if (refreshKey === 0) return
     cliStore.refresh()
       .then(() => {})
-      .catch(() => {})
+      .catch(() => console.warn('Refresh failed'))
   }, [refreshKey])
 
   const onAction = useCallback(() => {

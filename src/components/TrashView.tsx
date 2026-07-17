@@ -1,10 +1,10 @@
-'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { Trash, ArrowCounterClockwise, X } from '@phosphor-icons/react'
 import { apiFetch } from '@/lib/api'
 import { Card, CardAction } from '@/components/ui/card'
 import BadgeTag from '@/components/BadgeTag'
+import { PlaceholderAvatar } from '@/components/ClientCardBadges'
 interface TrashItem {
   id: string
   name: string
@@ -21,6 +21,7 @@ interface Props {
 export default function TrashView({ onClose }: Props) {
   const [items, setItems] = useState<TrashItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchTrash = useCallback(async () => {
     setLoading(true)
@@ -41,25 +42,39 @@ export default function TrashView({ onClose }: Props) {
   }, [fetchTrash])
 
   const handleRestore = async (id: string) => {
-    const res = await apiFetch('/api/clients/trash?action=restore', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    if (res.ok) {
-      setItems((prev) => prev.filter((c) => c.id !== id))
+    setError(null)
+    try {
+      const res = await apiFetch('/api/clients/trash?action=restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (res.ok) {
+        setItems((prev) => prev.filter((c) => c.id !== id))
+      } else {
+        setError('กู้คืนไม่สำเร็จ')
+      }
+    } catch {
+      setError('กู้คืนไม่สำเร็จ')
     }
   }
 
   const handleForceDelete = async (id: string) => {
     if (!confirm('ลบถาวร? ไม่สามารถกู้คืนได้')) return
-    const res = await apiFetch('/api/clients/trash?action=force-delete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    if (res.ok) {
-      setItems((prev) => prev.filter((c) => c.id !== id))
+    setError(null)
+    try {
+      const res = await apiFetch('/api/clients/trash?action=force-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (res.ok) {
+        setItems((prev) => prev.filter((c) => c.id !== id))
+      } else {
+        setError('ลบไม่สำเร็จ')
+      }
+    } catch {
+      setError('ลบไม่สำเร็จ')
     }
   }
 
@@ -79,6 +94,10 @@ export default function TrashView({ onClose }: Props) {
         </button>
       </div>
 
+      {error && (
+        <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-lg">{error}</p>
+      )}
+
       {loading ? (
         <p className="text-sm text-muted-foreground">กำลังโหลด...</p>
       ) : items.length === 0 ? (
@@ -90,7 +109,6 @@ export default function TrashView({ onClose }: Props) {
               <div className="flex items-start gap-3">
                 <div className="relative shrink-0">
                   {client.images.length > 0 ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={client.images[0]}
                       alt=""
@@ -98,9 +116,7 @@ export default function TrashView({ onClose }: Props) {
                       className="w-14 h-14 aspect-square rounded-[6px] object-cover shrink-0"
                     />
                   ) : (
-                    <div className="w-14 h-14 aspect-square rounded-[6px] bg-[var(--surface-hover)] shrink-0 flex items-center justify-center text-muted-foreground/30">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z" /></svg>
-                    </div>
+                    <PlaceholderAvatar className="w-14 h-14 aspect-square rounded-[6px] shrink-0" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">

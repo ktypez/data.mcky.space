@@ -1,4 +1,3 @@
-'use client'
 
 import { useState, useEffect, useMemo, useRef, type FormEvent } from 'react'
 import type { Client } from '@/types'

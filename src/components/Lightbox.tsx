@@ -1,4 +1,3 @@
-'use client'
 
 import { CaretLeft, CaretRight, X } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
@@ -23,7 +22,6 @@ export default function Lightbox({ images, index, onClose, onIndexChange }: Prop
         className="relative flex flex-col items-center max-w-[92vw] max-h-[90vh]"
       >
         <div className="relative rounded-lg overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={images[index]}
             alt="Enlarged photo"

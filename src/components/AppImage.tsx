@@ -1,7 +1,3 @@
-export function isRemoteImg(src: string): boolean {
-  return src.startsWith('http') && !src.startsWith('data:')
-}
-
 interface AppImageProps {
   src: string
   alt: string

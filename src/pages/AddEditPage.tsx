@@ -1,4 +1,3 @@
-'use client'
 
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -52,7 +51,7 @@ export default function AddEditPage() {
       } catch {
         cliStore.refresh()
           .then(() => {})
-          .catch(() => {})
+          .catch(() => console.warn('Refresh failed after save'))
       } finally {
         setUploading(false)
         setUploadProgress(0)

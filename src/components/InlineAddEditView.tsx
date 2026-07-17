@@ -1,4 +1,3 @@
-'use client'
 
 import type { Client } from '@/types'
 import AddClientForm from '@/components/AddClientForm'

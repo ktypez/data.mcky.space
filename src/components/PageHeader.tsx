@@ -1,4 +1,3 @@
-'use client'
 
 import { useTheme } from '@/lib/theme-context'
 import { MagnifyingGlass, Plus, X, ArrowLeft, Moon, Sun } from '@phosphor-icons/react'

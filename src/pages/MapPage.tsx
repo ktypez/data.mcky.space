@@ -1,4 +1,3 @@
-'use client'
 
 import { lazy, Suspense, useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'

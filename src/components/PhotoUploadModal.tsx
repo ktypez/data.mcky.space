@@ -1,4 +1,3 @@
-'use client'
 
 import { useState, useRef, useCallback, type DragEvent } from 'react'
 import { Upload, X, Camera, Spinner, Check } from '@phosphor-icons/react'

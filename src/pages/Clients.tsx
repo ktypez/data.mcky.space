@@ -1,4 +1,3 @@
-'use client'
 
 import { useCallback, useEffect, useMemo, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -14,7 +13,16 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
 import { copyToClipboard, getMapsUrl } from '@/lib/utils'
-import { ErrorScreen as FetchErrorScreen } from '@/components/shared/ErrorScreen'
+function FetchErrorScreen({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="text-center space-y-4">
+        <p className="text-foreground">Something went wrong</p>
+        <Button onClick={onRetry}>Try again</Button>
+      </div>
+    </div>
+  )
+}
 import type { Client } from '@/types'
 import { FilterKey } from '@/types'
 
@@ -159,12 +167,12 @@ export function PageClient() {
     if (suggestRefresh > 0) {
       cliStore.refresh()
         .then(() => {})
-        .catch(() => {})
+        .catch(() => console.warn('Refresh failed'))
     }
     apiFetch('/api/suggestions?mode=pending-client-ids')
       .then((r) => r.json())
       .then((data) => suStore.setPendingIds(new Set(data)))
-      .catch(() => {})
+      .catch(() => console.warn('Failed to fetch pending suggestions'))
   }, [suggestRefresh])
 
   function clientText(client: Client) {
@@ -263,7 +271,7 @@ export function PageClient() {
       } catch {
         cliStore.refresh()
           .then(() => {})
-          .catch(() => {})
+          .catch(() => console.warn('Refresh failed after update'))
       }
     },
     [cliStore],
@@ -299,7 +307,7 @@ export function PageClient() {
           setTimeout(() => uiStore.setNewClientCount(0), 3000)
         }
       })
-      .catch(() => {})
+      .catch(() => console.warn('Refresh failed'))
       .finally(() => {
         clearInterval(timer)
         cliStore.setProgress(100)

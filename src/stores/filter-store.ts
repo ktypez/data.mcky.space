@@ -1,4 +1,3 @@
-'use client'
 
 import { create } from 'zustand'
 import { FilterKey, type ViewMode } from '@/types'

@@ -1,4 +1,3 @@
-'use client'
 
 import { NavigationArrow, MapPin, CaretUp, CaretDown } from '@phosphor-icons/react'
 import type { Client } from '@/types'
