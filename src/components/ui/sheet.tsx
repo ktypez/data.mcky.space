@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom'
-import { X } from '@phosphor-icons/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
+import { sheetVariants, fadeIn, smooth } from '@/lib/motion'
 
 type Side = 'top' | 'right' | 'bottom' | 'left'
 
@@ -19,18 +20,31 @@ interface SheetProps {
 }
 
 function Sheet({ open, onOpenChange, side = 'right', children }: SheetProps) {
-  if (!open) return null
-
   return createPortal(
-    <div className="fixed inset-0 z-50">
-      <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={() => onOpenChange?.(false)}
-      />
-      <div className={cn('fixed bg-card shadow-lg border', sideStyles[side])}>
-        {children}
-      </div>
-    </div>,
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-50"
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+        >
+          <motion.div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            variants={fadeIn}
+            transition={smooth}
+            onClick={() => onOpenChange?.(false)}
+          />
+          <motion.div
+            className={cn('fixed bg-card shadow-lg border', sideStyles[side])}
+            variants={sheetVariants(side)}
+            transition={smooth}
+          >
+            {children}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
     document.body,
   )
 }

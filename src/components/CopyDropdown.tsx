@@ -1,6 +1,8 @@
 
+import { AnimatePresence, motion } from 'motion/react'
 import { Copy } from '@phosphor-icons/react'
 import type { Client } from '@/types'
+import { scaleIn, smooth } from '@/lib/motion'
 
 interface CopyDropdownProps {
   client: Client
@@ -52,37 +54,44 @@ export default function CopyDropdown({
         <Copy className={iconSize} />
         {isCopied ? 'คัดลอกแล้ว' : 'คัดลอก'}
       </button>
-      {isOpen && (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className={`absolute right-0 top-full ${mt} z-50 bg-[var(--card)] border border-[var(--border)] rounded-md shadow-xl min-w-[180px] overflow-hidden animate-in fade-in zoom-in-95 duration-150`}
-        >
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onCopyText(client)
-              onClose()
-            }}
-            className="w-full text-left px-4 py-3 text-[15px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2"
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            onClick={(e) => e.stopPropagation()}
+            className={`absolute right-0 top-full ${mt} z-50 bg-[var(--card)] border border-[var(--border)] rounded-md shadow-xl min-w-[180px] overflow-hidden`}
+            variants={scaleIn}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            transition={smooth}
           >
-            <Copy className={`${menuIconSize} shrink-0`} />
-            <span>ข้อความ</span>
-          </button>
-          {hasCoords && (
             <button
               onClick={(e) => {
                 e.stopPropagation()
-                onCopyTextAndMaps(client)
+                onCopyText(client)
                 onClose()
               }}
-              className="w-full text-left px-4 py-3 text-[15px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2 border-t border-[var(--border)]"
+              className="w-full text-left px-4 py-3 text-[15px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2"
             >
               <Copy className={`${menuIconSize} shrink-0`} />
-              <span>ข้อความ + แผนที่</span>
+              <span>ข้อความ</span>
             </button>
-          )}
-        </div>
-      )}
+            {hasCoords && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onCopyTextAndMaps(client)
+                  onClose()
+                }}
+                className="w-full text-left px-4 py-3 text-[15px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2 border-t border-[var(--border)]"
+              >
+                <Copy className={`${menuIconSize} shrink-0`} />
+                <span>ข้อความ + แผนที่</span>
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

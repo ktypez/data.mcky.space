@@ -1,11 +1,13 @@
 
 import { memo } from 'react'
+import { motion } from 'motion/react'
 import type { Client, FilterKey } from '@/types'
 import CopyDropdown from '@/components/CopyDropdown'
 import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import BadgeTag from '@/components/BadgeTag'
 import LoadMore from '@/components/LoadMore'
+import { staggerContainer, staggerItem, smooth } from '@/lib/motion'
 
 interface DesktopTableViewProps {
  displayed: Client[]
@@ -53,12 +55,18 @@ const DesktopTableView = memo(function DesktopTableView({
  return (
   <>
   <table className="w-full border-collapse">
-  <tbody>
+  <motion.tbody
+    variants={staggerContainer(0.02)}
+    initial="hidden"
+    animate="visible"
+    key={displayed.map((c) => c.id).join(',')}
+  >
   {displayed.map((client) => {
   const isSelected = selectedIds.has(client.id)
   return (
-  <tr
+  <motion.tr
    key={client.id}
+   variants={staggerItem}
    onClick={() => (selectionMode ? onToggleSelect(client.id) : onSelectClient(client))}
    className={`transition-colors duration-75 cursor-pointer border-b border-[var(--surface-hover)] ${
     isSelected
@@ -119,10 +127,10 @@ const DesktopTableView = memo(function DesktopTableView({
   />
   </div>
   </td>
-  </tr>
+  </motion.tr>
   )
   })}
-  </tbody>
+  </motion.tbody>
   </table>
 
   {filtered.length === 0 && <EmptyState isGlobalEmpty={isGlobalEmpty} isAdmin={false} filter={filter} search={search} />}

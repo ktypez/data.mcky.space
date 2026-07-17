@@ -1,11 +1,13 @@
 
 import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { AnimatePresence, motion } from 'motion/react'
 import { useTheme } from '@/lib/theme-context'
 import { Palette, Check } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { useUIStore } from '@/stores/ui-store'
 import { themes } from '@/lib/design/themes'
+import { scaleIn, fadeIn, smooth } from '@/lib/motion'
 
 function Swatch({ color, label }: { color: string; label: string }) {
   return (
@@ -57,50 +59,77 @@ export default function ThemePresetPicker() {
         <Palette className="w-4 h-4 text-primary" />
       </Button>
 
-      {open && <div className="fixed inset-0 z-40" onClick={close} />}
-
-      {open && typeof document === 'object' &&
+      {typeof document === 'object' &&
         createPortal(
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="fixed z-[999] w-fit min-w-40 bg-card border border-border rounded-xl shadow-xl p-2 animate-in fade-in zoom-in-95 max-h-[70vh] overflow-y-auto"
-            style={{ top: pos.top, right: pos.right }}
-          >
-            <div className="space-y-0.5">
-              {themes.map((t) => {
-                const isActive = themeId === t.id
-                const vars = mode === 'dark' ? t.dark : t.light
-                const primaryColor = vars['--primary']
-                const bgColor = vars['--background']
-                const fgColor = vars['--foreground']
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                key="theme-backdrop"
+                className="fixed inset-0 z-40"
+                variants={fadeIn}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={smooth}
+                onClick={close}
+              />
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
 
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => {
-                      setTheme(t.id)
-                      close()
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
-                      isActive
-                        ? 'bg-accent text-accent-foreground'
-                        : 'hover:bg-muted text-foreground'
-                    }`}
-                  >
-                    <div className="flex gap-0.5 shrink-0">
-                      <Swatch color={primaryColor} label="primary" />
-                      <Swatch color={bgColor} label="background" />
-                      <Swatch color={fgColor} label="foreground" />
-                    </div>
-                    <span className="text-[15px] font-medium flex-1 truncate">{t.label}</span>
-                    {isActive && (
-                      <Check className="w-3.5 h-3.5 shrink-0 text-primary" />
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </div>,
+      {typeof document === 'object' &&
+        createPortal(
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                key="theme-menu"
+                onClick={(e) => e.stopPropagation()}
+                className="fixed z-[999] w-fit min-w-40 bg-card border border-border rounded-xl shadow-xl p-2 max-h-[70vh] overflow-y-auto"
+                style={{ top: pos.top, right: pos.right }}
+                variants={scaleIn}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={smooth}
+              >
+                <div className="space-y-0.5">
+                  {themes.map((t) => {
+                    const isActive = themeId === t.id
+                    const vars = mode === 'dark' ? t.dark : t.light
+                    const primaryColor = vars['--primary']
+                    const bgColor = vars['--background']
+                    const fgColor = vars['--foreground']
+
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          setTheme(t.id)
+                          close()
+                        }}
+                        className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
+                          isActive
+                            ? 'bg-accent text-accent-foreground'
+                            : 'hover:bg-muted text-foreground'
+                        }`}
+                      >
+                        <div className="flex gap-0.5 shrink-0">
+                          <Swatch color={primaryColor} label="primary" />
+                          <Swatch color={bgColor} label="background" />
+                          <Swatch color={fgColor} label="foreground" />
+                        </div>
+                        <span className="text-[15px] font-medium flex-1 truncate">{t.label}</span>
+                        {isActive && (
+                          <Check className="w-3.5 h-3.5 shrink-0 text-primary" />
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
           document.body,
         )}
     </>

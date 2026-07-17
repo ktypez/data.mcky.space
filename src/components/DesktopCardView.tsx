@@ -1,5 +1,6 @@
 
 import { memo } from 'react'
+import { motion } from 'motion/react'
 import type { Client, FilterKey } from '@/types'
 import CopyDropdown from '@/components/CopyDropdown'
 import EmptyState from '@/components/EmptyState'
@@ -8,6 +9,7 @@ import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadg
 import BadgeTag from '@/components/BadgeTag'
 import LoadMore from '@/components/LoadMore'
 import { Card } from '@/components/ui/card'
+import { staggerContainer, staggerItem, smooth } from '@/lib/motion'
 
 interface DesktopCardViewProps {
  displayed: Client[]
@@ -58,21 +60,27 @@ const DesktopCardView = memo(function DesktopCardView({
   <EmptyState isGlobalEmpty={isGlobalEmpty} isAdmin={false} filter={filter} search={search} />
  ) : (
  <>
- <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+ <motion.div
+   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+   variants={staggerContainer(0.03)}
+   initial="hidden"
+   animate="visible"
+   key={displayed.map((c) => c.id).join(',')}
+ >
  {displayed.map((client) => {
  const isSelected = selectedIds.has(client.id)
  return (
-<Card
-    key={client.id}
-    onClick={() =>
-     selectionMode ? onToggleSelect(client.id) : onSelectClient(client)
-    }
-    className={`p-3.5 flex flex-col gap-2.5 overflow-visible transition-[box-shadow,transform,border-color] duration-200 cursor-pointer ${
-     isSelected
-      ? 'ring-2 ring-[var(--accent-blue)] border-[var(--accent-blue)]'
-      : 'hover:shadow-lg hover:-translate-y-0.5 hover:border-[var(--border-hover)]'
-    } ${selectionMode ? 'select-none' : ''}`}
-   >
+ <motion.div key={client.id} variants={staggerItem}>
+ <Card
+     onClick={() =>
+      selectionMode ? onToggleSelect(client.id) : onSelectClient(client)
+     }
+     className={`p-3.5 flex flex-col gap-2.5 overflow-visible transition-[box-shadow,transform,border-color] duration-200 cursor-pointer ${
+      isSelected
+       ? 'ring-2 ring-[var(--accent-blue)] border-[var(--accent-blue)]'
+       : 'hover:shadow-lg hover:-translate-y-0.5 hover:border-[var(--border-hover)]'
+     } ${selectionMode ? 'select-none' : ''}`}
+    >
  {/* Header: photo + name + copy */}
  <div className="flex items-start gap-3">
  <div className="relative shrink-0">
@@ -124,9 +132,10 @@ const DesktopCardView = memo(function DesktopCardView({
   </div>
  </div>
  </Card>
+ </motion.div>
  )
  })}
- </div>
+ </motion.div>
  {hasMore && (
  <div className="flex justify-center py-6">
  <LoadMore onClick={onLoadMore} remaining={filtered.length - displayLimit} />

@@ -1,6 +1,7 @@
 
 import { useCallback, useEffect, useMemo, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AnimatePresence, motion } from 'motion/react'
 
 import { Plus } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
 import { copyToClipboard, getMapsUrl } from '@/lib/utils'
+import { slideLeft, slideRight, smooth } from '@/lib/motion'
 function FetchErrorScreen({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -326,30 +328,47 @@ export function PageClient() {
       <SwUpdateToast />
 
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        {showDetail && (
-          <>
-            <PageHeader
-              variant="detail"
-              title="Detail"
-              showBack
-              onBack={() => uiStore.closeView()}
-            />
-            <ClientDetail
-              client={viewState.client ?? clients.find((c) => c.id === viewState.clientId)!}
-              isAdmin={isAdmin}
-              clients={clients}
-              onClientUpdated={handleDetailUpdate}
-              onClientDeleted={(id) => {
-                handleDetailDelete(id)
-                uiStore.resetView()
-              }}
-              onSuggestRefresh={() => suStore.incrementRefresh()}
-            />
-          </>
-        )}
+        <AnimatePresence mode="wait">
+          {showDetail && (
+            <motion.div
+              key="detail"
+              variants={slideLeft}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              transition={smooth}
+              className="flex min-h-screen min-w-0 flex-1 flex-col"
+            >
+              <PageHeader
+                variant="detail"
+                title="Detail"
+                showBack
+                onBack={() => uiStore.closeView()}
+              />
+              <ClientDetail
+                client={viewState.client ?? clients.find((c) => c.id === viewState.clientId)!}
+                isAdmin={isAdmin}
+                clients={clients}
+                onClientUpdated={handleDetailUpdate}
+                onClientDeleted={(id) => {
+                  handleDetailDelete(id)
+                  uiStore.resetView()
+                }}
+                onSuggestRefresh={() => suStore.incrementRefresh()}
+              />
+            </motion.div>
+          )}
 
-        {isListView && (
-          <>
+          {isListView && (
+            <motion.div
+              key="list"
+              variants={slideRight}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              transition={smooth}
+              className="flex min-h-screen min-w-0 flex-1 flex-col"
+            >
             <PageHeader
               variant="list"
               search={search}
@@ -470,14 +489,24 @@ export function PageClient() {
             </div>
 
             {isAdmin && (
-              <Button
-                className="fixed bottom-5 right-5 z-40 size-12 rounded-full shadow-lg md:hidden"
-                size="icon"
-                aria-label="Add client"
-                onClick={navToAdd}
+              <motion.div
+                className="fixed bottom-5 right-5 z-40 md:hidden"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
-                <Plus className="size-5" />
-              </Button>
+                <Button
+                  className="size-12 rounded-full shadow-lg"
+                  size="icon"
+                  aria-label="Add client"
+                  onClick={navToAdd}
+                  asChild
+                >
+                  <motion.div whileTap={{ scale: 0.9 }}>
+                    <Plus className="size-5" />
+                  </motion.div>
+                </Button>
+              </motion.div>
             )}
 
             <RouteModal
@@ -496,8 +525,9 @@ export function PageClient() {
               onManualOriginLngChange={(v) => uiStore.setManualOriginLng(v)}
               onManualOriginSubmit={handleManualOrigin}
             />
-          </>
-        )}
+          </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {openCopyId && (

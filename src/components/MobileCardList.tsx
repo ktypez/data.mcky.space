@@ -1,11 +1,13 @@
 
 import { memo } from 'react'
+import { motion } from 'motion/react'
 import CopyDropdown from '@/components/CopyDropdown'
 import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import LoadMore from '@/components/LoadMore'
 import type { Client, FilterKey } from '@/types'
 import { Card } from '@/components/ui/card'
+import { staggerContainer, staggerItem } from '@/lib/motion'
 
 interface MobileCardListProps {
  displayed: Client[]
@@ -58,16 +60,23 @@ const MobileCardList = memo(function MobileCardList({
  <EmptyState isGlobalEmpty={isGlobalEmpty} isAdmin={isAdmin} filter={filter} search={search} mobile />
  ) : (
  <>
+ <motion.div
+   className="space-y-2"
+   variants={staggerContainer(0.02)}
+   initial="hidden"
+   animate="visible"
+   key={displayed.map((c) => c.id).join(',')}
+ >
  {displayed.map((client) => {
  const isSelected = selectedIds.has(client.id)
  return (
-    <Card
-      key={client.id}
-      onClick={() => (selectionMode ? onToggleSelect(client.id) : onSelectClient(client))}
-      className={`size-sm w-full p-2.5 flex flex-row items-center gap-2.5 overflow-visible transition-all active:shadow-md cursor-pointer ${
-        isSelected ? 'ring-1 ring-[var(--accent-blue)]' : ''
-      }`}
-    >
+   <motion.div key={client.id} variants={staggerItem}>
+     <Card
+       onClick={() => (selectionMode ? onToggleSelect(client.id) : onSelectClient(client))}
+       className={`size-sm w-full p-2.5 flex flex-row items-center gap-2.5 overflow-visible transition-all active:shadow-md cursor-pointer ${
+         isSelected ? 'ring-1 ring-[var(--accent-blue)]' : ''
+       }`}
+     >
  <div className="relative shrink-0">
  {client.images.length > 0 ? (
  <img
@@ -109,8 +118,10 @@ const MobileCardList = memo(function MobileCardList({
  />
  </div>
  </Card>
+ </motion.div>
  )
  })}
+ </motion.div>
  {hasMore && (
  <div className="flex justify-center pt-2 pb-4">
  <LoadMore onClick={onLoadMore} remaining={filtered.length - displayLimit} />

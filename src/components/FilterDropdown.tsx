@@ -1,8 +1,10 @@
 
 import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { AnimatePresence, motion } from 'motion/react'
 import { Funnel, Image, Circle, Clock, Check, CurrencyDollar } from '@phosphor-icons/react'
 import { FilterKey } from '@/types'
+import { scaleIn, fadeIn, smooth } from '@/lib/motion'
 
 interface Counts {
   total: number
@@ -78,49 +80,76 @@ export default function FilterDropdown({ filter, counts, onFilter }: Props) {
         </span>
       </button>
 
-      {open && <div className="fixed inset-0 z-40" onClick={close} />}
-
-      {open && typeof document === 'object' &&
+      {typeof document === 'object' &&
         createPortal(
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="fixed z-[999] w-fit min-w-36 bg-card border border-border rounded-xl shadow-xl p-1.5 animate-in fade-in zoom-in-95"
-            style={{ top: pos.top, left: pos.left }}
-          >
-            {filterItems.map((item) => {
-              const isActive = filter === item.key
-              const count =
-                item.key === FilterKey.All
-                  ? counts.total
-                  : item.key === FilterKey.WithImages
-                    ? counts.withImages
-                    : item.key === FilterKey.NoImages
-                      ? counts.noImages
-                      : item.key === FilterKey.Penpay
-                        ? counts.penpay
-                        : counts.recent
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                key="filter-backdrop"
+                className="fixed inset-0 z-40"
+                variants={fadeIn}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={smooth}
+                onClick={close}
+              />
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
 
-              return (
-                <button
-                  key={item.key}
-                  onClick={() => {
-                    onFilter(item.key)
-                    close()
-                  }}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
-                    isActive
-                      ? 'bg-accent text-accent-foreground'
-                      : 'text-foreground hover:bg-muted'
-                  }`}
-                >
-                  <span className="shrink-0 text-muted-foreground">{item.icon}</span>
-                  <span className="text-[15px] font-medium flex-1">{item.label}</span>
-                  <span className="font-mono text-[13px] text-muted-foreground">{count}</span>
-                  {isActive && <Check className="w-3.5 h-3.5 shrink-0 text-primary" />}
-                </button>
-              )
-            })}
-          </div>,
+      {typeof document === 'object' &&
+        createPortal(
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                key="filter-menu"
+                onClick={(e) => e.stopPropagation()}
+                className="fixed z-[999] w-fit min-w-36 bg-card border border-border rounded-xl shadow-xl p-1.5"
+                style={{ top: pos.top, left: pos.left }}
+                variants={scaleIn}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={smooth}
+              >
+                {filterItems.map((item) => {
+                  const isActive = filter === item.key
+                  const count =
+                    item.key === FilterKey.All
+                      ? counts.total
+                      : item.key === FilterKey.WithImages
+                        ? counts.withImages
+                        : item.key === FilterKey.NoImages
+                          ? counts.noImages
+                          : item.key === FilterKey.Penpay
+                            ? counts.penpay
+                            : counts.recent
+
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => {
+                        onFilter(item.key)
+                        close()
+                      }}
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
+                        isActive
+                          ? 'bg-accent text-accent-foreground'
+                          : 'text-foreground hover:bg-muted'
+                      }`}
+                    >
+                      <span className="shrink-0 text-muted-foreground">{item.icon}</span>
+                      <span className="text-[15px] font-medium flex-1">{item.label}</span>
+                      <span className="font-mono text-[13px] text-muted-foreground">{count}</span>
+                      {isActive && <Check className="w-3.5 h-3.5 shrink-0 text-primary" />}
+                    </button>
+                  )
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>,
           document.body,
         )}
     </>
