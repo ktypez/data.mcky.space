@@ -244,7 +244,14 @@
    ==================================================== */
 
 /* Grid overlay — subtle on body, behind everything */
-[data-theme='void'] body {
+[data-theme='void']:not(.dark) body {
+  background-image:
+    linear-gradient(rgba(0 0 0 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0 0 0 / 0.04) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 40px;
+  background-repeat: no-repeat;
+}
+[data-theme='void'].dark body {
   background-image:
     linear-gradient(rgba(255 255 255 / 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255 255 255 / 0.025) 1px, transparent 1px);
@@ -253,7 +260,20 @@
 }
 
 /* Ambient glow orbs — on page wrappers, above body/grid, below cards */
-[data-theme='void'] .bg-background {
+[data-theme='void']:not(.dark) .bg-background {
+  background-image:
+    /* cyan glow — top-left (muted pastel) */
+    radial-gradient(ellipse 800px 700px at 15% 25%, oklch(0.55 0.18 200 / 0.12) 0%, transparent 65%),
+    /* magenta glow — right */
+    radial-gradient(ellipse 700px 800px at 80% 20%, oklch(0.5 0.28 0 / 0.08) 0%, transparent 65%),
+    /* violet glow — bottom-center */
+    radial-gradient(ellipse 600px 600px at 50% 80%, oklch(0.55 0.18 290 / 0.05) 0%, transparent 65%),
+    /* amber glow — mid-right accent */
+    radial-gradient(ellipse 400px 400px at 65% 50%, oklch(0.7 0.17 85 / 0.03) 0%, transparent 65%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+}
+[data-theme='void'].dark .bg-background {
   background-image:
     /* cyan glow — top-left */
     radial-gradient(ellipse 800px 700px at 15% 25%, oklch(0.75 0.18 200 / 0.55) 0%, transparent 65%),
