@@ -91,7 +91,8 @@
 [data-theme='meridian'],
 [data-theme='synthwave'],
 [data-theme='frost'],
-[data-theme='bubblegum'] {
+[data-theme='bubblegum'],
+[data-theme='void'] {
   --background: initial;
   --foreground: initial;
   --card: initial;
