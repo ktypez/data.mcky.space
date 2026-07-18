@@ -21,10 +21,14 @@ function ThemeInjector() {
       style.id = id
       document.head.appendChild(style)
     }
-    const css = `:root,[data-theme="${t.id}"]{${Object.entries(vars)
+    const colorVars = Object.entries(vars)
       .map(([k, v]) => `${k}:${v}`)
-      .join(';')}}`
-    style.textContent = css
+      .join(';')
+    const isVoid = t.id === 'void'
+    const glass = isVoid
+      ? `[data-theme="void"] .bg-background,[data-theme="void"] .bg-card,[data-theme="void"] .bg-popover,[data-theme="void"] .bg-sidebar,[data-theme="void"] .bg-muted{-webkit-backdrop-filter:blur(20px) saturate(1.3);backdrop-filter:blur(20px) saturate(1.3)}`
+      : ''
+    style.textContent = `:root,[data-theme="${t.id}"]{${colorVars}}${glass}`
   }, [themeId, resolvedTheme, id])
 
   return null

@@ -866,7 +866,7 @@ export const themes: Theme[] = [
       '--pin-color': 'oklch(0.55 0.18 200)',
     },
     dark: {
-      '--background': 'oklch(0.04 0.01 270)',
+      '--background': 'oklch(0.04 0.01 270 / 0.8)',
       '--foreground': 'oklch(0.93 0.01 270)',
       '--card': 'oklch(0.07 0.015 270 / 0.4)',
       '--card-foreground': 'oklch(0.93 0.01 270)',
