@@ -91,8 +91,7 @@
 [data-theme='meridian'],
 [data-theme='synthwave'],
 [data-theme='frost'],
-[data-theme='bubblegum'],
-[data-theme='void'] {
+[data-theme='bubblegum'] {
   --background: initial;
   --foreground: initial;
   --card: initial;
@@ -239,67 +238,4 @@
   color: var(--foreground) !important;
 }
 
-/* ====================================================
-   Void theme — atmosphere layers + frosted glass
-   ==================================================== */
 
-/* Grid overlay — subtle on body, behind everything */
-[data-theme='void']:not(.dark) body {
-  background-image:
-    linear-gradient(rgba(0 0 0 / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0 0 0 / 0.04) 1px, transparent 1px);
-  background-size: 40px 40px, 40px 40px;
-  background-repeat: no-repeat;
-}
-[data-theme='void'].dark body {
-  background-image:
-    linear-gradient(rgba(255 255 255 / 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255 255 255 / 0.025) 1px, transparent 1px);
-  background-size: 40px 40px, 40px 40px;
-  background-repeat: no-repeat;
-}
-
-/* Ambient glow orbs — on page wrappers, above body/grid, below cards */
-[data-theme='void']:not(.dark) .bg-background {
-  background-image:
-    /* cyan glow — top-left (muted pastel) */
-    radial-gradient(ellipse 800px 700px at 15% 25%, oklch(0.55 0.18 200 / 0.12) 0%, transparent 65%),
-    /* magenta glow — right */
-    radial-gradient(ellipse 700px 800px at 80% 20%, oklch(0.5 0.28 0 / 0.08) 0%, transparent 65%),
-    /* violet glow — bottom-center */
-    radial-gradient(ellipse 600px 600px at 50% 80%, oklch(0.55 0.18 290 / 0.05) 0%, transparent 65%),
-    /* amber glow — mid-right accent */
-    radial-gradient(ellipse 400px 400px at 65% 50%, oklch(0.7 0.17 85 / 0.03) 0%, transparent 65%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-  background-repeat: no-repeat;
-}
-[data-theme='void'].dark .bg-background {
-  background-image:
-    /* cyan glow — top-left */
-    radial-gradient(ellipse 800px 700px at 15% 25%, oklch(0.75 0.18 200 / 0.55) 0%, transparent 65%),
-    /* magenta glow — right */
-    radial-gradient(ellipse 700px 800px at 80% 20%, oklch(0.65 0.28 0 / 0.4) 0%, transparent 65%),
-    /* violet glow — bottom-center */
-    radial-gradient(ellipse 600px 600px at 50% 80%, oklch(0.68 0.18 290 / 0.3) 0%, transparent 65%),
-    /* amber glow — mid-right accent */
-    radial-gradient(ellipse 400px 400px at 65% 50%, oklch(0.82 0.17 85 / 0.15) 0%, transparent 65%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-  background-repeat: no-repeat;
-}
-
-/* Noise texture — on top of everything (subtle film grain) */
-[data-theme='void'] body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 256px 256px;
-  mix-blend-mode: overlay;
-}
-
-/* Frosted glass for Void is injected via JS in theme-provider.tsx
-   to avoid the CSS build pipeline stripping `backdrop-filter`. */
