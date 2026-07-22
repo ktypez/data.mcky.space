@@ -11,6 +11,51 @@ export function useReducedMotion(): boolean {
 }
 
 // ---------------------------------------------------------------------------
+// useMotion() — hook that returns all presets with reduced-motion awareness
+// ---------------------------------------------------------------------------
+
+/** All animation presets with reduced-motion baked in. Call once per component. */
+export function useMotion() {
+  const reduced = useReducedMotion()
+
+  if (reduced) {
+    return {
+      spring: instant,
+      smooth: instant,
+      snappy: instant,
+      springSmall: instant,
+      instant,
+      fadeIn: { hidden: {}, visible: {} },
+      slideUp: { hidden: {}, visible: {} },
+      slideDown: { hidden: {}, visible: {} },
+      slideLeft: { hidden: {}, visible: {} },
+      slideRight: { hidden: {}, visible: {} },
+      scaleIn: { hidden: {}, visible: {} },
+      staggerContainer: () => ({ hidden: {}, visible: {} }),
+      staggerItem: { hidden: {}, visible: {} },
+      sheetVariants: (_side: string) => ({ hidden: {}, visible: {} }),
+    }
+  }
+
+  return {
+    spring,
+    smooth,
+    snappy,
+    springSmall,
+    instant,
+    fadeIn,
+    slideUp,
+    slideDown,
+    slideLeft,
+    slideRight,
+    scaleIn,
+    staggerContainer,
+    staggerItem,
+    sheetVariants,
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Transition presets — tuned for 60fps butter
 // ---------------------------------------------------------------------------
 

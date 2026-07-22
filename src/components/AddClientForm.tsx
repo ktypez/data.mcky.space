@@ -45,6 +45,7 @@ export default function AddClientForm({
   const { getCurrentLocation, locating } = useGeolocation()
   const [locQuery, setLocQuery] = useState('')
   const [locSearching, setLocSearching] = useState(false)
+  const [locFeedback, setLocFeedback] = useState<{ ok: boolean; msg: string } | null>(null)
   const [photoModalOpen, setPhotoModalOpen] = useState(false)
   const [debouncedName, setDebouncedName] = useState(() => editClient?.name ?? '')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -92,39 +93,86 @@ export default function AddClientForm({
     }
   }
 
+  /** Parse lat/lng from various text formats */
+  function parseCoords(input: string): { lat: number; lng: number } | null {
+    const s = input.trim()
+    if (!s) return null
+
+    // 1. "lat, lng" or "lat lng" (decimal degrees)
+    let m = s.match(/^(-?\d+\.?\d*)\s*[,;\s]\s*(-?\d+\.?\d*)$/)
+    if (m) {
+      const lat = parseFloat(m[1]), lng = parseFloat(m[2])
+      if (isFinite(lat) && isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)
+        return { lat, lng }
+    }
+
+    // 2. "lat N/S, lng E/W" with hemisphere suffix (e.g. "13.7563 N, 100.5018 E")
+    m = s.match(/^(-?\d+\.?\d*)\s*°?\s*([NS]?)\s*[,;\s]\s*(-?\d+\.?\d*)\s*°?\s*([EW]?)$/i)
+    if (m) {
+      let lat = parseFloat(m[1]), lng = parseFloat(m[3])
+      if (m[2].toUpperCase() === 'S') lat = -lat
+      if (m[4].toUpperCase() === 'W') lng = -lng
+      if (isFinite(lat) && isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)
+        return { lat, lng }
+    }
+
+    // 3. DMS: "13°45'23\"N 100°29'31\"E" or "13 45 23 N 100 29 31 E"
+    m = s.match(/^(\d+)\s*°\s*(\d+)\s*'\s*(\d+(?:\.\d+)?)?"?\s*([NS]?)\s+(\d+)\s*°\s*(\d+)\s*'\s*(\d+(?:\.\d+)?)?"?\s*([EW]?)$/i)
+    if (m) {
+      let lat = parseFloat(m[1]) + parseFloat(m[2]) / 60 + parseFloat(m[3]) / 3600
+      let lng = parseFloat(m[5]) + parseFloat(m[6]) / 60 + parseFloat(m[7]) / 3600
+      if (m[4].toUpperCase() === 'S') lat = -lat
+      if (m[8].toUpperCase() === 'W') lng = -lng
+      if (isFinite(lat) && isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)
+        return { lat, lng }
+    }
+
+    return null
+  }
+
   const searchLocation = async () => {
     const q = locQuery.trim()
     if (!q) return
     setLocSearching(true)
+    setLocFeedback(null)
+
+    // Try lat/lng parsing
+    const coords = parseCoords(q)
+    if (coords) {
+      setLat(coords.lat)
+      setLng(coords.lng)
+      setLocQuery('')
+      setLocFeedback({ ok: true, msg: `📍 ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` })
+      setLocSearching(false)
+      return
+    }
+
+    // Try plus code
     try {
-      const m = q.match(/^(-?\d+\.?\d*)\s*[,,\s]\s*(-?\d+\.?\d*)$/)
-      if (m) {
-        const la = parseFloat(m[1]),
-          ln = parseFloat(m[2])
-        if (la >= -90 && la <= 90 && ln >= -180 && ln <= 180) {
-          setLat(la)
-          setLng(ln)
+      const { OpenLocationCode } = await import('open-location-code')
+      const olc = new OpenLocationCode()
+      const code =
+        (q.match(/[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}/i) || [])[0] || q
+      if (olc.isValid(code)) {
+        let d: { latitudeCenter: number; longitudeCenter: number }
+        if (olc.isFull(code)) {
+          d = olc.decode(code)
+        } else if (olc.isShort(code)) {
+          d = olc.decode(olc.recoverNearest(code, lat ?? 16.4322, lng ?? 102.8236))
+        } else {
+          setLocFeedback({ ok: false, msg: 'ไม่รู้จักพิกัดนี้ — ลองละติจูด,ลองจิจูด เช่น 13.7563, 100.5018' })
+          setLocSearching(false)
           return
         }
+        setLat(d.latitudeCenter)
+        setLng(d.longitudeCenter)
+        setLocQuery('')
+        setLocFeedback({ ok: true, msg: `📍 ${d.latitudeCenter.toFixed(4)}, ${d.longitudeCenter.toFixed(4)}` })
+      } else {
+        setLocFeedback({ ok: false, msg: 'ไม่รู้จักพิกัดนี้ — ลองละติจูด,ลองจิจูด เช่น 13.7563, 100.5018' })
       }
-      try {
-        const { OpenLocationCode } = await import('open-location-code')
-        const olc = new OpenLocationCode()
-        const c =
-          (q.match(/[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}/i) || [])[0] || q
-        if (olc.isValid(c)) {
-          if (olc.isFull(c)) {
-            const d = olc.decode(c)
-            setLat(d.latitudeCenter)
-            setLng(d.longitudeCenter)
-          } else if (olc.isShort(c)) {
-            const d = olc.decode(olc.recoverNearest(c, lat ?? 16.4322, lng ?? 102.8236))
-            setLat(d.latitudeCenter)
-            setLng(d.longitudeCenter)
-          }
-        }
-      } catch {}
     } catch {
+      setLocFeedback({ ok: false, msg: 'ไม่สามารถโหลดตัวถอดรหัส Plus Code ได้' })
     } finally {
       setLocSearching(false)
     }
@@ -218,9 +266,9 @@ export default function AddClientForm({
           <input
             type="text"
             value={locQuery}
-            onChange={(e) => setLocQuery(e.target.value)}
+            onChange={(e) => { setLocQuery(e.target.value); setLocFeedback(null) }}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), searchLocation())}
-            placeholder="พิกัด หรือ Plus Code"
+            placeholder="ละติจูด, ลองจิจูด หรือ Plus Code"
             className={`${inputClass} flex-1`}
           />
           <Button
@@ -238,6 +286,11 @@ export default function AddClientForm({
             )}
           </Button>
         </div>
+        {locFeedback && (
+          <p className={`text-[13px] ${locFeedback.ok ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+            {locFeedback.msg}
+          </p>
+        )}
         <div className="flex items-center gap-2">
           <Button
             type="button"

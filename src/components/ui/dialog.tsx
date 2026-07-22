@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { scaleIn, fadeIn, spring } from '@/lib/motion'
+import { useMotion } from '@/lib/motion'
 
 interface DialogProps {
   open?: boolean
@@ -11,6 +11,7 @@ interface DialogProps {
 }
 
 function Dialog({ open, onOpenChange, popupClassName, children }: DialogProps) {
+  const { scaleIn, fadeIn, spring } = useMotion()
   return createPortal(
     <AnimatePresence>
       {open && (

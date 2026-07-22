@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { sheetVariants, fadeIn, spring } from '@/lib/motion'
+import { useMotion } from '@/lib/motion'
 
 type Side = 'top' | 'right' | 'bottom' | 'left'
 
@@ -20,6 +20,7 @@ interface SheetProps {
 }
 
 function Sheet({ open, onOpenChange, side = 'right', children }: SheetProps) {
+  const { sheetVariants, fadeIn, spring } = useMotion()
   return createPortal(
     <AnimatePresence>
       {open && (
