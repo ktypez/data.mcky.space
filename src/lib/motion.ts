@@ -27,7 +27,6 @@ export function useMotion() {
       instant,
       fadeIn: { hidden: {}, visible: {} },
       slideUp: { hidden: {}, visible: {} },
-      slideDown: { hidden: {}, visible: {} },
       slideLeft: { hidden: {}, visible: {} },
       slideRight: { hidden: {}, visible: {} },
       scaleIn: { hidden: {}, visible: {} },
@@ -45,7 +44,6 @@ export function useMotion() {
     instant,
     fadeIn,
     slideUp,
-    slideDown,
     slideLeft,
     slideRight,
     scaleIn,
@@ -85,11 +83,6 @@ export const fadeIn: Variants = {
 
 export const slideUp: Variants = {
   hidden: { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0 },
-}
-
-export const slideDown: Variants = {
-  hidden: { opacity: 0, y: -8 },
   visible: { opacity: 1, y: 0 },
 }
 

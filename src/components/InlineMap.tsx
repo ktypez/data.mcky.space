@@ -4,7 +4,7 @@ import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { X } from '@phosphor-icons/react'
 import { getMapStyle } from '@/lib/map-styles'
-import { cssVarToHex } from '@/lib/utils'
+import { cssVarToHex, hasValidCoords } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
 const SOURCE_ID = 'clients'
@@ -31,13 +31,7 @@ function buildGeoJSON(clients: Client[]): GeoJSON.FeatureCollection {
   return {
     type: 'FeatureCollection',
     features: clients
-      .filter(
-        (c) =>
-          c.lat != null &&
-          c.lng != null &&
-          !Number.isNaN(c.lat) &&
-          !Number.isNaN(c.lng),
-      )
+      .filter((c) => hasValidCoords(c.lat, c.lng))
       .map((c) => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [c.lng!, c.lat!] },

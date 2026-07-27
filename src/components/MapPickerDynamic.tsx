@@ -1,16 +1,10 @@
-import React from 'react'
+import { lazyLoad } from '@/lib/lazy-load'
 import type { MapPickerProps } from './MapPicker'
 
-const MapPicker = React.lazy(() => import('./MapPicker'))
+const MapPickerLazy = lazyLoad(() => import('./MapPicker'),
+  <div className="w-full h-48 rounded-xl border border-border bg-card flex items-center justify-center text-muted-foreground text-xs">
+    Loading map...
+  </div>
+)
 
-export default function MapPickerLazy(props: MapPickerProps) {
-  return (
-    <React.Suspense fallback={
-      <div className="w-full h-48 rounded-xl border border-border bg-card flex items-center justify-center text-muted-foreground text-xs">
-        Loading map...
-      </div>
-    }>
-      <MapPicker {...props} />
-    </React.Suspense>
-  )
-}
+export default MapPickerLazy

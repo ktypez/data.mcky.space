@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useDebounce } from '@/hooks/useDebounce'
 import PageHeader from '@/components/PageHeader'
+import { hasValidCoords } from '@/lib/utils'
 import SearchDropdown from '@/components/SearchDropdown'
 
 // Lazy-load the map (and maplibre-gl) into its own chunk so a map failure
@@ -91,13 +92,7 @@ export default function MapPage() {
           }
         >
           <InlineMap
-            clients={filtered.filter(
-              (c) =>
-                c.lat != null &&
-                c.lng != null &&
-                !Number.isNaN(c.lat) &&
-                !Number.isNaN(c.lng),
-            )}
+            clients={filtered.filter((c) => hasValidCoords(c.lat, c.lng))}
             focusClientId={mapFocusId}
             onSelectClient={navigateToClient}
           />

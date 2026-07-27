@@ -46,6 +46,11 @@ export function formatDate(ts: number): string {
   return `${y}-${m}-${day}`
 }
 
+/** Check whether lat/lng coordinates are present and not NaN. */
+export function hasValidCoords(lat: number | null | undefined, lng: number | null | undefined): boolean {
+  return lat != null && lng != null && !Number.isNaN(lat) && !Number.isNaN(lng)
+}
+
 /** Generate a short unique ID (client-side). */
 export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
@@ -73,5 +78,6 @@ export function cssVarToHex(varName: string, fallback = '#2e2e2e'): string {
   if (rgb && /^rgb/i.test(rgb)) return rgb
   return fallback
 }
+
 
 

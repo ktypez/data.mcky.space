@@ -1,5 +1,6 @@
 
 import { memo } from 'react'
+import { hasValidCoords } from '@/lib/utils'
 import type { Client } from '@/types'
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
 
 const SearchDropdown = memo(function SearchDropdown({ clients, query, onSelect }: Props) {
   const results = clients
-    .filter((c) => c.lat != null && c.lng != null && !Number.isNaN(c.lat) && !Number.isNaN(c.lng))
+    .filter((c) => hasValidCoords(c.lat, c.lng))
     .filter(
       (c) =>
         c.name.toLowerCase().includes(query) ||

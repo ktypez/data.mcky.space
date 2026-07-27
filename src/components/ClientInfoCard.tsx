@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react'
 import { MapPin, Copy } from '@phosphor-icons/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { hasValidCoords } from '@/lib/utils'
 import BadgeTag from './BadgeTag'
 import type { Client } from '@/types'
 
@@ -12,7 +12,7 @@ interface ClientInfoCardProps {
 }
 
 export default function ClientInfoCard({ client, copied, onCopy }: ClientInfoCardProps) {
-  const hasCoords = client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng)
+  const hasCoords = hasValidCoords(client.lat, client.lng)
 
   const mapSvg = (
     <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">

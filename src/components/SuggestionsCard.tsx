@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import SuggestionDiff from './SuggestionDiff'
+import SuggestionDiff from '@/components/SuggestionDiff'
+import SuggestionDetail from '@/components/SuggestionDetail'
 import { ChatDots, Check, X, CaretDown } from '@phosphor-icons/react'
 import { Spinner } from '@/components/ui/spinner'
 import { formatDateTime } from '@/lib/utils'
@@ -82,22 +83,11 @@ export default function SuggestionsCard({
 
                 {expandedSuggestions.has(s.id) && (
                   <div className="px-4 pb-3 space-y-2">
-                    <div className="space-y-1">
-                      <SuggestionDiff label="ชื่อ" oldVal={s.original.name} newVal={s.suggested.name} />
-                      <SuggestionDiff label="ร้าน" oldVal={s.original.shopName || '-'} newVal={s.suggested.shopName || '-'} />
-                      <SuggestionDiff label="ที่อยู่" oldVal={s.original.address} newVal={s.suggested.address} />
-                      {(s.original.lat !== s.suggested.lat || s.original.lng !== s.suggested.lng) && (
-                        <div className="flex items-center gap-2 text-[15px]">
-                          <span className="text-muted-foreground w-12 shrink-0">พิกัด</span>
-                          <span className="font-mono text-[13px] text-muted-foreground line-through">
-                            {s.original.lat != null ? `${s.original.lat.toFixed(4)}, ${s.original.lng?.toFixed(4)}` : '-'}
-                          </span>
-                          <span className="font-mono text-[13px] text-success font-medium">
-                            {s.suggested.lat != null ? `${s.suggested.lat.toFixed(4)}, ${s.suggested.lng?.toFixed(4)}` : '-'}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    <SuggestionDetail
+                      original={s.original}
+                      suggested={s.suggested}
+                      className="space-y-1"
+                    />
 
                     {isAdmin && s.status === 'pending' && (
                       <div className="flex gap-1.5 pt-1">

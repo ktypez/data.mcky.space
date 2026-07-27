@@ -2,7 +2,6 @@ import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { useMotion } from '@/lib/motion'
-import { X } from '@phosphor-icons/react'
 
 type Side = 'top' | 'right' | 'bottom' | 'left'
 
@@ -59,26 +58,8 @@ function SheetTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingEle
   return <h2 className={cn('text-lg font-semibold', className)} {...props} />
 }
 
-function SheetDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn('text-sm text-muted-foreground', className)} {...props} />
-}
-
 function SheetContent({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('p-4', className)} {...props}>{children}</div>
 }
 
-function SheetClose({
-  className,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      className={cn('ml-auto rounded-md p-1 text-muted-foreground hover:text-foreground', className)}
-      {...props}
-    >
-      <X size={16} />
-    </button>
-  )
-}
-
-export { Sheet, SheetHeader, SheetTitle, SheetDescription, SheetContent, SheetClose }
+export { Sheet, SheetHeader, SheetTitle, SheetContent }

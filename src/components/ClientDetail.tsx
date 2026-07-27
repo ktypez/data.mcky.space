@@ -5,7 +5,7 @@ import MapPreview from '@/components/MapPreviewDynamic'
 import AddClientForm from '@/components/AddClientForm'
 import SuggestEditForm from '@/components/SuggestEditForm'
 import { deleteClient } from '@/lib/storage'
-import { copyToClipboard, getMapsUrl } from '@/lib/utils'
+import { copyToClipboard, getMapsUrl, hasValidCoords } from '@/lib/utils'
 import Lightbox from '@/components/Lightbox'
 import { ArrowSquareOut } from '@phosphor-icons/react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -263,7 +263,7 @@ export default function ClientDetail({
     />
   )}
 
-  {client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng) && (
+  {hasValidCoords(client.lat, client.lng) && (
   <div
     onClick={() => setShowMapConfirm(true)}
     className="flex-1 aspect-square md:aspect-[2/1] rounded-[10px] overflow-hidden relative flex flex-col cursor-pointer"

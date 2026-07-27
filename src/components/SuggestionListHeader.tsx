@@ -1,5 +1,4 @@
 import { ArrowLeft } from '@phosphor-icons/react'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 interface SuggestionListHeaderProps {

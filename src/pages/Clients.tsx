@@ -13,7 +13,7 @@ import { useSuggestionStore } from '@/stores/suggestion-store'
 import { useDebounce } from '@/hooks/useDebounce'
 import { updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
-import { copyToClipboard, getMapsUrl } from '@/lib/utils'
+import { copyToClipboard, getMapsUrl, hasValidCoords } from '@/lib/utils'
 import { slideLeft, slideRight, spring, springSmall } from '@/lib/motion'
 function FetchErrorScreen({ onRetry }: { onRetry: () => void }) {
   return (
@@ -214,7 +214,7 @@ export function PageClient() {
   const computeRoute = useCallback(
     (origin: { lat: number; lng: number }) => {
       const selected = clients.filter(
-        (c) => selectedIds.has(c.id) && c.lat != null && c.lng != null && !Number.isNaN(c.lat) && !Number.isNaN(c.lng),
+(c) => selectedIds.has(c.id) && hasValidCoords(c.lat, c.lng),
       )
       const withDist = selected
         .map((c) => ({
@@ -230,7 +230,7 @@ export function PageClient() {
 
   const planRoute = useCallback(async () => {
     const selected = clients.filter(
-      (c) => selectedIds.has(c.id) && c.lat != null && c.lng != null && !Number.isNaN(c.lat) && !Number.isNaN(c.lng),
+      (c) => selectedIds.has(c.id) && hasValidCoords(c.lat, c.lng),
     )
     if (selected.length === 0) {
       uiStore.setRouteError('Selected clients have no location')
