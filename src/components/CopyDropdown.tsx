@@ -47,8 +47,8 @@ export default function CopyDropdown({
         }}
         className={`flex items-center gap-1.5 ${btnClass} font-medium transition-all cursor-pointer ring-1 ${
           isCopied
-            ? 'bg-[var(--success)]/10 text-[var(--success)] ring-[var(--success)]/30'
-            : 'bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface)] ring-[var(--border)]'
+            ? 'bg-success/10 text-success ring-success/30'
+            : 'bg-card text-muted-foreground hover:bg-card ring-border'
         }`}
       >
         <Copy className={iconSize} />
@@ -58,7 +58,7 @@ export default function CopyDropdown({
         {isOpen && (
           <motion.div
             onClick={(e) => e.stopPropagation()}
-            className={`absolute right-0 top-full ${mt} z-50 bg-[var(--card)] border border-[var(--border)] rounded-md shadow-xl min-w-[180px] overflow-hidden`}
+            className={`absolute right-0 top-full ${mt} z-50 bg-card border border-border rounded-md shadow-xl min-w-[180px] overflow-hidden`}
             variants={scaleIn}
             initial="hidden"
             animate="visible"
@@ -71,7 +71,7 @@ export default function CopyDropdown({
                 onCopyText(client)
                 onClose()
               }}
-              className="w-full text-left px-4 py-3 text-[15px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2"
+              className="w-full text-left px-4 py-3 text-[15px] text-foreground hover:bg-card transition-colors cursor-pointer flex items-center gap-2"
             >
               <Copy className={`${menuIconSize} shrink-0`} />
               <span>ข้อความ</span>
@@ -83,7 +83,7 @@ export default function CopyDropdown({
                   onCopyTextAndMaps(client)
                   onClose()
                 }}
-                className="w-full text-left px-4 py-3 text-[15px] text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer flex items-center gap-2 border-t border-[var(--border)]"
+                className="w-full text-left px-4 py-3 text-[15px] text-foreground hover:bg-card transition-colors cursor-pointer flex items-center gap-2 border-t border-border"
               >
                 <Copy className={`${menuIconSize} shrink-0`} />
                 <span>ข้อความ + แผนที่</span>

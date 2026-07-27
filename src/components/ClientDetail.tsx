@@ -1,37 +1,22 @@
 
-import { useState, useCallback, useEffect, useRef } from 'react'
-import { useSwipe } from '@/hooks/useSwipe'
+import { useState, useCallback, useEffect } from 'react'
 import type { Client, PendingSuggestion } from '@/types'
-import AppImage from '@/components/AppImage'
 import MapPreview from '@/components/MapPreviewDynamic'
 import AddClientForm from '@/components/AddClientForm'
 import SuggestEditForm from '@/components/SuggestEditForm'
-import BadgeTag from '@/components/BadgeTag'
 import { deleteClient } from '@/lib/storage'
-import { copyToClipboard, getMapsUrl, formatDateTime } from '@/lib/utils'
+import { copyToClipboard, getMapsUrl } from '@/lib/utils'
 import Lightbox from '@/components/Lightbox'
-import SuggestionDiff from '@/components/SuggestionDiff'
-import {
-  Calendar,
-  Clock,
-  ArrowSquareOut,
-  Trash,
-  Pencil,
-  LinkSimple,
-  MapPin,
-  Copy,
-  X,
-  NavigationArrow,
-  PencilSimple,
-  ChatDots,
-   Check,
-   CaretDown,
-   Camera,
-   Spinner,
-} from '@phosphor-icons/react'
+import { ArrowSquareOut } from '@phosphor-icons/react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import ClientInfoCard from './ClientInfoCard'
+import SuggestionsCard from './SuggestionsCard'
+import ClientPhotoGallery from './ClientPhotoGallery'
+import ClientNotesCard from './ClientNotesCard'
+import ClientShareCard from './ClientShareCard'
+import ClientDateCard from './ClientDateCard'
+import ClientActionButtons from './ClientActionButtons'
 
 interface Props {
  client: Client
@@ -56,35 +41,8 @@ export default function ClientDetail({
  uploading,
  uploadProgress,
 }: Props) {
- const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
- const [photoIdx, setPhotoIdx] = useState(0)
- const [prevClientId, setPrevClientId] = useState(client.id)
- const [imageSizes, setImageSizes] = useState<Record<string, number>>({})
- const fetchedUrls = useRef(new Set<string>())
-
- if (client.id !== prevClientId) {
-   setPrevClientId(client.id)
-   setPhotoIdx(0)
- }
-
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
   const imgs = client.images ?? []
-
-  // Fetch file sizes for images (with dedup via ref)
-  useEffect(() => {
-    for (const src of imgs) {
-      if (fetchedUrls.current.has(src)) continue
-      fetchedUrls.current.add(src)
-      fetch(src, { method: 'HEAD' }).then((r) => {
-        const len = r.headers.get('Content-Length')
-        if (len) setImageSizes((prev) => ({ ...prev, [src]: Number(len) }))
-      }).catch(() => {})
-    }
-  }, [imgs])
-
- const cardSwipe = useSwipe(
- () => { if (photoIdx < imgs.length - 1) setPhotoIdx(photoIdx + 1) },
- () => { if (photoIdx > 0) setPhotoIdx(photoIdx - 1) },
- )
 
   const [editOpen, setEditOpen] = useState(false)
  const [deleteConfirm, setDeleteConfirm] = useState(false)
@@ -241,7 +199,7 @@ export default function ClientDetail({
    <div className="flex-1 overflow-auto p-4 md:p-6 max-w-4xl mx-auto w-full">
    <Card>
     <CardContent className="px-3 py-2">
-     <h2 className="text-base font-bold text-[var(--text-primary)] mb-3">
+     <h2 className="text-base font-bold text-foreground mb-3">
       แก้ไขข้อมูลลูกค้า
      </h2>
     <AddClientForm
@@ -267,10 +225,10 @@ export default function ClientDetail({
    <div className="flex-1 overflow-auto p-4 md:p-6 max-w-4xl mx-auto w-full">
    <Card>
     <CardContent className="px-3 py-2">
-     <h2 className="text-base font-bold text-[var(--text-primary)] mb-3">
+     <h2 className="text-base font-bold text-foreground mb-3">
       แจ้งแก้ไขข้อมูล
      </h2>
-     <p className="text-[14px] text-[var(--text-muted)] mb-3">
+     <p className="text-[14px] text-muted-foreground mb-3">
      คำแนะนำของคุณจะถูกส่งให้ผู้ดูแลตรวจสอบก่อนอัปเดตข้อมูล
     </p>
     <SuggestEditForm
@@ -291,134 +249,19 @@ export default function ClientDetail({
  <div className="flex-1 min-w-0 flex flex-col">
  {/* ── BODY ── */}
  <div className="flex-1 overflow-auto p-4 md:p-6 space-y-2 max-w-4xl mx-auto w-full">
- {/* ── CLIENT INFO CARD ── */}
- <Card className="overflow-hidden">
-  <CardContent className="px-3 pt-3 pb-2 space-y-2">
-   <div>
-   <h1 className="text-lg font-bold text-[var(--text-primary)] break-words font-serif">
-    {client.shopName || client.name}
-   </h1>
-   {client.shopName && (
-    <p className="text-sm text-[var(--text-secondary)] mt-0.5 ml-0.5">
-    {client.name}
-    </p>
-    )}
-   </div>
-  {client.address && (
-  <div className="flex items-start gap-2">
-  <MapPin className="w-4 h-4 text-[var(--text-muted)] shrink-0 mt-0.5" />
-  <p className="text-[17px] text-[var(--text-primary)] leading-relaxed">
-  {client.address}
-  </p>
-  </div>
-  )}
-  <BadgeTag badge={client.badge} size="md" />
-   <div className="border-t border-[var(--border)]" />
-   <div className="grid grid-cols-3 gap-1.5">
-    <Button
-     variant="outline"
-     className={`h-9 px-1 ${copied === 'text' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
-     onClick={() => handleCopy()}
-    >
-     <Copy className="w-3.5 h-3.5 shrink-0" />
-      <span className="text-[11px]">ข้อความ</span>
-    </Button>
-    {client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng) && (
-     <Button
-      variant="outline"
-      className={`h-9 px-1 ${copied === 'text+maps' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
-      onClick={() => handleCopy('text+maps')}
-     >
-     <Copy className="w-3.5 h-3.5 shrink-0" />
-      <span className="text-[11px]">ข้อความ+แผนที่</span>
-     </Button>
-    )}
-    {client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng) && (
-     <Button
-      variant="outline"
-      className={`h-9 px-1 ${copied === 'maps' ? 'border-[var(--success)] text-[var(--success)]' : ''}`}
-      onClick={() => handleCopy('maps')}
-     >
-     <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-     </svg>
-      <span className="text-[11px]">แผนที่</span>
-     </Button>
-    )}
-   </div>
-  </CardContent>
- </Card>
+  {/* ── CLIENT INFO CARD ── */}
+  <ClientInfoCard client={client} copied={copied} onCopy={handleCopy} />
 
- {/* ── NOTES CARD ── */}
- {client.notes && client.notes.trim() && (
-  <Card>
-   <CardContent className="px-3 py-2 space-y-2">
-    <h2 className="text-[14px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] flex items-center gap-1.5">
-     <ChatDots className="w-3.5 h-3.5 inline-block" /> บันทึก
-    </h2>
-    <p className="text-[16px] text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words">
-     {client.notes}
-    </p>
-   </CardContent>
-  </Card>
- )}
+  <ClientNotesCard notes={client.notes} />
 
   {/* ── PHOTOS + MAP (side-by-side on desktop) ── */}
  <div className="flex flex-row gap-2">
- {client.images?.length > 0 && (
- <div className="flex-1 flex flex-col gap-0">
- <div
-   {...cardSwipe}
-   className="aspect-square md:aspect-[2/1] rounded-[10px] overflow-hidden relative touch-pan-y"
-  >
-  {(() => {
-    const src = client.images[photoIdx]
-    const size = imageSizes[src]
-    return size != null ? (
-      <div className="absolute bottom-2 left-2 z-10 pointer-events-none inline-flex items-center gap-1 px-2 py-1 rounded-[6px] text-[12px] font-medium bg-black/60 text-white">
-        {size < 1024 * 1024
-          ? `${(size / 1024).toFixed(0)} KB`
-          : `${(size / (1024 * 1024)).toFixed(1)} MB`}
-      </div>
-    ) : null
-  })()}
- <div
- className={`flex h-full will-change-transform ${cardSwipe.isDragging ? '' : 'transition-transform duration-200 ease-out'}`}
- style={{ transform: `translateX(calc(-${photoIdx * 100}% + ${cardSwipe.dragOffset}px))` }}
- >
- {client.images.map((src, i) => (
- <button
- key={i}
- onClick={() => setLightboxIdx(i)}
- className="min-w-full h-full overflow-hidden cursor-pointer hover:opacity-85 transition-opacity"
- >
- <AppImage
- src={src}
- alt={`${client.shopName || client.name} ${i + 1}`}
- className="w-full h-full object-cover"
- />
- </button>
- ))}
- </div>
- {(client.images?.length ?? 0) > 1 && (
- <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 pointer-events-auto">
- {client.images.map((_, i) => (
- <button
- key={i}
- onClick={(e) => { e.stopPropagation(); setPhotoIdx(i) }}
- className={`w-2 h-2 rounded-full transition-all duration-200 cursor-pointer ${
- i === photoIdx
- ? 'bg-[var(--text-primary)] w-5'
- : 'bg-[var(--text-secondary)]/40 hover:bg-[var(--text-secondary)]/60'
- }`}
- aria-label={`Photo ${i + 1}`}
- />
- ))}
- </div>
- )}
- </div>
- </div>
- )}
+  {client.images?.length > 0 && (
+    <ClientPhotoGallery
+      images={client.images}
+      onLightboxOpen={(i) => setLightboxIdx(i)}
+    />
+  )}
 
   {client.lat != null && client.lng != null && !Number.isNaN(client.lat) && !Number.isNaN(client.lng) && (
   <div
@@ -426,7 +269,7 @@ export default function ClientDetail({
     className="flex-1 aspect-square md:aspect-[2/1] rounded-[10px] overflow-hidden relative flex flex-col cursor-pointer"
    >
   <MapPreview lat={client.lat} lng={client.lng} />
- <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[14px] font-medium bg-[var(--text-primary)]/80 text-white pointer-events-none">
+  <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[14px] font-medium bg-foreground/80 text-white pointer-events-none">
  <ArrowSquareOut className="w-3 h-3" />
  เปิดแผนที่
  </div>
@@ -434,276 +277,50 @@ export default function ClientDetail({
  )}
  </div>
 
-  <Card>
-   <CardContent className="px-3 py-2 space-y-2">
-    <h2 className="text-[14px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] ">
-     <LinkSimple className="w-3.5 h-3.5 inline-block align-text-bottom" /> แชร์แผนที่
-    </h2>
-   <div className="flex items-center gap-2">
-    <input
-     readOnly
-     value={
-      typeof window !== 'undefined' ? `${window.location.origin}/c/${client.id}` : ''
-     }
-     onClick={(e) => e.currentTarget.select()}
-      className="flex-1 h-9 px-3 text-[16px] font-sans rounded-[6px] bg-[var(--surface)] text-[var(--text-secondary)] outline-none select-all cursor-text"
-    />
-      <Button
-       onClick={() => copyToClipboard(`${window.location.origin}/c/${client.id}`)}
-       className="whitespace-nowrap text-xs"
-      >
-       คัดลอก
-      </Button>
-   </div>
-  </CardContent>
- </Card>
+  <ClientShareCard clientId={client.id} />
+  <ClientDateCard createdAt={client.createdAt} updatedAt={client.updatedAt} />
 
-  <Card>
-   <CardContent className="px-3 py-2 space-y-2">
-    <div className="flex items-center justify-between">
-     <h2 className="text-[14px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] ">
-      <Calendar className="w-3.5 h-3.5 inline-block align-text-bottom" /> วันที่
-     </h2>
-   </div>
-   <div className="flex flex-wrap gap-x-4 gap-y-1">
-    <div className="inline-flex items-center gap-1">
-     <Calendar className="w-3 h-3 text-[var(--text-muted)] " />
-     <span className="text-[14px] text-[var(--text-secondary)] ">
-      สร้าง: {formatDateTime(client.createdAt)}
-     </span>
-    </div>
-    {client.updatedAt > client.createdAt && (
-     <div className="inline-flex items-center gap-1">
-      <Clock className="w-3 h-3 text-[var(--text-muted)] " />
-      <span className="text-[14px] text-[var(--text-secondary)] ">
-       อัปเดต: {formatDateTime(client.updatedAt)}
-      </span>
-     </div>
-    )}
-   </div>
-  </CardContent>
- </Card>
+  <ClientActionButtons
+    isAdmin={isAdmin}
+    hideActions={hideActions}
+    onEdit={() => setEditOpen(true)}
+    onDelete={() => setDeleteConfirm(true)}
+    onSuggest={() => setSuggestOpen(true)}
+  />
 
-  {!hideActions && !isAdmin && (
-   <div className="flex gap-2">
-    <Button
-     variant="outline"
-     className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
-     onClick={() => setSuggestOpen(true)}
-    >
-     <PencilSimple className="w-4 h-4" />
-     แจ้งแก้ไขข้อมูล
-    </Button>
-   </div>
-  )}
-
- {isAdmin && !hideActions && (
-  <div className="flex gap-2">
-     <Button
-      variant="outline"
-      className="flex-1 h-12 border-[var(--accent-blue)] text-[var(--accent-blue)]"
-      onClick={() => setEditOpen(true)}
-     >
-     <Pencil className="w-4 h-4" />
-     แก้ไข
-    </Button>
-    <Button
-     variant="destructive"
-     className="flex-1 h-12 border-[var(--destructive)]"
-     onClick={() => setDeleteConfirm(true)}
-    >
-     <Trash className="w-4 h-4" />
-     ลบ
-    </Button>
-  </div>
- )}
-
- {/* ── SUGGESTIONS CARD ── */}
-  {suggestions.length > 0 && (
-   <Card>
-    <CardContent className="px-3 py-2 space-y-2">
-     <h2 className="text-[14px] font-medium uppercase tracking-[0.5px] text-[var(--text-muted)] flex items-center gap-1.5">
-      <ChatDots className="w-3.5 h-3.5 inline-block" /> คำแนะนำการแก้ไข
-     </h2>
-     {suggestError && (
-       <div className="px-2 py-1.5 rounded-[4px] bg-[var(--destructive)]/10 text-[var(--destructive)] text-[14px]">
-         {suggestError}
-       </div>
-     )}
-  <div className="divide-y divide-[var(--border)] -mx-4">
- {[...suggestions]
- .sort((a, b) => b.createdAt - a.createdAt)
- .slice(0, 5)
- .map((s) => (
- <div key={s.id}>
- <button
- onClick={() => toggleSuggestion(s.id)}
- className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-[var(--surface)] transition-colors cursor-pointer"
- >
- <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
- {s.status === 'pending' && (
- <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--warning)]/10 rounded-[4px] text-[13px] text-[var(--warning)] font-medium">
- <span className="w-1.5 h-1.5 rounded-full bg-[var(--warning)]" />
- รอตรวจสอบ
- </span>
- )}
- {s.status === 'approved' && (
- <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--success)]/10 rounded-[4px] text-[13px] text-[var(--success)] font-medium">
- <Check className="w-3 h-3" /> อนุมัติแล้ว
- </span>
- )}
- {s.status === 'rejected' && (
- <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--surface)] rounded-[4px] text-[13px] text-[var(--text-muted)] ">
- <X className="w-3 h-3" /> ปฏิเสธ
- </span>
- )}
- <span className="font-mono text-[14px] text-[var(--text-secondary)] ">
- {formatDateTime(s.createdAt)}
- </span>
- </div>
- <CaretDown
- className={`w-3.5 h-3.5 text-[var(--text-muted)] shrink-0 transition-transform duration-200 ${expandedSuggestions.has(s.id) ? '' : '-rotate-90'}`}
- />
- </button>
- {expandedSuggestions.has(s.id) && (
- <div className="px-4 pb-3 space-y-2">
- <div className="space-y-1">
- <SuggestionDiff
- label="ชื่อ"
- oldVal={s.original.name}
- newVal={s.suggested.name}
- />
- <SuggestionDiff
- label="ร้าน"
- oldVal={s.original.shopName || '-'}
- newVal={s.suggested.shopName || '-'}
- />
- <SuggestionDiff
- label="ที่อยู่"
- oldVal={s.original.address}
- newVal={s.suggested.address}
- />
- {(s.original.lat !== s.suggested.lat ||
- s.original.lng !== s.suggested.lng) && (
- <div className="flex items-center gap-2 text-[15px]">
- <span className="text-[var(--text-muted)] w-12 shrink-0">
- พิกัด
- </span>
- <span className="font-mono text-[13px] text-[var(--text-muted)] line-through">
- {s.original.lat != null
- ? `${s.original.lat.toFixed(4)}, ${s.original.lng?.toFixed(4)}`
- : '-'}
- </span>
- <span className="font-mono text-[13px] text-[var(--success)] font-medium">
- {s.suggested.lat != null
- ? `${s.suggested.lat.toFixed(4)}, ${s.suggested.lng?.toFixed(4)}`
- : '-'}
- </span>
- </div>
- )}
- </div>
-  {isAdmin && s.status === 'pending' && (
-   <div className="flex gap-1.5 pt-1">
-    <Button
-     variant="ghost"
-     size="sm"
-     onClick={() => handleApprove(s.id)}
-     disabled={processingSuggestion === s.id}
-     className="text-[var(--success)] hover:bg-[var(--success)]/10"
-    >
-     {processingSuggestion === s.id ? (
-      <Spinner className="w-3.5 h-3.5 animate-spin" />
-     ) : (
-      <Check className="w-3.5 h-3.5" />
-     )}{' '}
-     อนุมัติ
-    </Button>
-    <Button
-     variant="ghost"
-     size="sm"
-     onClick={() => handleReject(s.id)}
-     disabled={processingSuggestion === s.id}
-    >
-     {processingSuggestion === s.id ? (
-      <Spinner className="w-3.5 h-3.5 animate-spin" />
-     ) : (
-      <X className="w-3.5 h-3.5" />
-     )}{' '}
-     ปฏิเสธ
-    </Button>
-   </div>
-  )}
- </div>
- )}
-  </div>
-  ))}
-   </div>
-  </CardContent>
- </Card>
- )}
+  {/* ── SUGGESTIONS CARD ── */}
+  <SuggestionsCard
+    suggestions={suggestions}
+    expandedSuggestions={expandedSuggestions}
+    onToggle={toggleSuggestion}
+    onApprove={handleApprove}
+    onReject={handleReject}
+    processingSuggestion={processingSuggestion}
+    suggestError={suggestError}
+    isAdmin={isAdmin}
+  />
  </div>
  {/* ── DELETE CONFIRM ── */}
-  <Dialog open={deleteConfirm} onOpenChange={setDeleteConfirm} popupClassName="w-fit min-w-[280px]">
-   <DialogContent showCloseButton={false}>
-   <div className="w-12 h-12 mx-auto rounded-full bg-primary/20 flex items-center justify-center">
-     <Trash className="w-5 h-5 text-primary" />
-    </div>
-    <h3 className="text-lg font-bold text-foreground text-center">
-     ยืนยันลบข้อมูลลูกค้านี้?
-    </h3>
-    <p className="text-sm text-muted-foreground text-center">
-    {client.shopName || client.name}
-   </p>
-     <div className="flex gap-2 pt-2">
-      <Button
-       variant="secondary"
-       className="flex-1 h-12"
-       onClick={() => setDeleteConfirm(false)}
-      >
-       ยกเลิก
-      </Button>
-      <Button
-       className="flex-1 h-12"
-       onClick={handleDelete}
-      >
-       ลบ
-      </Button>
-     </div>
-  </DialogContent>
- </Dialog>
+ <ConfirmDialog
+  open={deleteConfirm}
+  onOpenChange={setDeleteConfirm}
+  title="ยืนยันลบข้อมูลลูกค้านี้?"
+  description={client.shopName || client.name}
+  confirmLabel="ลบ"
+  variant="danger"
+  onConfirm={handleDelete}
+ />
 
  {/* ── MAP CONFIRM ── */}
- <Dialog open={showMapConfirm} onOpenChange={setShowMapConfirm}>
-  <DialogContent showCloseButton={false} className="max-w-xs">
-   <div className="w-12 h-12 mx-auto rounded-full bg-primary/20 flex items-center justify-center">
-     <NavigationArrow className="w-5 h-5 text-primary" />
-    </div>
-    <h3 className="text-lg font-bold text-foreground text-center">
-     นำทางไปยัง {client.shopName || client.name}?
-    </h3>
-    <p className="text-sm text-muted-foreground text-center">
-    เปิดแผนที่เพื่อนำทาง
-   </p>
-    <div className="flex gap-2 pt-2">
-     <Button
-      variant="secondary"
-      className="flex-1"
-      onClick={() => setShowMapConfirm(false)}
-     >
-      ยกเลิก
-     </Button>
-     <Button
-      className="flex-1"
-      onClick={() => {
-       openMapApp()
-       setShowMapConfirm(false)
-      }}
-     >
-      เปิดแผนที่
-     </Button>
-    </div>
-  </DialogContent>
- </Dialog>
+ <ConfirmDialog
+  open={showMapConfirm}
+  onOpenChange={setShowMapConfirm}
+  title={`นำทางไปยัง ${client.shopName || client.name}?`}
+  description="เปิดแผนที่เพื่อนำทาง"
+  confirmLabel="เปิดแผนที่"
+  variant="default"
+  onConfirm={() => { openMapApp(); setShowMapConfirm(false) }}
+ />
 
   {/* ── LIGHTBOX ── */}
   {lightboxIdx != null && imgs.length > 0 && (

@@ -1,17 +1,17 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
-import { PageClient as Clients } from './pages/Clients'
-import ClientDetailPage from './pages/ClientDetailPage'
-import MapPage from './pages/MapPage'
-import SuggestionsPage from './pages/SuggestionsPage'
-import TrashPage from './pages/TrashPage'
-import AddEditPage from './pages/AddEditPage'
 import { useAuthStore } from './stores/auth-store'
 import { useClientStore } from './stores/client-store'
 import { useMotion } from './lib/motion'
 
 const LoginModal = lazy(() => import('./components/LoginModal'))
+const Clients = lazy(() => import('./pages/Clients').then((m) => ({ default: m.PageClient })))
+const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'))
+const MapPage = lazy(() => import('./pages/MapPage'))
+const SuggestionsPage = lazy(() => import('./pages/SuggestionsPage'))
+const TrashPage = lazy(() => import('./pages/TrashPage'))
+const AddEditPage = lazy(() => import('./pages/AddEditPage'))
 
 function PageTransition({ children }: { children: React.ReactNode }) {
   const { slideUp, spring } = useMotion()
@@ -65,16 +65,18 @@ function App() {
         />
       </Suspense>
       <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<PageTransition><Clients /></PageTransition>} />
-          <Route path="/maps" element={<PageTransition><MapPage /></PageTransition>} />
-          <Route path="/suggestions" element={<PageTransition><SuggestionsPage /></PageTransition>} />
-          <Route path="/trash" element={<PageTransition><TrashPage /></PageTransition>} />
-          <Route path="/add" element={<PageTransition><AddEditPage /></PageTransition>} />
-          <Route path="/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
-          <Route path="/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={null}>
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<PageTransition><Clients /></PageTransition>} />
+            <Route path="/maps" element={<PageTransition><MapPage /></PageTransition>} />
+            <Route path="/suggestions" element={<PageTransition><SuggestionsPage /></PageTransition>} />
+            <Route path="/trash" element={<PageTransition><TrashPage /></PageTransition>} />
+            <Route path="/add" element={<PageTransition><AddEditPage /></PageTransition>} />
+            <Route path="/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
+            <Route path="/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </AnimatePresence>
     </>
   )

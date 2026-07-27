@@ -74,7 +74,7 @@ const MobileCardList = memo(function MobileCardList({
      <Card
        onClick={() => (selectionMode ? onToggleSelect(client.id) : onSelectClient(client))}
        className={`size-sm w-full p-2.5 flex flex-row items-center gap-2.5 overflow-visible transition-all active:shadow-md cursor-pointer ${
-         isSelected ? 'ring-1 ring-[var(--accent-blue)]' : ''
+         isSelected ? 'ring-1 ring-accent' : ''
        }`}
      >
  <div className="relative shrink-0">
@@ -95,11 +95,11 @@ const MobileCardList = memo(function MobileCardList({
  />
  </div>
   <div className="flex-1 min-w-0 text-left">
-  <div className="font-semibold text-[17px] text-[var(--text-primary)] truncate">
+  <div className="font-semibold text-[17px] text-foreground truncate">
   {client.shopName || client.name}
   </div>
   {client.shopName && (
-  <div className="font-medium max-md:text-[16px] md:text-[14px] text-[var(--text-secondary)] mt-[1px] truncate">
+  <div className="font-medium max-md:text-[16px] md:text-[14px] text-muted-foreground mt-[1px] truncate">
   {client.name}
   </div>
   )}

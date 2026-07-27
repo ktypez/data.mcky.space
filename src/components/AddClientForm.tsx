@@ -3,15 +3,17 @@ import { useState, useEffect, useMemo, useRef, type FormEvent } from 'react'
 import type { Client } from '@/types'
 import { checkDuplicateName } from '@/lib/duplicate-names'
 import { generateId } from '@/lib/utils'
-import { useGeolocation } from '@/hooks/useGeolocation'
-import MapPicker from '@/components/MapPickerDynamic'
-import PhotoUploadModal from '@/components/PhotoUploadModal'
-import AppImage from '@/components/AppImage'
-import { getBadgePreset } from '@/components/BadgeTag'
-import { Switch } from '@/components/ui/switch'
-import { MapPin, X, Crosshair, MagnifyingGlass, Warning, Plus, Pencil, Camera } from '@phosphor-icons/react'
+import { X } from '@phosphor-icons/react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import LocationSection from '@/components/LocationSection'
+import PhotoSection from '@/components/PhotoSection'
+import FormNameField from '@/components/FormNameField'
+import FormNotesField from '@/components/FormNotesField'
+import FormBadgeField from '@/components/FormBadgeField'
+import FormSubmitButtons from '@/components/FormSubmitButtons'
 
 interface Props {
   open: boolean
@@ -42,11 +44,6 @@ export default function AddClientForm({
   const [images, setImages] = useState<string[]>(() => editClient?.images ?? [])
   const [badge, setBadge] = useState<string | null>(() => editClient?.badge ?? null)
   const [notes, setNotes] = useState<string>(() => editClient?.notes ?? '')
-  const { getCurrentLocation, locating } = useGeolocation()
-  const [locQuery, setLocQuery] = useState('')
-  const [locSearching, setLocSearching] = useState(false)
-  const [locFeedback, setLocFeedback] = useState<{ ok: boolean; msg: string } | null>(null)
-  const [photoModalOpen, setPhotoModalOpen] = useState(false)
   const [debouncedName, setDebouncedName] = useState(() => editClient?.name ?? '')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -85,312 +82,51 @@ export default function AddClientForm({
     onOpenChange(false)
   }
 
-  const handleGetCurrentLocation = async () => {
-    const pos = await getCurrentLocation()
-    if (pos) {
-      setLat(pos.lat)
-      setLng(pos.lng)
-    }
+  const handleCoordsChange = (newLat: number | null, newLng: number | null) => {
+    setLat(newLat)
+    setLng(newLng)
   }
-
-  /** Parse lat/lng from various text formats */
-  function parseCoords(input: string): { lat: number; lng: number } | null {
-    const s = input.trim()
-    if (!s) return null
-
-    // 1. "lat, lng" or "lat lng" (decimal degrees)
-    let m = s.match(/^(-?\d+\.?\d*)\s*[,;\s]\s*(-?\d+\.?\d*)$/)
-    if (m) {
-      const lat = parseFloat(m[1]), lng = parseFloat(m[2])
-      if (isFinite(lat) && isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)
-        return { lat, lng }
-    }
-
-    // 2. "lat N/S, lng E/W" with hemisphere suffix (e.g. "13.7563 N, 100.5018 E")
-    m = s.match(/^(-?\d+\.?\d*)\s*°?\s*([NS]?)\s*[,;\s]\s*(-?\d+\.?\d*)\s*°?\s*([EW]?)$/i)
-    if (m) {
-      let lat = parseFloat(m[1]), lng = parseFloat(m[3])
-      if (m[2].toUpperCase() === 'S') lat = -lat
-      if (m[4].toUpperCase() === 'W') lng = -lng
-      if (isFinite(lat) && isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)
-        return { lat, lng }
-    }
-
-    // 3. DMS: "13°45'23\"N 100°29'31\"E" or "13 45 23 N 100 29 31 E"
-    m = s.match(/^(\d+)\s*°\s*(\d+)\s*'\s*(\d+(?:\.\d+)?)?"?\s*([NS]?)\s+(\d+)\s*°\s*(\d+)\s*'\s*(\d+(?:\.\d+)?)?"?\s*([EW]?)$/i)
-    if (m) {
-      let lat = parseFloat(m[1]) + parseFloat(m[2]) / 60 + parseFloat(m[3]) / 3600
-      let lng = parseFloat(m[5]) + parseFloat(m[6]) / 60 + parseFloat(m[7]) / 3600
-      if (m[4].toUpperCase() === 'S') lat = -lat
-      if (m[8].toUpperCase() === 'W') lng = -lng
-      if (isFinite(lat) && isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)
-        return { lat, lng }
-    }
-
-    return null
-  }
-
-  const searchLocation = async () => {
-    const q = locQuery.trim()
-    if (!q) return
-    setLocSearching(true)
-    setLocFeedback(null)
-
-    // Try lat/lng parsing
-    const coords = parseCoords(q)
-    if (coords) {
-      setLat(coords.lat)
-      setLng(coords.lng)
-      setLocQuery('')
-      setLocFeedback({ ok: true, msg: `📍 ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` })
-      setLocSearching(false)
-      return
-    }
-
-    // Try plus code
-    try {
-      const { OpenLocationCode } = await import('open-location-code')
-      const olc = new OpenLocationCode()
-      const code =
-        (q.match(/[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}/i) || [])[0] || q
-      if (olc.isValid(code)) {
-        let d: { latitudeCenter: number; longitudeCenter: number }
-        if (olc.isFull(code)) {
-          d = olc.decode(code)
-        } else if (olc.isShort(code)) {
-          d = olc.decode(olc.recoverNearest(code, lat ?? 16.4322, lng ?? 102.8236))
-        } else {
-          setLocFeedback({ ok: false, msg: 'ไม่รู้จักพิกัดนี้ — ลองละติจูด,ลองจิจูด เช่น 13.7563, 100.5018' })
-          setLocSearching(false)
-          return
-        }
-        setLat(d.latitudeCenter)
-        setLng(d.longitudeCenter)
-        setLocQuery('')
-        setLocFeedback({ ok: true, msg: `📍 ${d.latitudeCenter.toFixed(4)}, ${d.longitudeCenter.toFixed(4)}` })
-      } else {
-        setLocFeedback({ ok: false, msg: 'ไม่รู้จักพิกัดนี้ — ลองละติจูด,ลองจิจูด เช่น 13.7563, 100.5018' })
-      }
-    } catch {
-      setLocFeedback({ ok: false, msg: 'ไม่สามารถโหลดตัวถอดรหัส Plus Code ได้' })
-    } finally {
-      setLocSearching(false)
-    }
-  }
-
-  const inputClass =
-    'w-full h-10 px-3 text-[16px] font-sans rounded-[6px] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] outline-none focus:border-[var(--accent-blue)] transition-colors placeholder:text-[var(--text-muted)]'
-  const inputErrorClass = 'border-[var(--destructive)] focus:border-[var(--destructive)]'
-  const labelClass = 'text-[14px] font-semibold text-[var(--text-muted)]'
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Name */}
-      <div className="space-y-1">
-        <label className={labelClass}>ชื่อลูกค้า</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          maxLength={40}
-          autoFocus
-          className={`${inputClass} ${hasConflict ? inputErrorClass : ''}`}
-        />
-        {hasConflict && (
-          <div className="flex items-start gap-2 py-2 px-3 rounded-[6px] bg-[var(--destructive)]/10 border border-[var(--destructive)]/40 text-[13px] text-[var(--destructive)]">
-            <Warning className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            <span className="leading-relaxed">
-              {dupResult.exact && (
-                <>
-                  มีชื่อ &ldquo;{dupResult.exact.name}&rdquo; อยู่แล้ว
-                  {dupResult.exact.shopName ? ` (${dupResult.exact.shopName})` : ''}
-                </>
-              )}
-              {!dupResult.exact && dupResult.similar.length > 0 && (
-                <>
-                  ชื่อคล้าย:{' '}
-                  {dupResult.similar
-                    .map(
-                      (m) =>
-                        `${m.client.name}${m.client.shopName ? ` (${m.client.shopName})` : ''}`,
-                    )
-                    .join(', ')}
-                </>
-              )}
-            </span>
-          </div>
-        )}
-      </div>
+      <FormNameField
+        value={name}
+        onChange={setName}
+        hasConflict={hasConflict}
+        dupResult={dupResult}
+        autoFocus
+      />
 
       {/* Shop Name */}
       <div className="space-y-1">
-        <label className={labelClass}>ชื่อร้านค้า *</label>
-        <input
+        <Label>ชื่อร้านค้า *</Label>
+        <Input
           type="text"
           value={shopName}
           onChange={(e) => setShopName(e.target.value)}
           maxLength={60}
-          className={inputClass}
         />
         {!name.trim() && !shopName.trim() && (
-          <p className="text-[13px] text-[var(--destructive)]">กรุณากรอกชื่อลูกค้า หรือ ชื่อร้านค้า อย่างน้อย 1 อย่าง</p>
+          <p className="text-[13px] text-destructive">กรุณากรอกชื่อลูกค้า หรือ ชื่อร้านค้า อย่างน้อย 1 อย่าง</p>
         )}
       </div>
 
       {/* Address / Details */}
       <div className="space-y-1">
-        <label className={labelClass}>ที่อยู่/รายละเอียด</label>
-        <input
+        <Label>ที่อยู่/รายละเอียด</Label>
+        <Input
           type="text"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           maxLength={120}
-          className={inputClass}
         />
       </div>
 
-      {/* Location */}
-      <div className="space-y-1.5">
-        <label className={`${labelClass} flex items-center gap-1`}>
-          <MapPin className="w-3.5 h-3.5" /> ตำแหน่ง
-        </label>
-        <MapPicker
-          lat={lat}
-          lng={lng}
-          onChange={(la, ln) => {
-            setLat(la)
-            setLng(ln)
-          }}
-        />
-        <div className="flex gap-1.5">
-          <input
-            type="text"
-            value={locQuery}
-            onChange={(e) => { setLocQuery(e.target.value); setLocFeedback(null) }}
-            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), searchLocation())}
-            placeholder="ละติจูด, ลองจิจูด หรือ Plus Code"
-            className={`${inputClass} flex-1`}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={searchLocation}
-            aria-label="ค้นหาตำแหน่ง"
-            disabled={locSearching || !locQuery.trim()}
-          >
-            {locSearching ? (
-              <span className="text-xs">...</span>
-            ) : (
-              <MagnifyingGlass className="w-3.5 h-3.5" />
-            )}
-          </Button>
-        </div>
-        {locFeedback && (
-          <p className={`text-[13px] ${locFeedback.ok ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
-            {locFeedback.msg}
-          </p>
-        )}
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-auto p-0 text-[13px] font-semibold text-[var(--accent-blue)] hover:text-[var(--accent-blue-hover)]"
-            onClick={handleGetCurrentLocation}
-            disabled={locating}
-          >
-            <Crosshair className="w-3.5 h-3.5" />
-            {locating ? 'กำลังค้นหา...' : 'ใช้ตำแหน่งปัจจุบัน'}
-          </Button>
-          <span className="text-[13px] text-[var(--text-muted)]/60">หรือแตะบนแผนที่</span>
-        </div>
-      </div>
-
-      {/* Photo */}
-      <div className="space-y-1">
-        <label className={labelClass}>รูปร้านค้า</label>
-        <div className="flex flex-wrap gap-2">
-          {images.map((src, i) => (
-            <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[var(--border)]">
-              {(src.startsWith('data:image') || src.startsWith('http')) ? (
-                <AppImage src={src} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-[var(--surface)] flex items-center justify-center text-xs text-[var(--text-muted)]">?</div>
-              )}
-              <Button
-                variant="default"
-                size="icon-xs"
-                className="absolute top-0.5 right-0.5 rounded-full"
-                onClick={() => setImages(images.filter((_, j) => j !== i))}
-                disabled={uploading}
-                aria-label="ลบรูปภาพ"
-              >
-                <X className="w-3 h-3" />
-              </Button>
-            </div>
-          ))}
-          {images.length < 2 && (
-            <Button
-              type="button"
-              variant="outline"
-              className="w-20 h-20 rounded-lg border-dashed flex flex-col gap-1"
-              onClick={() => setPhotoModalOpen(true)}
-            >
-              <Camera className="w-5 h-5" />
-              <span className="text-[10px] font-semibold">{images.length}/2</span>
-            </Button>
-          )}
-        </div>
-          <PhotoUploadModal
-            open={photoModalOpen}
-            onOpenChange={setPhotoModalOpen}
-            onCompressed={(dataUrl) => setImages([...images, dataUrl])}
-          />
-      </div>
-
-      {/* Notes */}
-      <div className="space-y-1">
-        <label className={labelClass}>บันทึก</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          maxLength={1000}
-          rows={3}
-          className={`${inputClass} h-auto py-2 resize-y`}
-        />
-      </div>
-
-      {/* Badge (edit only) */}
-      {editing && (() => {
-        const preset = getBadgePreset(badge)
-        return (
-          <div className="flex items-center justify-between px-3 py-2.5 rounded-[6px] border border-[var(--border)] bg-[var(--surface)]">
-            <span className={`text-[15px] font-medium ${preset ? preset.text : 'text-[var(--text-muted)]'}`}>
-              {preset ? preset.label : 'ไม่มี badge'}
-            </span>
-            <Switch
-              checked={badge === 'penpay'}
-              onCheckedChange={(checked) => setBadge(checked ? 'penpay' : null)}
-            />
-          </div>
-        )
-      })()}
-
-      <div className="flex gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          className="flex-1 h-12"
-          onClick={() => onOpenChange(false)}
-        >
-          ยกเลิก
-        </Button>
-        <Button type="submit" className="flex-1 h-12" disabled={uploading}>
-          {editing ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {uploading ? 'กำลังอัปโหลด...' : editing ? 'อัปเดตข้อมูล' : 'เพิ่มลูกค้าใหม่'}
-        </Button>
-      </div>
+      <LocationSection lat={lat} lng={lng} onCoordsChange={handleCoordsChange} />
+      <PhotoSection images={images} onImagesChange={setImages} uploading={uploading} />
+      <FormNotesField value={notes} onChange={setNotes} />
+      <FormBadgeField badge={badge} onChange={setBadge} visible={editing} />
+      <FormSubmitButtons editing={editing} uploading={uploading} onCancel={() => onOpenChange(false)} />
     </form>
   )
 
@@ -404,11 +140,11 @@ export default function AddClientForm({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="p-0 gap-0 overflow-hidden bg-[var(--card)] border-l border-[var(--border)]"
+        className="p-0 gap-0 overflow-hidden bg-card border-l border-border"
         showCloseButton={false}
       >
-        <SheetHeader className="flex flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-[var(--border)]">
-          <SheetTitle className="text-base font-bold text-[var(--text-primary)]">
+        <SheetHeader className="flex flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-border">
+          <SheetTitle className="text-base font-bold text-foreground">
             {editing ? 'แก้ไขลูกค้า' : 'เพิ่มลูกค้าใหม่'}
           </SheetTitle>
           <div className="flex items-center gap-1.5">

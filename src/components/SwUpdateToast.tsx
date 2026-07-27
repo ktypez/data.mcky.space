@@ -24,14 +24,14 @@ export default function SwUpdateToast() {
     <AnimatePresence>
       {show && (
         <motion.div
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-[var(--card)] border border-[var(--border)] shadow-lg rounded-lg px-4 py-2.5 flex items-center gap-3"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-card border border-border shadow-lg rounded-lg px-4 py-2.5 flex items-center gap-3"
           variants={slideUp}
           initial="hidden"
           animate="visible"
           exit="hidden"
           transition={spring}
         >
-          <span className="text-sm text-[var(--text-primary)]">มีเวอร์ชันใหม่</span>
+          <span className="text-sm text-foreground">มีเวอร์ชันใหม่</span>
           <Button
             size="sm"
             variant="default"

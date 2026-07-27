@@ -1,11 +1,30 @@
+import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
-function Spinner({ className, size = 16 }: { className?: string; size?: number }) {
+const spinnerVariants = cva('animate-spin-slow text-muted-foreground', {
+  variants: {
+    size: {
+      sm: 'size-3',
+      md: 'size-4',
+      lg: 'size-6',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+})
+
+interface SpinnerProps extends VariantProps<typeof spinnerVariants> {
+  className?: string
+}
+
+function Spinner({ className, size }: SpinnerProps) {
+  const pxSize = size === 'sm' ? 12 : size === 'lg' ? 24 : 16
   return (
     <svg
-      className={cn('animate-spin-slow text-muted-foreground', className)}
-      width={size}
-      height={size}
+      className={cn(spinnerVariants({ size, className }))}
+      width={pxSize}
+      height={pxSize}
       viewBox="0 0 16 16"
       fill="none"
     >
@@ -15,5 +34,5 @@ function Spinner({ className, size = 16 }: { className?: string; size?: number }
   )
 }
 
-export { Spinner }
+export { Spinner, spinnerVariants }
 export default Spinner

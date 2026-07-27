@@ -137,7 +137,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
 
   if (mapFailed) {
     return (
-      <div className="w-full h-48 rounded-xl overflow-hidden border border-border bg-[var(--surface)] flex items-center justify-center text-[var(--text-muted)] text-xs">
+      <div className="w-full h-48 rounded-xl overflow-hidden border border-border bg-card flex items-center justify-center text-muted-foreground text-xs">
         ไม่สามารถโหลดแผนที่ได้
       </div>
     )
@@ -152,7 +152,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
             {lat.toFixed(4)}, {lng.toFixed(4)}
           </span>
           <span className="text-foreground/30">|</span>
-          <span className="text-[var(--success)] font-bold tracking-wider">
+          <span className="text-success font-bold tracking-wider">
             {getOlc().encode(lat, lng, 10)}
           </span>
         </div>

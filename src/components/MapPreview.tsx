@@ -23,7 +23,7 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
     if (!containerRef.current || mapRef.current) return
 
     const el = document.createElement('div')
-    el.className = 'w-3 h-3 rounded-full bg-[var(--primary)] border-2 border-[var(--card)] shadow-sm'
+    el.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
 
     const map = new maplibregl.Map({
       container: containerRef.current,
@@ -63,7 +63,7 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
         const c = map.getCenter()
         if (markerRef.current) markerRef.current.remove()
         const el = document.createElement('div')
-        el.className = 'w-3 h-3 rounded-full bg-[var(--primary)] border-2 border-[var(--card)] shadow-sm'
+    el.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
         markerRef.current = new maplibregl.Marker({ element: el }).setLngLat([c.lng, c.lat]).addTo(map)
         map.resize()
       })
@@ -75,7 +75,7 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
     if (!mapRef.current) return
     mapRef.current.flyTo({ center: [lng, lat], zoom: 15, duration: 500 })
     const el = document.createElement('div')
-    el.className = 'w-3 h-3 rounded-full bg-[var(--primary)] border-2 border-[var(--card)] shadow-sm'
+    el.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
     if (markerRef.current) markerRef.current.remove()
     markerRef.current = new maplibregl.Marker({ element: el })
       .setLngLat([lng, lat])

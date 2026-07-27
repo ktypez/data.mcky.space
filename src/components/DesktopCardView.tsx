@@ -77,8 +77,8 @@ const DesktopCardView = memo(function DesktopCardView({
      }
      className={`p-3.5 flex flex-col gap-2.5 overflow-visible transition-[box-shadow,transform,border-color] duration-200 cursor-pointer ${
       isSelected
-       ? 'ring-2 ring-[var(--accent-blue)] border-[var(--accent-blue)]'
-       : 'hover:shadow-lg hover:-translate-y-0.5 hover:border-[var(--border-hover)]'
+       ? 'ring-2 ring-accent border-accent'
+       : 'hover:shadow-lg hover:-translate-y-0.5 hover:border-border/80'
      } ${selectionMode ? 'select-none' : ''}`}
     >
  {/* Header: photo + name + copy */}
@@ -101,11 +101,11 @@ const DesktopCardView = memo(function DesktopCardView({
  />
  </div>
   <div className="min-w-0 flex-1">
-  <div className="font-semibold text-[16px] text-[var(--text-primary)] truncate">
+  <div className="font-semibold text-[16px] text-foreground truncate">
   {client.shopName || client.name}
   </div>
    {client.shopName && (
-   <div className="text-[14px] text-[var(--text-secondary)] truncate">
+   <div className="text-[14px] text-muted-foreground truncate">
    {client.name}
    </div>
    )}
@@ -114,7 +114,7 @@ const DesktopCardView = memo(function DesktopCardView({
 
  {/* Footer: date + badge + copy */}
  <div className="flex items-center justify-between">
- <span className="font-mono text-[12px] text-[var(--text-muted)] ">
+ <span className="font-mono text-[12px] text-muted-foreground ">
  {formatDate(client.updatedAt)}
  </span>
   <div className="flex items-center gap-1.5">

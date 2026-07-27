@@ -1,10 +1,7 @@
-
-import { useState, useRef } from 'react'
-import { createPortal } from 'react-dom'
-import { AnimatePresence, motion } from 'motion/react'
+import { useState } from 'react'
 import { Funnel, Image, Circle, Clock, Check, CurrencyDollar } from '@phosphor-icons/react'
 import { FilterKey } from '@/types'
-import { scaleIn, fadeIn, spring } from '@/lib/motion'
+import { PopoverMenu } from '@/components/ui/popover-menu'
 
 interface Counts {
   total: number
@@ -30,128 +27,67 @@ const filterItems: { key: FilterKey; label: string; icon: React.ReactNode }[] = 
 
 export default function FilterDropdown({ filter, counts, onFilter }: Props) {
   const [open, setOpen] = useState(false)
-  const [pos, setPos] = useState({ top: 0, left: 0 })
-  const buttonRef = useRef<HTMLButtonElement>(null)
-
   const close = () => setOpen(false)
-
-  const handleToggle = () => {
-    if (!open && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect()
-      const gap = 8
-      const popupWidth = 300
-      const estHeight = 220
-      let top = rect.bottom + 6
-      let left = rect.left
-      if (left + popupWidth > window.innerWidth - gap) {
-        left = Math.max(gap, window.innerWidth - popupWidth - gap)
-      }
-      if (top + estHeight > window.innerHeight - gap) {
-        top = Math.max(gap, rect.top - estHeight - gap)
-      }
-      setPos({ top, left })
-    }
-    setOpen(!open)
-  }
 
   const currentLabel = filterItems.find((f) => f.key === filter)?.label ?? 'ทั้งหมด'
 
+  const trigger = (
+    <button
+      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors shrink-0"
+      aria-label="กรองข้อมูล"
+      aria-expanded={open}
+    >
+      <Funnel className="w-3.5 h-3.5" />
+      <span>{currentLabel}</span>
+      <span className="font-mono text-[12px]">
+        {filter === FilterKey.All
+          ? counts.total
+          : filter === FilterKey.WithImages
+            ? counts.withImages
+            : filter === FilterKey.NoImages
+              ? counts.noImages
+              : filter === FilterKey.Penpay
+                ? counts.penpay
+                : counts.recent}
+      </span>
+    </button>
+  )
+
   return (
-    <>
-      <button
-        ref={buttonRef}
-        onClick={handleToggle}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors shrink-0"
-        aria-label="กรองข้อมูล"
-        aria-expanded={open}
-      >
-        <Funnel className="w-3.5 h-3.5" />
-        <span>{currentLabel}</span>
-        <span className="font-mono text-[12px]">
-          {filter === FilterKey.All
+    <PopoverMenu open={open} onOpenChange={setOpen} trigger={trigger}>
+      {filterItems.map((item) => {
+        const isActive = filter === item.key
+        const count =
+          item.key === FilterKey.All
             ? counts.total
-            : filter === FilterKey.WithImages
+            : item.key === FilterKey.WithImages
               ? counts.withImages
-              : filter === FilterKey.NoImages
+              : item.key === FilterKey.NoImages
                 ? counts.noImages
-                : filter === FilterKey.Penpay
+                : item.key === FilterKey.Penpay
                   ? counts.penpay
-                  : counts.recent}
-        </span>
-      </button>
+                  : counts.recent
 
-      {typeof document === 'object' &&
-        createPortal(
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                key="filter-backdrop"
-                className="fixed inset-0 z-40"
-                variants={fadeIn}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                transition={spring}
-                onClick={close}
-              />
-            )}
-          </AnimatePresence>,
-          document.body,
-        )}
-
-      {typeof document === 'object' &&
-        createPortal(
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                key="filter-menu"
-                onClick={(e) => e.stopPropagation()}
-                className="fixed z-[999] w-fit min-w-36 bg-card border border-border rounded-xl shadow-xl p-1.5"
-                style={{ top: pos.top, left: pos.left }}
-                variants={scaleIn}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                transition={spring}
-              >
-                {filterItems.map((item) => {
-                  const isActive = filter === item.key
-                  const count =
-                    item.key === FilterKey.All
-                      ? counts.total
-                      : item.key === FilterKey.WithImages
-                        ? counts.withImages
-                        : item.key === FilterKey.NoImages
-                          ? counts.noImages
-                          : item.key === FilterKey.Penpay
-                            ? counts.penpay
-                            : counts.recent
-
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={() => {
-                        onFilter(item.key)
-                        close()
-                      }}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
-                        isActive
-                          ? 'bg-accent text-accent-foreground'
-                          : 'text-foreground hover:bg-muted'
-                      }`}
-                    >
-                      <span className="shrink-0 text-muted-foreground">{item.icon}</span>
-                      <span className="text-[15px] font-medium flex-1">{item.label}</span>
-                      <span className="font-mono text-[13px] text-muted-foreground">{count}</span>
-                      {isActive && <Check className="w-3.5 h-3.5 shrink-0 text-primary" />}
-                    </button>
-                  )
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>,
-          document.body,
-        )}
-    </>
+        return (
+          <button
+            key={item.key}
+            onClick={() => {
+              onFilter(item.key)
+              close()
+            }}
+            className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
+              isActive
+                ? 'bg-accent text-accent-foreground'
+                : 'text-foreground hover:bg-muted'
+            }`}
+          >
+            <span className="shrink-0 text-muted-foreground">{item.icon}</span>
+            <span className="text-[15px] font-medium flex-1">{item.label}</span>
+            <span className="font-mono text-[13px] text-muted-foreground">{count}</span>
+            {isActive && <Check className="w-3.5 h-3.5 shrink-0 text-primary" />}
+          </button>
+        )
+      })}
+    </PopoverMenu>
   )
 }

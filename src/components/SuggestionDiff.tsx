@@ -10,9 +10,9 @@ export default function SuggestionDiff({
   if (oldVal === newVal) return null
   return (
     <div className="flex gap-2">
-      <span className="text-[var(--text-muted)] w-12 shrink-0">{label}</span>
-      <span className="text-[var(--text-muted)] line-through">{oldVal}</span>
-      <span className="text-[var(--success)] font-medium">{newVal}</span>
+      <span className="text-muted-foreground w-12 shrink-0">{label}</span>
+      <span className="text-muted-foreground line-through">{oldVal}</span>
+      <span className="text-success font-medium">{newVal}</span>
     </div>
   )
 }

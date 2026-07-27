@@ -6,6 +6,8 @@ import { apiFetch } from '@/lib/api'
 import MapPicker from '@/components/MapPickerDynamic'
 import { MapPin, Crosshair, PaperPlaneTilt, CheckCircle } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import Spinner from '@/components/ui/spinner'
 
 interface Props {
@@ -85,11 +87,11 @@ export default function SuggestEditForm({ client, onClose }: Props) {
   if (done) {
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
-        <CheckCircle className="w-10 h-10 text-[var(--success)]" />
-        <p className="text-base font-bold text-[var(--text-primary)]">
+        <CheckCircle className="w-10 h-10 text-success" />
+        <p className="text-base font-bold text-foreground">
           ส่งคำแนะนำเรียบร้อย!
         </p>
-        <p className="text-sm text-[var(--text-muted)]">ผู้ดูแลจะตรวจสอบและอัปเดตข้อมูลให้เร็วที่สุด</p>
+        <p className="text-sm text-muted-foreground">ผู้ดูแลจะตรวจสอบและอัปเดตข้อมูลให้เร็วที่สุด</p>
         <Button variant="link" onClick={onClose}>
           ปิด
         </Button>
@@ -97,42 +99,35 @@ export default function SuggestEditForm({ client, onClose }: Props) {
     )
   }
 
-  const inputClass =
-    'w-full h-10 px-3 text-[16px] font-sans rounded-[6px] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] outline-none focus:border-[var(--accent-blue)] transition-colors placeholder:text-[var(--text-muted)]'
-  const labelClass = 'text-[14px] font-semibold text-[var(--text-muted)]'
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className={`${labelClass} mb-1 block`}>ชื่อ</label>
-        <input
+        <Label className="mb-1 block">ชื่อ</Label>
+        <Input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className={inputClass}
           placeholder="ชื่อลูกค้า"
           maxLength={200}
         />
       </div>
 
       <div>
-        <label className={`${labelClass} mb-1 block`}>ชื่อร้าน</label>
-        <input
+        <Label className="mb-1 block">ชื่อร้าน</Label>
+        <Input
           type="text"
           value={shopName}
           onChange={(e) => setShopName(e.target.value)}
-          className={inputClass}
           placeholder="ชื่อร้านค้า"
         />
       </div>
 
       <div>
-        <label className={`${labelClass} mb-1 block`}>ที่อยู่/รายละเอียด</label>
-        <input
+        <Label className="mb-1 block">ที่อยู่/รายละเอียด</Label>
+        <Input
           type="text"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          className={inputClass}
           placeholder="ที่อยู่"
           maxLength={200}
         />
@@ -140,9 +135,9 @@ export default function SuggestEditForm({ client, onClose }: Props) {
 
       {/* Location */}
       <div className="space-y-1.5">
-        <label className={`${labelClass} flex items-center gap-1`}>
+        <Label className="flex items-center gap-1">
           <MapPin className="w-3.5 h-3.5" /> ตำแหน่ง
-        </label>
+        </Label>
         <MapPicker
           lat={lat}
           lng={lng}
@@ -156,19 +151,19 @@ export default function SuggestEditForm({ client, onClose }: Props) {
             type="button"
             variant="ghost"
             size="sm"
-            className="h-auto p-0 text-[13px] font-semibold text-[var(--accent-blue)] hover:text-[var(--accent-blue-hover)]"
+            className="h-auto p-0 text-[13px] font-semibold text-accent hover:text-accent/80"
             onClick={handleGetCurrentLocation}
             disabled={locating}
           >
             <Crosshair className="w-3.5 h-3.5" />
             {locating ? 'กำลังค้นหา...' : 'ใช้ตำแหน่งปัจจุบัน'}
           </Button>
-          <span className="text-[13px] text-[var(--text-muted)]/60">หรือแตะบนแผนที่</span>
+          <span className="text-[13px] text-muted-foreground/60">หรือแตะบนแผนที่</span>
         </div>
       </div>
 
       {error && (
-        <div className="px-3 py-2 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] text-sm">{error}</div>
+        <div className="px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm">{error}</div>
       )}
 
       <div className="flex gap-2 pt-2">
@@ -181,7 +176,7 @@ export default function SuggestEditForm({ client, onClose }: Props) {
           disabled={submitting || !hasChanges || (!name.trim() && !shopName.trim())}
         >
           {submitting ? (
-            <Spinner className="border-white/30 border-t-white" />
+            <Spinner size="sm" />
           ) : (
             <>
               <PaperPlaneTilt className="w-3.5 h-3.5" />
@@ -191,7 +186,7 @@ export default function SuggestEditForm({ client, onClose }: Props) {
         </Button>
       </div>
 
-      <p className="text-[13px] text-[var(--text-muted)] text-center">
+      <p className="text-[13px] text-muted-foreground text-center">
         คำแนะนำของคุณจะถูกส่งให้ผู้ดูแลตรวจสอบก่อนอัปเดตข้อมูล
       </p>
     </form>

@@ -68,10 +68,10 @@ const DesktopTableView = memo(function DesktopTableView({
    key={client.id}
    variants={staggerItem}
    onClick={() => (selectionMode ? onToggleSelect(client.id) : onSelectClient(client))}
-   className={`transition-colors duration-75 cursor-pointer border-b border-[var(--surface-hover)] ${
+   className={`transition-colors duration-75 cursor-pointer border-b border-border/50 ${
     isSelected
-     ? 'bg-[var(--selection-bg)] '
-     : 'bg-[var(--card)] hover:bg-[var(--surface)] '
+     ? 'bg-accent/10 '
+     : 'bg-card hover:bg-card '
    }`}
   >
   <td className="px-3 py-2 align-middle w-10 shrink-0 relative">
@@ -103,11 +103,11 @@ const DesktopTableView = memo(function DesktopTableView({
   )}
   </td>
   <td className="px-3 py-2 align-middle">
-  <div className="font-semibold max-md:text-[17px] md:text-[15px] text-[var(--text-primary)] ">
+  <div className="font-semibold max-md:text-[17px] md:text-[15px] text-foreground ">
   {client.shopName || client.name}
   </div>
    {client.shopName && (
-   <div className="font-sans font-medium max-md:text-[16px] md:text-[14px] text-[var(--text-secondary)] mt-[1px]">
+   <div className="font-sans font-medium max-md:text-[16px] md:text-[14px] text-muted-foreground mt-[1px]">
    {client.name}
    </div>
    )}

@@ -95,10 +95,10 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
       <DialogContent showCloseButton={false} className="max-w-sm">
-        <div className="w-12 h-12 mx-auto rounded-full bg-[var(--primary)]/20 flex items-center justify-center">
-          <Camera className="w-5 h-5 text-[var(--primary)]" />
+        <div className="w-12 h-12 mx-auto rounded-full bg-primary/20 flex items-center justify-center">
+          <Camera className="w-5 h-5 text-primary" />
         </div>
-        <h3 className="text-lg font-bold text-[var(--text-primary)] text-center">เพิ่มรูปร้านค้า</h3>
+        <h3 className="text-lg font-bold text-foreground text-center">เพิ่มรูปร้านค้า</h3>
 
         {!dataUrl && !compressing ? (
           <div
@@ -108,30 +108,30 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
             onClick={() => fileInputRef.current?.click()}
             className={`flex cursor-pointer flex-col items-center gap-3 rounded-lg border-2 border-dashed p-8 transition-colors ${
               dragOver
-                ? 'border-[var(--primary)] bg-[var(--primary)]/5'
-                : 'border-[var(--border)] hover:border-[var(--text-muted)]'
+                ? 'border-primary bg-primary/5'
+                : 'border-border hover:border-muted-foreground'
             }`}
           >
-            <Upload className="w-8 h-8 text-[var(--text-muted)]" />
+            <Upload className="w-8 h-8 text-muted-foreground" />
             <div className="text-center">
-              <p className="text-sm font-medium text-[var(--text-primary)]">ลากมาวาง หรือแตะเพื่อเลือกรูป</p>
-              <p className="mt-1 text-xs text-[var(--text-muted)]">JPEG, PNG</p>
+              <p className="text-sm font-medium text-foreground">ลากมาวาง หรือแตะเพื่อเลือกรูป</p>
+              <p className="mt-1 text-xs text-muted-foreground">JPEG, PNG</p>
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = '' }} />
           </div>
         ) : compressing ? (
           <div className="flex flex-col items-center gap-3 py-8">
-            <Spinner className="w-8 h-8 animate-spin text-[var(--primary)]" />
-            <p className="text-sm text-[var(--text-muted)]">กำลังบีบอัดรูป...</p>
+            <Spinner className="w-8 h-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">กำลังบีบอัดรูป...</p>
           </div>
         ) : done ? (
           <div className="space-y-3">
             <div className="flex flex-col items-center gap-3 py-4">
-              <div className="w-10 h-10 rounded-full bg-[var(--success)]/20 flex items-center justify-center">
-                <Check className="w-5 h-5 text-[var(--success)]" />
+              <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+                <Check className="w-5 h-5 text-success" />
               </div>
-              <p className="text-sm text-[var(--text-muted)]">เพิ่มรูปสำเร็จ!</p>
+              <p className="text-sm text-muted-foreground">เพิ่มรูปสำเร็จ!</p>
             </div>
             <Button className="w-full" onClick={handleClose}>ตกลง</Button>
           </div>
@@ -140,9 +140,9 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
             {previewUrl && (
               <img src={previewUrl} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
             )}
-            <div className="flex items-center gap-3 rounded-lg border border-[var(--border)] p-3">
+            <div className="flex items-center gap-3 rounded-lg border border-border p-3">
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-[var(--text-muted)]">
+                <p className="text-xs text-muted-foreground">
                   {originalSize !== compressedSize ? (
                     <><span className="line-through">{formatSize(originalSize)}</span> → {formatSize(compressedSize)}</>
                   ) : (
@@ -155,7 +155,7 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
               </Button>
             </div>
 
-            {error && <p className="text-sm text-[var(--destructive)] text-center">{error}</p>}
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
             <div className="flex gap-2">
               <Button variant="secondary" className="flex-1" onClick={handleClose}>ยกเลิก</Button>

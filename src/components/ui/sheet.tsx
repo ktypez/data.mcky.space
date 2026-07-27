@@ -2,6 +2,7 @@ import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { useMotion } from '@/lib/motion'
+import { X } from '@phosphor-icons/react'
 
 type Side = 'top' | 'right' | 'bottom' | 'left'
 

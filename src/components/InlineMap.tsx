@@ -271,12 +271,12 @@ export default function InlineMap({
             onClick={() => setSelectedPin(null)}
           />
           <div className="fixed bottom-0 left-0 right-0 md:right-4 md:bottom-4 md:w-96 md:left-auto z-30 animate-slide-up md:animate-none">
-            <div className="bg-[var(--card)] rounded-t-2xl md:rounded-xl shadow-2xl pb-[env(safe-area-inset-bottom,12px)] md:pb-0 overflow-hidden">
+            <div className="bg-card rounded-t-2xl md:rounded-xl shadow-2xl pb-[env(safe-area-inset-bottom,12px)] md:pb-0 overflow-hidden">
               <div className="flex justify-center pt-2 pb-1 md:hidden">
-                <div className="w-9 h-1 rounded-full bg-[var(--border)]" />
+                <div className="w-9 h-1 rounded-full bg-border" />
               </div>
-              <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-[var(--border)]">
-                <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-[var(--surface)] flex items-center justify-center">
+              <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-border">
+                <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-card flex items-center justify-center">
                   {selectedPin.images[0] ? (
                     <img
                       src={selectedPin.images[0]}
@@ -289,17 +289,17 @@ export default function InlineMap({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[17px] font-bold text-[var(--text-primary)] truncate">
+                  <div className="text-[17px] font-bold text-foreground truncate">
                     {selectedPin.shopName || selectedPin.name}
                   </div>
                   {selectedPin.shopName && (
-                    <div className="text-[15px] text-[var(--text-secondary)] truncate">
+                    <div className="text-[15px] text-muted-foreground truncate">
                       {selectedPin.name}
                     </div>
                   )}
                 </div>
                 <button
-                  className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--muted)]"
+                  className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted"
                   onClick={() => setSelectedPin(null)}
                   aria-label="ปิดรายละเอียด"
                 >
@@ -308,8 +308,8 @@ export default function InlineMap({
               </div>
 
               {selectedPin.address && (
-                <div className="flex items-start gap-2.5 px-5 py-3 border-b border-[var(--border)]">
-                  <span className="text-[15px] text-[var(--text-secondary)] leading-relaxed">
+                <div className="flex items-start gap-2.5 px-5 py-3 border-b border-border">
+                  <span className="text-[15px] text-muted-foreground leading-relaxed">
                     {selectedPin.address}
                   </span>
                 </div>
@@ -317,7 +317,7 @@ export default function InlineMap({
 
               <div className="p-4">
                 <button
-                  className="w-full h-12 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-medium"
+                  className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-medium"
                   onClick={() => {
                     if (onSelectClient) onSelectClient(selectedPin)
                     else setSelectedPin(null)
