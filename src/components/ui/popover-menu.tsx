@@ -42,6 +42,7 @@ export function PopoverMenu({ open, onOpenChange, trigger, children, position = 
     }
 
     setPos({ top, left })
+    onOpenChange(true)
   }
 
   return (
