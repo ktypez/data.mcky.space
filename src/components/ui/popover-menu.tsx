@@ -31,7 +31,7 @@ export function PopoverMenu({ open, onOpenChange, trigger, children, position = 
     } else if (position === 'right') {
       left = rect.left
     } else if (position === 'right-edge') {
-      left = Math.max(gap, window.innerWidth - popupWidth - gap)
+      left = 'auto' as unknown as number
     } else {
       // auto
       if (left + popupWidth > window.innerWidth - gap) {
@@ -80,7 +80,11 @@ export function PopoverMenu({ open, onOpenChange, trigger, children, position = 
                 key="popover-menu"
                 onClick={(e) => e.stopPropagation()}
                 className="fixed z-[999] w-fit min-w-36 bg-card border border-border rounded-xl shadow-xl p-1.5"
-                style={{ top: pos.top, left: pos.left }}
+                style={{
+                  top: pos.top,
+                  left: position === 'right-edge' ? undefined : pos.left,
+                  right: position === 'right-edge' ? 8 : undefined,
+                }}
                 variants={scaleIn}
                 initial="hidden"
                 animate="visible"
