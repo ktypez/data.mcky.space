@@ -9,7 +9,7 @@ interface PopoverMenuProps {
   onOpenChange: (open: boolean) => void
   trigger: ReactNode
   children: ReactNode
-  position?: 'auto' | 'left' | 'right'
+  position?: 'auto' | 'left' | 'right' | 'right-edge'
 }
 
 export function PopoverMenu({ open, onOpenChange, trigger, children, position = 'auto' }: PopoverMenuProps) {
@@ -30,6 +30,8 @@ export function PopoverMenu({ open, onOpenChange, trigger, children, position = 
       left = Math.max(gap, rect.left - popupWidth)
     } else if (position === 'right') {
       left = rect.left
+    } else if (position === 'right-edge') {
+      left = Math.max(gap, window.innerWidth - popupWidth - gap)
     } else {
       // auto
       if (left + popupWidth > window.innerWidth - gap) {

@@ -32,7 +32,7 @@ export default function ThemePresetPicker() {
   )
 
   return (
-    <PopoverMenu open={open} onOpenChange={setOpen} trigger={trigger}>
+    <PopoverMenu open={open} onOpenChange={setOpen} trigger={trigger} position="right-edge">
       <div className="space-y-0.5">
         {themes.map((t) => {
           const isActive = themeId === t.id

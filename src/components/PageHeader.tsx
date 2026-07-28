@@ -1,8 +1,8 @@
 
-import { useTheme } from '@/lib/theme-context'
-import { MagnifyingGlass, Plus, X, ArrowLeft, Moon, Sun } from '@phosphor-icons/react'
+import { MagnifyingGlass, Plus, X, ArrowLeft } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import ThemePresetPicker from '@/components/ThemePresetPicker'
+import ThemeModePicker from '@/components/ThemeModePicker'
 import NavDropdown from '@/components/NavDropdown'
 
 interface PageHeaderProps {
@@ -32,7 +32,6 @@ export default function PageHeader({
   showAddButton,
   onAdd,
 }: PageHeaderProps) {
-  const { theme, setTheme } = useTheme()
   return (
     <header className="h-14 bg-card flex items-center gap-3 px-4 sticky top-0 z-30 shadow-[0_1px_4px_rgba(0,0,0,.07)] border-b border-border">
       <NavDropdown />
@@ -92,18 +91,7 @@ export default function PageHeader({
           </Button>
         )}
         <ThemePresetPicker />
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          aria-label="สลับโหมดสี"
-        >
-          {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-primary" />
-          ) : (
-            <Moon className="w-4 h-4 text-primary" />
-          )}
-        </Button>
+        <ThemeModePicker />
       </div>
     </header>
   )
