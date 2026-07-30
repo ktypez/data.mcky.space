@@ -1,11 +1,11 @@
 # data.mcky.space
 
 ## KB
-- `~/OKF/projects/data.mcky.space/agent.md` — full context (personality, stack, architecture, commands, triggers)
-- `~/OKF/projects/data.mcky.space/status.md` — project status (routes, design, changelog)
-- `~/OKF/system/conventions.md` — communication rules, Termux setup
-- `~/OKF/system/workspace.md` — cross-project comparison, dev commands
-- `~/OKF/skills/INDEX.md` — available skills
+Project context is stored in Second Brain (brain.mcky.space via secondbrain MCP).
+Use `recall` to retrieve context, `remember` to save new info.
+- `recall query="data.mcky.space project"` — tech stack, architecture
+- `recall query="data.mcky.space agent"` — personality, triggers, commands
+- Tags: `data.mcky.space`, `project`
 
 ## Stack
 - Vite 7 + React 19 + TypeScript
@@ -26,3 +26,8 @@
 
 ## Local
 - Env: wrangler config
+
+## MCP Source Cite
+When answering using data from an MCP server, indicate the source in square brackets at the end:
+- `[source: brain]` — from brain.mcky.space
+- `[source: context7]` — from library docs
