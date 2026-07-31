@@ -65,6 +65,9 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
       setPreviewUrl(URL.createObjectURL(compressed))
       setDataUrl(url)
     } catch {
+      // M6 fix: if compression fails (e.g. unsupported format like SVG/GIF,
+      // or a buggy bitmap decode), we used to silently send the raw file.
+      // Now we warn the user so they know the upload may be larger than usual.
       const reader = new FileReader()
       const url = await new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve(reader.result as string)
@@ -74,6 +77,9 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
       setCompressedSize(f.size)
       setPreviewUrl(URL.createObjectURL(f))
       setDataUrl(url)
+      if (f.size > 2 * 1024 * 1024) {
+        setError('ไม่สามารถบีบอัดรูปได้ — ส่งไฟล์ต้นฉบับ (อาจใช้ bandwidth เยอะ)')
+      }
     } finally {
       setCompressing(false)
     }

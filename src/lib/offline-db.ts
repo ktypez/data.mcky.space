@@ -25,6 +25,35 @@ function getDb(): Promise<IDBDatabase> {
   return dbPromise
 }
 
+/**
+ * M4 fix: purge expired entries from IDB. Previously this only happened
+ * during `getAllClients`, which means if a user never called that function
+ * (e.g. they only did write actions), the IDB would grow unbounded.
+ *
+ * Call this from any long-lived context — e.g. a periodic timer on app
+ * startup, or after a successful network refresh.
+ */
+export async function purgeExpiredClients(): Promise<number> {
+  const db = await getDb()
+  const tx = db.transaction('clients', 'readwrite')
+  const store = tx.objectStore('clients')
+  const all = await promisifyRequest(store.getAll())
+  const now = Date.now()
+  let purged = 0
+  for (const c of all) {
+    const updatedAt = (c as Record<string, unknown>).updatedAt as number
+    if (now - updatedAt >= CACHE_TTL) {
+      store.delete((c as Record<string, unknown>).id as IDBValidKey)
+      purged++
+    }
+  }
+  await new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+  return purged
+}
+
 function promisifyRequest<T>(req: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     req.onsuccess = () => resolve(req.result)

@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm'
 import { verifyToken, getTokenFromRequest } from '../../lib/auth'
 import { json, error, unauthorized } from '../../lib/response'
 import { uploadClientImages } from '../../lib/r2'
+import { logAudit } from '../../lib/audit'
 
 export async function onRequestPut(context: EventContext<Env, any, any>) {
   const { env, request, params } = context
@@ -69,5 +70,9 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
     updatedAt: now,
   }).where(eq(suggestions.id, params.id))
 
+  await logAudit(env, request, {
+    action: action === 'approve' ? 'suggestion.approve' : 'suggestion.reject',
+    target: params.id,
+  })
   return json({ ok: true })
 }

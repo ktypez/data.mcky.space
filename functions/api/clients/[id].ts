@@ -2,6 +2,7 @@ import { createDb } from '../../lib/db'
 import { clients, settings } from '../../lib/schema'
 import { eq } from 'drizzle-orm'
 import { json, error, notFound, unauthorized } from '../../lib/response'
+import { logAudit } from '../../lib/audit'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, params } = context
@@ -33,6 +34,7 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
     updatedAt: Date.now(),
   }).where(eq(clients.id, params.id))
 
+  await logAudit(env, request, { action: 'client.update', target: params.id })
   return json({ ok: true })
 }
 
@@ -48,9 +50,11 @@ export async function onRequestDelete(context: EventContext<Env, any, any>) {
   // Soft delete only — R2 photos are preserved so the client can be
   // restored with intact images. R2 cleanup happens on force-delete.
   // (C1 fix: previously R2 was deleted here, breaking restore.)
+  // M5 fix: use namespaced key `trash:v1:<id>` (was `trash_<id>`).
   const data = JSON.stringify({ ...row, deletedAt: Date.now() })
-  await db.insert(settings).values({ key: `trash_${params.id}`, value: data }).onConflictDoNothing()
+  await db.insert(settings).values({ key: `trash:v1:${params.id}`, value: data }).onConflictDoNothing()
   await db.delete(clients).where(eq(clients.id, params.id))
 
+  await logAudit(env, request, { action: 'client.delete', target: params.id })
   return json({ ok: true })
 }

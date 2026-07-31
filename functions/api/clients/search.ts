@@ -2,6 +2,7 @@ import { createDb } from '../../lib/db'
 import { clients } from '../../lib/schema'
 import { like, or, and } from 'drizzle-orm'
 import { json, error } from '../../lib/response'
+import { roundLatLngList } from '../../lib/geo'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, request } = context
@@ -17,5 +18,6 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
 
   const db = createDb(env.DB)
   const rows = await db.select().from(clients).where(and(...conditions)).limit(10)
-  return json(rows)
+  // L2 fix: round lat/lng in search results
+  return json(roundLatLngList(rows))
 }

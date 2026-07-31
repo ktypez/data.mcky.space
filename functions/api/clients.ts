@@ -3,6 +3,8 @@ import { clients } from '../lib/schema'
 import { eq, sql } from 'drizzle-orm'
 import { verifyToken, getTokenFromRequest } from '../lib/auth'
 import { json, error } from '../lib/response'
+import { roundLatLngList } from '../lib/geo'
+import { logAudit } from '../lib/audit'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, request } = context
@@ -13,13 +15,14 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
 
   if (limit === 'all') {
     const rows = await db.select().from(clients).orderBy(clients.updatedAt)
-    return json(rows.reverse())
+    // L2 fix: round lat/lng to ~11m precision in list responses
+    return json(roundLatLngList(rows.reverse()))
   }
 
   const numLimit = limit ? parseInt(limit, 10) : undefined
   const query = db.select().from(clients).orderBy(clients.updatedAt)
   const rows = numLimit ? await query.limit(numLimit) : await query
-  return json(rows.reverse())
+  return json(roundLatLngList(rows.reverse()))
 }
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {
@@ -34,6 +37,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
 
   const data = body as Record<string, unknown>
   const id = typeof data.id === 'string' ? data.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+  const now = Date.now()
 
   const db = createDb(env.DB)
   await db.insert(clients).values({
@@ -46,9 +50,12 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
     images: Array.isArray(data.images) ? data.images : [],
     badge: typeof data.badge === 'string' ? data.badge : null,
     notes: typeof data.notes === 'string' ? data.notes : null,
-    createdAt: typeof data.createdAt === 'number' ? data.createdAt : Date.now(),
-    updatedAt: typeof data.updatedAt === 'number' ? data.updatedAt : Date.now(),
+    // L4 fix: server always owns createdAt/updatedAt. Ignore any
+    // client-supplied values to prevent historical-date spoofing.
+    createdAt: now,
+    updatedAt: now,
   })
 
+  await logAudit(env, request, { action: 'client.create', target: id, payload: { name: String(data.name ?? '') } })
   return json({ ok: true, id }, 201)
 }

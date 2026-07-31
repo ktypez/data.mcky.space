@@ -11,7 +11,8 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
   const db = createDb(context.env.DB)
   const days = 30
   const cutoff = Date.now() - days * 86_400_000
-  const rows = await db.select().from(settings).where(sql`${settings.key} LIKE 'trash_%'`)
+  // M5 fix: use namespaced `trash:v1:` prefix instead of `trash_`.
+  const rows = await db.select().from(settings).where(sql`${settings.key} LIKE 'trash:v1:%'`)
   let count = 0
   for (const row of rows) {
     try {

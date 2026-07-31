@@ -2,7 +2,7 @@
 import { create } from 'zustand'
 import type { Client } from '@/types'
 import { fetchClients } from '@/lib/storage'
-import { getAllClients } from '@/lib/offline-db'
+import { getAllClients, purgeExpiredClients } from '@/lib/offline-db'
 
 interface ClientState {
   clients: Client[]
@@ -93,7 +93,6 @@ export const useClientStore = create<ClientState>((set, get) => ({
     try {
       const data = await fetchClients()
       set({ clients: data, loading: false, initialized: true })
-      return
     } catch {
       try {
         const idb = await getAllClients()
@@ -106,7 +105,13 @@ export const useClientStore = create<ClientState>((set, get) => ({
         }
       } catch {}
       set({ error: 'Failed to load clients', loading: false, initialized: true })
+      return
     }
+    // M4 fix: after a successful refresh, opportunistically purge expired
+    // IDB entries. Cheap, runs once per app init, prevents unbounded growth.
+    purgeExpiredClients().catch(() => {
+      // non-fatal
+    })
   },
 
   refresh: async () => {
@@ -116,6 +121,22 @@ export const useClientStore = create<ClientState>((set, get) => ({
       set({ clients: data, refreshing: false })
       return data
     } catch (e) {
+      // M2 fix: fall back to IndexedDB cache when the network is down,
+      // matching the behavior of `initialize()`. Without this, the
+      // pull-to-refresh gesture would just throw and leave the user
+      // with a stale empty list.
+      try {
+        const idb = await getAllClients()
+        if (idb.length > 0) {
+          const sorted = (idb as unknown as Client[]).sort(
+            (a, b) => b.updatedAt - a.updatedAt,
+          )
+          set({ clients: sorted, refreshing: false })
+          return sorted
+        }
+      } catch {
+        // IDB also failed — propagate the original error
+      }
       set({ error: 'Failed to refresh clients', refreshing: false })
       throw e
     }
