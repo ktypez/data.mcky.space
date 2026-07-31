@@ -2,7 +2,7 @@ import { createDb } from '../lib/db'
 import { clients } from '../lib/schema'
 import { eq } from 'drizzle-orm'
 import { uploadClientImages, deleteClientImages } from '../lib/r2'
-import { verifyToken, getTokenFromRequest } from '../lib/auth'
+import { verifyTokenFromRequest } from '../lib/auth'
 import { json, error, unauthorized } from '../lib/response'
 
 // M6 fix: per-image size cap on base64 payloads accepted by this endpoint.
@@ -12,8 +12,8 @@ const MAX_BASE64_BYTES_PER_IMAGE = 5 * 1024 * 1024
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {
   const { env, request } = context
-  const token = getTokenFromRequest(request)
-  if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
+  const db = createDb(env.DB)
+  if (!(await verifyTokenFromRequest(request, env, db))) return unauthorized()
 
   let body: unknown
   try { body = await request.json() } catch { return error('Invalid request') }
@@ -33,7 +33,6 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
     }
   }
 
-  const db = createDb(env.DB)
   const [client] = await db.select().from(clients).where(eq(clients.id, clientId))
   if (!client) return error('Client not found', 404)
 

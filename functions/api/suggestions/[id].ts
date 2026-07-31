@@ -1,15 +1,15 @@
 import { createDb } from '../../lib/db'
 import { suggestions, clients } from '../../lib/schema'
 import { eq } from 'drizzle-orm'
-import { verifyToken, getTokenFromRequest } from '../../lib/auth'
+import { verifyTokenFromRequest } from '../../lib/auth'
 import { json, error, unauthorized } from '../../lib/response'
 import { uploadClientImages } from '../../lib/r2'
 import { logAudit } from '../../lib/audit'
 
 export async function onRequestPut(context: EventContext<Env, any, any>) {
   const { env, request, params } = context
-  const token = getTokenFromRequest(request)
-  if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
+  const db = createDb(env.DB)
+  if (!(await verifyTokenFromRequest(request, env, db))) return unauthorized()
 
   let body: unknown
   try { body = await request.json() } catch { return error('Invalid request') }
@@ -17,7 +17,6 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
 
   if (action !== 'approve' && action !== 'reject') return error('Invalid action')
 
-  const db = createDb(env.DB)
   const [row] = await db.select().from(suggestions).where(eq(suggestions.id, params.id))
   if (!row || row.status !== 'pending') return error('Suggestion not found or already processed', 404)
 

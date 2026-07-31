@@ -187,6 +187,12 @@ Hooked into `clients/trash.ts` GET alongside `purgeExpiredTrash(db)`. Uses exist
 - **Fix:** Token signing secret now stored in D1 (`settings.token_secret`).
   Rotated automatically on password change. All previously issued tokens
   become invalid immediately.
+- **Critical follow-up (post-audit):** all 7 consumer endpoints had to be
+  migrated from `verifyToken(token, env.TOKEN_SECRET)` to a new
+  `verifyTokenFromRequest(request, env, db)` helper that reads the D1
+  secret. Otherwise, the D1-rotated secret would be invisible to
+  endpoint verification, locking the admin out of write actions
+  even though login still worked. See "Post-audit hotfix" below.
 
 #### M4. IDB TTL purge only on `getAllClients`
 
@@ -274,6 +280,43 @@ Hooked into `clients/trash.ts` GET alongside `purgeExpiredTrash(db)`. Uses exist
 - [x] GET /api/clients/[id]?raw=true → full precision for admin
 - [x] Delete client with pending suggestion → restore brings back suggestion
 - [ ] `node scripts/health-check.mjs` → all green (requires Chromium)
+
+---
+
+## 🔥 Post-audit hotfix — M3 verification inconsistency
+
+**Discovered:** 2026-07-31, **after** the 5-phase sweep.
+**Symptom:** "ตอนนี้เพิ่มข้อมูลใหม่ไม่ได้" (can't add new data).
+**Root cause:** M3 stored the rotated token secret in D1, but only
+`auth.ts` was updated to use it. The 7 other endpoints still verified
+with `env.TOKEN_SECRET` (the static wrangler env var). Once the secret
+rotated in D1, fresh login tokens were signed with the D1 secret but
+verified with env.TOKEN_SECRET → **mismatch → 401 on every write action**.
+
+**Fix:** Created `verifyTokenFromRequest(request, env, db)` helper in
+`functions/lib/auth.ts` that reads the D1 secret (with env fallback)
+and verifies. Extracted D1-stored secret helpers to `functions/lib/auth-secret.ts`
+to avoid coupling crypto (auth.ts) with D1 access. Migrated all 7
+consumer endpoints:
+
+| File | Status |
+| ---- | ------ |
+| `functions/api/clients.ts` POST | ✅ migrated |
+| `functions/api/clients/[id].ts` PUT/DELETE | ✅ migrated |
+| `functions/api/clients/trash.ts` GET/POST | ✅ migrated |
+| `functions/api/cleanup-trash.ts` POST | ✅ migrated |
+| `functions/api/photo-request.ts` POST | ✅ migrated |
+| `functions/api/suggestions/[id].ts` PUT | ✅ migrated |
+| `functions/api/auth.ts` GET/PUT | ✅ already using D1 secret (was correct) |
+
+**Lesson for next time:** when introducing a feature that changes a
+shared secret, audit ALL consumers in one pass, not just the producer.
+The M3 fix was a producer-only change; this hotfix is the consumer fix.
+
+**Lesson 2:** the audit's automated tests didn't catch this because
+they exercised the read paths (no auth) and the auth.ts path (which
+self-verifies correctly). Write paths were never end-to-end tested
+with a real token issued after a rotation.
 
 ---
 

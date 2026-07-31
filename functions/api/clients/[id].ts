@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm'
 import { json, error, notFound, unauthorized } from '../../lib/response'
 import { logAudit } from '../../lib/audit'
 import { roundLatLng } from '../../lib/geo'
+import { verifyTokenFromRequest } from '../../lib/auth'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, params, request } = context
@@ -22,14 +23,13 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
 
 export async function onRequestPut(context: EventContext<Env, any, any>) {
   const { env, request, params } = context
-  const token = getTokenFromRequest(request)
-  if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
+  const db = createDb(env.DB)
+  if (!(await verifyTokenFromRequest(request, env, db))) return unauthorized()
 
   let body: unknown
   try { body = await request.json() } catch { return error('Invalid request') }
   const data = body as Record<string, unknown>
 
-  const db = createDb(env.DB)
   await db.update(clients).set({
     name: String(data.name ?? ''),
     shopName: String(data.shopName ?? ''),
@@ -48,10 +48,9 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
 
 export async function onRequestDelete(context: EventContext<Env, any, any>) {
   const { env, request, params } = context
-  const token = getTokenFromRequest(request)
-  if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
-
   const db = createDb(env.DB)
+  if (!(await verifyTokenFromRequest(request, env, db))) return unauthorized()
+
   const [row] = await db.select().from(clients).where(eq(clients.id, params.id))
   if (!row) return notFound()
 

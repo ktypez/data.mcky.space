@@ -78,3 +78,25 @@ export function getTokenFromRequest(request: Request): string | null {
   if (match) return decodeURIComponent(match[1])
   return request.headers.get('x-admin-token')
 }
+
+/**
+ * Convenience helper: extract token from request, look up the D1-stored
+ * signing secret (with env.TOKEN_SECRET fallback), and verify.
+ *
+ * CRITICAL: callers MUST use this (not raw verifyToken with env.TOKEN_SECRET).
+ * The signing secret can be rotated in D1 on password change (M3), so
+ * any endpoint that verifies with the static env var will reject
+ * tokens issued after the rotation — locking the admin out of write
+ * actions even though login still works.
+ */
+export async function verifyTokenFromRequest(
+  request: Request,
+  env: { TOKEN_SECRET: string; DB: D1Database },
+  db: ReturnType<typeof import('./db').createDb>,
+): Promise<boolean> {
+  const token = getTokenFromRequest(request)
+  if (!token) return false
+  const { getTokenSecret } = await import('./auth-secret')
+  const secret = await getTokenSecret(db, env.TOKEN_SECRET)
+  return verifyToken(token, secret)
+}

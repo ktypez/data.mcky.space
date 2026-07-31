@@ -1,14 +1,13 @@
 import { createDb } from '../lib/db'
 import { settings } from '../lib/schema'
 import { eq, sql } from 'drizzle-orm'
+import { verifyTokenFromRequest } from '../lib/auth'
 import { json, unauthorized } from '../lib/response'
-import { verifyToken, getTokenFromRequest } from '../lib/auth'
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {
-  const token = getTokenFromRequest(context.request)
-  if (!token || !(await verifyToken(token, context.env.TOKEN_SECRET))) return unauthorized()
-
   const db = createDb(context.env.DB)
+  if (!(await verifyTokenFromRequest(context.request, context.env, db))) return unauthorized()
+
   const days = 30
   const cutoff = Date.now() - days * 86_400_000
   // M5 fix: use namespaced `trash:v1:` prefix instead of `trash_`.

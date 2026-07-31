@@ -1,7 +1,7 @@
 import { createDb } from '../../lib/db'
 import { clients, settings, suggestions } from '../../lib/schema'
 import { eq, sql } from 'drizzle-orm'
-import { verifyToken, getTokenFromRequest } from '../../lib/auth'
+import { verifyTokenFromRequest } from '../../lib/auth'
 import { json, notFound, unauthorized } from '../../lib/response'
 import { deleteClientImages } from '../../lib/r2'
 import { logAudit, purgeOldAuditLog } from '../../lib/audit'
@@ -44,10 +44,9 @@ async function purgeExpiredTrash(db: ReturnType<typeof createDb>): Promise<numbe
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, request } = context
-  const token = getTokenFromRequest(request)
-  if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
-
   const db = createDb(env.DB)
+  if (!(await verifyTokenFromRequest(request, env, db))) return unauthorized()
+
   // M1: purge expired trash entries before reading
   await purgeExpiredTrash(db)
   // Audit retention: also purge audit_log rows older than 90 days.
@@ -69,15 +68,14 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {
   const { env, request } = context
-  const token = getTokenFromRequest(request)
-  if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
+  const db = createDb(env.DB)
+  if (!(await verifyTokenFromRequest(request, env, db))) return unauthorized()
 
   const url = new URL(request.url)
   const action = url.searchParams.get('action')
   const body = await request.json() as { id?: string }
   if (!body.id) return json({ error: 'Missing id' }, 400)
 
-  const db = createDb(env.DB)
   const [row] = await db.select().from(settings).where(eq(settings.key, trashKey(body.id)))
   if (!row) return notFound()
 

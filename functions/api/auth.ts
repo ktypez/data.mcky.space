@@ -1,36 +1,13 @@
 import { createDb } from '../lib/db'
 import { settings } from '../lib/schema'
 import { eq } from 'drizzle-orm'
-import { hashPassword, checkPassword, createToken, verifyToken, getTokenFromRequest } from '../lib/auth'
+import { hashPassword, checkPassword, createToken, verifyToken, getTokenFromRequest, verifyTokenFromRequest } from '../lib/auth'
+import { getTokenSecret, rotateTokenSecret } from '../lib/auth-secret'
 import { json, error, unauthorized } from '../lib/response'
 import { rateLimitAuth } from '../lib/rate-limit'
 import { logAudit } from '../lib/audit'
 
 const PASSWORD_KEY = 'admin_pw_hash'
-const TOKEN_SECRET_KEY = 'token_secret'
-
-/**
- * M3 fix: read the token signing secret from D1, falling back to the
- * wrangler-injected env var for first-time boot. The D1-stored secret
- * lets us rotate it on password change, which invalidates all
- * previously-issued tokens immediately.
- */
-async function getTokenSecret(db: ReturnType<typeof createDb>, fallback: string): Promise<string> {
-  const rows = await db.select().from(settings).where(eq(settings.key, TOKEN_SECRET_KEY))
-  return rows[0]?.value || fallback
-}
-
-async function rotateTokenSecret(db: ReturnType<typeof createDb>, current: string): Promise<string> {
-  const bytes = new Uint8Array(32)
-  crypto.getRandomValues(bytes)
-  const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('')
-  // onConflictDoUpdate replaces the existing row if any
-  await db
-    .insert(settings)
-    .values({ key: TOKEN_SECRET_KEY, value: hex })
-    .onConflictDoUpdate({ target: settings.key, set: { value: hex } })
-  return hex
-}
 
 function cookieResponse(token: string) {
   const res = json({ ok: true, token })
@@ -52,9 +29,7 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   }
 
   const db = createDb(env.DB)
-  const secret = await getTokenSecret(db, env.TOKEN_SECRET)
-  const token = getTokenFromRequest(request)
-  if (token && await verifyToken(token, secret)) {
+  if (await verifyTokenFromRequest(request, env, db)) {
     return json({ ok: true })
   }
   return unauthorized()
@@ -114,9 +89,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
 export async function onRequestPut(context: EventContext<Env, any, any>) {
   const { env, request } = context
   const db = createDb(env.DB)
-  const secret = await getTokenSecret(db, env.TOKEN_SECRET)
-  const token = getTokenFromRequest(request)
-  if (!token || !(await verifyToken(token, secret))) return unauthorized()
+  if (!(await verifyTokenFromRequest(request, env, db))) return unauthorized()
 
   let body: unknown
   try { body = await request.json() } catch { return error('Invalid request') }

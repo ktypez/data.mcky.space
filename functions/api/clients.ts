@@ -1,7 +1,7 @@
 import { createDb } from '../lib/db'
 import { clients } from '../lib/schema'
 import { eq, sql } from 'drizzle-orm'
-import { verifyToken, getTokenFromRequest } from '../lib/auth'
+import { verifyTokenFromRequest } from '../lib/auth'
 import { json, error } from '../lib/response'
 import { roundLatLngList } from '../lib/geo'
 import { logAudit } from '../lib/audit'
@@ -27,8 +27,8 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {
   const { env, request } = context
-  const token = getTokenFromRequest(request)
-  if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) {
+  const db = createDb(env.DB)
+  if (!(await verifyTokenFromRequest(request, env, db))) {
     return json({ error: 'Unauthorized' }, 401)
   }
 
@@ -39,7 +39,6 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
   const id = typeof data.id === 'string' ? data.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
   const now = Date.now()
 
-  const db = createDb(env.DB)
   await db.insert(clients).values({
     id,
     name: String(data.name ?? ''),
