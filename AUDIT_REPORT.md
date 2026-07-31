@@ -143,6 +143,9 @@
   `client.delete`, `client.restore`, `client.force_delete`,
   `suggestion.approve`, `suggestion.reject`. Best-effort — never blocks the
   main request.
+- **Retention:** 90 days. `purgeOldAuditLog()` deletes rows older than
+  `AUDIT_LOG_RETENTION_DAYS`. Wired into the M1 lazy-cleanup hook (trash
+  list GET). Uses `audit_log_created_at_idx` for efficient DELETE.
 
 ### L2. lat/lng full precision (PII)
 

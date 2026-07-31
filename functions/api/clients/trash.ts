@@ -4,7 +4,7 @@ import { eq, sql } from 'drizzle-orm'
 import { verifyToken, getTokenFromRequest } from '../../lib/auth'
 import { json, notFound, unauthorized } from '../../lib/response'
 import { deleteClientImages } from '../../lib/r2'
-import { logAudit } from '../../lib/audit'
+import { logAudit, purgeOldAuditLog } from '../../lib/audit'
 
 // M5 fix: trash keys use namespaced format `trash:v1:<id>` (was `trash_<id>`).
 // The versioned namespace prevents accidental matches if future settings
@@ -43,8 +43,12 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   if (!token || !(await verifyToken(token, env.TOKEN_SECRET))) return unauthorized()
 
   const db = createDb(env.DB)
-  // M1: purge expired entries before reading
+  // M1: purge expired trash entries before reading
   await purgeExpiredTrash(db)
+  // Audit retention: also purge audit_log rows older than 90 days.
+  // Best-effort — failure here is logged but doesn't fail the request.
+  // audit_log_created_at_idx keeps the DELETE efficient.
+  await purgeOldAuditLog(env)
   const rows = await db.select().from(settings).where(sql`${settings.key} LIKE ${TRASH_KEY_PREFIX + '%'}`)
   const parsed: Record<string, unknown>[] = []
   for (const r of rows) {
