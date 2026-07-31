@@ -33,29 +33,12 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
   try { body = await request.json() } catch { return error('Invalid request') }
 
   const data = body as Record<string, unknown>
-  const name = String(data.name ?? '').trim()
-  if (!name) return error('Name is required')
-
   const id = typeof data.id === 'string' ? data.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
 
   const db = createDb(env.DB)
-
-  // C3 fix: pre-flight uniqueness check gives a clean 409 before the
-  // DB-level unique index raises a less-friendly error. The DB index
-  // (0001_unique_client_name_lower_idx.sql) is the source of truth — this
-  // check is just for a friendlier message.
-  const [existing] = await db
-    .select({ id: clients.id })
-    .from(clients)
-    .where(sql`lower(${clients.name}) = lower(${name})`)
-    .limit(1)
-  if (existing) {
-    return json({ error: 'Duplicate name', conflictingId: existing.id }, 409)
-  }
-
   await db.insert(clients).values({
     id,
-    name,
+    name: String(data.name ?? ''),
     shopName: String(data.shopName ?? ''),
     address: String(data.address ?? ''),
     lat: typeof data.lat === 'number' ? data.lat : null,

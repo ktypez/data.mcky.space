@@ -1,6 +1,6 @@
 import { createDb } from '../../lib/db'
 import { suggestions, clients } from '../../lib/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { verifyToken, getTokenFromRequest } from '../../lib/auth'
 import { json, error, unauthorized } from '../../lib/response'
 import { uploadClientImages } from '../../lib/r2'
@@ -24,24 +24,8 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
 
   if (action === 'approve') {
     const suggested = row.suggested as Record<string, unknown>
-    const suggestedName = String(suggested.name ?? '').trim()
-
-    // C3 fix: approving a name-change suggestion must respect the
-    // unique-on-lower(name) constraint. Pre-flight check gives a
-    // friendly 409; the DB index is the source of truth.
-    if (suggestedName) {
-      const [conflict] = await db
-        .select({ id: clients.id })
-        .from(clients)
-        .where(sql`lower(${clients.name}) = lower(${suggestedName}) AND ${clients.id} != ${row.clientId}`)
-        .limit(1)
-      if (conflict) {
-        return json({ error: 'Duplicate name', conflictingId: conflict.id }, 409)
-      }
-    }
-
     const update: Record<string, unknown> = {
-      name: suggestedName || (suggested.name as string),
+      name: suggested.name as string,
       shopName: suggested.shopName as string,
       address: suggested.address as string,
       lat: suggested.lat as number | null,

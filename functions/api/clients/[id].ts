@@ -1,6 +1,6 @@
 import { createDb } from '../../lib/db'
 import { clients, settings } from '../../lib/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { json, error, notFound, unauthorized } from '../../lib/response'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
@@ -20,25 +20,9 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
   try { body = await request.json() } catch { return error('Invalid request') }
   const data = body as Record<string, unknown>
 
-  const name = String(data.name ?? '').trim()
-  if (!name) return error('Name is required')
-
   const db = createDb(env.DB)
-
-  // C3 fix: pre-flight uniqueness on rename. The DB unique index
-  // (clients_name_lower_idx) is the source of truth; this returns a
-  // friendly 409 instead of a 500 from the constraint violation.
-  const [conflict] = await db
-    .select({ id: clients.id })
-    .from(clients)
-    .where(sql`lower(${clients.name}) = lower(${name}) AND ${clients.id} != ${params.id}`)
-    .limit(1)
-  if (conflict) {
-    return json({ error: 'Duplicate name', conflictingId: conflict.id }, 409)
-  }
-
   await db.update(clients).set({
-    name,
+    name: String(data.name ?? ''),
     shopName: String(data.shopName ?? ''),
     address: String(data.address ?? ''),
     lat: typeof data.lat === 'number' ? data.lat : null,
