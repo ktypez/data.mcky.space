@@ -2,42 +2,64 @@
 
 **When:** Before running any `wrangler d1 execute` / migration / direct D1 ops
 **Owner:** repo maintainer
-**Status:** ⏳ pending — token expired 2026-07-29
+**Status:** ✅ verified working — see "Last verified" below
+
+---
+
+## ⚠️ Critical insight from 2026-07-31
+
+The 7403 errors were **not** from expired OAuth. They were caused by
+`CLOUDFLARE_API_TOKEN` env var taking precedence over the working OAuth.
+wrangler prefers the env var when set, and that token lacked D1 scope.
+
+**Fix for the immediate failure:** `unset CLOUDFLARE_API_TOKEN` before
+running wrangler commands (or fix the token — see Part B).
+
+The OAuth `oauth_token` field showing `expiration_time` in the config is
+**misleading** — that's the short-lived access_token expiry. The
+`refresh_token` lives forever and wrangler auto-refreshes on every call.
+No manual `wrangler login` is needed unless `wrangler logout` was run.
 
 ---
 
 ## Part A — Refresh OAuth (for `wrangler` CLI)
 
-The OAuth token at `~/.config/.wrangler/config/default.toml` expired on
-**2026-07-29**. Until refreshed, every `wrangler` command that hits the
-Cloudflare API returns **HTTP 7403 "account not valid"** (including
-`wrangler d1 execute`, `wrangler pages deploy` *might* still work via
-cached session — verify each time).
+In normal operation, **no action needed** — the refresh_token auto-rotates
+the access_token on each call. Run Part A only if you hit auth errors
+_after_ unsetting `CLOUDFLARE_API_TOKEN`.
 
 ### Steps
 
 - [ ] **A1.** Open a terminal in this repo
-- [ ] **A2.** Run: `pnpm exec wrangler logout` (clears the expired token)
-- [ ] **A3.** Run: `pnpm exec wrangler login`
+- [ ] **A2.** **Unset any conflicting env vars first:**
+  `unset CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID`
+- [ ] **A3.** Verify identity: `pnpm exec wrangler whoami`
+  - Expected: account email `keitochan@gmail.com` + Account ID `ea606a9e6ed1254ee546bd8eec192616`
+- [ ] **A4.** If `whoami` fails, run `pnpm exec wrangler login`
   - Browser opens → log in with the account that owns `data-mcky.space`
-  - Account ID: `ea606a9e6ed1254ee546bd8eec192616`
   - Approve the OAuth grant
-- [ ] **A4.** Verify token saved: `cat ~/.config/.wrangler/config/default.toml`
-  - Should show fresh `oauth_token` with `expiration_time` ≥ today
-- [ ] **A5.** Verify identity: `pnpm exec wrangler whoami`
-  - Expected: account email + account ID matches
-- [ ] **A6.** Verify D1 access: `pnpm exec wrangler d1 execute ezzylist-db --remote --command "SELECT 1"`
-  - Expected: `{"success":true,"results":[{"1":1}]}`
-- [ ] **A7.** Verify Pages deploy still works: `pnpm exec wrangler pages deploy --help`
-  - Expected: no auth error
+- [ ] **A5.** Verify D1 access: `pnpm exec wrangler d1 execute ezzylist-db --remote --command "SELECT 1 AS ok"`
+  - Expected: `{"success":true,"results":[{"ok":1}]}`
 
 ### Troubleshooting
 
 | Symptom | Fix |
 |---|---|
-| Browser doesn't open | `wrangler login` requires a GUI. If on headless box, use SSH port-forward or do A1–A4 on a local machine, then copy `~/.config/.wrangler/config/default.toml` back |
+| Browser doesn't open | `wrangler login` requires a GUI. If on headless box, copy `~/.config/.wrangler/config/default.toml` from a machine that can do OAuth |
 | "Authorization code was already redeemed" | A token already exists. Run `wrangler logout` first |
-| 7403 after login | Wrong account — log out and use the account that owns `data-mcky.space` (account ID `ea606a9e...`) |
+| 7403 after `unset` + whoami OK | The env token in your shell rc file (`~/.bashrc` etc.) is being re-sourced. Comment it out for this session |
+
+### Last verified: 2026-07-31
+
+```
+$ unset CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID
+$ wrangler whoami
+👋 You are logged in with an OAuth Token, associated with the email keitochan@gmail.com.
+   Account ID: ea606a9e6ed1254ee546bd8eec192616
+$ wrangler d1 execute ezzylist-db --remote --command "SELECT 1 AS ok"
+🚣 Executed 1 command in 0.14ms
+   {"success":true,"results":[{"ok":1}]}
+```
 
 ---
 
@@ -116,18 +138,43 @@ For ongoing maintenance of this project (D1 + Pages + R2 ops), use a
 
 ## Part C — Smoke test on a real D1 query
 
-Once both Part A and Part B are done, run a real D1 operation that
-previously failed:
+Once Part A is verified, run these. (Part B is optional — only needed
+if you want to keep using `CLOUDFLARE_API_TOKEN` for CI/scripts.)
 
 - [ ] **C1.** `pnpm exec wrangler d1 execute ezzylist-db --remote --command "SELECT COUNT(*) AS clients FROM clients"`
   - Expected: `{"success":true,"result":{"results":[{"clients":368}]}}`
-- [ ] **C2.** List tables: `pnpm exec wrangler d1 execute ezzylist-db --remote --command "SELECT name FROM sqlite_master WHERE type='table'"`
-  - Expected: `clients`, `suggestions`, `settings`, `_cf_KV`
-- [ ] **C3.** List indexes: `pnpm exec wrangler d1 execute ezzylist-db --remote --command "SELECT name, tbl_name FROM sqlite_master WHERE type='index'"`
-  - Expected: existing `clients_updated_at_idx`, possibly others
+- [ ] **C2.** List tables: `pnpm exec wrangler d1 execute ezzylist-db --remote --command "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"`
+  - Expected: `_cf_KV`, `clients`, `settings`, `suggestions`
+- [ ] **C3.** List indexes: `pnpm exec wrangler d1 execute ezzylist-db --remote --command "SELECT name, tbl_name FROM sqlite_master WHERE type='index' ORDER BY tbl_name, name"`
+  - Expected: `clients_updated_at_idx`, plus `sqlite_autoindex_*` for each table's primary key
 
-If all three pass, the auth stack is good for future migrations and
-ad-hoc ops.
+### Last verified: 2026-07-31
+
+```
+=== C1 ===
+{"success":true,"results":[{"clients":368}]}
+
+=== C2 ===
+[{"name":"_cf_KV"},{"name":"clients"},{"name":"settings"},{"name":"suggestions"}]
+
+=== C3 ===
+[
+  {"name":"clients_updated_at_idx","tbl_name":"clients"},
+  {"name":"sqlite_autoindex_clients_1","tbl_name":"clients"},
+  {"name":"sqlite_autoindex_settings_1","tbl_name":"settings"},
+  {"name":"sqlite_autoindex_suggestions_1","tbl_name":"suggestions"}
+]
+```
+
+All 3 pass. Auth stack is good for future migrations and ad-hoc ops.
+
+### Notable: H4 backlog now verifiable
+
+- `clients_updated_at_idx` exists → `createdAt`/`updatedAt` ordering fast ✓
+- No `client_name_lower_idx` → confirms C3 was correctly reverted (no
+  unique constraint was ever applied)
+- No indexes on `suggestions.clientId` or `suggestions.status` →
+  confirms H2 backlog item still pending
 
 ---
 
