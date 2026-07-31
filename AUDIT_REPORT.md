@@ -62,9 +62,11 @@
 - **Fix:** FK `suggestions.client_id → clients.id ON DELETE CASCADE`. D1 enforces
   it per-connection via `PRAGMA foreign_keys = ON` in `db.ts`. Pre-flight
   cleanup deleted 2 historical orphan suggestions.
-- **Note:** Soft-delete (to trash) does NOT trigger CASCADE because the client
-  still exists in `settings.trash:v1:<id>`. Only force-delete hard-removes and
-  cascades.
+- **Restore parity:** the CASCADE would otherwise drop suggestions when a
+  client is soft-deleted, breaking restore. The DELETE handler in
+  `clients/[id].ts` now snapshots suggestions to
+  `settings.trash:v1:<id>:suggestions` BEFORE the client delete; the trash
+  restore handler reads both snapshots and re-inserts them in one go.
 
 ### H4. No Drizzle migration history
 
@@ -151,9 +153,10 @@
 
 - **Severity:** 🟢 privacy → ✅ fixed
 - **Where:** `functions/lib/geo.ts`, `functions/api/clients.ts` (GET),
-  `functions/api/clients/search.ts` (GET)
-- **Fix:** Rounds to 5 decimals (~11m) in list/search responses. Single
-  client GET keeps full precision for the map picker (admin only).
+  `functions/api/clients/search.ts` (GET), `functions/api/clients/[id].ts` (GET)
+- **Fix:** Rounds to 5 decimals (~11m) in list/search/single GET responses.
+  Single client GET supports `?raw=true` opt-in for full precision
+  (used by admin map picker, hidden from any future public detail page).
 
 ### L3. No DB-level image size limit
 

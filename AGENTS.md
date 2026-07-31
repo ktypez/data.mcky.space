@@ -29,6 +29,11 @@ Use `recall` to retrieve context, `remember` to save new info.
   in `~/.config/.wrangler/config/default.toml`. Avoids HTTP 7403 when
   `CLOUDFLARE_API_TOKEN` is set but lacks the required scope (D1, R2, etc).
 - See `WRANGLER_AUTH_CHECKLIST.md` for token rotation + smoke test steps.
+- **Token rotation on password change (M3):** changing the admin password
+  rotates the `token_secret` in D1, which **immediately invalidates all
+  existing admin tokens** (browser cookies + `x-admin-token` headers).
+  The admin will be forced to log in again. This is by design — it
+  prevents old session cookies from surviving a password reset.
 
 ## Rules
 - git auto-deploy is OFF — manual `pnpm run deploy` required
