@@ -1,6 +1,6 @@
 import { createDb } from '../../lib/db'
 import { suggestions, clients } from '../../lib/schema'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { verifyToken, getTokenFromRequest } from '../../lib/auth'
 import { json, error, unauthorized } from '../../lib/response'
 import { uploadClientImages } from '../../lib/r2'
@@ -24,8 +24,24 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
 
   if (action === 'approve') {
     const suggested = row.suggested as Record<string, unknown>
+    const suggestedName = String(suggested.name ?? '').trim()
+
+    // C3 fix: approving a name-change suggestion must respect the
+    // unique-on-lower(name) constraint. Pre-flight check gives a
+    // friendly 409; the DB index is the source of truth.
+    if (suggestedName) {
+      const [conflict] = await db
+        .select({ id: clients.id })
+        .from(clients)
+        .where(sql`lower(${clients.name}) = lower(${suggestedName}) AND ${clients.id} != ${row.clientId}`)
+        .limit(1)
+      if (conflict) {
+        return json({ error: 'Duplicate name', conflictingId: conflict.id }, 409)
+      }
+    }
+
     const update: Record<string, unknown> = {
-      name: suggested.name as string,
+      name: suggestedName || (suggested.name as string),
       shopName: suggested.shopName as string,
       address: suggested.address as string,
       lat: suggested.lat as number | null,
@@ -35,12 +51,27 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
 
     // Upload photo if this is a photo suggestion
     if (row.suggestedPhoto) {
-      const newUrls = await uploadClientImages(env.BUCKET, env.R2_PUBLIC_URL, row.clientId, [row.suggestedPhoto])
+      // C2 fix: uploadClientImages now throws on failure instead of leaking
+      // base64 into D1. Surface a clear 502 to the caller.
+      let newUrls: string[]
+      try {
+        newUrls = await uploadClientImages(env.BUCKET, env.R2_PUBLIC_URL, row.clientId, [row.suggestedPhoto])
+      } catch (e) {
+        return json(
+          { error: 'Photo upload failed', detail: e instanceof Error ? e.message : String(e) },
+          502,
+        )
+      }
       if (newUrls.length > 0 && newUrls[0].startsWith('http')) {
-        // Get current images and append new one
+        // C4 fix: dedup before append — re-approving the same photo
+        // suggestion should not duplicate it in client.images.
         const [client] = await db.select().from(clients).where(eq(clients.id, row.clientId))
         const currentImages = (client?.images as string[]) || []
-        update.images = [...currentImages, newUrls[0]]
+        if (!currentImages.includes(newUrls[0])) {
+          update.images = [...currentImages, newUrls[0]]
+        } else {
+          update.images = currentImages
+        }
       }
     }
 

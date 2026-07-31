@@ -3,6 +3,7 @@ import { clients, settings } from '../../lib/schema'
 import { eq, sql } from 'drizzle-orm'
 import { verifyToken, getTokenFromRequest } from '../../lib/auth'
 import { json, notFound, unauthorized } from '../../lib/response'
+import { deleteClientImages } from '../../lib/r2'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, request } = context
@@ -40,6 +41,16 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
   }
 
   if (action === 'force-delete') {
+    // C1 fix: R2 photos were previously deleted in DELETE handler, breaking
+    // restore. Now they're preserved until force-delete actually purges them.
+    try {
+      const snapshot = JSON.parse(row.value) as { images?: unknown }
+      if (Array.isArray(snapshot.images) && snapshot.images.length > 0) {
+        await deleteClientImages(env.BUCKET, env.R2_PUBLIC_URL, snapshot.images as string[])
+      }
+    } catch {
+      // Snapshot parse failed — still drop the setting row to free space
+    }
     await db.delete(settings).where(eq(settings.key, `trash_${body.id}`))
     return json({ ok: true })
   }

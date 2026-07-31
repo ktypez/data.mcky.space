@@ -25,24 +25,26 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
     await deleteClientImages(env.BUCKET, env.R2_PUBLIC_URL, deletedImages as string[])
   }
 
-  // Upload new images
-  const newUrls = await uploadClientImages(env.BUCKET, env.R2_PUBLIC_URL, clientId, images as string[])
+  // Upload new images. C2 fix: uploadClientImages now throws on any failure
+  // (previously Promise.allSettled silently swallowed errors and returned
+  // base64 strings, which then leaked into D1).
+  let newUrls: string[]
+  try {
+    newUrls = await uploadClientImages(env.BUCKET, env.R2_PUBLIC_URL, clientId, images as string[])
+  } catch (e) {
+    return json(
+      { error: 'Photo upload failed', detail: e instanceof Error ? e.message : String(e) },
+      502,
+    )
+  }
 
-  // Merge images: keep existing images that weren't deleted, add new ones
+  // Merge images: keep existing images that weren't deleted, add new ones.
+  // All entries in `newUrls` are R2 URLs (or already-R2 URLs passed through),
+  // so no base64 filter is needed.
   const existing = Array.isArray(client.images) ? (client.images as string[]) : []
-
-  // Any base64 image sent in this request has been uploaded to R2, so remove
-  // it from existing to avoid keeping a stale copy in D1.
-  const uploadedBase64 = new Set(
-    (images as string[]).filter((s) => s.startsWith('data:image')),
-  )
   const kept = Array.isArray(deletedImages)
-    ? existing.filter(
-        (url) =>
-          !(deletedImages as string[]).includes(url) &&
-          !uploadedBase64.has(url),
-      )
-    : existing.filter((url) => !uploadedBase64.has(url))
+    ? existing.filter((url) => !(deletedImages as string[]).includes(url))
+    : existing
   const merged = [...kept, ...newUrls]
 
   await db.update(clients).set({ images: merged, updatedAt: Date.now() }).where(eq(clients.id, clientId))

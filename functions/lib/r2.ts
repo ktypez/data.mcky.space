@@ -6,6 +6,13 @@ export function isR2Url(s: string): boolean {
   return s.startsWith('http') && !s.startsWith('data:')
 }
 
+export class UploadError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'UploadError'
+  }
+}
+
 export async function uploadImage(
   bucket: R2Bucket,
   publicUrl: string,
@@ -16,13 +23,19 @@ export async function uploadImage(
   if (!isBase64(imageData)) return imageData
 
   const match = imageData.match(/^data:(image\/\w+);base64,(.+)$/)
-  if (!match) return imageData
+  if (!match) {
+    throw new UploadError('Invalid base64 image format')
+  }
 
   const ext = match[1].split('/')[1] === 'jpeg' ? 'jpg' : match[1].split('/')[1]
   const binary = Uint8Array.from(atob(match[2]), (c) => c.charCodeAt(0))
   const key = `clients/${clientId}/${Date.now()}.${ext}`
 
-  await bucket.put(key, binary, { httpMetadata: { contentType: match[1] } })
+  try {
+    await bucket.put(key, binary, { httpMetadata: { contentType: match[1] } })
+  } catch (e) {
+    throw new UploadError(`R2 put failed: ${e instanceof Error ? e.message : String(e)}`)
+  }
   return `${publicUrl}/${key}`
 }
 
@@ -46,8 +59,10 @@ export async function uploadClientImages(
   clientId: string,
   images: string[],
 ): Promise<string[]> {
-  const results = await Promise.allSettled(
+  // C2 fix: previously used Promise.allSettled and returned the original
+  // base64 on failure, which leaked raw base64 into D1 rows. Now any
+  // upload failure throws — callers must not persist partial state.
+  return await Promise.all(
     images.map((img) => uploadImage(bucket, publicUrl, clientId, img)),
   )
-  return results.map((r, i) => (r.status === 'fulfilled' ? r.value : images[i]))
 }
