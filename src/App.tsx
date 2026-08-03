@@ -60,6 +60,8 @@ function App() {
           onClose={() => setLoginOpen(false)}
           onSuccess={() => {
             setAdmin(true)
+            // Apply the admin's saved profile theme right after login.
+            useAuthStore.getState().syncProfileTheme()
             // Data already loaded by initialize() on mount; no extra D1 fetch.
           }}
         />

@@ -8,6 +8,51 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      // Pre-paint theme boot: apply the saved character theme before React
+      // mounts so there's no unstyled flash. Keep THEMES in sync with
+      // src/lib/design/themes.ts (ids + staticCss + fontUrl + dark-only).
+      (function () {
+        var THEMES = {
+          glitchpage: {
+            css: '/themes/glitchpage.css',
+            dark: true,
+            font: 'https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap',
+          },
+          crt: {
+            css: '/themes/crt.css',
+            dark: true,
+            font: 'https://fonts.googleapis.com/css2?family=VT323&family=Sarabun:wght@400;500;600&display=swap',
+          },
+          claude: {
+            css: '/themes/claude.css',
+            dark: false,
+            font: 'https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+Thai:wght@400;500;600&display=swap',
+          },
+        };
+        var id = null;
+        try {
+          var raw = localStorage.getItem('ezzylist-ui');
+          if (raw) {
+            var data = JSON.parse(raw);
+            if (data && data.state && typeof data.state.theme === 'string') id = data.state.theme;
+          }
+        } catch (e) {}
+        var t = id && THEMES[id];
+        if (!t) return;
+        var root = document.documentElement;
+        root.setAttribute('data-theme', id);
+        if (t.dark) root.classList.add('dark');
+        function link(href) {
+          var l = document.createElement('link');
+          l.rel = 'stylesheet';
+          l.href = href;
+          document.head.appendChild(l);
+        }
+        link(t.css);
+        if (t.font) link(t.font);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

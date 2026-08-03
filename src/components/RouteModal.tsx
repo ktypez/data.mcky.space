@@ -2,7 +2,8 @@
 import { NavigationArrow, MapPin, CaretUp, CaretDown } from '@phosphor-icons/react'
 import type { Client } from '@/types'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 type RouteItem = { client: Client; dist: number }
 type RouteData = { origin: { lat: number; lng: number }; clients: RouteItem[] }
@@ -210,12 +211,10 @@ export default function RouteModal({
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full"
+                className={cn(buttonVariants({ size: 'lg' }), 'w-full h-12')}
               >
-                <Button variant="default" className="w-full h-12" size="lg">
-                  <MapPin className="w-4 h-4" />
-                  เปิดใน Google Maps
-                </Button>
+                <MapPin className="w-4 h-4" />
+                เปิดใน Google Maps
               </a>
             </div>
           </>

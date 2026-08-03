@@ -34,8 +34,9 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-pin: var(--pin-color);
-  --font-sans: 'Prompt', system-ui, sans-serif;
-  --font-serif: 'Prompt', system-ui, sans-serif;
+  --font-sans: var(--theme-font-body);
+  --font-serif: var(--theme-font-body);
+  --font-mono: var(--theme-font-mono);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -51,6 +52,48 @@
 }
 
 :root {
+  /* Per-theme font stacks — character themes override these */
+  --theme-font-display: 'Prompt', system-ui, sans-serif;
+  --theme-font-body: 'Prompt', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  /* Fallback base vars. ThemeProvider injects the active theme's vars at
+     runtime; these only kick in before that (or for static character themes
+     until their stylesheet loads) so the app is never unstyled. */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.141 0.005 285.823);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.141 0.005 285.823);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.141 0.005 285.823);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.55 0.15 145);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.7 0.17 80);
+  --warning-foreground: oklch(0.141 0.005 285.823);
+  --info: oklch(0.55 0.12 220);
+  --info-foreground: oklch(0.99 0 0);
+  --border: oklch(0.91 0.005 286.286);
+  --input: oklch(0.91 0.005 286.286);
+  --ring: oklch(0.141 0.005 285.823);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-border: oklch(0.91 0.005 286.286);
+  --sidebar-ring: oklch(0.141 0.005 285.823);
+  --radius: 0.5rem;
+  --pin-color: oklch(0.141 0.005 285.823);
+
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
@@ -60,6 +103,40 @@
 }
 
 .dark {
+  /* Fallback dark base vars (mirror shadcn dark defaults) */
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.141 0.005 285.823);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.141 0.005 285.823);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.141 0.005 285.823);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.45 0.15 145);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.55 0.17 80);
+  --warning-foreground: oklch(0.141 0.005 285.823);
+  --info: oklch(0.45 0.12 220);
+  --info-foreground: oklch(0.99 0 0);
+  --border: oklch(0.274 0.006 286.033);
+  --input: oklch(0.274 0.006 286.033);
+  --ring: oklch(0.985 0 0);
+  --sidebar: oklch(0.141 0.005 285.823);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent-foreground: oklch(0.705 0.015 286.067);
+  --sidebar-border: oklch(0.274 0.006 286.033);
+  --sidebar-ring: oklch(0.985 0 0);
+  --pin-color: oklch(0.985 0 0);
+
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.35);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
@@ -146,7 +223,7 @@
 }
 
 @utility font-display {
-  font-family: 'Prompt', system-ui, sans-serif;
+  font-family: var(--theme-font-display);
   letter-spacing: -0.01em;
   font-weight: 600;
 }
@@ -224,7 +301,7 @@
   border-radius: var(--radius-lg) !important;
   box-shadow: var(--shadow-lg) !important;
   padding: 10px 12px !important;
-  font-family: 'Prompt', system-ui, sans-serif !important;
+  font-family: var(--theme-font-body) !important;
 }
 .maplibregl-popup-tip {
   border-top-color: var(--card) !important;

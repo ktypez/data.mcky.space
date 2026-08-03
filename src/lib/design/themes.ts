@@ -1,6 +1,11 @@
 import type { Theme } from './tokens'
 
-export const themes: Theme[] = [
+/**
+ * Plain themes (color-swap only). Vars stay in JS and are injected via
+ * <style> by ThemeInjector. Character themes live at the bottom of this
+ * file and own a static stylesheet instead.
+ */
+const baseThemes: Theme[] = [
   {
     id: 'shadcn',
     label: 'Shadcn',
@@ -903,4 +908,302 @@ export const themes: Theme[] = [
   },
 ]
 
+/* ============================================================================
+   Character themes — เต็มรูปแบบจาก design-gallery (ไม่ใช่แค่สลับสี)
+   แต่ละตัวมี staticCss (public/themes/{id}.css) ที่ครอบ vars + ฟอนต์ + effects
+   ตัว light/dark ด้านล่างเป็นแค่ fallback + swatch ให้ picker ใช้
+   ============================================================================ */
+
+const GLITCH_FONTS = {
+  display: "'Kanit', 'Sarabun', system-ui, sans-serif",
+  body: "'Sarabun', 'Kanit', system-ui, sans-serif",
+  mono: "'JetBrains Mono', ui-monospace, monospace",
+}
+const GLITCH_FONT_URL =
+  'https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap'
+
+const CRT_FONTS = {
+  display: "'VT323', 'Sarabun', ui-monospace, monospace",
+  body: "'Sarabun', 'VT323', system-ui, sans-serif",
+  mono: "'VT323', ui-monospace, monospace",
+}
+const CRT_FONT_URL =
+  'https://fonts.googleapis.com/css2?family=VT323&family=Sarabun:wght@400;500;600&display=swap'
+
+const CLAUDE_FONTS = {
+  display: "'Source Serif 4', 'Noto Serif Thai', Georgia, 'Times New Roman', serif",
+  body: "'Source Serif 4', 'Noto Serif Thai', Georgia, 'Times New Roman', serif",
+  mono: "ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, monospace",
+}
+const CLAUDE_FONT_URL =
+  'https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+Thai:wght@400;500;600&display=swap'
+
+// glitchpage — dark navy + hot pink/cyan, RGB-split glitch, scanlines (dark-only)
+const glitchpage: Theme = {
+  id: 'glitchpage',
+  label: 'GLITCHPAGE',
+  description: 'Error-page กลางคืน — hot pink + cyan, glitch เต็มรูปแบบ',
+  character: 'glitch',
+  modes: ['dark'],
+  fonts: GLITCH_FONTS,
+  fontUrl: GLITCH_FONT_URL,
+  staticCss: '/themes/glitchpage.css',
+  light: {
+    '--background': '#0b0f2a',
+    '--foreground': '#e8eafc',
+    '--card': '#111640',
+    '--card-foreground': '#e8eafc',
+    '--popover': '#111640',
+    '--popover-foreground': '#e8eafc',
+    '--primary': '#ff3d8f',
+    '--primary-foreground': '#0b0f2a',
+    '--secondary': '#161c4d',
+    '--secondary-foreground': '#8f96c9',
+    '--muted': '#161c4d',
+    '--muted-foreground': '#8f96c9',
+    '--accent': '#37e6ff',
+    '--accent-foreground': '#0b0f2a',
+    '--destructive': '#ff3d5e',
+    '--destructive-foreground': '#0b0f2a',
+    '--success': '#3ddc84',
+    '--success-foreground': '#0b0f2a',
+    '--warning': '#ffb020',
+    '--warning-foreground': '#0b0f2a',
+    '--info': '#37e6ff',
+    '--info-foreground': '#0b0f2a',
+    '--border': '#232a5e',
+    '--input': '#232a5e',
+    '--ring': '#ff3d8f',
+    '--sidebar': '#111640',
+    '--sidebar-foreground': '#8f96c9',
+    '--sidebar-accent': '#232a5e',
+    '--sidebar-accent-foreground': '#e8eafc',
+    '--sidebar-border': '#232a5e',
+    '--sidebar-ring': '#ff3d8f',
+    '--radius': '0.375rem',
+    '--pin-color': '#ff3d8f',
+  },
+  dark: {
+    '--background': '#0b0f2a',
+    '--foreground': '#e8eafc',
+    '--card': '#111640',
+    '--card-foreground': '#e8eafc',
+    '--popover': '#111640',
+    '--popover-foreground': '#e8eafc',
+    '--primary': '#ff3d8f',
+    '--primary-foreground': '#0b0f2a',
+    '--secondary': '#161c4d',
+    '--secondary-foreground': '#8f96c9',
+    '--muted': '#161c4d',
+    '--muted-foreground': '#8f96c9',
+    '--accent': '#37e6ff',
+    '--accent-foreground': '#0b0f2a',
+    '--destructive': '#ff3d5e',
+    '--destructive-foreground': '#0b0f2a',
+    '--success': '#3ddc84',
+    '--success-foreground': '#0b0f2a',
+    '--warning': '#ffb020',
+    '--warning-foreground': '#0b0f2a',
+    '--info': '#37e6ff',
+    '--info-foreground': '#0b0f2a',
+    '--border': '#232a5e',
+    '--input': '#232a5e',
+    '--ring': '#ff3d8f',
+    '--sidebar': '#111640',
+    '--sidebar-foreground': '#8f96c9',
+    '--sidebar-accent': '#232a5e',
+    '--sidebar-accent-foreground': '#e8eafc',
+    '--sidebar-border': '#232a5e',
+    '--sidebar-ring': '#ff3d8f',
+    '--radius': '0.375rem',
+    '--pin-color': '#ff3d8f',
+  },
+}
+
+// crt — PIXSH phosphor-green terminal, scanlines, มุม 0 องศา (dark-only)
+const crt: Theme = {
+  id: 'crt',
+  label: 'PIXSH · CRT',
+  description: 'จอ phosphor เขียว + scanlines — terminal ยุค 80',
+  character: 'crt',
+  modes: ['dark'],
+  fonts: CRT_FONTS,
+  fontUrl: CRT_FONT_URL,
+  staticCss: '/themes/crt.css',
+  light: {
+    '--background': '#060605',
+    '--foreground': '#c5d9b7',
+    '--card': '#0d0d0b',
+    '--card-foreground': '#c5d9b7',
+    '--popover': '#0d0d0b',
+    '--popover-foreground': '#c5d9b7',
+    '--primary': '#4af626',
+    '--primary-foreground': '#060605',
+    '--secondary': '#141410',
+    '--secondary-foreground': '#7a8f74',
+    '--muted': '#141410',
+    '--muted-foreground': '#7a8f74',
+    '--accent': '#2e9e1e',
+    '--accent-foreground': '#c5d9b7',
+    '--destructive': '#ff5c5c',
+    '--destructive-foreground': '#060605',
+    '--success': '#4af626',
+    '--success-foreground': '#060605',
+    '--warning': '#e0c13a',
+    '--warning-foreground': '#060605',
+    '--info': '#4fa3ff',
+    '--info-foreground': '#060605',
+    '--border': '#263a26',
+    '--input': '#263a26',
+    '--ring': '#4af626',
+    '--sidebar': '#0d0d0b',
+    '--sidebar-foreground': '#7a8f74',
+    '--sidebar-accent': '#141410',
+    '--sidebar-accent-foreground': '#c5d9b7',
+    '--sidebar-border': '#263a26',
+    '--sidebar-ring': '#4af626',
+    '--radius': '0rem',
+    '--pin-color': '#4af626',
+  },
+  dark: {
+    '--background': '#060605',
+    '--foreground': '#c5d9b7',
+    '--card': '#0d0d0b',
+    '--card-foreground': '#c5d9b7',
+    '--popover': '#0d0d0b',
+    '--popover-foreground': '#c5d9b7',
+    '--primary': '#4af626',
+    '--primary-foreground': '#060605',
+    '--secondary': '#141410',
+    '--secondary-foreground': '#7a8f74',
+    '--muted': '#141410',
+    '--muted-foreground': '#7a8f74',
+    '--accent': '#2e9e1e',
+    '--accent-foreground': '#c5d9b7',
+    '--destructive': '#ff5c5c',
+    '--destructive-foreground': '#060605',
+    '--success': '#4af626',
+    '--success-foreground': '#060605',
+    '--warning': '#e0c13a',
+    '--warning-foreground': '#060605',
+    '--info': '#4fa3ff',
+    '--info-foreground': '#060605',
+    '--border': '#263a26',
+    '--input': '#263a26',
+    '--ring': '#4af626',
+    '--sidebar': '#0d0d0b',
+    '--sidebar-foreground': '#7a8f74',
+    '--sidebar-accent': '#141410',
+    '--sidebar-accent-foreground': '#c5d9b7',
+    '--sidebar-border': '#263a26',
+    '--sidebar-ring': '#4af626',
+    '--radius': '0rem',
+    '--pin-color': '#4af626',
+  },
+}
+
+// claude — warm editorial paper, clay accent, bilingual serif (dual mode)
+const claude: Theme = {
+  id: 'claude',
+  label: 'CLAUDE PAPER',
+  description: 'กระดาษอบอุ่น + clay — editorial serif ภาษาไทย-อังกฤษ',
+  character: 'paper',
+  modes: ['light', 'dark'],
+  fonts: CLAUDE_FONTS,
+  fontUrl: CLAUDE_FONT_URL,
+  staticCss: '/themes/claude.css',
+  light: {
+    '--background': '#faf9f5',
+    '--foreground': '#141413',
+    '--card': '#ffffff',
+    '--card-foreground': '#141413',
+    '--popover': '#ffffff',
+    '--popover-foreground': '#141413',
+    '--primary': '#d97757',
+    '--primary-foreground': '#ffffff',
+    '--secondary': '#f5f4ed',
+    '--secondary-foreground': '#3d3d3a',
+    '--muted': '#f1efe8',
+    '--muted-foreground': '#3d3d3a',
+    '--accent': '#b85c3f',
+    '--accent-foreground': '#ffffff',
+    '--destructive': '#b03a2e',
+    '--destructive-foreground': '#ffffff',
+    '--success': '#3d7a4e',
+    '--success-foreground': '#ffffff',
+    '--warning': '#a06a00',
+    '--warning-foreground': '#ffffff',
+    '--info': '#3a5f8a',
+    '--info-foreground': '#ffffff',
+    '--border': 'rgba(20, 20, 19, 0.12)',
+    '--input': 'rgba(20, 20, 19, 0.2)',
+    '--ring': '#d97757',
+    '--sidebar': '#f5f4ed',
+    '--sidebar-foreground': '#141413',
+    '--sidebar-accent': '#f1efe8',
+    '--sidebar-accent-foreground': '#141413',
+    '--sidebar-border': 'rgba(20, 20, 19, 0.12)',
+    '--sidebar-ring': '#d97757',
+    '--radius': '0.375rem',
+    '--pin-color': '#d97757',
+  },
+  dark: {
+    '--background': '#30302e',
+    '--foreground': '#faf9f5',
+    '--card': '#383835',
+    '--card-foreground': '#faf9f5',
+    '--popover': '#383835',
+    '--popover-foreground': '#faf9f5',
+    '--primary': '#e38b6b',
+    '--primary-foreground': '#30302e',
+    '--secondary': '#262624',
+    '--secondary-foreground': '#c2c0b6',
+    '--muted': '#242422',
+    '--muted-foreground': '#c2c0b6',
+    '--accent': '#e38b6b',
+    '--accent-foreground': '#30302e',
+    '--destructive': '#c45a4a',
+    '--destructive-foreground': '#faf9f5',
+    '--success': '#6aa97a',
+    '--success-foreground': '#30302e',
+    '--warning': '#c99a3d',
+    '--warning-foreground': '#30302e',
+    '--info': '#7a9cc4',
+    '--info-foreground': '#30302e',
+    '--border': 'rgba(250, 249, 245, 0.14)',
+    '--input': 'rgba(250, 249, 245, 0.2)',
+    '--ring': '#e38b6b',
+    '--sidebar': '#262624',
+    '--sidebar-foreground': '#faf9f5',
+    '--sidebar-accent': '#242422',
+    '--sidebar-accent-foreground': '#c2c0b6',
+    '--sidebar-border': 'rgba(250, 249, 245, 0.14)',
+    '--sidebar-ring': '#e38b6b',
+    '--radius': '0.375rem',
+    '--pin-color': '#e38b6b',
+  },
+}
+
+const characterThemes: Theme[] = [glitchpage, crt, claude]
+
+export const themes: Theme[] = [...baseThemes, ...characterThemes]
+
 export const defaultTheme = themes[0]
+
+/** Resolve a theme by id, falling back to the default. */
+export function getTheme(id: string | undefined | null): Theme {
+  return themes.find((t) => t.id === id) ?? defaultTheme
+}
+
+/** Theme that owns a static stylesheet (public/themes/{id}.css). */
+export function isCharacterTheme(t: Theme): boolean {
+  return !!t.staticCss
+}
+
+/** Dark-only themes force the .dark class regardless of user mode. */
+export function isDarkOnlyTheme(t: Theme): boolean {
+  return !!t.modes && t.modes.length === 1 && t.modes[0] === 'dark'
+}
+
+/** ids ที่ backend อนุญาต — ต้องตรงกับ registry นี้ (mirror ใน functions/lib/theme-ids.ts) */
+export const THEME_IDS: string[] = themes.map((t) => t.id)

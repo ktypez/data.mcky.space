@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    name: typecheck · lint · tests · build
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth: 0 so `git diff base...HEAD` (PR changed files) works.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Fast gate for PRs: lint only the .tsx files this PR touched.
+      # Full scans still run in `npm run test:run` below and on push to main.
+      - name: Lint JSX nesting — changed files only
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          CHANGED=$(git diff --name-only "$BASE"..."$HEAD" | grep '\.tsx$' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "No changed .tsx files — skipping JSX nesting lint"
+          else
+            echo "Linting changed .tsx files:"
+            echo "$CHANGED"
+            node scripts/lint-jsx-nesting.mjs $CHANGED
+          fi
+
+      # Full scan on merge to main (covers everything, including files whose
+      # changes landed across multiple PRs).
+      - name: Lint JSX nesting — full scan
+        if: github.event_name == 'push'
+        run: npm run lint:jsx-nesting
+
+      - name: Tests
+        run: npm run test:run
+
+      - name: Build
+        run: npm run build

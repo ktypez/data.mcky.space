@@ -24,7 +24,9 @@ export function ThemeProvider({ children, ..._props }: { children: ReactNode; [k
     const update = () => {
       const t = resolve()
       setResolvedTheme(t)
-      document.documentElement.classList.toggle('dark', t === 'dark')
+      // NOTE: .dark class toggling lives in ThemeInjector (theme-provider.tsx).
+      // It is the single owner of the class so dark-only character themes can
+      // force it on without fighting this effect's ordering.
     }
     update()
     mq.addEventListener('change', update)

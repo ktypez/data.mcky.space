@@ -1,0 +1,170 @@
+/* ============================================================================
+   crt.css — data.mcky.space character theme (PIXSH · CRT)
+   ----------------------------------------------------------------------------
+   แกะ DNA จาก design-gallery/concepts/crt.css → scoped ใหม่เข้ากับ app.
+   - จอ phosphor เขียว + scanlines + text-shadow เรืองแสง
+   - มุม 0 องศา (--radius: 0)
+   - ฟอนต์: VT323 (Latin/ตัวเลข) + Sarabun (ไทย) + mono
+   Dark-only — โหลดเฉพาะเมื่อ [data-theme='crt']
+   ============================================================================ */
+
+/* ---- tokens (source of truth = theme registry) ---- */
+[data-theme='crt'] {
+  --background: #060605;
+  --foreground: #c5d9b7;
+  --card: #0d0d0b;
+  --card-foreground: #c5d9b7;
+  --popover: #0d0d0b;
+  --popover-foreground: #c5d9b7;
+  --primary: #4af626;
+  --primary-foreground: #060605;
+  --secondary: #141410;
+  --secondary-foreground: #7a8f74;
+  --muted: #141410;
+  --muted-foreground: #7a8f74;
+  --accent: #2e9e1e;
+  --accent-foreground: #c5d9b7;
+  --destructive: #ff5c5c;
+  --destructive-foreground: #060605;
+  --success: #4af626;
+  --success-foreground: #060605;
+  --warning: #e0c13a;
+  --warning-foreground: #060605;
+  --info: #4fa3ff;
+  --info-foreground: #060605;
+  --border: #263a26;
+  --input: #263a26;
+  --ring: #4af626;
+  --sidebar: #0d0d0b;
+  --sidebar-foreground: #7a8f74;
+  --sidebar-accent: #141410;
+  --sidebar-accent-foreground: #c5d9b7;
+  --sidebar-border: #263a26;
+  --sidebar-ring: #4af626;
+  --radius: 0rem;
+  --pin-color: #4af626;
+
+  --theme-font-display: 'VT323', 'Sarabun', ui-monospace, monospace;
+  --theme-font-body: 'Sarabun', 'VT323', system-ui, sans-serif;
+  --theme-font-mono: 'VT323', ui-monospace, monospace;
+}
+
+/* ---- base: phosphor glow ---- */
+[data-theme='crt'] body {
+  background-color: var(--background);
+  color: var(--foreground);
+  text-shadow: 0 0 6px rgba(74, 246, 38, 0.3);
+  -webkit-font-smoothing: none;
+}
+
+/* scanlines — CRT จริงๆ หน่อย (เส้นชัดกว่า glitch) */
+[data-theme='crt'] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 1px,
+    rgba(0, 0, 0, 0.16) 2px,
+    rgba(0, 0, 0, 0) 3px
+  );
+}
+
+/* ---- header: terminal bar ---- */
+[data-theme='crt'] header {
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-bright);
+  border-bottom-color: var(--accent);
+  box-shadow: 0 0 12px rgba(46, 158, 30, 0.18);
+}
+
+[data-theme='crt'] header::before {
+  content: '>';
+  font-family: var(--theme-font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(74, 246, 38, 0.6);
+  user-select: none;
+}
+
+/* ---- inputs ---- */
+[data-theme='crt'] input,
+[data-theme='crt'] textarea {
+  caret-color: var(--primary);
+  border-radius: 0 !important;
+}
+[data-theme='crt'] input:focus,
+[data-theme='crt'] textarea:focus {
+  border-color: var(--primary);
+  box-shadow:
+    0 0 0 3px rgba(74, 246, 38, 0.15),
+    0 0 12px rgba(74, 246, 38, 0.2);
+}
+
+/* ---- client name: phosphor big + glow ---- */
+[data-theme='crt'] h1 {
+  font-family: var(--theme-font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 0 4px rgba(74, 246, 38, 0.7),
+    0 0 14px rgba(74, 246, 38, 0.4);
+}
+
+/* ---- buttons: square + green ---- */
+[data-theme='crt'] [data-slot='button'] {
+  border-radius: 0 !important;
+}
+[data-theme='crt'] [data-slot='button']:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--ring),
+    0 0 10px rgba(74, 246, 38, 0.5);
+}
+
+/* ---- table hover ---- */
+[data-theme='crt'] tbody tr:hover {
+  background: rgba(74, 246, 38, 0.07);
+}
+
+/* ---- cards: square + phosphor edge ---- */
+[data-theme='crt'] [data-slot='card'] {
+  border-radius: 0 !important;
+  border-color: var(--border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02),
+    0 4px 16px -10px rgba(0, 0, 0, 0.7);
+}
+
+/* ---- selection ---- */
+[data-theme='crt'] ::selection {
+  background: rgba(74, 246, 38, 0.6);
+  color: #060605;
+}
+
+/* ---- scrollbar ---- */
+[data-theme='crt'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme='crt'] ::-webkit-scrollbar-thumb {
+  background: #263a26;
+  border: 2px solid var(--background);
+}
+[data-theme='crt'] ::-webkit-scrollbar-thumb:hover {
+  background: #3d5c3d;
+}
+[data-theme='crt'] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* map popup — มุม 0 */
+[data-theme='crt'] .maplibregl-popup-content {
+  border-radius: 0 !important;
+  border: 1px solid var(--border);
+}

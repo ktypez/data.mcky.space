@@ -1,0 +1,170 @@
+/* ============================================================================
+   glitchpage.css — data.mcky.space character theme (GLITCHPAGE)
+   ----------------------------------------------------------------------------
+   แกะ DNA จาก design-gallery/concepts/glitchpage.css → scoped ใหม่ให้เข้ากับ
+   โครงสร้าง app (Tailwind + shadcn components).
+   - navy ดึก + hot pink (#ff3d8f) / cyan (#37e6ff)
+   - drift grid + radial glow บน body
+   - scanlines overlay + terminal prompt (//) บน header
+   - mono labels + glitch ghost บนชื่อ client
+   โหลดเฉพาะเมื่อ [data-theme='glitchpage'] ทำงานเท่านั้น
+   ============================================================================ */
+
+/* ---- tokens (source of truth = theme registry) ---- */
+[data-theme='glitchpage'] {
+  --background: #0b0f2a;
+  --foreground: #e8eafc;
+  --card: #111640;
+  --card-foreground: #e8eafc;
+  --popover: #111640;
+  --popover-foreground: #e8eafc;
+  --primary: #ff3d8f;
+  --primary-foreground: #0b0f2a;
+  --secondary: #161c4d;
+  --secondary-foreground: #8f96c9;
+  --muted: #161c4d;
+  --muted-foreground: #8f96c9;
+  --accent: #37e6ff;
+  --accent-foreground: #0b0f2a;
+  --destructive: #ff3d5e;
+  --destructive-foreground: #0b0f2a;
+  --success: #3ddc84;
+  --success-foreground: #0b0f2a;
+  --warning: #ffb020;
+  --warning-foreground: #0b0f2a;
+  --info: #37e6ff;
+  --info-foreground: #0b0f2a;
+  --border: #232a5e;
+  --input: #232a5e;
+  --ring: #ff3d8f;
+  --sidebar: #111640;
+  --sidebar-foreground: #8f96c9;
+  --sidebar-accent: #232a5e;
+  --sidebar-accent-foreground: #e8eafc;
+  --sidebar-border: #232a5e;
+  --sidebar-ring: #ff3d8f;
+  --radius: 0.375rem;
+  --pin-color: #ff3d8f;
+
+  --theme-font-display: 'Kanit', 'Sarabun', system-ui, sans-serif;
+  --theme-font-body: 'Sarabun', 'Kanit', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ---- base ---- */
+[data-theme='glitchpage'] body {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 90% 45% at 50% 0%, rgba(255, 61, 143, 0.08), transparent),
+    radial-gradient(ellipse 60% 35% at 95% 100%, rgba(55, 230, 255, 0.06), transparent),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.013) 0, rgba(255, 255, 255, 0.013) 1px, transparent 1px, transparent 8px);
+  background-attachment: fixed;
+}
+
+/* scanlines overlay — pointer-events:none, อยู่เหนือ content ไม่บล็อกการแตะ */
+[data-theme='glitchpage'] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.09) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+}
+
+/* ---- header = terminal bar ---- */
+[data-theme='glitchpage'] header {
+  background: color-mix(in srgb, var(--card) 82%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom-color: color-mix(in srgb, var(--border) 80%, transparent);
+  box-shadow: 0 1px 0 rgba(255, 61, 143, 0.12), 0 4px 18px -8px rgba(0, 0, 0, 0.6);
+}
+
+/* terminal prompt prefix */
+[data-theme='glitchpage'] header::before {
+  content: '//';
+  font-family: var(--theme-font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--accent);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+  user-select: none;
+}
+
+/* ---- inputs — terminal cursor + cyan focus glow ---- */
+[data-theme='glitchpage'] input,
+[data-theme='glitchpage'] textarea {
+  caret-color: var(--accent);
+}
+[data-theme='glitchpage'] input:focus,
+[data-theme='glitchpage'] textarea:focus {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent),
+    0 0 14px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* ---- client name — glitch ghost (RGB split แบบอ่านง่าย) ---- */
+[data-theme='glitchpage'] h1 {
+  font-family: var(--theme-font-display);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-shadow:
+    1px 0 0 color-mix(in srgb, var(--primary) 65%, transparent),
+    -1px 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* ---- table hover + row tint ---- */
+[data-theme='glitchpage'] tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 7%, transparent);
+}
+
+/* ---- buttons — soft glow on focus ---- */
+[data-theme='glitchpage'] [data-slot='button']:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--ring),
+    0 0 12px color-mix(in srgb, var(--ring) 45%, transparent);
+}
+
+/* ---- selection ---- */
+[data-theme='glitchpage'] ::selection {
+  background: color-mix(in srgb, var(--primary) 55%, transparent);
+  color: var(--primary-foreground);
+}
+
+/* ---- scrollbar ---- */
+[data-theme='glitchpage'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme='glitchpage'] ::-webkit-scrollbar-thumb {
+  background: #232a5e;
+  border-radius: 6px;
+  border: 2px solid var(--background);
+}
+[data-theme='glitchpage'] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-theme='glitchpage'] ::-webkit-scrollbar-thumb:hover {
+  background: #333d80;
+}
+
+/* ---- cards — subtle pink/cyan edge ---- */
+[data-theme='glitchpage'] [data-slot='card'] {
+  border-color: color-mix(in srgb, var(--border) 90%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 6px 20px -12px rgba(0, 0, 0, 0.55);
+}
+
+/* map popup — ใช้ฟอนต์ mono ของธีมอยู่แล้วผ่าน token; ปัดมุมให้ตรงธีม */
+[data-theme='glitchpage'] .maplibregl-popup-content {
+  border: 1px solid var(--border);
+}

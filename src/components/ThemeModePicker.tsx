@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Moon, Sun, Monitor } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/lib/theme-context'
+import { useUIStore } from '@/stores/ui-store'
+import { getTheme, isDarkOnlyTheme } from '@/lib/design/themes'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 import { Check } from '@phosphor-icons/react'
 
@@ -14,7 +16,11 @@ const MODES = [
 export default function ThemeModePicker() {
   const [open, setOpen] = useState(false)
   const { theme, resolvedTheme, setTheme } = useTheme()
+  const themeId = useUIStore((s) => s.theme)
   const close = () => setOpen(false)
+
+  // Dark-only themes (glitch, crt) force .dark — no point toggling mode.
+  if (isDarkOnlyTheme(getTheme(themeId))) return null
 
   const Icon = resolvedTheme === 'dark' ? Moon : Sun
 

@@ -34,10 +34,36 @@ export interface ThemeVars {
   '--pin-color': string
 }
 
+export interface ThemeFonts {
+  /** display/heading font stack (maps to --theme-font-display) */
+  display: string
+  /** body font stack (maps to --theme-font-body) */
+  body: string
+  /** mono/label font stack (maps to --theme-font-mono) */
+  mono: string
+}
+
 export interface Theme {
   id: string
   label: string
   description: string
+  /**
+   * Character family. 'plain' (default) = color-swap only, applied via
+   * JS-injected CSS vars. Anything else = full character theme with its
+   * own static stylesheet in public/themes/.
+   */
+  character?: 'plain' | 'glitch' | 'crt' | 'paper'
+  /** Color modes this theme supports. Dark-only themes force .dark. */
+  modes?: Array<'light' | 'dark'>
+  /** Font stacks exposed as --theme-font-{display,body,mono} */
+  fonts?: Partial<ThemeFonts>
+  /** Google Fonts URL — lazy-injected while the theme is active */
+  fontUrl?: string
+  /**
+   * Static stylesheet (public/themes/{id}.css) loaded via <link>.
+   * Present only on character themes; owns the full var set + effects.
+   */
+  staticCss?: string
   light: ThemeVars
   dark: ThemeVars
 }
