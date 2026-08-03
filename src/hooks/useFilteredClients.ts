@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
 import { useDebounce } from './useDebounce'
-import { FilterKey, type Client } from '@/types'
+import { applyCounts, applyFilter } from '@/lib/filter'
 
 /** How many rows to show per "load more" step. */
 export const DISPLAY_STEP = 20
@@ -11,9 +11,10 @@ export const DISPLAY_STEP = 20
  * Filter, count, and paginate the client list.
  *
  * Owns all the "given clients + search + filter + cutoff, what's visible"
- * logic so `Clients.tsx` can stay a wiring shell. Also resets the
- * display limit when search/filter change so the user doesn't end up
- * on row 380 of a stale query.
+ * logic so `Clients.tsx` can stay a wiring shell. The actual filter and
+ * count functions live in `lib/filter.ts` so they're pure + unit-tested.
+ * Also resets the display limit when search/filter change so the user
+ * doesn't end up on row 380 of a stale query.
  */
 export function useFilteredClients() {
   const clients = useClientStore((s) => s.clients)
@@ -22,46 +23,15 @@ export function useFilteredClients() {
   const debouncedSearch = useDebounce(search, 50)
   const query = debouncedSearch.trim().toLowerCase()
 
-  const counts = useMemo(() => {
-    const total = clients.length
-    let withImages = 0
-    let recent = 0
-    let penpay = 0
-    for (const c of clients) {
-      if (c.images.length > 0) withImages++
-      if (c.createdAt > recentCutoff) recent++
-      if (c.badge === 'penpay') penpay++
-    }
-    return { total, withImages, noImages: total - withImages, recent, penpay }
-  }, [clients, recentCutoff])
+  const counts = useMemo(
+    () => applyCounts(clients, recentCutoff),
+    [clients, recentCutoff],
+  )
 
-  const filtered = useMemo<Client[]>(() => {
-    let result = clients
-    if (query) {
-      result = result.filter(
-        (c) =>
-          c.name.toLowerCase().includes(query) ||
-          c.shopName.toLowerCase().includes(query) ||
-          c.address.toLowerCase().includes(query) ||
-          c.id.toLowerCase().includes(query),
-      )
-    }
-    switch (filter) {
-      case FilterKey.WithImages:
-        result = result.filter((c) => c.images.length > 0)
-        break
-      case FilterKey.NoImages:
-        result = result.filter((c) => c.images.length === 0)
-        break
-      case FilterKey.Recent:
-        result = result.filter((c) => c.createdAt > recentCutoff)
-        break
-      case FilterKey.Penpay:
-        result = result.filter((c) => c.badge === 'penpay')
-        break
-    }
-    return result
-  }, [clients, query, filter, recentCutoff])
+  const filtered = useMemo(
+    () => applyFilter(clients, query, filter, recentCutoff),
+    [clients, query, filter, recentCutoff],
+  )
 
   const displayed = useMemo(
     () => filtered.slice(0, displayLimit),

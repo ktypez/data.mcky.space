@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "pages:dev": "wrangler pages dev ./dist -- npm run dev",
     "deploy": "npm run wrangler -- pages deploy ./dist --project-name data-mcky-space",
-    "wrangler": "env -u CLOUDFLARE_API_TOKEN -u CLOUDFLARE_ACCOUNT_ID wrangler"
+    "wrangler": "env -u CLOUDFLARE_API_TOKEN -u CLOUDFLARE_ACCOUNT_ID wrangler",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -36,6 +38,7 @@
     "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3",
     "vite": "^8.0.0",
+    "vitest": "^3.2.7",
     "wrangler": "^4.0.0"
   }
 }
