@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && npm run build:functions",
+    "build": "vite build && npm run build:functions",
+    "build:full": "tsc && vite build && npm run build:functions",
     "build:functions": "rm -rf dist/functions && cp -r functions dist/functions",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "pages:dev": "wrangler pages dev ./dist -- npm run dev",
     "deploy": "npm run wrangler -- pages deploy ./dist --project-name data-mcky-space",

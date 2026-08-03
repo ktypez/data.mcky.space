@@ -20,7 +20,7 @@ export function useFilteredClients() {
   const clients = useClientStore((s) => s.clients)
   const displayLimit = useClientStore((s) => s.displayLimit)
   const { search, filter, recentCutoff } = useFilterStore()
-  const debouncedSearch = useDebounce(search, 50)
+  const debouncedSearch = useDebounce(search, 200)
   const query = debouncedSearch.trim().toLowerCase()
 
   const counts = useMemo(
