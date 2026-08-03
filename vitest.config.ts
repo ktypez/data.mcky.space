@@ -17,7 +17,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
     // Keep the watch list tight — vite-plugin-react etc. would otherwise
     // try to crawl the whole tree and choke on the maplibre-gl CSS bundle.
   },
