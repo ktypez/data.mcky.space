@@ -9,6 +9,8 @@
     "build:full": "tsc && vite build && npm run build:functions",
     "build:functions": "rm -rf dist/functions && cp -r functions dist/functions",
     "typecheck": "tsc --noEmit",
+    "lint:jsx-nesting": "node scripts/lint-jsx-nesting.mjs",
+    "lint": "npm run typecheck && npm run lint:jsx-nesting",
     "preview": "vite preview",
     "pages:dev": "wrangler pages dev ./dist -- npm run dev",
     "deploy": "npm run wrangler -- pages deploy ./dist --project-name data-mcky-space",

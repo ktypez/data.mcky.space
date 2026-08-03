@@ -2,7 +2,7 @@ import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { useMotion } from '@/lib/motion'
-import { useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 
 interface PopoverMenuProps {
   open: boolean
@@ -14,13 +14,11 @@ interface PopoverMenuProps {
 
 export function PopoverMenu({ open, onOpenChange, trigger, children, position = 'auto' }: PopoverMenuProps) {
   const { scaleIn, fadeIn, spring } = useMotion()
-  const buttonRef = useRef<HTMLButtonElement>(null)
 
   const [pos, setPos] = useState({ top: 0, left: 0 })
 
-  const handleOpen = () => {
-    if (!buttonRef.current) return
-    const rect = buttonRef.current.getBoundingClientRect()
+  const handleOpen = (e: React.MouseEvent | React.KeyboardEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
     const gap = 8
     const popupWidth = 300
     let top = rect.bottom + gap
@@ -47,11 +45,25 @@ export function PopoverMenu({ open, onOpenChange, trigger, children, position = 
     onOpenChange(true)
   }
 
+  // NOTE: wrapper is a span, not a button element — the trigger prop is already
+  // a button (e.g. NavDropdown, theme pickers), so nesting it inside another
+  // button element would be invalid HTML and trigger a React hydration warning.
+  // Clicks on the trigger button bubble up here; keyboard activation works
+  // because the trigger button itself fires a click event.
   return (
     <>
-      <button ref={buttonRef} onClick={handleOpen} className="inline-block">
+      <span
+        className="inline-block"
+        onClick={handleOpen}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleOpen(e)
+          }
+        }}
+      >
         {trigger}
-      </button>
+      </span>
 
       {typeof document === 'object' &&
         createPortal(

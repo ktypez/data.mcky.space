@@ -3,7 +3,9 @@ import { useTheme } from '@/lib/theme-context'
 import { Palette, Check } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { useUIStore } from '@/stores/ui-store'
-import { themes } from '@/lib/design/themes'
+import { useAuthStore } from '@/stores/auth-store'
+import { setProfileTheme } from '@/lib/api'
+import { themes, isCharacterTheme } from '@/lib/design/themes'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
 function Swatch({ color, label }: { color: string; label: string }) {
@@ -46,6 +48,10 @@ export default function ThemePresetPicker() {
               key={t.id}
               onClick={() => {
                 setTheme(t.id)
+                // Persist to the admin profile so it follows the account.
+                if (useAuthStore.getState().isAdmin) {
+                  void setProfileTheme(t.id)
+                }
                 close()
               }}
               className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
@@ -60,6 +66,11 @@ export default function ThemePresetPicker() {
                 <Swatch color={fgColor} label="foreground" />
               </div>
               <span className="text-[15px] font-medium flex-1 truncate">{t.label}</span>
+              {isCharacterTheme(t) && (
+                <span className="text-[10px] font-mono uppercase tracking-wider text-primary shrink-0">
+                  {t.character}
+                </span>
+              )}
               {isActive && (
                 <Check className="w-3.5 h-3.5 shrink-0 text-primary" />
               )}
