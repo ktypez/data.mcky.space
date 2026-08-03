@@ -1,6 +1,6 @@
 import { createDb } from '../lib/db'
 import { suggestions, clients } from '../lib/schema'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { json, error } from '../lib/response'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
@@ -26,8 +26,9 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   if (clientId) filters.push(eq(suggestions.clientId, clientId))
 
   if (filters.length > 0) {
-    // @ts-expect-error drizzle variadic where
-    query = query.where(...filters)
+    // Use `and(...)` to combine — `.where(a, b)` in Drizzle 0.45 silently
+    // applies only the first condition. Found via suggestions.test.ts.
+    query = query.where(and(...filters))
   }
 
   const rows = await query.orderBy(suggestions.createdAt)
