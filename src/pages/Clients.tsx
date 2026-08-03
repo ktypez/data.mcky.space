@@ -1,32 +1,33 @@
 
-import { useCallback, useEffect, useMemo, lazy, Suspense } from 'react'
+import { useCallback, useEffect, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 
 import { Plus } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
+import { TableSkeletonLoader } from '@/components/TableSkeletonLoader'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useSuggestionStore } from '@/stores/suggestion-store'
-import { useDebounce } from '@/hooks/useDebounce'
+import { useFilteredClients, DISPLAY_STEP } from '@/hooks/useFilteredClients'
+import { useClientCopy } from '@/hooks/useClientCopy'
+import { useRoutePlanner } from '@/hooks/useRoutePlanner'
 import { updateClient } from '@/lib/storage'
-import { apiFetch } from '@/lib/api'
-import { copyToClipboard, getMapsUrl, hasValidCoords } from '@/lib/utils'
 import { slideLeft, slideRight, spring, springSmall } from '@/lib/motion'
+import type { Client, FilterKey, RouteData, ViewMode } from '@/types'
+
 function FetchErrorScreen({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="text-center space-y-4">
+      <div className="space-y-4 text-center">
         <p className="text-foreground">Something went wrong</p>
         <Button onClick={onRetry}>Try again</Button>
       </div>
     </div>
   )
 }
-import type { Client } from '@/types'
-import { FilterKey } from '@/types'
 
 function lazyLoad<T extends React.ComponentType<any>>(imp: () => Promise<{ default: T }>) {
   const Lazy = lazy(imp)
@@ -46,44 +47,12 @@ const DesktopCardView = lazyLoad(() => import('@/components/DesktopCardView'))
 const MobileCardList = lazyLoad(() => import('@/components/MobileCardList'))
 const SwUpdateToast = lazyLoad(() => import('@/components/SwUpdateToast'))
 
-function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371
-  const dLat = ((lat2 - lat1) * Math.PI) / 180
-  const dLng = ((lng2 - lng1) * Math.PI) / 180
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-}
-
-function TableSkeletonLoader() {
-  return (
-    <div className="animate-fade-in">
-      <div className="flex h-10 animate-fade-in items-center gap-2 border-b bg-card px-4">
-        <div className="size-5 animate-pulse-soft rounded bg-muted" />
-        <div className="size-5 animate-pulse-soft rounded bg-muted" />
-        <div className="flex-1" />
-        <div className="h-6 w-16 animate-pulse-soft rounded bg-muted" />
-      </div>
-      <div className="divide-y">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3">
-            <div className="size-5 animate-pulse-soft rounded bg-muted" />
-            <div className="h-4 flex-1 animate-pulse-soft rounded bg-muted" />
-            <div className="h-4 w-20 animate-pulse-soft rounded bg-muted" />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function displayStep(): number {
-  return 20
-}
-
 export function PageClient() {
   const navigate = useNavigate()
+
+  // State — one subscription per store (no double subscribes).
+  // Actions are pulled from `getState()` inside callbacks instead, so
+  // we don't pay a re-render every time some other field changes.
   const {
     clients,
     loading,
@@ -91,11 +60,10 @@ export function PageClient() {
     displayLimit,
     selectedIds,
     selectionMode,
+    refreshing,
     initialize,
   } = useClientStore()
-  const cliStore = useClientStore()
-  const { search, filter, viewMode, recentCutoff, setSearch } = useFilterStore()
-  const flStore = useFilterStore()
+  const { search, filter, viewMode, setSearch } = useFilterStore()
   const { isAdmin } = useAuthStore()
   const {
     viewState,
@@ -105,223 +73,171 @@ export function PageClient() {
     showManualOrigin,
     manualOriginLat,
     manualOriginLng,
-    mapFocusId,
     copiedId,
     openCopyId,
     newClientCount,
   } = useUIStore()
   const { pendingIds: pendingSuggestionIds, refreshKey: suggestRefresh } = useSuggestionStore()
-  const uiStore = useUIStore()
-  const suStore = useSuggestionStore()
 
-  const debouncedSearch = useDebounce(search, 50)
-  const query = debouncedSearch.trim().toLowerCase()
-
-  const counts = useMemo(() => {
-    const total = clients.length
-    const withImages = clients.filter((c) => c.images.length > 0).length
-    const noImages = total - withImages
-    const recent = clients.filter((c) => c.createdAt > recentCutoff).length
-    const penpay = clients.filter((c) => c.badge === 'penpay').length
-    return { total, withImages, noImages, recent, penpay }
-  }, [clients, recentCutoff])
-
-  const filtered = useMemo(() => {
-    let result = [...clients]
-    if (query) {
-      result = result.filter(
-        (c) =>
-          c.name.toLowerCase().includes(query) ||
-          c.shopName.toLowerCase().includes(query) ||
-          c.address.toLowerCase().includes(query) ||
-          c.id.toLowerCase().includes(query),
-      )
-    }
-    switch (filter) {
-      case FilterKey.WithImages:
-        result = result.filter((c) => c.images.length > 0)
-        break
-      case FilterKey.NoImages:
-        result = result.filter((c) => c.images.length === 0)
-        break
-      case FilterKey.Recent:
-        result = result.filter((c) => c.createdAt > recentCutoff)
-        break
-      case FilterKey.Penpay:
-        result = result.filter((c) => c.badge === 'penpay')
-        break
-    }
-    return result
-  }, [clients, query, filter, recentCutoff])
+  const { counts, filtered, displayed, hasMore } = useFilteredClients()
+  const { handleCopy, handleCopyTextAndMaps } = useClientCopy()
+  const { planRoute, handleManualOrigin } = useRoutePlanner()
 
   useEffect(() => {
     initialize()
   }, [initialize])
 
-  const displayed = filtered.slice(0, displayLimit)
-  const hasMore = displayLimit < filtered.length
-
-  useEffect(() => {
-    cliStore.setDisplayLimit(displayStep())
-  }, [debouncedSearch, filter])
-
   useEffect(() => {
     if (suggestRefresh > 0) {
-      cliStore.refresh()
-        .then(() => {})
-        .catch(() => console.warn('Refresh failed'))
+      useClientStore.getState().refresh().catch(() => console.warn('Refresh failed'))
     }
-    apiFetch('/api/suggestions?mode=pending-client-ids')
-      .then((r) => r.json())
-      .then((data) => suStore.setPendingIds(new Set(data)))
-      .catch(() => console.warn('Failed to fetch pending suggestions'))
+    useSuggestionStore.getState().refreshPendingIds()
   }, [suggestRefresh])
 
-  function clientText(client: Client) {
-    const parts: string[] = []
-    parts.push('\uD83D\uDC64 : ' + client.name)
-    if (client.shopName) parts.push('\uD83D\uDED2 : ' + client.shopName)
-    if (client.address) parts.push('\uD83D\uDCCC : ' + client.address)
-    return parts.join('\n')
-  }
-
-  function flashCopied(id: string) {
-    uiStore.setCopiedId(id)
-    setTimeout(() => uiStore.setCopiedId(null), 1500)
-  }
-
-  const handleCopy = useCallback(
-    (client: Client) => {
-      copyToClipboard(clientText(client))
-      flashCopied(client.id)
-    },
-    [],
-  )
-
-  const handleCopyTextAndMaps = useCallback(
-    (client: Client) => {
-      const text = clientText(client)
-      if (client.lat && client.lng) {
-        copyToClipboard(text + '\n' + '\uD83D\uDDFA\uFE0F : ' + getMapsUrl(client.lat, client.lng))
-      } else {
-        copyToClipboard(text)
-      }
-      flashCopied(client.id)
-    },
-    [],
-  )
-
-  const computeRoute = useCallback(
-    (origin: { lat: number; lng: number }) => {
-      const selected = clients.filter(
-(c) => selectedIds.has(c.id) && hasValidCoords(c.lat, c.lng),
-      )
-      const withDist = selected
-        .map((c) => ({
-          client: c,
-          dist: haversineKm(origin.lat, origin.lng, c.lat!, c.lng!),
-        }))
-        .sort((a, b) => a.dist - b.dist)
-      uiStore.setRouteData({ origin, clients: withDist })
-      uiStore.setShowManualOrigin(false)
-    },
-    [clients, selectedIds],
-  )
-
-  const planRoute = useCallback(async () => {
-    const selected = clients.filter(
-      (c) => selectedIds.has(c.id) && hasValidCoords(c.lat, c.lng),
-    )
-    if (selected.length === 0) {
-      uiStore.setRouteError('Selected clients have no location')
-      uiStore.setRouteData(null)
-      return
-    }
-    uiStore.setRouting(true)
-    uiStore.setRouteError('')
-    try {
-      const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-        }),
-      )
-      computeRoute({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-    } catch {
-      uiStore.setShowManualOrigin(true)
-    } finally {
-      uiStore.setRouting(false)
-    }
-  }, [clients, selectedIds, computeRoute])
-
-  const handleManualOrigin = useCallback(() => {
-    const lat = parseFloat(manualOriginLat)
-    const lng = parseFloat(manualOriginLng)
-    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      uiStore.setRouteError('Invalid coordinates')
-      return
-    }
-    computeRoute({ lat, lng })
-  }, [manualOriginLat, manualOriginLng, computeRoute])
-
-  const handleDetailUpdate = useCallback(
-    async (updated: Client) => {
-      try {
-        const saved = await updateClient(updated)
-        cliStore.updateClient(saved.id, saved)
-        uiStore.openDetail(saved.id, saved)
-      } catch {
-        cliStore.refresh()
-          .then(() => {})
-          .catch(() => console.warn('Refresh failed after update'))
-      }
-    },
-    [cliStore],
-  )
-
-  const handleDetailDelete = useCallback((deletedId: string) => {
-    cliStore.removeClient(deletedId)
-    uiStore.closeView()
-  }, [])
-
-  const navToDetail = useCallback((client: Client) => {
-    uiStore.openDetail(client.id, client)
-  }, [])
-
-  const navToAdd = useCallback(() => {
-    navigate('/add')
-  }, [navigate])
-
   const handleRefresh = useCallback(() => {
-    if (cliStore.refreshing) return
-    cliStore.setRefreshing(true)
-    cliStore.setProgress(10)
-    const prevCount = clients.length
+    const { refreshing: busy, refresh, setRefreshing, setProgress } =
+      useClientStore.getState()
+    if (busy) return
+    setRefreshing(true)
+    setProgress(10)
+    const prevCount = useClientStore.getState().clients.length
     let p = 10
     const timer = setInterval(() => {
       p = Math.min(p + 20, 80)
-      cliStore.setProgress(p)
+      useClientStore.getState().setProgress(p)
     }, 300)
-    cliStore.refresh()
+    refresh()
       .then((data) => {
         if (data.length > prevCount) {
-          uiStore.setNewClientCount(data.length - prevCount)
-          setTimeout(() => uiStore.setNewClientCount(0), 3000)
+          useUIStore.getState().setNewClientCount(data.length - prevCount)
+          setTimeout(() => useUIStore.getState().setNewClientCount(0), 3000)
         }
       })
       .catch(() => console.warn('Refresh failed'))
       .finally(() => {
         clearInterval(timer)
-        cliStore.setProgress(100)
-        setTimeout(() => cliStore.setProgress(0), 400)
-        cliStore.setRefreshing(false)
+        useClientStore.getState().setProgress(100)
+        setTimeout(() => useClientStore.getState().setProgress(0), 400)
+        useClientStore.getState().setRefreshing(false)
       })
-  }, [clients.length])
+  }, [])
+
+  const handleDetailUpdate = useCallback(async (updated: Client) => {
+    try {
+      const saved = await updateClient(updated)
+      const cli = useClientStore.getState()
+      cli.updateClient(saved.id, saved)
+      useUIStore.getState().openDetail(saved.id, saved)
+    } catch {
+      useClientStore
+        .getState()
+        .refresh()
+        .catch(() => console.warn('Refresh failed after update'))
+    }
+  }, [])
+
+  const handleDetailDelete = useCallback((deletedId: string) => {
+    useClientStore.getState().removeClient(deletedId)
+    useUIStore.getState().closeView()
+  }, [])
+
+  const navToDetail = useCallback((client: Client) => {
+    useUIStore.getState().openDetail(client.id, client)
+  }, [])
+
+  const navToAdd = useCallback(() => navigate('/add'), [navigate])
+
+  const handleSearchChange = useCallback(
+    (v: string) => setSearch(v),
+    [setSearch],
+  )
+  const handleSearchClear = useCallback(() => setSearch(''), [setSearch])
+
+  const handleViewModeChange = useCallback(
+    (v: ViewMode) => useFilterStore.getState().setViewMode(v),
+    [],
+  )
+  const handleFilter = useCallback(
+    (f: FilterKey) => useFilterStore.getState().setFilter(f),
+    [],
+  )
+
+  const handleToggleSelectionMode = useCallback(() => {
+    const { selectionMode, setSelectionMode, setSelectedIds } =
+      useClientStore.getState()
+    setSelectionMode(!selectionMode)
+    setSelectedIds(new Set())
+  }, [])
+
+  const handleToggleSelect = useCallback(
+    (id: string) => useClientStore.getState().toggleSelect(id),
+    [],
+  )
+
+  const handleToggleCopyDropdown = useCallback((id: string) => {
+    const ui = useUIStore.getState()
+    ui.setOpenCopyId(ui.openCopyId === id ? null : id)
+  }, [])
+
+  const handleCloseCopyDropdown = useCallback(
+    () => useUIStore.getState().setOpenCopyId(null),
+    [],
+  )
+
+  const handleLoadMore = useCallback(
+    () => useClientStore.getState().incrementDisplayLimit(DISPLAY_STEP),
+    [],
+  )
+
+  const handleRetry = useCallback(
+    () => useClientStore.getState().refresh().then(() => {}),
+    [],
+  )
+
+  const handleCloseRoute = useCallback(() => {
+    const ui = useUIStore.getState()
+    ui.setRouteData(null)
+    ui.setRouteError('')
+    ui.setShowManualOrigin(false)
+  }, [])
+
+  const handleRouteReorder = useCallback(
+    (data: RouteData | null) => useUIStore.getState().setRouteData(data),
+    [],
+  )
+
+  const handleManualOriginLatChange = useCallback(
+    (v: string) => useUIStore.getState().setManualOriginLat(v),
+    [],
+  )
+  const handleManualOriginLngChange = useCallback(
+    (v: string) => useUIStore.getState().setManualOriginLng(v),
+    [],
+  )
+
+  const handleCloseDetail = useCallback(
+    () => useUIStore.getState().closeView(),
+    [],
+  )
+
+  const handleDetailDeleted = useCallback(
+    (id: string) => {
+      handleDetailDelete(id)
+      useUIStore.getState().resetView()
+    },
+    [handleDetailDelete],
+  )
+
+  const handleSuggestRefresh = useCallback(
+    () => useSuggestionStore.getState().incrementRefresh(),
+    [],
+  )
 
   const isListView = viewState.view === 'list'
   const showDetail = viewState.view === 'detail'
+  const isCardsView = viewMode === 'cards'
 
-  if (error) return <FetchErrorScreen onRetry={() => cliStore.refresh().then(() => {})} />
+  if (error) return <FetchErrorScreen onRetry={handleRetry} />
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -339,22 +255,14 @@ export function PageClient() {
               transition={spring}
               className="flex min-h-screen min-w-0 flex-1 flex-col"
             >
-              <PageHeader
-                variant="detail"
-                title="Detail"
-                showBack
-                onBack={() => uiStore.closeView()}
-              />
+              <PageHeader variant="detail" title="Detail" showBack onBack={handleCloseDetail} />
               <ClientDetail
                 client={viewState.client ?? clients.find((c) => c.id === viewState.clientId)!}
                 isAdmin={isAdmin}
                 clients={clients}
                 onClientUpdated={handleDetailUpdate}
-                onClientDeleted={(id) => {
-                  handleDetailDelete(id)
-                  uiStore.resetView()
-                }}
-                onSuggestRefresh={() => suStore.incrementRefresh()}
+                onClientDeleted={handleDetailDeleted}
+                onSuggestRefresh={handleSuggestRefresh}
               />
             </motion.div>
           )}
@@ -369,169 +277,149 @@ export function PageClient() {
               transition={spring}
               className="flex min-h-screen min-w-0 flex-1 flex-col"
             >
-            <PageHeader
-              variant="list"
-              search={search}
-              onSearchChange={(v) => setSearch(v)}
-              onSearchClear={() => setSearch('')}
-              showAddButton={isAdmin}
-              onAdd={navToAdd}
-            />
+              <PageHeader
+                variant="list"
+                search={search}
+                onSearchChange={handleSearchChange}
+                onSearchClear={handleSearchClear}
+                showAddButton={isAdmin}
+                onAdd={navToAdd}
+              />
 
-            <SelectionToolbar
-              viewMode={viewMode}
-              onViewModeChange={(v) => flStore.setViewMode(v)}
-              refreshing={cliStore.refreshing}
-              onRefresh={handleRefresh}
-              selectionMode={selectionMode}
-              onToggleSelectionMode={() => {
-                cliStore.setSelectionMode(!selectionMode)
-                cliStore.setSelectedIds(new Set())
-              }}
-              selectedCount={selectedIds.size}
-              onPlanRoute={planRoute}
-              routing={routing}
-              newCount={newClientCount}
-              filter={filter}
-              counts={counts}
-              onFilter={(f) => flStore.setFilter(f)}
-            />
+              <SelectionToolbar
+                viewMode={viewMode}
+                onViewModeChange={handleViewModeChange}
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                selectionMode={selectionMode}
+                onToggleSelectionMode={handleToggleSelectionMode}
+                selectedCount={selectedIds.size}
+                onPlanRoute={planRoute}
+                routing={routing}
+                newCount={newClientCount}
+                filter={filter}
+                counts={counts}
+                onFilter={handleFilter}
+              />
 
-            <div className="flex-1 overflow-auto">
-              {loading && clients.length === 0 ? (
-                <TableSkeletonLoader />
-              ) : (
-                <>
-                  <div
-                    className={`${viewMode === 'cards' ? 'hidden' : 'block'} max-md:hidden`}
-                  >
-                    <DesktopTableView
-                      displayed={displayed}
-                      filtered={filtered}
-                      displayLimit={displayLimit}
-                      selectionMode={selectionMode}
-                      selectedIds={selectedIds}
-                      pendingSuggestionIds={pendingSuggestionIds}
-                      copiedId={copiedId}
-                      openCopyId={openCopyId}
-                      hasMore={hasMore}
-                      isGlobalEmpty={clients.length === 0}
-                      filter={filter}
-                      search={search}
-                      onSelectClient={navToDetail}
-                      onToggleSelect={(id) => cliStore.toggleSelect(id)}
-                      onToggleCopyDropdown={(id) =>
-                        uiStore.setOpenCopyId(openCopyId === id ? null : id)
-                      }
-                      onCopyText={handleCopy}
-                      onCopyTextAndMaps={handleCopyTextAndMaps}
-                      onCloseCopyDropdown={() => uiStore.setOpenCopyId(null)}
-                      onLoadMore={() => cliStore.incrementDisplayLimit(displayStep())}
-                    />
-                  </div>
+              <div className="flex-1 overflow-auto">
+                {loading && clients.length === 0 ? (
+                  <TableSkeletonLoader />
+                ) : (
+                  <>
+                    <div className={`${isCardsView ? 'hidden' : 'block'} max-md:hidden`}>
+                      <DesktopTableView
+                        displayed={displayed}
+                        filtered={filtered}
+                        displayLimit={displayLimit}
+                        selectionMode={selectionMode}
+                        selectedIds={selectedIds}
+                        pendingSuggestionIds={pendingSuggestionIds}
+                        copiedId={copiedId}
+                        openCopyId={openCopyId}
+                        hasMore={hasMore}
+                        isGlobalEmpty={clients.length === 0}
+                        filter={filter}
+                        search={search}
+                        onSelectClient={navToDetail}
+                        onToggleSelect={handleToggleSelect}
+                        onToggleCopyDropdown={handleToggleCopyDropdown}
+                        onCopyText={handleCopy}
+                        onCopyTextAndMaps={handleCopyTextAndMaps}
+                        onCloseCopyDropdown={handleCloseCopyDropdown}
+                        onLoadMore={handleLoadMore}
+                      />
+                    </div>
 
-                  <div
-                    className={`${viewMode !== 'cards' ? 'hidden' : ''} max-md:hidden`}
-                  >
-                    <DesktopCardView
-                      displayed={displayed}
-                      filtered={filtered}
-                      displayLimit={displayLimit}
-                      selectionMode={selectionMode}
-                      selectedIds={selectedIds}
-                      pendingSuggestionIds={pendingSuggestionIds}
-                      copiedId={copiedId}
-                      openCopyId={openCopyId}
-                      hasMore={hasMore}
-                      isGlobalEmpty={clients.length === 0}
-                      filter={filter}
-                      search={search}
-                      onSelectClient={navToDetail}
-                      onToggleSelect={(id) => cliStore.toggleSelect(id)}
-                      onToggleCopyDropdown={(id) =>
-                        uiStore.setOpenCopyId(openCopyId === id ? null : id)
-                      }
-                      onCopyText={handleCopy}
-                      onCopyTextAndMaps={handleCopyTextAndMaps}
-                      onCloseCopyDropdown={() => uiStore.setOpenCopyId(null)}
-                      onLoadMore={() => cliStore.incrementDisplayLimit(displayStep())}
-                    />
-                  </div>
+                    <div className={`${isCardsView ? '' : 'hidden'} max-md:hidden`}>
+                      <DesktopCardView
+                        displayed={displayed}
+                        filtered={filtered}
+                        displayLimit={displayLimit}
+                        selectionMode={selectionMode}
+                        selectedIds={selectedIds}
+                        pendingSuggestionIds={pendingSuggestionIds}
+                        copiedId={copiedId}
+                        openCopyId={openCopyId}
+                        hasMore={hasMore}
+                        isGlobalEmpty={clients.length === 0}
+                        filter={filter}
+                        search={search}
+                        onSelectClient={navToDetail}
+                        onToggleSelect={handleToggleSelect}
+                        onToggleCopyDropdown={handleToggleCopyDropdown}
+                        onCopyText={handleCopy}
+                        onCopyTextAndMaps={handleCopyTextAndMaps}
+                        onCloseCopyDropdown={handleCloseCopyDropdown}
+                        onLoadMore={handleLoadMore}
+                      />
+                    </div>
 
-                  <div className="md:hidden">
-                    <MobileCardList
-                      displayed={displayed}
-                      filtered={filtered}
-                      displayLimit={displayLimit}
-                      selectionMode={selectionMode}
-                      selectedIds={selectedIds}
-                      isAdmin={isAdmin}
-                      pendingSuggestionIds={pendingSuggestionIds}
-                      copiedId={copiedId}
-                      openCopyId={openCopyId}
-                      hasMore={hasMore}
-                      isGlobalEmpty={clients.length === 0}
-                      filter={filter}
-                      search={search}
-                      onSelectClient={navToDetail}
-                      onToggleSelect={(id) => cliStore.toggleSelect(id)}
-                      onToggleCopyDropdown={(id) =>
-                        uiStore.setOpenCopyId(openCopyId === id ? null : id)
-                      }
-                      onCopyText={handleCopy}
-                      onCopyTextAndMaps={handleCopyTextAndMaps}
-                      onCloseCopyDropdown={() => uiStore.setOpenCopyId(null)}
-                      onLoadMore={() => cliStore.incrementDisplayLimit(displayStep())}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
+                    <div className="md:hidden">
+                      <MobileCardList
+                        displayed={displayed}
+                        filtered={filtered}
+                        displayLimit={displayLimit}
+                        selectionMode={selectionMode}
+                        selectedIds={selectedIds}
+                        isAdmin={isAdmin}
+                        pendingSuggestionIds={pendingSuggestionIds}
+                        copiedId={copiedId}
+                        openCopyId={openCopyId}
+                        hasMore={hasMore}
+                        isGlobalEmpty={clients.length === 0}
+                        filter={filter}
+                        search={search}
+                        onSelectClient={navToDetail}
+                        onToggleSelect={handleToggleSelect}
+                        onToggleCopyDropdown={handleToggleCopyDropdown}
+                        onCopyText={handleCopy}
+                        onCopyTextAndMaps={handleCopyTextAndMaps}
+                        onCloseCopyDropdown={handleCloseCopyDropdown}
+                        onLoadMore={handleLoadMore}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
 
-            {isAdmin && (
-              <motion.div
-                className="fixed bottom-5 right-5 z-40 md:hidden"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={springSmall}
-              >
-                <Button
-                  className="size-12 rounded-full shadow-lg"
-                  size="icon"
-                  aria-label="Add client"
-                  onClick={navToAdd}
+              {isAdmin && (
+                <motion.div
+                  className="fixed bottom-5 right-5 z-40 md:hidden"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={springSmall}
                 >
-                  <Plus className="size-5" />
-                </Button>
-              </motion.div>
-            )}
+                  <Button
+                    className="size-12 rounded-full shadow-lg"
+                    size="icon"
+                    aria-label="Add client"
+                    onClick={navToAdd}
+                  >
+                    <Plus className="size-5" />
+                  </Button>
+                </motion.div>
+              )}
 
-            <RouteModal
-              routeData={routeData}
-              routeError={routeError}
-              onClose={() => {
-                uiStore.setRouteData(null)
-                uiStore.setRouteError('')
-                uiStore.setShowManualOrigin(false)
-              }}
-              onReorder={(data) => uiStore.setRouteData(data)}
-              showManualOrigin={showManualOrigin}
-              manualOriginLat={manualOriginLat}
-              manualOriginLng={manualOriginLng}
-              onManualOriginLatChange={(v) => uiStore.setManualOriginLat(v)}
-              onManualOriginLngChange={(v) => uiStore.setManualOriginLng(v)}
-              onManualOriginSubmit={handleManualOrigin}
-            />
-          </motion.div>
+              <RouteModal
+                routeData={routeData}
+                routeError={routeError}
+                onClose={handleCloseRoute}
+                onReorder={handleRouteReorder}
+                showManualOrigin={showManualOrigin}
+                manualOriginLat={manualOriginLat}
+                manualOriginLng={manualOriginLng}
+                onManualOriginLatChange={handleManualOriginLatChange}
+                onManualOriginLngChange={handleManualOriginLngChange}
+                onManualOriginSubmit={handleManualOrigin}
+              />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
 
       {openCopyId && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => uiStore.setOpenCopyId(null)}
-        />
+        <div className="fixed inset-0 z-40" onClick={handleCloseCopyDropdown} />
       )}
     </div>
   )
