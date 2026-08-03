@@ -16,7 +16,7 @@ Use `recall` to retrieve context, `remember` to save new info.
 
 ## Package Manager
 - **npm เท่านั้น** — เครื่องนี้ไม่มี pnpm อย่าใช้ `pnpm ...` ให้ใช้ `npm run ...` แทน
-- Lockfile ที่ใช้คือ `package-lock.json` (`pnpm-lock.yaml` / `pnpm-workspace.yaml` เป็นของเหลือจากเดิม ไม่ต้องยุ่ง)
+- Lockfile ที่ใช้คือ `package-lock.json` (`pnpm-lock.yaml` / `pnpm-workspace.yaml` เป็นของเหลือจากตอน dev บน Android Termux proot — อย่าใช้เป็นหลัก, ลบทิ้งได้ถ้าต้องการ)
 
 ## Commands
 - dev: `npm run dev`
