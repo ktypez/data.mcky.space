@@ -5,8 +5,9 @@
 // separately and importing from src/ risks dragging heavy deps in.
 
 export const THEME_IDS = [
-  // plain (the only surviving legacy theme)
+  // plain (legacy)
   'bubblegum',
+  'slate',
   // character
   'glitchpage',
   'crt',

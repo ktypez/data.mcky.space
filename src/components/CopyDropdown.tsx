@@ -1,6 +1,6 @@
 
 import { AnimatePresence, motion } from 'motion/react'
-import { Copy } from '@phosphor-icons/react'
+import { House } from '@phosphor-icons/react'
 import type { Client } from '@/types'
 import { scaleIn, spring } from '@/lib/motion'
 
@@ -51,7 +51,7 @@ export default function CopyDropdown({
             : 'bg-card text-muted-foreground hover:bg-card ring-border'
         }`}
       >
-        <Copy className={iconSize} />
+        <House className={iconSize} />
         {isCopied ? 'คัดลอกแล้ว' : 'คัดลอก'}
       </button>
       <AnimatePresence>
@@ -73,7 +73,7 @@ export default function CopyDropdown({
               }}
               className="w-full text-left px-4 py-3 text-[15px] text-foreground hover:bg-card transition-colors cursor-pointer flex items-center gap-2"
             >
-              <Copy className={`${menuIconSize} shrink-0`} />
+              <House className={`${menuIconSize} shrink-0`} />
               <span>ข้อความ</span>
             </button>
             {hasCoords && (
@@ -85,7 +85,7 @@ export default function CopyDropdown({
                 }}
                 className="w-full text-left px-4 py-3 text-[15px] text-foreground hover:bg-card transition-colors cursor-pointer flex items-center gap-2 border-t border-border"
               >
-                <Copy className={`${menuIconSize} shrink-0`} />
+                <House className={`${menuIconSize} shrink-0`} />
                 <span>ข้อความ + แผนที่</span>
               </button>
             )}

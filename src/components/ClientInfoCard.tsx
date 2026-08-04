@@ -1,4 +1,4 @@
-import { MapPin, Copy } from '@phosphor-icons/react'
+import { MapPin, House } from '@phosphor-icons/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { hasValidCoords } from '@/lib/utils'
@@ -49,7 +49,7 @@ export default function ClientInfoCard({ client, copied, onCopy }: ClientInfoCar
             className={`h-9 px-1 ${copied === 'text' ? 'border-success text-success' : ''}`}
             onClick={() => onCopy()}
           >
-            <Copy className="w-3.5 h-3.5 shrink-0" />
+            <House className="w-3.5 h-3.5 shrink-0" />
             <span className="text-[11px]">ข้อความ</span>
           </Button>
 
@@ -59,7 +59,7 @@ export default function ClientInfoCard({ client, copied, onCopy }: ClientInfoCar
               className={`h-9 px-1 ${copied === 'text+maps' ? 'border-success text-success' : ''}`}
               onClick={() => onCopy('text+maps')}
             >
-              <Copy className="w-3.5 h-3.5 shrink-0" />
+              <House className="w-3.5 h-3.5 shrink-0" />
               <span className="text-[11px]">ข้อความ+แผนที่</span>
             </Button>
           )}
