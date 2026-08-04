@@ -41,10 +41,8 @@ function ThemeCard({
     <button
       onClick={onPick}
       aria-pressed={active}
-      className={`group text-left rounded-lg border p-1.5 transition-colors ${
-        active
-          ? 'border-primary bg-accent/20'
-          : 'border-border hover:bg-muted'
+      className={`group w-[128px] shrink-0 text-left rounded-lg border p-1.5 transition-colors ${
+        active ? 'border-primary bg-accent/20' : 'border-border hover:bg-muted'
       }`}
     >
       <div
@@ -76,6 +74,41 @@ function ThemeCard({
   )
 }
 
+/** One horizontal scrollable row of theme cards. */
+function ThemeRow({
+  title,
+  items,
+  activeId,
+  resolved,
+  onPick,
+}: {
+  title: string
+  items: Theme[]
+  activeId: string
+  resolved: 'light' | 'dark'
+  onPick: (id: string) => void
+}) {
+  if (items.length === 0) return null
+  return (
+    <>
+      <p className="px-1 pb-1 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+        {title}
+      </p>
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none snap-x">
+        {items.map((t) => (
+          <ThemeCard
+            key={t.id}
+            t={t}
+            active={activeId === t.id}
+            resolved={resolved}
+            onPick={() => onPick(t.id)}
+          />
+        ))}
+      </div>
+    </>
+  )
+}
+
 export default function ThemePresetPicker() {
   const [open, setOpen] = useState(false)
   const { resolvedTheme } = useTheme()
@@ -84,8 +117,14 @@ export default function ThemePresetPicker() {
 
   const close = () => setOpen(false)
   const resolved: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light'
+  const classicThemes = themes.filter((t) => !isCharacterTheme(t))
   const characterThemes = themes.filter((t) => isCharacterTheme(t))
-  const plainThemes = themes.filter((t) => !isCharacterTheme(t))
+
+  const handlePick = (id: string) => {
+    setTheme(id)
+    if (useAuthStore.getState().isAdmin) void setProfileTheme(id)
+    close()
+  }
 
   const trigger = (
     <Button variant="outline" size="icon" aria-label="เลือกธีม" aria-expanded={open}>
@@ -96,47 +135,21 @@ export default function ThemePresetPicker() {
   return (
     <PopoverMenu open={open} onOpenChange={setOpen} trigger={trigger} position="right-edge">
       <div className="w-[340px] max-w-[90vw]">
-        <p className="px-1 pb-1 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-          ตัวละคร
-        </p>
-        <div className="grid grid-cols-2 gap-1.5">
-          {characterThemes.map((t) => (
-            <ThemeCard
-              key={t.id}
-              t={t}
-              active={themeId === t.id}
-              resolved={resolved}
-              onPick={() => {
-                setTheme(t.id)
-                if (useAuthStore.getState().isAdmin) void setProfileTheme(t.id)
-                close()
-              }}
-            />
-          ))}
-        </div>
-
-        {plainThemes.length > 0 && (
-          <>
-            <p className="px-1 pt-2 pb-1 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-              คลาสสิก
-            </p>
-            <div className="grid grid-cols-2 gap-1.5">
-              {plainThemes.map((t) => (
-                <ThemeCard
-                  key={t.id}
-                  t={t}
-                  active={themeId === t.id}
-                  resolved={resolved}
-                  onPick={() => {
-                    setTheme(t.id)
-                    if (useAuthStore.getState().isAdmin) void setProfileTheme(t.id)
-                    close()
-                  }}
-                />
-              ))}
-            </div>
-          </>
-        )}
+        <ThemeRow
+          title="Classic"
+          items={classicThemes}
+          activeId={themeId}
+          resolved={resolved}
+          onPick={handlePick}
+        />
+        <div className="h-2" />
+        <ThemeRow
+          title="Character"
+          items={characterThemes}
+          activeId={themeId}
+          resolved={resolved}
+          onPick={handlePick}
+        />
       </div>
     </PopoverMenu>
   )

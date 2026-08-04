@@ -1,0 +1,133 @@
+/* ============================================================================
+   slate.css — data.mcky.space legacy theme (Slate)
+   ----------------------------------------------------------------------------
+   เหล็กเย็น (cool steel): เทาน้ำเงินสะอาด, industrial — light/dark
+   โหลดเฉพาะเมื่อ [data-theme='slate'] (ทุกธีมเป็น static CSS)
+   ============================================================================ */
+
+/* ---- tokens light ---- */
+[data-theme='slate'] {
+  --background: oklch(0.97 0.005 255);
+  --foreground: oklch(0.15 0.02 255);
+  --card: oklch(0.99 0.002 255);
+  --card-foreground: oklch(0.15 0.02 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.02 255);
+  --primary: oklch(0.45 0.08 255);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.92 0.005 255);
+  --secondary-foreground: oklch(0.25 0.015 255);
+  --muted: oklch(0.94 0.003 255);
+  --muted-foreground: oklch(0.52 0.01 255);
+  --accent: oklch(0.78 0.05 265);
+  --accent-foreground: oklch(0.15 0.02 255);
+  --destructive: oklch(0.52 0.2 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.5 0.15 145);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.65 0.17 80);
+  --warning-foreground: oklch(0.15 0.02 255);
+  --info: oklch(0.5 0.12 220);
+  --info-foreground: oklch(0.99 0 0);
+  --border: oklch(0.86 0.005 255);
+  --input: oklch(0.86 0.005 255);
+  --ring: oklch(0.45 0.08 255);
+  --sidebar: oklch(0.99 0.002 255);
+  --sidebar-foreground: oklch(0.15 0.02 255);
+  --sidebar-accent: oklch(0.92 0.005 255);
+  --sidebar-accent-foreground: oklch(0.25 0.015 255);
+  --sidebar-border: oklch(0.86 0.005 255);
+  --sidebar-ring: oklch(0.45 0.08 255);
+  --radius: 0.375rem;
+  --pin-color: oklch(0.45 0.08 255);
+
+  --theme-font-display: 'Inter', 'Sarabun', system-ui, sans-serif;
+  --theme-font-body: 'Sarabun', 'Inter', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ---- tokens dark ---- */
+.dark[data-theme='slate'] {
+  --background: oklch(0.12 0.01 255);
+  --foreground: oklch(0.93 0.01 255);
+  --card: oklch(0.16 0.01 255);
+  --card-foreground: oklch(0.93 0.01 255);
+  --popover: oklch(0.16 0.01 255);
+  --popover-foreground: oklch(0.93 0.01 255);
+  --primary: oklch(0.7 0.06 255);
+  --primary-foreground: oklch(0.12 0.01 255);
+  --secondary: oklch(0.22 0.01 255);
+  --secondary-foreground: oklch(0.93 0.01 255);
+  --muted: oklch(0.18 0.01 255);
+  --muted-foreground: oklch(0.55 0.01 255);
+  --accent: oklch(0.22 0.04 265);
+  --accent-foreground: oklch(0.93 0.01 255);
+  --destructive: oklch(0.45 0.2 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.4 0.15 145);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.55 0.17 80);
+  --warning-foreground: oklch(0.12 0.01 255);
+  --info: oklch(0.4 0.12 220);
+  --info-foreground: oklch(0.99 0 0);
+  --border: oklch(0.24 0.01 255);
+  --input: oklch(0.24 0.01 255);
+  --ring: oklch(0.7 0.06 255);
+  --sidebar: oklch(0.13 0.01 255);
+  --sidebar-foreground: oklch(0.93 0.01 255);
+  --sidebar-accent: oklch(0.18 0.01 255);
+  --sidebar-accent-foreground: oklch(0.55 0.01 255);
+  --sidebar-border: oklch(0.18 0.01 255);
+  --sidebar-ring: oklch(0.7 0.06 255);
+  --pin-color: oklch(0.7 0.06 255);
+}
+
+/* เหล็กเย็น: เรียบ ลายเส้นบาง */
+[data-theme='slate'] body {
+  background-color: var(--background);
+}
+
+[data-theme='slate'] header {
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+[data-theme='slate'] input,
+[data-theme='slate'] textarea {
+  caret-color: var(--primary);
+}
+[data-theme='slate'] input:focus,
+[data-theme='slate'] textarea:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
+}
+
+[data-theme='slate'] h1 {
+  font-family: var(--theme-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+[data-theme='slate'] tbody tr:hover {
+  background: color-mix(in oklch, var(--accent) 7%, transparent);
+}
+
+[data-theme='slate'] ::selection {
+  background: color-mix(in oklch, var(--primary) 25%, transparent);
+  color: var(--foreground);
+}
+
+[data-theme='slate'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme='slate'] ::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--muted-foreground) 35%, transparent);
+  border: 2px solid var(--background);
+  border-radius: 6px;
+}
+[data-theme='slate'] ::-webkit-scrollbar-track {
+  background: transparent;
+}
