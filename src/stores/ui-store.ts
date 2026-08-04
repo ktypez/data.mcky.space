@@ -54,7 +54,7 @@ export const useUIStore = create<UIState>()(
       copiedId: null,
       openCopyId: null,
       newClientCount: 0,
-      theme: 'shadcn',
+      theme: 'claude',
 
       setViewState: (viewState) => set({ viewState }),
       setRouteData: (routeData) => set({ routeData }),

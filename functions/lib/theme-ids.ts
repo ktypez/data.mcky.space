@@ -5,23 +5,18 @@
 // separately and importing from src/ risks dragging heavy deps in.
 
 export const THEME_IDS = [
-  // plain
-  'shadcn',
-  'obsidian',
-  'ivory',
-  'meridian',
-  'synthwave',
-  'frost',
-  'ember',
-  'moss',
-  'neo-brutalism',
-  'slate',
-  'coral',
+  // plain (the only surviving legacy theme)
   'bubblegum',
   // character
   'glitchpage',
   'crt',
   'claude',
+  'rack',
+  'noc',
+  'min',
+  'brut',
+  'moss',
+  'mcky',
 ] as const
 
 export type ThemeId = (typeof THEME_IDS)[number]

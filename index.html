@@ -7,28 +7,24 @@
     <title>data.mcky.space</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script>
-      // Pre-paint theme boot: apply the saved character theme before React
-      // mounts so there's no unstyled flash. Keep THEMES in sync with
-      // src/lib/design/themes.ts (ids + staticCss + fontUrl + dark-only).
+      // Pre-paint theme boot: ALWAYS load a full theme stylesheet before
+      // React mounts (saved theme, else the default = claude), so the app is
+      // never unstyled and the :root/.dark fallback vars are unnecessary.
+      // Keep THEMES in sync with src/lib/design/themes.ts (id + staticCss +
+      // dark-only flag). Fonts load lazily via ThemeInjector, not here.
       (function () {
         var THEMES = {
-          glitchpage: {
-            css: '/themes/glitchpage.css',
-            dark: true,
-            font: 'https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap',
-          },
-          crt: {
-            css: '/themes/crt.css',
-            dark: true,
-            font: 'https://fonts.googleapis.com/css2?family=VT323&family=Sarabun:wght@400;500;600&display=swap',
-          },
-          claude: {
-            css: '/themes/claude.css',
-            dark: false,
-            font: 'https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+Thai:wght@400;500;600&display=swap',
-          },
+          bubblegum: { css: '/themes/bubblegum.css', dark: false },
+          glitchpage: { css: '/themes/glitchpage.css', dark: true },
+          crt: { css: '/themes/crt.css', dark: true },
+          claude: { css: '/themes/claude.css', dark: false },
+          rack: { css: '/themes/rack.css', dark: true },
+          noc: { css: '/themes/noc.css', dark: true },
+          min: { css: '/themes/min.css', dark: false },
+          brut: { css: '/themes/brut.css', dark: false },
+          moss: { css: '/themes/moss.css', dark: false },
+          mcky: { css: '/themes/mcky.css', dark: false },
         };
         var id = null;
         try {
@@ -38,19 +34,24 @@
             if (data && data.state && typeof data.state.theme === 'string') id = data.state.theme;
           }
         } catch (e) {}
-        var t = id && THEMES[id];
-        if (!t) return;
+        if (!THEMES[id]) id = 'claude'; // invalid/stale id → default theme
+        var t = THEMES[id];
         var root = document.documentElement;
         root.setAttribute('data-theme', id);
-        if (t.dark) root.classList.add('dark');
-        function link(href) {
-          var l = document.createElement('link');
-          l.rel = 'stylesheet';
-          l.href = href;
-          document.head.appendChild(l);
+        // dark-only themes force .dark; dual themes respect saved mode/system.
+        var dark = t.dark;
+        if (!dark) {
+          var mode = null;
+          try { mode = localStorage.getItem('theme'); } catch (e) {}
+          if (mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            dark = true;
+          }
         }
-        link(t.css);
-        if (t.font) link(t.font);
+        if (dark) root.classList.add('dark');
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = t.css;
+        document.head.appendChild(l);
       })();
     </script>
   </head>

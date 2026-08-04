@@ -1,0 +1,114 @@
+/* ============================================================================
+   min.css — data.mcky.space character theme (collage.sh · MIN)
+   ----------------------------------------------------------------------------
+   แกะ DNA จาก design-gallery/concepts/min.css
+   มินิมอล: ขาวสะอาด + olive lime, เส้นบาง, สายเทอร์มินัล
+   Light-only — โหลดเฉพาะเมื่อ [data-theme='min']
+   ============================================================================ */
+
+[data-theme='min'] {
+  --background: #f6f7f4;
+  --foreground: #1a1c16;
+  --card: #ffffff;
+  --card-foreground: #1a1c16;
+  --popover: #ffffff;
+  --popover-foreground: #1a1c16;
+  --primary: #7a9a01;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f1ed;
+  --secondary-foreground: #5d6157;
+  --muted: #f0f1ed;
+  --muted-foreground: #5d6157;
+  --accent: #c3d22a;
+  --accent-foreground: #1a1c16;
+  --destructive: #c7452f;
+  --destructive-foreground: #ffffff;
+  --success: #5c7a3d;
+  --success-foreground: #ffffff;
+  --warning: #b0832f;
+  --warning-foreground: #ffffff;
+  --info: #4a6b7a;
+  --info-foreground: #ffffff;
+  --border: #e3e5df;
+  --input: #e3e5df;
+  --ring: #7a9a01;
+  --sidebar: #f0f1ed;
+  --sidebar-foreground: #1a1c16;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #5d6157;
+  --sidebar-border: #e3e5df;
+  --sidebar-ring: #7a9a01;
+  --radius: 0.25rem;
+  --pin-color: #7a9a01;
+
+  --theme-font-display: 'Inter', 'Sarabun', system-ui, sans-serif;
+  --theme-font-body: 'Sarabun', 'Inter', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* base: clean, ไม่มี noise */
+[data-theme='min'] body {
+  background-color: var(--background);
+}
+
+/* header: เรียบสุดขีด */
+[data-theme='min'] header {
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 1px 0 var(--border);
+}
+[data-theme='min'] header::before {
+  content: '$';
+  font-family: var(--theme-font-mono);
+  font-size: 14px;
+  color: var(--primary);
+  user-select: none;
+}
+
+/* inputs */
+[data-theme='min'] input,
+[data-theme='min'] textarea {
+  caret-color: var(--primary);
+}
+[data-theme='min'] input:focus,
+[data-theme='min'] textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(122, 154, 1, 0.12);
+}
+
+/* client name: หนา ไม่มีเงา */
+[data-theme='min'] h1 {
+  font-family: var(--theme-font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* cards: เส้นบางสุด */
+[data-theme='min'] [data-slot='card'] {
+  border-color: #e3e5df;
+  box-shadow: none;
+}
+
+/* table hover: lime จางๆ */
+[data-theme='min'] tbody tr:hover {
+  background: rgba(195, 210, 42, 0.06);
+}
+
+/* selection */
+[data-theme='min'] ::selection {
+  background: rgba(122, 154, 1, 0.25);
+  color: var(--foreground);
+}
+
+[data-theme='min'] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+[data-theme='min'] ::-webkit-scrollbar-thumb {
+  background: #d2d5cd;
+  border-radius: 4px;
+}
+[data-theme='min'] ::-webkit-scrollbar-track {
+  background: transparent;
+}

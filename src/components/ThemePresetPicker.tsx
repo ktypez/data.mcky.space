@@ -5,16 +5,74 @@ import { Button } from '@/components/ui/button'
 import { useUIStore } from '@/stores/ui-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { setProfileTheme } from '@/lib/api'
-import { themes, isCharacterTheme } from '@/lib/design/themes'
+import { themes, isCharacterTheme, isDarkOnlyTheme } from '@/lib/design/themes'
+import type { Theme } from '@/lib/design/tokens'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
 function Swatch({ color, label }: { color: string; label: string }) {
   return (
     <div
-      className="w-4 h-4 rounded-full shrink-0 border border-black/10 dark:border-white/10"
+      className="w-3 h-3 rounded-full shrink-0 border border-black/10 dark:border-white/10"
       style={{ backgroundColor: color }}
       title={label}
     />
+  )
+}
+
+/** Dark-only themes always preview their dark tokens. */
+function previewVars(t: Theme, resolved: 'light' | 'dark') {
+  return isDarkOnlyTheme(t) ? t.dark : resolved === 'dark' ? t.dark : t.light
+}
+
+function ThemeCard({
+  t,
+  active,
+  resolved,
+  onPick,
+}: {
+  t: Theme
+  active: boolean
+  resolved: 'light' | 'dark'
+  onPick: () => void
+}) {
+  const vars = previewVars(t, resolved)
+  const isChar = isCharacterTheme(t)
+  return (
+    <button
+      onClick={onPick}
+      aria-pressed={active}
+      className={`group text-left rounded-lg border p-1.5 transition-colors ${
+        active
+          ? 'border-primary bg-accent/20'
+          : 'border-border hover:bg-muted'
+      }`}
+    >
+      <div
+        className="h-12 rounded-md border overflow-hidden"
+        style={{ backgroundColor: vars['--background'], borderColor: vars['--border'] }}
+      >
+        <div className="flex items-center gap-1 p-1.5">
+          <Swatch color={vars['--primary']} label="primary" />
+          <Swatch color={vars['--accent']} label="accent" />
+          <Swatch color={vars['--foreground']} label="foreground" />
+        </div>
+        <div
+          className="px-1.5 text-[13px] leading-none truncate"
+          style={{ color: vars['--foreground'], fontFamily: t.fonts?.display }}
+        >
+          Aa กขค
+        </div>
+      </div>
+      <div className="flex items-center gap-1 mt-1.5">
+        <span className="text-[12px] font-medium flex-1 truncate">{t.label}</span>
+        {isChar && (
+          <span className="text-[9px] font-mono uppercase tracking-wide text-primary shrink-0">
+            {t.character}
+          </span>
+        )}
+        {active && <Check className="w-3 h-3 shrink-0 text-primary" weight="bold" />}
+      </div>
+    </button>
   )
 }
 
@@ -24,8 +82,10 @@ export default function ThemePresetPicker() {
   const themeId = useUIStore((s) => s.theme)
   const setTheme = useUIStore((s) => s.setTheme)
 
-  const mode = resolvedTheme === 'dark' ? 'dark' : 'light'
   const close = () => setOpen(false)
+  const resolved: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light'
+  const characterThemes = themes.filter((t) => isCharacterTheme(t))
+  const plainThemes = themes.filter((t) => !isCharacterTheme(t))
 
   const trigger = (
     <Button variant="outline" size="icon" aria-label="เลือกธีม" aria-expanded={open}>
@@ -35,48 +95,48 @@ export default function ThemePresetPicker() {
 
   return (
     <PopoverMenu open={open} onOpenChange={setOpen} trigger={trigger} position="right-edge">
-      <div className="space-y-0.5">
-        {themes.map((t) => {
-          const isActive = themeId === t.id
-          const vars = mode === 'dark' ? t.dark : t.light
-          const primaryColor = vars['--primary']
-          const bgColor = vars['--background']
-          const fgColor = vars['--foreground']
-
-          return (
-            <button
+      <div className="w-[340px] max-w-[90vw]">
+        <p className="px-1 pb-1 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+          ตัวละคร
+        </p>
+        <div className="grid grid-cols-2 gap-1.5">
+          {characterThemes.map((t) => (
+            <ThemeCard
               key={t.id}
-              onClick={() => {
+              t={t}
+              active={themeId === t.id}
+              resolved={resolved}
+              onPick={() => {
                 setTheme(t.id)
-                // Persist to the admin profile so it follows the account.
-                if (useAuthStore.getState().isAdmin) {
-                  void setProfileTheme(t.id)
-                }
+                if (useAuthStore.getState().isAdmin) void setProfileTheme(t.id)
                 close()
               }}
-              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
-                isActive
-                  ? 'bg-accent text-accent-foreground'
-                  : 'hover:bg-muted text-foreground'
-              }`}
-            >
-              <div className="flex gap-0.5 shrink-0">
-                <Swatch color={primaryColor} label="primary" />
-                <Swatch color={bgColor} label="background" />
-                <Swatch color={fgColor} label="foreground" />
-              </div>
-              <span className="text-[15px] font-medium flex-1 truncate">{t.label}</span>
-              {isCharacterTheme(t) && (
-                <span className="text-[10px] font-mono uppercase tracking-wider text-primary shrink-0">
-                  {t.character}
-                </span>
-              )}
-              {isActive && (
-                <Check className="w-3.5 h-3.5 shrink-0 text-primary" />
-              )}
-            </button>
-          )
-        })}
+            />
+          ))}
+        </div>
+
+        {plainThemes.length > 0 && (
+          <>
+            <p className="px-1 pt-2 pb-1 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+              คลาสสิก
+            </p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {plainThemes.map((t) => (
+                <ThemeCard
+                  key={t.id}
+                  t={t}
+                  active={themeId === t.id}
+                  resolved={resolved}
+                  onPick={() => {
+                    setTheme(t.id)
+                    if (useAuthStore.getState().isAdmin) void setProfileTheme(t.id)
+                    close()
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </PopoverMenu>
   )

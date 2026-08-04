@@ -1,0 +1,154 @@
+/* ============================================================================
+   brut.css — data.mcky.space character theme (BRUT)
+   ----------------------------------------------------------------------------
+   แกะ DNA จาก design-gallery/concepts/brut.css
+   Brutalist: คอนกรีต + ขอบหมึกดำ 2px + แดงสัญญาณ, Anton display,
+   เงาแข็ง (offset ไม่เบลอ), ไม่มี transition (ฉับพลัน)
+   Light-only — โหลดเฉพาะเมื่อ [data-theme='brut']
+   ============================================================================ */
+
+[data-theme='brut'] {
+  --background: #e8e4da;
+  --foreground: #0d0d0d;
+  --card: #ffffff;
+  --card-foreground: #0d0d0d;
+  --popover: #ffffff;
+  --popover-foreground: #0d0d0d;
+  --primary: #ff2e00;
+  --primary-foreground: #ffffff;
+  --secondary: #d8d4ca;
+  --secondary-foreground: #0d0d0d;
+  --muted: #d8d4ca;
+  --muted-foreground: #3d3d3a;
+  --accent: #ff2e00;
+  --accent-foreground: #ffffff;
+  --destructive: #ff2e00;
+  --destructive-foreground: #ffffff;
+  --success: #0d0d0d;
+  --success-foreground: #ffffff;
+  --warning: #ff2e00;
+  --warning-foreground: #ffffff;
+  --info: #0d0d0d;
+  --info-foreground: #ffffff;
+  --border: #0d0d0d;
+  --input: #0d0d0d;
+  --ring: #ff2e00;
+  --sidebar: #d8d4ca;
+  --sidebar-foreground: #0d0d0d;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #0d0d0d;
+  --sidebar-border: #0d0d0d;
+  --sidebar-ring: #ff2e00;
+  --radius: 0rem;
+  --pin-color: #ff2e00;
+
+  --theme-font-display: 'Anton', 'Sarabun', Impact, sans-serif;
+  --theme-font-body: 'IBM Plex Mono', 'Sarabun', ui-monospace, monospace;
+  --theme-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* hard offset shadows — ขอบชัด ไม่เบลอ */
+  --shadow-xs: 3px 3px 0px 0px #0d0d0d;
+  --shadow-sm: 4px 4px 0px 0px #0d0d0d;
+  --shadow-md: 5px 5px 0px 0px #0d0d0d;
+  --shadow-lg: 6px 6px 0px 0px #0d0d0d;
+  --shadow-xl: 8px 8px 0px 0px #0d0d0d;
+  --shadow-2xl: 10px 10px 0px 0px #0d0d0d;
+}
+
+/* base: คอนกรีต */
+[data-theme='brut'] body {
+  background-color: var(--background);
+}
+
+/* header: แถบดำ */
+[data-theme='brut'] header {
+  background: #ffffff;
+  border-bottom: 3px solid #0d0d0d;
+  box-shadow: none;
+}
+[data-theme='brut'] header::before {
+  content: 'BRUT';
+  font-family: var(--theme-font-display);
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--primary);
+  user-select: none;
+}
+
+/* inputs: ขอบดำหนา สี่เหลี่ยม */
+[data-theme='brut'] input,
+[data-theme='brut'] textarea {
+  border: 2px solid #0d0d0d !important;
+  border-radius: 0 !important;
+  background-color: #ffffff;
+  caret-color: var(--primary);
+}
+[data-theme='brut'] input:focus,
+[data-theme='brut'] textarea:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 4px 4px 0px 0px var(--primary);
+}
+
+/* client name: Anton ใหญ่ ติดขอบ */
+[data-theme='brut'] h1 {
+  font-family: var(--theme-font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+/* section titles ก็ Anton */
+[data-theme='brut'] h2,
+[data-theme='brut'] h3 {
+  font-family: var(--theme-font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+/* cards: ขอบดำ เงาแข็ง */
+[data-theme='brut'] [data-slot='card'] {
+  border: 2px solid #0d0d0d !important;
+  border-radius: 0 !important;
+  box-shadow: 6px 6px 0px 0px #0d0d0d;
+}
+
+/* buttons: สี่เหลี่ยม ขอบดำ */
+[data-theme='brut'] [data-slot='button'] {
+  border: 2px solid #0d0d0d !important;
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0px 0px #0d0d0d;
+  transition: none !important;
+}
+[data-theme='brut'] [data-slot='button']:hover {
+  box-shadow: 1px 1px 0px 0px #0d0d0d;
+  transform: translate(2px, 2px);
+}
+[data-theme='brut'] [data-slot='button']:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* table hover: แดงจาง */
+[data-theme='brut'] tbody tr:hover {
+  background: rgba(255, 46, 0, 0.06);
+}
+
+/* selection */
+[data-theme='brut'] ::selection {
+  background: #ff2e00;
+  color: #ffffff;
+}
+
+[data-theme='brut'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme='brut'] ::-webkit-scrollbar-thumb {
+  background: #0d0d0d;
+  border: 2px solid var(--background);
+}
+[data-theme='brut'] ::-webkit-scrollbar-track {
+  background: transparent;
+}

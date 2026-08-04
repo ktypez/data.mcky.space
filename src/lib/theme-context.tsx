@@ -16,7 +16,14 @@ export function ThemeProvider({ children, ..._props }: { children: ReactNode; [k
     const saved = localStorage.getItem('theme') as ThemeMode | null
     return saved && ['system', 'light', 'dark'].includes(saved) ? saved : 'system'
   })
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light')
+  // Resolve synchronously on first render so ThemeInjector applies the right
+  // .dark class immediately — avoids a light→dark flash for dark-mode users.
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => {
+    const saved = localStorage.getItem('theme')
+    if (saved === 'dark') return 'dark'
+    if (saved === 'light') return 'light'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
