@@ -1,0 +1,182 @@
+/* ============================================================================
+   mcky.css — data.mcky.space character theme (MCKY — house style)
+   ----------------------------------------------------------------------------
+   แกะ DNA จาก design-gallery/concepts/mcky.css
+   กระดาษ + ขอบดำ + amber highlight + เงาแข็ง (offset ไม่เบลอ) + mono labels
+   Dual mode (light/dark)
+   ============================================================================ */
+
+/* ---- tokens light ---- */
+[data-theme='mcky'] {
+  --background: #f5f5f0;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #ffe066;
+  --primary-foreground: #000000;
+  --secondary: #eaeae4;
+  --secondary-foreground: #333333;
+  --muted: #eaeae4;
+  --muted-foreground: #333333;
+  --accent: #9b5de5;
+  --accent-foreground: #ffffff;
+  --destructive: #ff6b6b;
+  --destructive-foreground: #ffffff;
+  --success: #06d6a0;
+  --success-foreground: #000000;
+  --warning: #ff9f43;
+  --warning-foreground: #000000;
+  --info: #4361ee;
+  --info-foreground: #ffffff;
+  --border: #000000;
+  --input: #000000;
+  --ring: #000000;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #000000;
+  --sidebar-accent: #ffe066;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #000000;
+  --sidebar-ring: #000000;
+  --radius: 0.25rem;
+  --pin-color: #000000;
+
+  --theme-font-display: 'JetBrains Mono', 'Sarabun', ui-monospace, monospace;
+  --theme-font-body: 'Sarabun', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --shadow-xs: 2px 2px 0 0 #000000;
+  --shadow-sm: 2px 2px 0 0 #000000;
+  --shadow-md: 4px 4px 0 0 #000000;
+  --shadow-lg: 4px 4px 0 0 #000000;
+  --shadow-xl: 6px 6px 0 0 #000000;
+  --shadow-2xl: 8px 8px 0 0 #000000;
+}
+
+/* ---- tokens dark ---- */
+.dark[data-theme='mcky'] {
+  --background: #171712;
+  --foreground: #f5f5f0;
+  --card: #242420;
+  --card-foreground: #f5f5f0;
+  --popover: #242420;
+  --popover-foreground: #f5f5f0;
+  --primary: #ffe066;
+  --primary-foreground: #171712;
+  --secondary: #2c2c27;
+  --secondary-foreground: #c0c0b4;
+  --muted: #2c2c27;
+  --muted-foreground: #c0c0b4;
+  --accent: #9b5de5;
+  --accent-foreground: #171712;
+  --destructive: #ff6b6b;
+  --destructive-foreground: #171712;
+  --success: #06d6a0;
+  --success-foreground: #171712;
+  --warning: #ff9f43;
+  --warning-foreground: #171712;
+  --info: #7a9ff0;
+  --info-foreground: #171712;
+  --border: #f5f5f0;
+  --input: #f5f5f0;
+  --ring: #f5f5f0;
+  --sidebar: #242420;
+  --sidebar-foreground: #f5f5f0;
+  --sidebar-accent: #ffe066;
+  --sidebar-accent-foreground: #171712;
+  --sidebar-border: #f5f5f0;
+  --sidebar-ring: #f5f5f0;
+  --pin-color: #ffe066;
+
+  --shadow-xs: 2px 2px 0 0 #f5f5f0;
+  --shadow-sm: 2px 2px 0 0 #f5f5f0;
+  --shadow-md: 4px 4px 0 0 #f5f5f0;
+  --shadow-lg: 4px 4px 0 0 #f5f5f0;
+  --shadow-xl: 6px 6px 0 0 #f5f5f0;
+  --shadow-2xl: 8px 8px 0 0 #f5f5f0;
+}
+
+/* base */
+[data-theme='mcky'] body {
+  background-color: var(--background);
+}
+
+/* header: กระดาษ ขอบดำล่าง */
+[data-theme='mcky'] header {
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 2px solid var(--border);
+  box-shadow: none;
+}
+[data-theme='mcky'] header::before {
+  content: '// mcky';
+  font-family: var(--theme-font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--foreground);
+  background: var(--primary);
+  padding: 2px 6px;
+  user-select: none;
+}
+
+/* inputs: ขอบดำ เงาแข็งตอน focus */
+[data-theme='mcky'] input,
+[data-theme='mcky'] textarea {
+  border: 2px solid var(--border);
+  border-radius: 0.25rem;
+  caret-color: var(--primary);
+}
+[data-theme='mcky'] input:focus,
+[data-theme='mcky'] textarea:focus {
+  border-color: var(--border);
+  box-shadow: 4px 4px 0 0 var(--primary);
+}
+
+/* client name: mono หนา */
+[data-theme='mcky'] h1 {
+  font-family: var(--theme-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* cards: ขอบดำ เงาแข็ง */
+[data-theme='mcky'] [data-slot='card'] {
+  border: 2px solid var(--border);
+  border-radius: 0.25rem;
+  box-shadow: 4px 4px 0 0 var(--border);
+}
+
+/* buttons: ขอบดำ เงาแข็ง */
+[data-theme='mcky'] [data-slot='button'] {
+  border: 2px solid var(--border);
+  border-radius: 0.25rem;
+  box-shadow: 3px 3px 0 0 var(--border);
+}
+[data-theme='mcky'] [data-slot='button']:focus-visible {
+  box-shadow: 3px 3px 0 0 var(--border), 0 0 0 2px var(--primary);
+}
+
+/* table hover: amber จาง */
+[data-theme='mcky'] tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+/* selection: amber */
+[data-theme='mcky'] ::selection {
+  background: var(--primary);
+  color: var(--foreground);
+}
+
+[data-theme='mcky'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme='mcky'] ::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border: 2px solid var(--background);
+}
+[data-theme='mcky'] ::-webkit-scrollbar-track {
+  background: transparent;
+}

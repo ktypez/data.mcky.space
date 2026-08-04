@@ -52,7 +52,7 @@ export interface Theme {
    * JS-injected CSS vars. Anything else = full character theme with its
    * own static stylesheet in public/themes/.
    */
-  character?: 'plain' | 'glitch' | 'crt' | 'paper'
+  character?: 'plain' | 'glitch' | 'crt' | 'paper' | 'rack' | 'noc' | 'min' | 'brut' | 'moss' | 'mcky'
   /** Color modes this theme supports. Dark-only themes force .dark. */
   modes?: Array<'light' | 'dark'>
   /** Font stacks exposed as --theme-font-{display,body,mono} */

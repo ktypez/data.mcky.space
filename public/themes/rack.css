@@ -1,0 +1,135 @@
+/* ============================================================================
+   rack.css — data.mcky.space character theme (STACK//FRAME)
+   ----------------------------------------------------------------------------
+   แกะ DNA จาก design-gallery/concepts/rack.css
+   ตู้เซิร์ฟเวอร์: ดำ + amber LED + hardware green + mono, skin เหล็ก
+   Dark-only — โหลดเฉพาะเมื่อ [data-theme='rack']
+   ============================================================================ */
+
+[data-theme='rack'] {
+  --background: #0a0a0c;
+  --foreground: #f5f5f7;
+  --card: #16161a;
+  --card-foreground: #f5f5f7;
+  --popover: #16161a;
+  --popover-foreground: #f5f5f7;
+  --primary: #ffb000;
+  --primary-foreground: #0a0a0c;
+  --secondary: #16161a;
+  --secondary-foreground: #8a8a93;
+  --muted: #16161a;
+  --muted-foreground: #8a8a93;
+  --accent: #00ff66;
+  --accent-foreground: #0a0a0c;
+  --destructive: #ff3b30;
+  --destructive-foreground: #0a0a0c;
+  --success: #00ff66;
+  --success-foreground: #0a0a0c;
+  --warning: #ffb000;
+  --warning-foreground: #0a0a0c;
+  --info: #00d4ff;
+  --info-foreground: #0a0a0c;
+  --border: #2a2a32;
+  --input: #2a2a32;
+  --ring: #ffb000;
+  --sidebar: #16161a;
+  --sidebar-foreground: #8a8a93;
+  --sidebar-accent: #1c1c20;
+  --sidebar-accent-foreground: #f5f5f7;
+  --sidebar-border: #2a2a32;
+  --sidebar-ring: #ffb000;
+  --radius: 0.25rem;
+  --pin-color: #ffb000;
+
+  --theme-font-display: 'JetBrains Mono', 'Sarabun', ui-monospace, monospace;
+  --theme-font-body: 'Sarabun', 'Inter', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* base: dark + faint scan grid */
+[data-theme='rack'] body {
+  background-color: var(--background);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* header = rack unit bezel */
+[data-theme='rack'] header {
+  background: linear-gradient(180deg, #1c1c20 0%, #111114 100%);
+  border-bottom: 1px solid var(--border-bright);
+  border-bottom-color: #3a3a42;
+  box-shadow: 0 1px 0 rgba(255, 176, 0, 0.15);
+}
+[data-theme='rack'] header::before {
+  content: 'RACK-01';
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+  user-select: none;
+}
+
+/* inputs: terminal */
+[data-theme='rack'] input,
+[data-theme='rack'] textarea {
+  caret-color: var(--primary);
+  background-color: #0e0e11;
+}
+[data-theme='rack'] input:focus,
+[data-theme='rack'] textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 176, 0, 0.15), 0 0 12px rgba(255, 176, 0, 0.2);
+}
+
+/* client name: amber hardware */
+[data-theme='rack'] h1 {
+  font-family: var(--theme-font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 10px rgba(255, 176, 0, 0.35);
+}
+
+/* cards: metal skin */
+[data-theme='rack'] [data-slot='card'] {
+  background: linear-gradient(180deg, #1a1a1f 0%, #141418 100%);
+  border-color: #2a2a32;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 6px 18px -10px rgba(0, 0, 0, 0.7);
+}
+
+/* table hover: amber wash */
+[data-theme='rack'] tbody tr:hover {
+  background: rgba(255, 176, 0, 0.06);
+}
+
+/* LED status dots on badges/buttons */
+[data-theme='rack'] [data-slot='button'] {
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35);
+}
+[data-theme='rack'] [data-slot='button']:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring), 0 0 12px rgba(255, 176, 0, 0.45);
+}
+
+/* selection + scrollbar */
+[data-theme='rack'] ::selection {
+  background: rgba(255, 176, 0, 0.5);
+  color: #0a0a0c;
+}
+[data-theme='rack'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme='rack'] ::-webkit-scrollbar-thumb {
+  background: #2a2a32;
+  border: 2px solid var(--background);
+}
+[data-theme='rack'] ::-webkit-scrollbar-thumb:hover {
+  background: #3a3a42;
+}
+[data-theme='rack'] ::-webkit-scrollbar-track {
+  background: transparent;
+}

@@ -1,0 +1,116 @@
+/* ============================================================================
+   bubblegum.css — data.mcky.space legacy theme (Bubblegum)
+   ----------------------------------------------------------------------------
+   สีสลับสายแฟนซี: ชมพู + เงาแข็ง (hard offset, ไม่เบลอ) — light/dark
+   โหลดเฉพาะเมื่อ [data-theme='bubblegum'] (ตอนนี้ทุกธีมเป็น static CSS แล้ว)
+   ============================================================================ */
+
+/* ---- tokens light ---- */
+[data-theme='bubblegum'] {
+  --background: oklch(0.94 0.02 346);
+  --foreground: oklch(0.47 0 0);
+  --card: oklch(0.95 0.05 87);
+  --card-foreground: oklch(0.47 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.47 0 0);
+  --primary: oklch(0.62 0.18 348);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.81 0.07 198);
+  --secondary-foreground: oklch(0.32 0 0);
+  --muted: oklch(0.88 0.05 212);
+  --muted-foreground: oklch(0.58 0 0);
+  --accent: oklch(0.92 0.08 88);
+  --accent-foreground: oklch(0.32 0 0);
+  --destructive: oklch(0.71 0.17 22);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.6 0.15 145);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.78 0.12 80);
+  --warning-foreground: oklch(0.32 0 0);
+  --info: oklch(0.65 0.1 220);
+  --info-foreground: oklch(1 0 0);
+  --border: oklch(0.62 0.18 348);
+  --input: oklch(0.92 0 0);
+  --ring: oklch(0.7 0.16 351);
+  --sidebar: oklch(0.91 0.04 343);
+  --sidebar-foreground: oklch(0.32 0 0);
+  --sidebar-accent: oklch(0.82 0.11 346);
+  --sidebar-accent-foreground: oklch(0.32 0 0);
+  --sidebar-border: oklch(0.95 0.03 307);
+  --sidebar-ring: oklch(0.66 0.21 354);
+  --radius: 0.4rem;
+  --pin-color: oklch(0.62 0.18 348);
+
+  --theme-font-display: 'Baloo 2', 'Sarabun', system-ui, sans-serif;
+  --theme-font-body: 'Sarabun', 'Baloo 2', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --shadow-xs: 3px 3px 0px 0px hsl(326 58% 57% / 0.5);
+  --shadow-sm: 3px 3px 0px 0px hsl(326 58% 57% / 1), 3px 1px 2px -1px hsl(326 58% 57% / 1);
+  --shadow-md: 3px 3px 0px 0px hsl(326 58% 57% / 1), 3px 2px 4px -1px hsl(326 58% 57% / 1);
+  --shadow-lg: 3px 3px 0px 0px hsl(326 58% 57% / 1), 3px 4px 6px -1px hsl(326 58% 57% / 1);
+  --shadow-xl: 3px 3px 0px 0px hsl(326 58% 57% / 1), 3px 8px 10px -1px hsl(326 58% 57% / 1);
+  --shadow-2xl: 3px 3px 0px 0px hsl(326 58% 57% / 2.5);
+}
+
+/* ---- tokens dark ---- */
+.dark[data-theme='bubblegum'] {
+  --background: oklch(0.25 0.03 234);
+  --foreground: oklch(0.93 0.02 349);
+  --card: oklch(0.29 0.03 234);
+  --card-foreground: oklch(0.93 0.02 349);
+  --popover: oklch(0.29 0.03 234);
+  --popover-foreground: oklch(0.93 0.02 349);
+  --primary: oklch(0.92 0.08 88);
+  --primary-foreground: oklch(0.25 0.03 234);
+  --secondary: oklch(0.78 0.08 4);
+  --secondary-foreground: oklch(0.25 0.03 234);
+  --muted: oklch(0.27 0.01 256);
+  --muted-foreground: oklch(0.78 0.08 4);
+  --accent: oklch(0.67 0.1 357);
+  --accent-foreground: oklch(0.93 0.02 349);
+  --destructive: oklch(0.67 0.18 350);
+  --destructive-foreground: oklch(0.25 0.03 234);
+  --success: oklch(0.55 0.15 145);
+  --success-foreground: oklch(0.25 0.03 234);
+  --warning: oklch(0.72 0.1 80);
+  --warning-foreground: oklch(0.25 0.03 234);
+  --info: oklch(0.7 0.09 202);
+  --info-foreground: oklch(0.25 0.03 234);
+  --border: oklch(0.39 0.04 242);
+  --input: oklch(0.31 0.03 232);
+  --ring: oklch(0.7 0.09 202);
+  --sidebar: oklch(0.23 0.03 236);
+  --sidebar-foreground: oklch(0.97 0 265);
+  --sidebar-accent: oklch(0.82 0.11 346);
+  --sidebar-accent-foreground: oklch(0.28 0.03 257);
+  --sidebar-border: oklch(0.37 0.03 260);
+  --sidebar-ring: oklch(0.66 0.21 354);
+  --pin-color: oklch(0.92 0.08 88);
+
+  --shadow-xs: 3px 3px 0px 0px hsl(206 28% 27% / 0.5);
+  --shadow-sm: 3px 3px 0px 0px hsl(206 28% 27% / 1), 3px 1px 2px -1px hsl(206 28% 27% / 1);
+  --shadow-md: 3px 3px 0px 0px hsl(206 28% 27% / 1), 3px 2px 4px -1px hsl(206 28% 27% / 1);
+  --shadow-lg: 3px 3px 0px 0px hsl(206 28% 27% / 1), 3px 4px 6px -1px hsl(206 28% 27% / 1);
+  --shadow-xl: 3px 3px 0px 0px hsl(206 28% 27% / 1), 3px 8px 10px -1px hsl(206 28% 27% / 1);
+  --shadow-2xl: 3px 3px 0px 0px hsl(206 28% 27% / 2.5);
+}
+
+/* body font: playful rounded */
+[data-theme='bubblegum'] body {
+  background-color: var(--background);
+}
+
+/* cards: ขอบชมพู เงาแข็ง */
+[data-theme='bubblegum'] [data-slot='card'] {
+  border-color: color-mix(in srgb, var(--border) 70%, transparent);
+  box-shadow: var(--shadow-sm);
+}
+
+/* buttons: เงาแข็ง */
+[data-theme='bubblegum'] [data-slot='button'] {
+  box-shadow: var(--shadow-xs);
+}
+[data-theme='bubblegum'] [data-slot='button']:focus-visible {
+  box-shadow: var(--shadow-xs), 0 0 0 2px var(--ring);
+}
