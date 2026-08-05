@@ -109,18 +109,23 @@
   scrollbar-width: none;
 }
 
-/* App frame — the whole page. The frame's border runs along the outside edge
-   of everything: the sticky header lives inside the frame as its first child,
-   so border + header are one continuous unit and that unit is the page. The
-   inside of the border is the display area. The frame is full-bleed edge to
-   edge; on very wide screens it becomes a centered max-width column so the
-   muted body bg shows on the sides (bearnie-style). No `overflow` here — the
-   frame has no rounded corners to clip, and omitting it keeps position:sticky
-   (and portaled popovers) totally safe. */
+/* App frame — the whole app in one bordered box. The sticky header is the
+   frame's first child (header + border are one unit) and everything inside
+   the border is the display area. The frame is inset a few px from the
+   viewport on all sides so its border is clearly visible at every screen
+   size, and it uses dvh so it hugs the dynamic viewport (URL bar shown or
+   hidden) exactly. On very wide screens it becomes a centered max-width
+   column. `overflow: clip` rounds the header's top corners without creating
+   a scroll container, so position:sticky keeps working; all popovers are
+   portaled to <body>, so nothing is ever clipped. */
 @utility app-frame {
   @apply mx-auto flex flex-col bg-background border border-border;
-  width: 100%;
-  min-height: 100svh;
+  width: calc(100% - 16px);
+  margin-block: 8px;
+  min-height: calc(100dvh - 16px);
+  border-radius: 16px;
+  box-shadow: 0 0 24px -10px color-mix(in oklch, var(--foreground) 25%, transparent);
+  overflow: clip;
 }
 @media (min-width: 1536px) {
   .app-frame {

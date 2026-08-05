@@ -84,7 +84,7 @@ export default function MapPage() {
             ) : undefined
           }
         />
-        <div className="relative h-[calc(100dvh-56px)]">
+        <div className="relative h-[calc(100dvh-72px)]">
           <Suspense
             fallback={
               <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
