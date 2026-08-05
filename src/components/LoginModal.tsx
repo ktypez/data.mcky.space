@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function LoginModal({ open, onClose, onSuccess }: Props) {
-  const [password, setPassword] = useState('meowmeow')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 

@@ -26,7 +26,7 @@ export const useSuggestionStore = create<SuggestionState>((set) => ({
       const data = (await r.json()) as string[]
       useSuggestionStore.setState({ pendingIds: new Set(data) })
     } catch (e) {
-      console.warn('Failed to fetch pending suggestions', e)
+      console.warn('Failed to fetch pending suggestions')
     }
   },
 }))

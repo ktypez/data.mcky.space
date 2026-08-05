@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 /** Copy text to clipboard with fallback for older browsers. */
 export function copyToClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(text).catch((e) => console.warn('Clipboard write failed', e))
+    navigator.clipboard.writeText(text).catch(() => console.warn('Clipboard write failed'))
   } else {
     const ta = document.createElement('textarea')
     ta.value = text

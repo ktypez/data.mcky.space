@@ -31,7 +31,7 @@ async function uploadBase64Images(
     const data = await xhrPost<{ images: string[] }>('/api/photo-request', payload, onProgress)
     if (data) return { ok: true, images: data.images }
   } catch (e) {
-    console.warn('Failed to upload images to R2', e)
+    console.warn('Failed to upload images to R2')
   }
   return { ok: false }
 }

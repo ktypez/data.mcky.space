@@ -8,6 +8,10 @@ import { getMapStyle } from '@/lib/map-styles'
 import { cssVarToHex } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
+// SECURITY: pinHtml() outputs raw HTML into DOM via innerHTML.
+// All inputs (size, selected, color) are controlled constants — never user-derived.
+// If pinHtml ever accepts user strings, sanitize them first.
+
 let olcInstance: OpenLocationCode | null = null
 function getOlc(): OpenLocationCode {
   if (!olcInstance) olcInstance = new OpenLocationCode()
@@ -57,7 +61,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
         attributionControl: false,
       })
     } catch (err) {
-      console.error('MapPicker init failed', err)
+      console.error('MapPicker init failed')
       setMapFailed(true)
       return
     }

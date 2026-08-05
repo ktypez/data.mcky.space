@@ -5,6 +5,7 @@ import MapPreview from '@/components/MapPreviewDynamic'
 import AddClientForm from '@/components/AddClientForm'
 import SuggestEditForm from '@/components/SuggestEditForm'
 import { deleteClient } from '@/lib/storage'
+import { apiFetch } from '@/lib/api'
 import { copyToClipboard, getMapsUrl, hasValidCoords } from '@/lib/utils'
 import Lightbox from '@/components/Lightbox'
 import { ArrowSquareOut } from '@phosphor-icons/react'
@@ -71,7 +72,7 @@ export default function ClientDetail({
 
  useEffect(() => {
  const controller = new AbortController()
- fetch(`/api/suggestions?clientId=${client.id}`, { signal: controller.signal })
+ apiFetch(`/api/suggestions?clientId=${client.id}`, { signal: controller.signal })
  .then((r) => r.json())
  .then((data) => {
  if (!Array.isArray(data)) return
@@ -85,7 +86,7 @@ export default function ClientDetail({
  return extras.length ? [...merged, ...extras] : merged
  })
  })
-  .catch((e) => console.warn('Failed to fetch suggestions', e))
+  .catch(() => console.warn('Failed to fetch suggestions'))
   return () => controller.abort()
  }, [client.id, suggestRefresh])
 
