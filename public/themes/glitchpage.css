@@ -46,8 +46,8 @@
   --radius: 0.375rem;
   --pin-color: #ff3d8f;
 
-  --theme-font-display: 'Kanit', 'Sarabun', system-ui, sans-serif;
-  --theme-font-body: 'Sarabun', 'Kanit', system-ui, sans-serif;
+  --theme-font-display: 'Chakra Petch', 'Kanit', 'Sarabun', system-ui, sans-serif;
+  --theme-font-body: 'Chakra Petch', 'Sarabun', 'Kanit', system-ui, sans-serif;
   --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 

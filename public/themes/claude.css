@@ -44,8 +44,8 @@
   --radius: 0.375rem;
   --pin-color: #d97757;
 
-  --theme-font-display: 'Source Serif 4', 'Noto Serif Thai', Georgia, 'Times New Roman', serif;
-  --theme-font-body: 'Source Serif 4', 'Noto Serif Thai', Georgia, 'Times New Roman', serif;
+  --theme-font-display: 'Chakra Petch', 'Source Serif 4', 'Noto Serif Thai', Georgia, serif;
+  --theme-font-body: 'Chakra Petch', 'Source Serif 4', 'Noto Serif Thai', Georgia, serif;
   --theme-font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, monospace;
 }
 
