@@ -109,24 +109,28 @@
   scrollbar-width: none;
 }
 
-/* App frame = the bearnie canvas. The sticky header lives INSIDE the frame as
-   its first child (header + border are one unit), and everything below the
-   header — the list page, the map, detail, add/edit, trash, suggestions — is
-   rendered inside the frame as the display area. The frame is inset a few px
-   from the viewport on all sides so its border is clearly visible at every
-   screen size, and uses dvh so it hugs the dynamic viewport. It is intentionally
-   flat (no border-radius, no card shadow) like a bearnie docs canvas; at 2xl a
-   subtle glow makes the centered column read against the muted backdrop.
-   No overflow:clip (there are no rounded corners here), so sticky headers and
-   portaled popovers behave normally. */
+/* App frame = bearnie-style fixed canvas. The entire page is this one bordered
+   panel: the sticky header lives inside as its first child and everything
+   below — the list page, the map, detail, add/edit, trash, suggestions — is
+   rendered inside as the display area. position:fixed with inset 8px on all
+   sides makes the border clearly visible at every screen size; height uses dvh
+   so it tracks the dynamic viewport (URL-bar shown/hidden) exactly. Content
+   scrolls inside the canvas via overflow-y:auto; the header sticks inside the
+   scroll container. At 2xl it becomes a centered max-width column with a subtle
+   glow against the muted backdrop. Flat (no border-radius, no card shadow).
+   All popovers are portaled to <body>, so nothing is clipped. */
 @utility app-frame {
-  @apply mx-auto flex flex-col bg-background border border-border;
-  width: calc(100% - 16px);
-  margin-block: 8px;
-  min-height: calc(100dvh - 16px);
+  @apply mx-auto flex flex-col bg-background border border-border overflow-y-auto;
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  height: calc(100dvh - 16px);
 }
 @media (min-width: 1536px) {
   .app-frame {
+    left: 0;
+    right: 0;
     max-width: 1400px;
     box-shadow: 0 0 60px -20px color-mix(in oklch, var(--foreground) 20%, transparent);
   }
