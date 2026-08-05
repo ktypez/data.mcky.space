@@ -123,7 +123,7 @@ export default function ClientDetailPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="app-viewport">
-        <div className="flex h-11 shrink-0 items-center gap-2 bg-card px-3">
+        <div className="flex h-11 shrink-0 items-center gap-2 bg-card px-3 border border-border rounded-t-[var(--frame-radius)]">
           <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
             <ArrowLeft className="size-3.5" />
             Back
