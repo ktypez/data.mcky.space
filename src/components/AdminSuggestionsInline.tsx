@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import type { PendingSuggestion, Client } from '@/types'
 import { apiFetch } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
