@@ -180,3 +180,13 @@
 [data-theme='mcky'] ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ---- scroll indicator ---- */
+[data-theme='mcky'] {
+  --scroll-indicator-color: #000;
+  --scroll-indicator-width: 6px;
+  --scroll-indicator-radius: 0;
+  --scroll-indicator-glow: none;
+  --scroll-progress-color: #ffe066;
+  --scroll-progress-glow: 0 0 6px #ffe06655;
+}

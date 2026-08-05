@@ -131,3 +131,12 @@
 [data-theme='slate'] ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ---- scroll indicator ---- */
+[data-theme='slate'] {
+  --scroll-indicator-color: oklch(0.6 0.06 255 / 0.3);
+  --scroll-indicator-width: 5px;
+  --scroll-indicator-radius: 6px;
+  --scroll-progress-color: oklch(0.6 0.06 255);
+  --scroll-progress-glow: 0 0 8px oklch(0.6 0.06 255 / 0.3);
+}

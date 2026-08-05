@@ -118,3 +118,12 @@
 [data-theme='moss'] ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ---- scroll indicator ---- */
+[data-theme='moss'] {
+  --scroll-indicator-color: oklch(0.55 0.08 90 / 0.3);
+  --scroll-indicator-width: 5px;
+  --scroll-indicator-radius: 6px;
+  --scroll-progress-color: oklch(0.55 0.08 90);
+  --scroll-progress-glow: 0 0 8px oklch(0.55 0.08 90 / 0.3);
+}

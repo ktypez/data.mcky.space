@@ -112,3 +112,12 @@
 [data-theme='min'] ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ---- scroll indicator ---- */
+[data-theme='min'] {
+  --scroll-indicator-color: oklch(0.5 0 0 / 0.15);
+  --scroll-indicator-width: 4px;
+  --scroll-indicator-radius: 4px;
+  --scroll-progress-color: oklch(0.4 0.08 90);
+  --scroll-progress-glow: none;
+}

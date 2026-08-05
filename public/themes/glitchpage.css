@@ -168,3 +168,13 @@
 [data-theme='glitchpage'] .maplibregl-popup-content {
   border: 1px solid var(--border);
 }
+
+/* ---- scroll indicator ---- */
+[data-theme='glitchpage'] {
+  --scroll-indicator-color: #ff3d8f;
+  --scroll-indicator-width: 5px;
+  --scroll-indicator-radius: 6px;
+  --scroll-indicator-glow: 0 0 8px #ff3d8f66;
+  --scroll-progress-color: #ff3d8f;
+  --scroll-progress-glow: 0 0 12px #ff3d8f88;
+}

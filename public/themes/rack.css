@@ -133,3 +133,13 @@
 [data-theme='rack'] ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ---- scroll indicator ---- */
+[data-theme='rack'] {
+  --scroll-indicator-color: #ffb000;
+  --scroll-indicator-width: 5px;
+  --scroll-indicator-radius: 0;
+  --scroll-indicator-glow: 0 0 8px #ffb00066;
+  --scroll-progress-color: #ffb000;
+  --scroll-progress-glow: 0 0 12px #ffb00088;
+}

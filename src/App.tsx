@@ -55,7 +55,7 @@ function App() {
 
   return (
     <>
-      <TopProgress />
+      <TopProgress locationKey={location.pathname} />
       <Suspense fallback={null}>
         <LoginModal
           open={loginOpen}

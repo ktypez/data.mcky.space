@@ -71,6 +71,14 @@
 }
 :root {
   scrollbar-width: none !important;
+
+  /* Scroll indicator defaults — themes override these */
+  --scroll-indicator-color: oklch(0.5 0 0 / 0.2);
+  --scroll-indicator-width: 5px;
+  --scroll-indicator-radius: 999px;
+  --scroll-indicator-glow: none;
+  --scroll-progress-color: var(--primary);
+  --scroll-progress-glow: none;
 }
 
 @layer base {

@@ -114,3 +114,13 @@
 [data-theme='bubblegum'] [data-slot='button']:focus-visible {
   box-shadow: var(--shadow-xs), 0 0 0 2px var(--ring);
 }
+
+/* ---- scroll indicator ---- */
+[data-theme='bubblegum'] {
+  --scroll-indicator-color: oklch(0.62 0.18 348 / 0.35);
+  --scroll-indicator-width: 5px;
+  --scroll-indicator-radius: 999px;
+  --scroll-indicator-glow: 0 0 6px oklch(0.62 0.18 348 / 0.3);
+  --scroll-progress-color: oklch(0.62 0.18 348);
+  --scroll-progress-glow: 0 0 10px oklch(0.62 0.18 348 / 0.4);
+}

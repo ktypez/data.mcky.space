@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 
 /* ── Vertical scroll bar ──────────────────────────────────────────────────
  * Thin bar on the right edge of a scroll container.
+ * Color, width, radius, glow driven by CSS custom properties per theme.
  * Appears on scroll, fades out after 1.5 s idle.
  * Returns null when content fits (no scroll needed). */
 
@@ -48,13 +49,22 @@ export function VerticalBar({ containerRef }: VerticalBarProps) {
   if (thumbH === 0) return null
 
   return (
-    <div className="pointer-events-none absolute right-1 top-0 bottom-0 z-50 w-1.5">
+    <div
+      className="pointer-events-none absolute top-0 bottom-0 z-50"
+      style={{
+        right: 2,
+        width: 'var(--scroll-indicator-width, 5px)',
+      }}
+    >
       <div
-        className="absolute right-0 w-full rounded-full bg-foreground/20"
+        className="absolute right-0 w-full"
         style={{
           height: thumbH,
           top: thumbTop,
           opacity,
+          background: 'var(--scroll-indicator-color, oklch(0.5 0 0 / 0.2))',
+          borderRadius: 'var(--scroll-indicator-radius, 999px)',
+          boxShadow: 'var(--scroll-indicator-glow, none)',
           transition: 'opacity 0.3s ease',
         }}
       />
@@ -65,9 +75,10 @@ export function VerticalBar({ containerRef }: VerticalBarProps) {
 /* ── Top progress bar ─────────────────────────────────────────────────────
  * Thin horizontal bar at the very top of the viewport.
  * Width tracks scroll % of .app-frame.
+ * Re-attaches on route change via locationKey prop.
  * Hidden when scrolled to top. */
 
-export function TopProgress() {
+export function TopProgress({ locationKey }: { locationKey: string }) {
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
@@ -84,16 +95,18 @@ export function TopProgress() {
     frame.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
     return () => frame.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [locationKey])
 
   if (progress <= 0) return null
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[100] h-0.5">
       <div
-        className="h-full bg-primary"
+        className="h-full"
         style={{
           width: `${progress}%`,
+          background: 'var(--scroll-progress-color, var(--primary))',
+          boxShadow: 'var(--scroll-progress-glow, none)',
           transition: 'width 150ms ease-out',
         }}
       />
