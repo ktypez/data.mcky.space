@@ -1,61 +1,34 @@
-import { useState } from 'react'
 import { Moon, Sun, Monitor } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/lib/theme-context'
 import { useUIStore } from '@/stores/ui-store'
 import { getTheme, isDarkOnlyTheme } from '@/lib/design/themes'
-import { PopoverMenu } from '@/components/ui/popover-menu'
-import { Check } from '@phosphor-icons/react'
 
-const MODES = [
-  { id: 'system' as const, label: 'Auto', icon: Monitor },
-  { id: 'light' as const, label: 'Light', icon: Sun },
-  { id: 'dark' as const, label: 'Dark', icon: Moon },
-]
+const CYCLE = ['system', 'light', 'dark'] as const
+const ICONS = { system: Monitor, light: Sun, dark: Moon }
+const LABELS = { system: 'Auto', light: 'Light', dark: 'Dark' }
 
 export default function ThemeModePicker() {
-  const [open, setOpen] = useState(false)
-  const { theme, resolvedTheme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const themeId = useUIStore((s) => s.theme)
-  const close = () => setOpen(false)
 
-  // Dark-only themes (glitch, crt) force .dark — no point toggling mode.
   if (isDarkOnlyTheme(getTheme(themeId))) return null
 
-  const Icon = resolvedTheme === 'dark' ? Moon : Sun
+  const next = () => {
+    const i = CYCLE.indexOf(theme)
+    setTheme(CYCLE[(i + 1) % CYCLE.length])
+  }
 
-  const trigger = (
-    <Button variant="outline" size="icon" aria-label="เลือกโหมดสี" aria-expanded={open}>
-      <Icon className="w-4 h-4 text-primary" />
-    </Button>
-  )
+  const Icon = ICONS[theme]
 
   return (
-    <PopoverMenu open={open} onOpenChange={setOpen} trigger={trigger} position="right-edge">
-      <div className="space-y-0.5">
-        {MODES.map((m) => {
-          const isActive = theme === m.id
-          const IconItem = m.icon
-          return (
-            <button
-              key={m.id}
-              onClick={() => {
-                setTheme(m.id)
-                close()
-              }}
-              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
-                isActive
-                  ? 'bg-accent text-accent-foreground'
-                  : 'hover:bg-muted text-foreground'
-              }`}
-            >
-              <IconItem className="w-4 h-4 shrink-0" />
-              <span className="text-[15px] font-medium flex-1">{m.label}</span>
-              {isActive && <Check className="w-3.5 h-3.5 shrink-0 text-primary" />}
-            </button>
-          )
-        })}
-      </div>
-    </PopoverMenu>
+    <Button
+      variant="outline"
+      size="icon"
+      aria-label={`โหมด: ${LABELS[theme]} — คลิกสลับ`}
+      onClick={next}
+    >
+      <Icon className="w-4 h-4 text-primary" />
+    </Button>
   )
 }
