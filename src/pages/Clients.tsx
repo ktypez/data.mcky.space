@@ -243,19 +243,19 @@ export function PageClient() {
     <div className="flex min-h-screen flex-col">
       <SwUpdateToast />
 
-      <PageHeader
-        variant={showDetail ? 'detail' : 'list'}
-        title="Detail"
-        showBack={showDetail}
-        onBack={handleCloseDetail}
-        search={showDetail ? undefined : search}
-        onSearchChange={showDetail ? undefined : handleSearchChange}
-        onSearchClear={showDetail ? undefined : handleSearchClear}
-        showAddButton={!showDetail && isAdmin}
-        onAdd={navToAdd}
-      />
-
       <div className="app-frame min-w-0 flex-1">
+        <PageHeader
+          variant={showDetail ? 'detail' : 'list'}
+          title="Detail"
+          showBack={showDetail}
+          onBack={handleCloseDetail}
+          search={showDetail ? undefined : search}
+          onSearchChange={showDetail ? undefined : handleSearchChange}
+          onSearchClear={showDetail ? undefined : handleSearchClear}
+          showAddButton={!showDetail && isAdmin}
+          onAdd={navToAdd}
+        />
+
         <AnimatePresence mode="wait">
           {showDetail && (
             <motion.div
