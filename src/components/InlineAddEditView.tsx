@@ -22,14 +22,14 @@ export default function InlineAddEditView({
   uploadProgress,
 }: InlineAddEditViewProps) {
   return (
-    <>
-      <div className="app-frame min-w-0 flex-1">
-        <PageHeader
-          variant="add-edit"
-          title={editClient ? editClient.shopName || editClient.name : 'เพิ่มลูกค้าใหม่'}
-          showBack
-          onBack={onBack}
-        />
+    <div className="app-viewport">
+      <PageHeader
+        variant="add-edit"
+        title={editClient ? editClient.shopName || editClient.name : 'เพิ่มลูกค้าใหม่'}
+        showBack
+        onBack={onBack}
+      />
+      <div className="app-frame">
         <div className="flex-1 overflow-auto p-4 md:p-6 max-w-4xl mx-auto w-full">
           <Card>
             <CardContent className="px-3 py-2">
@@ -48,6 +48,6 @@ export default function InlineAddEditView({
           </Card>
         </div>
       </div>
-    </>
+    </div>
   )
 }

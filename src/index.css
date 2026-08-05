@@ -109,18 +109,15 @@
   scrollbar-width: none;
 }
 
-/* App frame = bearnie-style fixed canvas. The entire page is this one bordered
-   panel: the sticky header lives inside as its first child and everything
-   below — the list page, the map, detail, add/edit, trash, suggestions — is
-   rendered inside as the display area. position:fixed with inset 8px on all
-   sides makes the border clearly visible at every screen size; height uses dvh
-   so it tracks the dynamic viewport (URL-bar shown/hidden) exactly. Content
-   scrolls inside the canvas via overflow-y:auto; the header sticks inside the
-   scroll container. At 2xl it becomes a centered max-width column with a subtle
-   glow against the muted backdrop. Flat (no border-radius, no card shadow).
-   All popovers are portaled to <body>, so nothing is clipped. */
-@utility app-frame {
-  @apply mx-auto flex flex-col bg-background border border-border overflow-y-auto;
+/* App viewport + frame = bearnie-style canvas with header OUTSIDE the border.
+   The viewport is a position:fixed container filling the viewport with 8px
+   inset on all sides. The header sits inside the viewport as a non-scrolling
+   element at the top (no border). The frame sits below the header: bordered,
+   scrollable (overflow-y:auto), flex-1 to fill remaining space. At 2xl the
+   viewport centers at max-width 1400px with a subtle glow. Flat (no
+   border-radius). All popovers are portaled to <body>, so nothing is clipped. */
+@utility app-viewport {
+  @apply mx-auto flex flex-col;
   position: fixed;
   top: 8px;
   left: 8px;
@@ -128,12 +125,16 @@
   height: calc(100dvh - 16px);
 }
 @media (min-width: 1536px) {
-  .app-frame {
+  .app-viewport {
     left: 0;
     right: 0;
     max-width: 1400px;
     box-shadow: 0 0 60px -20px color-mix(in oklch, var(--foreground) 20%, transparent);
   }
+}
+
+@utility app-frame {
+  @apply flex-1 flex flex-col bg-background border border-border overflow-y-auto;
 }
 
 @keyframes slide-up {

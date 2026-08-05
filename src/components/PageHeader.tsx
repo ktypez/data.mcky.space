@@ -33,7 +33,7 @@ export default function PageHeader({
   onAdd,
 }: PageHeaderProps) {
   return (
-    <header className="h-14 bg-card flex items-center gap-3 px-4 sticky top-0 z-30 shadow-[0_1px_4px_rgba(0,0,0,.07)] border-b border-border">
+    <header className="h-14 bg-card flex items-center gap-3 px-4 z-30 shadow-[0_1px_4px_rgba(0,0,0,.07)] border-b border-border">
       <NavDropdown />
 
       {showBack && onBack && (

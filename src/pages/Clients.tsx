@@ -243,7 +243,7 @@ export function PageClient() {
     <div className="flex min-h-screen flex-col">
       <SwUpdateToast />
 
-      <div className="app-frame min-w-0 flex-1">
+      <div className="app-viewport">
         <PageHeader
           variant={showDetail ? 'detail' : 'list'}
           title="Detail"
@@ -256,168 +256,170 @@ export function PageClient() {
           onAdd={navToAdd}
         />
 
-        <AnimatePresence mode="wait">
-          {showDetail && (
-            <motion.div
-              key="detail"
-              variants={slideLeft}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              transition={spring}
-              className="flex min-w-0 flex-1 flex-col"
-            >
-              <ClientDetail
-                client={viewState.client ?? clients.find((c) => c.id === viewState.clientId)!}
-                isAdmin={isAdmin}
-                clients={clients}
-                onClientUpdated={handleDetailUpdate}
-                onClientDeleted={handleDetailDeleted}
-                onSuggestRefresh={handleSuggestRefresh}
-              />
-            </motion.div>
-          )}
+        <div className="app-frame">
+          <AnimatePresence mode="wait">
+            {showDetail && (
+              <motion.div
+                key="detail"
+                variants={slideLeft}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={spring}
+                className="flex min-w-0 flex-1 flex-col"
+              >
+                <ClientDetail
+                  client={viewState.client ?? clients.find((c) => c.id === viewState.clientId)!}
+                  isAdmin={isAdmin}
+                  clients={clients}
+                  onClientUpdated={handleDetailUpdate}
+                  onClientDeleted={handleDetailDeleted}
+                  onSuggestRefresh={handleSuggestRefresh}
+                />
+              </motion.div>
+            )}
 
-          {isListView && (
-            <motion.div
-              key="list"
-              variants={slideRight}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              transition={spring}
-              className="flex min-w-0 flex-1 flex-col"
-            >
-              <SelectionToolbar
-                viewMode={viewMode}
-                onViewModeChange={handleViewModeChange}
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-                selectionMode={selectionMode}
-                onToggleSelectionMode={handleToggleSelectionMode}
-                selectedCount={selectedIds.size}
-                onPlanRoute={planRoute}
-                routing={routing}
-                newCount={newClientCount}
-                filter={filter}
-                counts={counts}
-                onFilter={handleFilter}
-              />
+            {isListView && (
+              <motion.div
+                key="list"
+                variants={slideRight}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={spring}
+                className="flex min-w-0 flex-1 flex-col"
+              >
+                <SelectionToolbar
+                  viewMode={viewMode}
+                  onViewModeChange={handleViewModeChange}
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  selectionMode={selectionMode}
+                  onToggleSelectionMode={handleToggleSelectionMode}
+                  selectedCount={selectedIds.size}
+                  onPlanRoute={planRoute}
+                  routing={routing}
+                  newCount={newClientCount}
+                  filter={filter}
+                  counts={counts}
+                  onFilter={handleFilter}
+                />
 
-              <div className="flex-1 overflow-auto">
-                {loading && clients.length === 0 ? (
-                  <TableSkeletonLoader />
-                ) : (
-                  <>
-                    <div className={`${isCardsView ? 'hidden' : 'block'} max-md:hidden`}>
-                      <DesktopTableView
-                        displayed={displayed}
-                        filtered={filtered}
-                        displayLimit={displayLimit}
-                        selectionMode={selectionMode}
-                        selectedIds={selectedIds}
-                        pendingSuggestionIds={pendingSuggestionIds}
-                        copiedId={copiedId}
-                        openCopyId={openCopyId}
-                        hasMore={hasMore}
-                        isGlobalEmpty={clients.length === 0}
-                        filter={filter}
-                        search={search}
-                        onSelectClient={navToDetail}
-                        onToggleSelect={handleToggleSelect}
-                        onToggleCopyDropdown={handleToggleCopyDropdown}
-                        onCopyText={handleCopy}
-                        onCopyTextAndMaps={handleCopyTextAndMaps}
-                        onCloseCopyDropdown={handleCloseCopyDropdown}
-                        onLoadMore={handleLoadMore}
-                      />
-                    </div>
+                <div className="flex-1 overflow-auto">
+                  {loading && clients.length === 0 ? (
+                    <TableSkeletonLoader />
+                  ) : (
+                    <>
+                      <div className={`${isCardsView ? 'hidden' : 'block'} max-md:hidden`}>
+                        <DesktopTableView
+                          displayed={displayed}
+                          filtered={filtered}
+                          displayLimit={displayLimit}
+                          selectionMode={selectionMode}
+                          selectedIds={selectedIds}
+                          pendingSuggestionIds={pendingSuggestionIds}
+                          copiedId={copiedId}
+                          openCopyId={openCopyId}
+                          hasMore={hasMore}
+                          isGlobalEmpty={clients.length === 0}
+                          filter={filter}
+                          search={search}
+                          onSelectClient={navToDetail}
+                          onToggleSelect={handleToggleSelect}
+                          onToggleCopyDropdown={handleToggleCopyDropdown}
+                          onCopyText={handleCopy}
+                          onCopyTextAndMaps={handleCopyTextAndMaps}
+                          onCloseCopyDropdown={handleCloseCopyDropdown}
+                          onLoadMore={handleLoadMore}
+                        />
+                      </div>
 
-                    <div className={`${isCardsView ? '' : 'hidden'} max-md:hidden`}>
-                      <DesktopCardView
-                        displayed={displayed}
-                        filtered={filtered}
-                        displayLimit={displayLimit}
-                        selectionMode={selectionMode}
-                        selectedIds={selectedIds}
-                        pendingSuggestionIds={pendingSuggestionIds}
-                        copiedId={copiedId}
-                        openCopyId={openCopyId}
-                        hasMore={hasMore}
-                        isGlobalEmpty={clients.length === 0}
-                        filter={filter}
-                        search={search}
-                        onSelectClient={navToDetail}
-                        onToggleSelect={handleToggleSelect}
-                        onToggleCopyDropdown={handleToggleCopyDropdown}
-                        onCopyText={handleCopy}
-                        onCopyTextAndMaps={handleCopyTextAndMaps}
-                        onCloseCopyDropdown={handleCloseCopyDropdown}
-                        onLoadMore={handleLoadMore}
-                      />
-                    </div>
+                      <div className={`${isCardsView ? '' : 'hidden'} max-md:hidden`}>
+                        <DesktopCardView
+                          displayed={displayed}
+                          filtered={filtered}
+                          displayLimit={displayLimit}
+                          selectionMode={selectionMode}
+                          selectedIds={selectedIds}
+                          pendingSuggestionIds={pendingSuggestionIds}
+                          copiedId={copiedId}
+                          openCopyId={openCopyId}
+                          hasMore={hasMore}
+                          isGlobalEmpty={clients.length === 0}
+                          filter={filter}
+                          search={search}
+                          onSelectClient={navToDetail}
+                          onToggleSelect={handleToggleSelect}
+                          onToggleCopyDropdown={handleToggleCopyDropdown}
+                          onCopyText={handleCopy}
+                          onCopyTextAndMaps={handleCopyTextAndMaps}
+                          onCloseCopyDropdown={handleCloseCopyDropdown}
+                          onLoadMore={handleLoadMore}
+                        />
+                      </div>
 
-                    <div className="md:hidden">
-                      <MobileCardList
-                        displayed={displayed}
-                        filtered={filtered}
-                        displayLimit={displayLimit}
-                        selectionMode={selectionMode}
-                        selectedIds={selectedIds}
-                        isAdmin={isAdmin}
-                        pendingSuggestionIds={pendingSuggestionIds}
-                        copiedId={copiedId}
-                        openCopyId={openCopyId}
-                        hasMore={hasMore}
-                        isGlobalEmpty={clients.length === 0}
-                        filter={filter}
-                        search={search}
-                        onSelectClient={navToDetail}
-                        onToggleSelect={handleToggleSelect}
-                        onToggleCopyDropdown={handleToggleCopyDropdown}
-                        onCopyText={handleCopy}
-                        onCopyTextAndMaps={handleCopyTextAndMaps}
-                        onCloseCopyDropdown={handleCloseCopyDropdown}
-                        onLoadMore={handleLoadMore}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
+                      <div className="md:hidden">
+                        <MobileCardList
+                          displayed={displayed}
+                          filtered={filtered}
+                          displayLimit={displayLimit}
+                          selectionMode={selectionMode}
+                          selectedIds={selectedIds}
+                          isAdmin={isAdmin}
+                          pendingSuggestionIds={pendingSuggestionIds}
+                          copiedId={copiedId}
+                          openCopyId={openCopyId}
+                          hasMore={hasMore}
+                          isGlobalEmpty={clients.length === 0}
+                          filter={filter}
+                          search={search}
+                          onSelectClient={navToDetail}
+                          onToggleSelect={handleToggleSelect}
+                          onToggleCopyDropdown={handleToggleCopyDropdown}
+                          onCopyText={handleCopy}
+                          onCopyTextAndMaps={handleCopyTextAndMaps}
+                          onCloseCopyDropdown={handleCloseCopyDropdown}
+                          onLoadMore={handleLoadMore}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
 
-              {isAdmin && (
-                <motion.div
-                  className="fixed bottom-5 right-5 z-40 md:hidden"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={springSmall}
-                >
-                  <Button
-                    className="size-12 rounded-full shadow-lg"
-                    size="icon"
-                    aria-label="Add client"
-                    onClick={navToAdd}
+                {isAdmin && (
+                  <motion.div
+                    className="fixed bottom-5 right-5 z-40 md:hidden"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={springSmall}
                   >
-                    <Plus className="size-5" />
-                  </Button>
-                </motion.div>
-              )}
+                    <Button
+                      className="size-12 rounded-full shadow-lg"
+                      size="icon"
+                      aria-label="Add client"
+                      onClick={navToAdd}
+                    >
+                      <Plus className="size-5" />
+                    </Button>
+                  </motion.div>
+                )}
 
-              <RouteModal
-                routeData={routeData}
-                routeError={routeError}
-                onClose={handleCloseRoute}
-                onReorder={handleRouteReorder}
-                showManualOrigin={showManualOrigin}
-                manualOriginLat={manualOriginLat}
-                manualOriginLng={manualOriginLng}
-                onManualOriginLatChange={handleManualOriginLatChange}
-                onManualOriginLngChange={handleManualOriginLngChange}
-                onManualOriginSubmit={handleManualOrigin}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <RouteModal
+                  routeData={routeData}
+                  routeError={routeError}
+                  onClose={handleCloseRoute}
+                  onReorder={handleRouteReorder}
+                  showManualOrigin={showManualOrigin}
+                  manualOriginLat={manualOriginLat}
+                  manualOriginLng={manualOriginLng}
+                  onManualOriginLatChange={handleManualOriginLatChange}
+                  onManualOriginLngChange={handleManualOriginLngChange}
+                  onManualOriginSubmit={handleManualOrigin}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {openCopyId && (
