@@ -48,43 +48,43 @@ export default function MapPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="app-frame min-w-0 flex-1">
-        <PageHeader
-          variant="map"
-          showBack
-          onBack={() => navigate('/')}
-          search={search}
-          onSearchChange={(v) => {
-            setSearch(v)
-            setMapFocusId(null)
-          }}
-          onSearchClear={() => {
+      <PageHeader
+        variant="map"
+        showBack
+        onBack={() => navigate('/')}
+        search={search}
+        onSearchChange={(v) => {
+          setSearch(v)
+          setMapFocusId(null)
+        }}
+        onSearchClear={() => {
+          setSearch('')
+          setMapFocusId(null)
+        }}
+        onSearchKeyDown={(e) => {
+          if (e.key === 'Escape') {
             setSearch('')
             setMapFocusId(null)
-          }}
-          onSearchKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              setSearch('')
-              setMapFocusId(null)
-              ;(e.target as HTMLInputElement).blur()
-            }
-          }}
-          searchDropdown={
-            search.trim() ? (
-              <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-60 overflow-y-auto rounded-lg border bg-card shadow-xl">
-                <SearchDropdown
-                  clients={clients}
-                  query={query}
-                  onSelect={(id) => {
-                    setSearch('')
-                    setMapFocusId(id)
-                  }}
-                />
-              </div>
-            ) : undefined
+            ;(e.target as HTMLInputElement).blur()
           }
-        />
-        <div className="relative h-[calc(100dvh-56px)]">
+        }}
+        searchDropdown={
+          search.trim() ? (
+            <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-60 overflow-y-auto rounded-lg border bg-card shadow-xl">
+              <SearchDropdown
+                clients={clients}
+                query={query}
+                onSelect={(id) => {
+                  setSearch('')
+                  setMapFocusId(id)
+                }}
+              />
+            </div>
+          ) : undefined
+        }
+      />
+      <div className="app-frame min-w-0 flex-1">
+        <div className="relative h-[calc(100dvh-72px)] md:h-[calc(100dvh-56px)]">
           <Suspense
             fallback={
               <div className="flex h-full items-center justify-center text-muted-foreground text-sm">

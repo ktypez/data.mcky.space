@@ -109,20 +109,21 @@
   scrollbar-width: none;
 }
 
-/* App frame — the app's outer card. The header lives inside this frame as its
-   first child (sticky top-0), and the page content follows inside the same
-   rounded card. On mobile it's a rounded bordered card with a small horizontal
-   inset that sits flush against the top of the screen; md+ it spans full width
-   (no top line — the header provides the top edge); on very wide screens it
-   becomes a centered max-width column with the muted bg outside.
-   Note: `overflow: clip` rounds the top corners of the sticky header without
-   creating a scroll container, so position:sticky keeps working. All popovers
-   are portaled to <body>, so they are never clipped by it. */
+/* App frame — the content box below the full-width sticky header. The header
+   lives OUTSIDE this frame (full-width strip); the frame is a clearly bordered
+   box with a visible top line (right under the header) and bottom line. On
+   mobile it floats as a rounded bordered card with a small inset so all four
+   borders read on any screen; md+ it spans full width with a visible top and
+   bottom border; on very wide screens it becomes a centered max-width column
+   with the muted bg outside (bearnie-style).
+   Note: `overflow: clip` rounds the card's corners without creating a scroll
+   container, so sticky elements inside stay sticky. All popovers are portaled
+   to <body>, so they are never clipped by it. */
 @utility app-frame {
   @apply mx-auto flex flex-col bg-background border border-border;
   width: calc(100% - 16px);
-  margin-block: 0;
-  min-height: 100svh;
+  margin-block: 8px;
+  min-height: calc(100svh - 16px);
   border-radius: 16px;
   box-shadow: 0 0 24px -10px color-mix(in oklch, var(--foreground) 25%, transparent);
   overflow: clip;
@@ -133,7 +134,6 @@
     margin-block: 0;
     min-height: 100svh;
     border-radius: 0;
-    border-top-width: 0;
     box-shadow: none;
   }
 }

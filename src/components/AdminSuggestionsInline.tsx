@@ -71,10 +71,10 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
 
   return (
     <div className="flex-1 min-w-0 flex flex-col">
-      <div className="app-frame min-w-0 flex-1">
-        {/* ── HEADER ── */}
-        <SuggestionListHeader onClose={onClose} />
+      {/* ── HEADER ── */}
+      <SuggestionListHeader onClose={onClose} />
 
+      <div className="app-frame min-w-0 flex-1">
         {/* ── TOOLBAR ── */}
         <div className="bg-card border-b border-border">
           <div className="px-4 py-2 flex items-center gap-2 min-h-[40px] overflow-x-auto">
