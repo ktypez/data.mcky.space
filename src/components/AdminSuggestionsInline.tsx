@@ -4,6 +4,7 @@ import type { PendingSuggestion, Client } from '@/types'
 import { apiFetch } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 import SuggestionListHeader from './SuggestionListHeader'
 import PendingSuggestionList from './PendingSuggestionList'
 import HistorySuggestionList from './HistorySuggestionList'
@@ -71,15 +72,32 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
   return (
     <div className="flex-1 min-w-0 flex flex-col">
       {/* ── HEADER ── */}
-      <SuggestionListHeader
-        onClose={onClose}
-        pendingCount={pendingList.length}
-        historyCount={historyList.length}
-        tab={tab}
-        onTabChange={setTab}
-      />
+      <SuggestionListHeader onClose={onClose} />
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="app-frame min-w-0 flex-1">
+        {/* ── TOOLBAR ── */}
+        <div className="bg-card border-b border-border">
+          <div className="px-4 py-2 flex items-center gap-2 min-h-[40px] overflow-x-auto">
+            <div className="flex items-center gap-2 w-full">
+              <Button
+                variant={tab === 'pending' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setTab('pending')}
+              >
+                รอตรวจสอบ ({pendingList.length})
+              </Button>
+              <Button
+                variant={tab === 'history' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setTab('history')}
+              >
+                ประวัติ ({historyList.length})
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
         {error && (
           <div className="mx-4 mt-4 px-3 py-2 rounded-[6px] bg-primary/10 text-primary text-[15px]">
             {error}
@@ -120,6 +138,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
             clients={clients}
           />
         )}
+        </div>
       </div>
     </div>
   )

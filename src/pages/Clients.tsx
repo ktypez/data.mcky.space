@@ -240,10 +240,22 @@ export function PageClient() {
   if (error) return <FetchErrorScreen onRetry={handleRetry} />
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col">
       <SwUpdateToast />
 
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+      <PageHeader
+        variant={showDetail ? 'detail' : 'list'}
+        title="Detail"
+        showBack={showDetail}
+        onBack={handleCloseDetail}
+        search={showDetail ? undefined : search}
+        onSearchChange={showDetail ? undefined : handleSearchChange}
+        onSearchClear={showDetail ? undefined : handleSearchClear}
+        showAddButton={!showDetail && isAdmin}
+        onAdd={navToAdd}
+      />
+
+      <div className="app-frame min-w-0 flex-1">
         <AnimatePresence mode="wait">
           {showDetail && (
             <motion.div
@@ -255,7 +267,6 @@ export function PageClient() {
               transition={spring}
               className="flex min-h-screen min-w-0 flex-1 flex-col"
             >
-              <PageHeader variant="detail" title="Detail" showBack onBack={handleCloseDetail} />
               <ClientDetail
                 client={viewState.client ?? clients.find((c) => c.id === viewState.clientId)!}
                 isAdmin={isAdmin}
@@ -277,15 +288,6 @@ export function PageClient() {
               transition={spring}
               className="flex min-h-screen min-w-0 flex-1 flex-col"
             >
-              <PageHeader
-                variant="list"
-                search={search}
-                onSearchChange={handleSearchChange}
-                onSearchClear={handleSearchClear}
-                showAddButton={isAdmin}
-                onAdd={navToAdd}
-              />
-
               <SelectionToolbar
                 viewMode={viewMode}
                 onViewModeChange={handleViewModeChange}

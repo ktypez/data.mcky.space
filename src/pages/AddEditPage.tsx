@@ -61,7 +61,7 @@ export default function AddEditPage() {
   )
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col">
       <InlineAddEditView
         editClient={editClient}
         clients={clients}

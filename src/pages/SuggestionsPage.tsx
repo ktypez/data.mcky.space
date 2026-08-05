@@ -26,7 +26,7 @@ export default function SuggestionsPage() {
   }, [])
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col">
       <AdminSuggestionsInline onClose={() => navigate('/')} onAction={onAction} />
     </div>
   )

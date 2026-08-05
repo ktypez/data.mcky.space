@@ -47,7 +47,7 @@ export default function MapPage() {
   }, [navigate])
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col">
       <PageHeader
         variant="map"
         showBack
@@ -83,20 +83,22 @@ export default function MapPage() {
           ) : undefined
         }
       />
-      <div style={{ position: 'relative', height: 'calc(100dvh - 56px)' }}>
-        <Suspense
-          fallback={
-            <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-              กำลังโหลดแผนที่…
-            </div>
-          }
-        >
-          <InlineMap
-            clients={filtered.filter((c) => hasValidCoords(c.lat, c.lng))}
-            focusClientId={mapFocusId}
-            onSelectClient={navigateToClient}
-          />
-        </Suspense>
+      <div className="app-frame min-w-0 flex-1">
+        <div style={{ position: 'relative', height: 'calc(100dvh - 56px)' }}>
+          <Suspense
+            fallback={
+              <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+                กำลังโหลดแผนที่…
+              </div>
+            }
+          >
+            <InlineMap
+              clients={filtered.filter((c) => hasValidCoords(c.lat, c.lng))}
+              focusClientId={mapFocusId}
+              onSelectClient={navigateToClient}
+            />
+          </Suspense>
+        </div>
       </div>
     </div>
   )

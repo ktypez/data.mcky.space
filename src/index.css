@@ -70,7 +70,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-muted text-foreground font-sans antialiased;
   }
   button:focus-visible,
   a:focus-visible,
@@ -107,6 +107,19 @@
   }
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* App frame — full-width column below the header; on very wide screens it
+   becomes a centered bordered "frame" with the page (muted) bg outside. */
+@utility app-frame {
+  @apply mx-auto flex min-h-svh w-full flex-col bg-background;
+}
+@media (min-width: 1536px) {
+  .app-frame {
+    max-width: 1400px;
+    border-inline: 1px solid var(--border);
+    box-shadow: 0 0 60px -20px color-mix(in oklch, var(--foreground) 25%, transparent);
+  }
 }
 
 @keyframes slide-up {
