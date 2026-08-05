@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useAuthStore } from './stores/auth-store'
 import { useClientStore } from './stores/client-store'
 import { useMotion } from './lib/motion'
-import { TopProgress } from './components/ScrollIndicator'
 
 const LoginModal = lazy(() => import('./components/LoginModal'))
 const Clients = lazy(() => import('./pages/Clients').then((m) => ({ default: m.PageClient })))
@@ -55,7 +54,6 @@ function App() {
 
   return (
     <>
-      <TopProgress locationKey={location.pathname} />
       <Suspense fallback={null}>
         <LoginModal
           open={loginOpen}
