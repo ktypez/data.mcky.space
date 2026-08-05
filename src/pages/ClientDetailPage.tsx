@@ -120,14 +120,14 @@ export default function ClientDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="sticky top-0 z-30 flex h-11 shrink-0 items-center gap-2 bg-card px-3">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-          <ArrowLeft className="size-3.5" />
-          Back
-        </Button>
-      </div>
-
       <div className="app-frame min-w-0 flex-1">
+        <div className="sticky top-0 z-30 flex h-11 shrink-0 items-center gap-2 bg-card px-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+            <ArrowLeft className="size-3.5" />
+            Back
+          </Button>
+        </div>
+
         <ClientDetail
           client={client}
           isAdmin={isAdmin}

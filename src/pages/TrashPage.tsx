@@ -15,13 +15,13 @@ export default function TrashPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <PageHeader
-        variant="add-edit"
-        title="ถังขยะ"
-        showBack
-        onBack={() => navigate('/')}
-      />
       <div className="app-frame min-w-0 flex-1">
+        <PageHeader
+          variant="add-edit"
+          title="ถังขยะ"
+          showBack
+          onBack={() => navigate('/')}
+        />
         <TrashView />
       </div>
     </div>
