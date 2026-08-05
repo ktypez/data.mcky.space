@@ -41,8 +41,8 @@
   --radius: 0.25rem;
   --pin-color: #ffb000;
 
-  --theme-font-display: 'Chakra Petch', 'JetBrains Mono', 'Sarabun', ui-monospace, monospace;
-  --theme-font-body: 'Chakra Petch', 'Sarabun', 'Inter', system-ui, sans-serif;
+  --theme-font-display: 'JetBrains Mono', 'Sarabun', ui-monospace, monospace;
+  --theme-font-body: 'Sarabun', 'Inter', system-ui, sans-serif;
   --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 

@@ -41,8 +41,8 @@
   --radius: 0.5rem;
   --pin-color: #6a8c3f;
 
-  --theme-font-display: 'Chakra Petch', 'Fraunces', 'Noto Serif Thai', Georgia, serif;
-  --theme-font-body: 'Chakra Petch', 'Fraunces', 'Noto Serif Thai', Georgia, serif;
+  --theme-font-display: 'Fraunces', 'Noto Serif Thai', Georgia, serif;
+  --theme-font-body: 'Fraunces', 'Noto Serif Thai', Georgia, serif;
   --theme-font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, monospace;
 
   --shadow-sm: 0 1px 2px rgba(46, 42, 36, 0.05);

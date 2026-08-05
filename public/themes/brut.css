@@ -42,8 +42,8 @@
   --radius: 0rem;
   --pin-color: #ff2e00;
 
-  --theme-font-display: 'Chakra Petch', 'Anton', 'Sarabun', Impact, sans-serif;
-  --theme-font-body: 'Chakra Petch', 'IBM Plex Mono', 'Sarabun', ui-monospace, monospace;
+  --theme-font-display: 'Anton', 'Sarabun', Impact, sans-serif;
+  --theme-font-body: 'IBM Plex Mono', 'Sarabun', ui-monospace, monospace;
   --theme-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   /* hard offset shadows — ขอบชัด ไม่เบลอ */

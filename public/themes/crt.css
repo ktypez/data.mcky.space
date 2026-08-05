@@ -44,8 +44,8 @@
   --radius: 0rem;
   --pin-color: #4af626;
 
-  --theme-font-display: 'Chakra Petch', 'VT323', 'Sarabun', ui-monospace, monospace;
-  --theme-font-body: 'Chakra Petch', 'Sarabun', 'VT323', system-ui, sans-serif;
+  --theme-font-display: 'VT323', 'Sarabun', ui-monospace, monospace;
+  --theme-font-body: 'Sarabun', 'VT323', system-ui, sans-serif;
   --theme-font-mono: 'VT323', ui-monospace, monospace;
 }
 
