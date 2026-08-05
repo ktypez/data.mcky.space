@@ -9,6 +9,7 @@ import { updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { useClientStore } from '@/stores/client-store'
+import { VerticalBar } from '@/components/ScrollIndicator'
 import type { Client } from '@/types'
 
 export default function ClientDetailPage() {
@@ -23,6 +24,7 @@ export default function ClientDetailPage() {
   const { isAdmin } = useAuthStore()
   const cliStore = useClientStore()
   const mountedRef = useRef(true)
+  const frameRef = useRef<HTMLDivElement>(null)
 
   const loadData = useCallback(async () => {
     if (!id) return
@@ -128,7 +130,7 @@ export default function ClientDetailPage() {
           </Button>
         </div>
 
-        <div className="app-frame">
+        <div className="app-frame" ref={frameRef}>
           <ClientDetail
             client={client}
             isAdmin={isAdmin}
@@ -138,6 +140,7 @@ export default function ClientDetailPage() {
             uploading={uploading}
             uploadProgress={uploadProgress}
           />
+          <VerticalBar containerRef={frameRef} />
         </div>
       </div>
     </div>

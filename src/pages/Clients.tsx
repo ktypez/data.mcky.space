@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, lazy, Suspense } from 'react'
+import { useCallback, useEffect, lazy, Suspense, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 
@@ -17,6 +17,7 @@ import { useRoutePlanner } from '@/hooks/useRoutePlanner'
 import { updateClient } from '@/lib/storage'
 import { slideLeft, slideRight, spring, springSmall } from '@/lib/motion'
 import type { Client, FilterKey, RouteData, ViewMode } from '@/types'
+import { VerticalBar } from '@/components/ScrollIndicator'
 
 function FetchErrorScreen({ onRetry }: { onRetry: () => void }) {
   return (
@@ -236,6 +237,7 @@ export function PageClient() {
   const isListView = viewState.view === 'list'
   const showDetail = viewState.view === 'detail'
   const isCardsView = viewMode === 'cards'
+  const frameRef = useRef<HTMLDivElement>(null)
 
   if (error) return <FetchErrorScreen onRetry={handleRetry} />
 
@@ -256,7 +258,7 @@ export function PageClient() {
           onAdd={navToAdd}
         />
 
-        <div className="app-frame">
+        <div className="app-frame" ref={frameRef}>
           <AnimatePresence mode="wait">
             {showDetail && (
               <motion.div
@@ -419,6 +421,7 @@ export function PageClient() {
               </motion.div>
             )}
           </AnimatePresence>
+          <VerticalBar containerRef={frameRef} />
         </div>
       </div>
 

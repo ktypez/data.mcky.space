@@ -1,5 +1,5 @@
 
-import { lazy, Suspense, useCallback, useEffect, useMemo } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
@@ -9,6 +9,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import PageHeader from '@/components/PageHeader'
 import { hasValidCoords } from '@/lib/utils'
 import SearchDropdown from '@/components/SearchDropdown'
+import { VerticalBar } from '@/components/ScrollIndicator'
 
 // Lazy-load the map (and maplibre-gl) into its own chunk so a map failure
 // can never break the rest of the app.
@@ -20,6 +21,7 @@ export default function MapPage() {
   const { search, setSearch } = useFilterStore()
   const { isAdmin } = useAuthStore()
   const { mapFocusId, setMapFocusId } = useUIStore()
+  const frameRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     initialize()
@@ -84,7 +86,7 @@ export default function MapPage() {
             ) : undefined
           }
         />
-        <div className="app-frame">
+        <div className="app-frame" ref={frameRef}>
           <div className="relative flex-1 min-h-0">
             <Suspense
               fallback={
@@ -100,6 +102,7 @@ export default function MapPage() {
               />
             </Suspense>
           </div>
+          <VerticalBar containerRef={frameRef} />
         </div>
       </div>
     </div>

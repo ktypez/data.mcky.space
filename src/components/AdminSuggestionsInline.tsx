@@ -9,6 +9,8 @@ import SuggestionListHeader from './SuggestionListHeader'
 import PendingSuggestionList from './PendingSuggestionList'
 import HistorySuggestionList from './HistorySuggestionList'
 
+import { VerticalBar } from '@/components/ScrollIndicator'
+
 interface Props {
   onClose: () => void
   onAction?: () => void
@@ -21,6 +23,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
   const [processing, setProcessing] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [tab, setTab] = useState<'pending' | 'history'>('pending')
+  const frameRef = useRef<HTMLDivElement>(null)
 
   const fetchData = useCallback(async () => {
     setError('')
@@ -75,7 +78,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
         {/* ── HEADER ── */}
         <SuggestionListHeader onClose={onClose} />
 
-        <div className="app-frame">
+        <div className="app-frame" ref={frameRef}>
           {/* ── TOOLBAR ── */}
           <div className="bg-card border-b border-border">
             <div className="px-4 py-2 flex items-center gap-2 min-h-[40px] overflow-x-auto">
@@ -140,6 +143,7 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
             />
           )}
           </div>
+          <VerticalBar containerRef={frameRef} />
         </div>
       </div>
     </div>
