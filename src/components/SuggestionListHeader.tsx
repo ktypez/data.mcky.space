@@ -7,7 +7,7 @@ interface SuggestionListHeaderProps {
 
 export default function SuggestionListHeader({ onClose }: SuggestionListHeaderProps) {
   return (
-    <header className="h-14 bg-card flex items-center gap-3 px-4 z-30 border border-border rounded-t-[var(--frame-radius)]">
+    <header className="h-14 bg-card flex items-center gap-3 px-4 z-30 border border-border rounded-[var(--frame-radius)]">
       <Button variant="outline" size="icon" onClick={onClose} aria-label="ย้อนกลับ">
         <ArrowLeft className="w-4 h-4 text-primary" />
       </Button>
