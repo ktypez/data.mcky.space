@@ -725,12 +725,12 @@ const min: Theme = {
 
 // brut — BRUT: concrete + ink borders + signal red, Anton display (light-only)
 const BRUT_FONTS = {
-  display: "'Anton', 'Sarabun', Impact, sans-serif",
-  body: "'IBM Plex Mono', 'Sarabun', ui-monospace, monospace",
-  mono: "'IBM Plex Mono', ui-monospace, monospace",
+  display: "'Chakra Petch', 'Sarabun', Impact, sans-serif",
+  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
+  mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const BRUT_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500&family=Sarabun:wght@400;500;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'
 
 const brut: Theme = {
   id: 'brut',
@@ -905,12 +905,12 @@ const moss: Theme = {
 
 // mcky — house style: paper + black borders + amber + hard shadows (dual mode)
 const MCKY_FONTS = {
-  display: "'JetBrains Mono', 'Sarabun', ui-monospace, monospace",
-  body: "'Sarabun', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Sarabun', ui-monospace, monospace",
+  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const MCKY_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap'
 
 const mcky: Theme = {
   id: 'mcky',
