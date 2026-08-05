@@ -84,7 +84,7 @@ export default function MapPage() {
         }
       />
       <div className="app-frame min-w-0 flex-1">
-        <div style={{ position: 'relative', height: 'calc(100dvh - 56px)' }}>
+        <div className="relative h-[calc(100dvh-72px)] md:h-[calc(100dvh-56px)]">
           <Suspense
             fallback={
               <div className="flex h-full items-center justify-center text-muted-foreground text-sm">

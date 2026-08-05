@@ -109,11 +109,28 @@
   scrollbar-width: none;
 }
 
-/* App frame — full-width column below the header; bordered on all sizes so
-   the content reads as a framed area, and on very wide screens it becomes a
-   centered column with the page (muted) bg outside. */
+/* App frame — content column below the full-width header. On mobile it floats
+   as a rounded bordered card with a small inset so the frame reads on any
+   screen; md+ spans full width (top line comes from the header); on very wide
+   screens it becomes a centered max-width column with the muted bg outside. */
 @utility app-frame {
-  @apply mx-auto flex min-h-svh w-full flex-col bg-background border-x border-b border-border;
+  @apply mx-auto flex flex-col bg-background border border-border;
+  width: calc(100% - 16px);
+  margin-block: 8px;
+  min-height: calc(100svh - 16px);
+  border-radius: 16px;
+  box-shadow: 0 0 24px -10px color-mix(in oklch, var(--foreground) 25%, transparent);
+  overflow: clip;
+}
+@media (min-width: 768px) {
+  .app-frame {
+    width: 100%;
+    margin-block: 0;
+    min-height: 100svh;
+    border-radius: 0;
+    border-top-width: 0;
+    box-shadow: none;
+  }
 }
 @media (min-width: 1536px) {
   .app-frame {

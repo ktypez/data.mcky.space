@@ -265,7 +265,7 @@ export function PageClient() {
               animate="visible"
               exit="hidden"
               transition={spring}
-              className="flex min-h-screen min-w-0 flex-1 flex-col"
+              className="flex min-w-0 flex-1 flex-col"
             >
               <ClientDetail
                 client={viewState.client ?? clients.find((c) => c.id === viewState.clientId)!}
@@ -286,7 +286,7 @@ export function PageClient() {
               animate="visible"
               exit="hidden"
               transition={spring}
-              className="flex min-h-screen min-w-0 flex-1 flex-col"
+              className="flex min-w-0 flex-1 flex-col"
             >
               <SelectionToolbar
                 viewMode={viewMode}
