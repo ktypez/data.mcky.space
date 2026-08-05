@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useUIStore } from '@/stores/ui-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { setProfileTheme } from '@/lib/api'
-import { themes, isCharacterTheme, isDarkOnlyTheme } from '@/lib/design/themes'
+import { themes, isCharacterTheme, isDarkOnlyTheme, isLightOnlyTheme, isDualModeTheme } from '@/lib/design/themes'
 import type { Theme } from '@/lib/design/tokens'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
@@ -21,7 +21,9 @@ function Swatch({ color, label }: { color: string; label: string }) {
 
 /** Dark-only themes always preview their dark tokens. */
 function previewVars(t: Theme, resolved: 'light' | 'dark') {
-  return isDarkOnlyTheme(t) ? t.dark : resolved === 'dark' ? t.dark : t.light
+  if (isDarkOnlyTheme(t)) return t.dark
+  if (isLightOnlyTheme(t)) return t.light
+  return resolved === 'dark' ? t.dark : t.light
 }
 
 function ThemeCard({
@@ -117,8 +119,11 @@ export default function ThemePresetPicker() {
 
   const close = () => setOpen(false)
   const resolved: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light'
-  const classicThemes = themes.filter((t) => !isCharacterTheme(t))
-  const characterThemes = themes.filter((t) => isCharacterTheme(t))
+
+  // Group by mode support
+  const dualThemes = themes.filter((t) => isDualModeTheme(t))
+  const lightOnlyThemes = themes.filter((t) => isLightOnlyTheme(t))
+  const darkOnlyThemes = themes.filter((t) => isDarkOnlyTheme(t))
 
   const handlePick = (id: string) => {
     setTheme(id)
@@ -137,19 +142,35 @@ export default function ThemePresetPicker() {
       <div className="w-[340px] max-w-[90vw]">
         <ThemeRow
           title="Classic"
-          items={classicThemes}
+          items={dualThemes}
           activeId={themeId}
           resolved={resolved}
           onPick={handlePick}
         />
-        <div className="h-2" />
-        <ThemeRow
-          title="Character"
-          items={characterThemes}
-          activeId={themeId}
-          resolved={resolved}
-          onPick={handlePick}
-        />
+        {lightOnlyThemes.length > 0 && (
+          <>
+            <div className="h-2" />
+            <ThemeRow
+              title="Light only"
+              items={lightOnlyThemes}
+              activeId={themeId}
+              resolved={resolved}
+              onPick={handlePick}
+            />
+          </>
+        )}
+        {darkOnlyThemes.length > 0 && (
+          <>
+            <div className="h-2" />
+            <ThemeRow
+              title="Dark only"
+              items={darkOnlyThemes}
+              activeId={themeId}
+              resolved={resolved}
+              onPick={handlePick}
+            />
+          </>
+        )}
       </div>
     </PopoverMenu>
   )

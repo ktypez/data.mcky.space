@@ -2,7 +2,7 @@ import { Moon, Sun, Monitor } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/lib/theme-context'
 import { useUIStore } from '@/stores/ui-store'
-import { getTheme, isDarkOnlyTheme } from '@/lib/design/themes'
+import { getTheme, isDarkOnlyTheme, isLightOnlyTheme } from '@/lib/design/themes'
 
 const CYCLE = ['system', 'light', 'dark'] as const
 const ICONS = { system: Monitor, light: Sun, dark: Moon }
@@ -12,7 +12,8 @@ export default function ThemeModePicker() {
   const { theme, setTheme } = useTheme()
   const themeId = useUIStore((s) => s.theme)
 
-  if (isDarkOnlyTheme(getTheme(themeId))) return null
+  const current = getTheme(themeId)
+  if (isDarkOnlyTheme(current) || isLightOnlyTheme(current)) return null
 
   const next = () => {
     const i = CYCLE.indexOf(theme)

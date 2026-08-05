@@ -186,20 +186,20 @@ const baseThemes: Theme[] = [
    ============================================================================ */
 
 const GLITCH_FONTS = {
-  display: "'Kanit', 'Sarabun', system-ui, sans-serif",
-  body: "'Sarabun', 'Kanit', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Sarabun', system-ui, sans-serif",
+  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const GLITCH_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap'
 
 const CRT_FONTS = {
-  display: "'VT323', 'Sarabun', ui-monospace, monospace",
-  body: "'Sarabun', 'VT323', system-ui, sans-serif",
-  mono: "'VT323', ui-monospace, monospace",
+  display: "'Chakra Petch', 'Sarabun', ui-monospace, monospace",
+  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
+  mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const CRT_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=VT323&family=Sarabun:wght@400;500;600&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap'
 
 const CLAUDE_FONTS = {
   display: "'Source Serif 4', 'Noto Serif Thai', Georgia, 'Times New Roman', serif",
@@ -457,12 +457,12 @@ const claude: Theme = {
 
 // rack — STACK//FRAME: server rack, amber LEDs + hardware green (dark-only)
 const RACK_FONTS = {
-  display: "'JetBrains Mono', 'Sarabun', ui-monospace, monospace",
-  body: "'Sarabun', 'Inter', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Sarabun', ui-monospace, monospace",
+  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const RACK_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Sarabun:wght@400;500;600&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap'
 
 const rack: Theme = {
   id: 'rack',
@@ -547,8 +547,8 @@ const rack: Theme = {
 
 // noc — PACKETGRID: network ops, teal/cyan packet grid (dark-only)
 const NOC_FONTS = {
-  display: "'JetBrains Mono', 'Sarabun', ui-monospace, monospace",
-  body: "'Sarabun', 'Inter', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Sarabun', ui-monospace, monospace",
+  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const NOC_FONT_URL = RACK_FONT_URL
@@ -813,7 +813,7 @@ const brut: Theme = {
   },
 }
 
-// moss — MOSS: warm sand + moss green + terracotta, Fraunces serif (light-only)
+// moss — MOSS: warm sand + moss green + terracotta, Fraunces serif (dual mode)
 const MOSS_FONTS = {
   display: "'Fraunces', 'Noto Serif Thai', Georgia, serif",
   body: "'Fraunces', 'Noto Serif Thai', Georgia, serif",
@@ -827,7 +827,7 @@ const moss: Theme = {
   label: 'MOSS',
   description: 'ทรายอบอุ่น + มอสเขียว + ดินเผา — serif ธรรมชาติ',
   character: 'moss',
-  modes: ['light'],
+  modes: ['light', 'dark'],
   fonts: MOSS_FONTS,
   fontUrl: MOSS_FONT_URL,
   staticCss: '/themes/moss.css',
@@ -867,39 +867,39 @@ const moss: Theme = {
     '--pin-color': '#6a8c3f',
   },
   dark: {
-    '--background': '#f5f1e8',
-    '--foreground': '#2e2a24',
-    '--card': '#fdfbf5',
-    '--card-foreground': '#2e2a24',
-    '--popover': '#fdfbf5',
-    '--popover-foreground': '#2e2a24',
-    '--primary': '#6a8c3f',
-    '--primary-foreground': '#fdfbf5',
-    '--secondary': '#efe9db',
-    '--secondary-foreground': '#6b645a',
-    '--muted': '#efe9db',
-    '--muted-foreground': '#6b645a',
-    '--accent': '#c4714a',
-    '--accent-foreground': '#fdfbf5',
-    '--destructive': '#a84d33',
-    '--destructive-foreground': '#fdfbf5',
-    '--success': '#5c7a3d',
-    '--success-foreground': '#fdfbf5',
-    '--warning': '#b0832f',
-    '--warning-foreground': '#fdfbf5',
-    '--info': '#4a6b7a',
-    '--info-foreground': '#fdfbf5',
-    '--border': 'rgba(46, 42, 36, 0.14)',
-    '--input': 'rgba(46, 42, 36, 0.2)',
-    '--ring': '#6a8c3f',
-    '--sidebar': '#efe9db',
-    '--sidebar-foreground': '#2e2a24',
-    '--sidebar-accent': '#fdfbf5',
-    '--sidebar-accent-foreground': '#6b645a',
-    '--sidebar-border': 'rgba(46, 42, 36, 0.14)',
-    '--sidebar-ring': '#6a8c3f',
+    '--background': '#1a1c16',
+    '--foreground': '#e8e4d8',
+    '--card': '#252820',
+    '--card-foreground': '#e8e4d8',
+    '--popover': '#252820',
+    '--popover-foreground': '#e8e4d8',
+    '--primary': '#8bb55a',
+    '--primary-foreground': '#1a1c16',
+    '--secondary': '#2e3128',
+    '--secondary-foreground': '#b0a898',
+    '--muted': '#2e3128',
+    '--muted-foreground': '#b0a898',
+    '--accent': '#d4835a',
+    '--accent-foreground': '#1a1c16',
+    '--destructive': '#c45538',
+    '--destructive-foreground': '#1a1c16',
+    '--success': '#7a9e52',
+    '--success-foreground': '#1a1c16',
+    '--warning': '#c9943a',
+    '--warning-foreground': '#1a1c16',
+    '--info': '#5a8a9a',
+    '--info-foreground': '#1a1c16',
+    '--border': 'rgba(232, 228, 216, 0.14)',
+    '--input': 'rgba(232, 228, 216, 0.2)',
+    '--ring': '#8bb55a',
+    '--sidebar': '#252820',
+    '--sidebar-foreground': '#e8e4d8',
+    '--sidebar-accent': '#2e3128',
+    '--sidebar-accent-foreground': '#b0a898',
+    '--sidebar-border': 'rgba(232, 228, 216, 0.14)',
+    '--sidebar-ring': '#8bb55a',
     '--radius': '0.5rem',
-    '--pin-color': '#6a8c3f',
+    '--pin-color': '#8bb55a',
   },
 }
 
@@ -1013,6 +1013,16 @@ export function isCharacterTheme(t: Theme): boolean {
 /** Dark-only themes force the .dark class regardless of user mode. */
 export function isDarkOnlyTheme(t: Theme): boolean {
   return !!t.modes && t.modes.length === 1 && t.modes[0] === 'dark'
+}
+
+/** Light-only themes never support dark mode. */
+export function isLightOnlyTheme(t: Theme): boolean {
+  return !!t.modes && t.modes.length === 1 && t.modes[0] === 'light'
+}
+
+/** Theme supports both light and dark modes. */
+export function isDualModeTheme(t: Theme): boolean {
+  return !!t.modes && t.modes.length === 2
 }
 
 /** ids ที่ backend อนุญาต — ต้องตรงกับ registry นี้ (mirror ใน functions/lib/theme-ids.ts) */
