@@ -143,8 +143,8 @@ export default function AdminSuggestionsInline({ onClose, onAction }: Props) {
             />
           )}
           </div>
-          <VerticalBar containerRef={frameRef} />
         </div>
+        <VerticalBar containerRef={frameRef} />
       </div>
     </div>
   )

@@ -140,8 +140,8 @@ export default function ClientDetailPage() {
             uploading={uploading}
             uploadProgress={uploadProgress}
           />
-          <VerticalBar containerRef={frameRef} />
         </div>
+        <VerticalBar containerRef={frameRef} />
       </div>
     </div>
   )

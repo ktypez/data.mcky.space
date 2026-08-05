@@ -26,8 +26,8 @@ export default function TrashPage() {
         />
         <div className="app-frame" ref={frameRef}>
           <TrashView />
-          <VerticalBar containerRef={frameRef} />
         </div>
+        <VerticalBar containerRef={frameRef} />
       </div>
     </div>
   )

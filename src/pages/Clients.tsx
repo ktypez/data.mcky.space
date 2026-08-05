@@ -421,8 +421,8 @@ export function PageClient() {
               </motion.div>
             )}
           </AnimatePresence>
-          <VerticalBar containerRef={frameRef} />
         </div>
+        <VerticalBar containerRef={frameRef} />
       </div>
 
       {openCopyId && (

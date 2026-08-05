@@ -102,8 +102,8 @@ export default function MapPage() {
               />
             </Suspense>
           </div>
-          <VerticalBar containerRef={frameRef} />
         </div>
+        <VerticalBar containerRef={frameRef} />
       </div>
     </div>
   )

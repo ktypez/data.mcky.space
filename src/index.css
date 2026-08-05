@@ -136,7 +136,7 @@
    viewport centers at max-width 1400px with a subtle glow. Flat (no
    border-radius). All popovers are portaled to <body>, so nothing is clipped. */
 @utility app-viewport {
-  @apply mx-auto flex flex-col gap-px;
+  @apply mx-auto flex flex-col gap-1.5;
   position: fixed;
   top: 8px;
   left: 8px;

@@ -50,8 +50,8 @@ export default function InlineAddEditView({
             </CardContent>
           </Card>
         </div>
-        <VerticalBar containerRef={frameRef} />
       </div>
+      <VerticalBar containerRef={frameRef} />
     </div>
   )
 }
