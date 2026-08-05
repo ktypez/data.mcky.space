@@ -109,28 +109,26 @@
   scrollbar-width: none;
 }
 
-/* App frame — the whole app in one bordered box. The sticky header is the
-   frame's first child (header + border are one unit) and everything inside
-   the border is the display area. The frame is inset a few px from the
-   viewport on all sides so its border is clearly visible at every screen
-   size, and it uses dvh so it hugs the dynamic viewport (URL bar shown or
-   hidden) exactly. On very wide screens it becomes a centered max-width
-   column. `overflow: clip` rounds the header's top corners without creating
-   a scroll container, so position:sticky keeps working; all popovers are
-   portaled to <body>, so nothing is ever clipped. */
+/* App frame = the bearnie canvas. The sticky header lives INSIDE the frame as
+   its first child (header + border are one unit), and everything below the
+   header — the list page, the map, detail, add/edit, trash, suggestions — is
+   rendered inside the frame as the display area. The frame is inset a few px
+   from the viewport on all sides so its border is clearly visible at every
+   screen size, and uses dvh so it hugs the dynamic viewport. It is intentionally
+   flat (no border-radius, no card shadow) like a bearnie docs canvas; at 2xl a
+   subtle glow makes the centered column read against the muted backdrop.
+   No overflow:clip (there are no rounded corners here), so sticky headers and
+   portaled popovers behave normally. */
 @utility app-frame {
   @apply mx-auto flex flex-col bg-background border border-border;
   width: calc(100% - 16px);
   margin-block: 8px;
   min-height: calc(100dvh - 16px);
-  border-radius: 16px;
-  box-shadow: 0 0 24px -10px color-mix(in oklch, var(--foreground) 25%, transparent);
-  overflow: clip;
 }
 @media (min-width: 1536px) {
   .app-frame {
     max-width: 1400px;
-    box-shadow: 0 0 60px -20px color-mix(in oklch, var(--foreground) 25%, transparent);
+    box-shadow: 0 0 60px -20px color-mix(in oklch, var(--foreground) 20%, transparent);
   }
 }
 
