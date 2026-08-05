@@ -79,6 +79,9 @@
   --scroll-indicator-glow: none;
   --scroll-progress-color: var(--primary);
   --scroll-progress-glow: none;
+
+  /* Frame border-radius — themes override for square vs rounded */
+  --frame-radius: 0.5rem;
 }
 
 @layer base {
@@ -139,6 +142,8 @@
   left: 8px;
   right: 8px;
   height: calc(100dvh - 16px);
+  border-radius: var(--frame-radius);
+  overflow: hidden;
 }
 @media (min-width: 1536px) {
   .app-viewport {
@@ -151,6 +156,7 @@
 
 @utility app-frame {
   @apply flex-1 flex flex-col bg-background border border-border overflow-y-auto;
+  border-radius: var(--frame-radius);
 }
 
 @keyframes slide-up {

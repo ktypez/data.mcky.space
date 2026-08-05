@@ -139,4 +139,5 @@
   --scroll-indicator-radius: 6px;
   --scroll-progress-color: oklch(0.6 0.06 255);
   --scroll-progress-glow: 0 0 8px oklch(0.6 0.06 255 / 0.3);
+  --frame-radius: 0.5rem;
 }

@@ -136,4 +136,5 @@
   --scroll-indicator-glow: 0 0 8px #35f0c866;
   --scroll-progress-color: #35f0c8;
   --scroll-progress-glow: 0 0 12px #35f0c888;
+  --frame-radius: 0;
 }
