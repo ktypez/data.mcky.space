@@ -19,7 +19,7 @@ const base: Client = {
 describe('clientText', () => {
   it('includes name, shopName, and address with emoji prefixes', () => {
     const out = clientText(base)
-    expect(out).toBe('👤 : Somchai\n🏪 : Khao Man Gai Shop\n📍 : 123 Sukhumvit')
+    expect(out).toBe('👤 : Somchai\n🏠 : Khao Man Gai Shop\n📍 : 123 Sukhumvit')
   })
 
   it('omits shopName line when empty', () => {
@@ -29,7 +29,7 @@ describe('clientText', () => {
 
   it('omits address line when empty', () => {
     const out = clientText({ ...base, address: '' })
-    expect(out).toBe('👤 : Somchai\n🏪 : Khao Man Gai Shop')
+    expect(out).toBe('👤 : Somchai\n🏠 : Khao Man Gai Shop')
   })
 
   it('returns just the name when both shopName and address are empty', () => {
@@ -48,12 +48,12 @@ describe('clientTextWithMaps', () => {
   it('appends a maps line when coords are present', () => {
     const url = `https://maps.google.com/?q=${base.lat},${base.lng}`
     const out = clientTextWithMaps(base, (lat, lng) => `https://maps.google.com/?q=${lat},${lng}`)
-    expect(out).toBe(`👤 : Somchai\n🏪 : Khao Man Gai Shop\n📍 : 123 Sukhumvit\n🗺️ : ${url}`)
+    expect(out).toBe(`👤 : Somchai\n🏠 : Khao Man Gai Shop\n📍 : 123 Sukhumvit\n🗺️ : ${url}`)
   })
 
   it('falls back to plain text when lat is null', () => {
     const out = clientTextWithMaps({ ...base, lat: null }, () => 'should-not-appear')
-    expect(out).toBe('👤 : Somchai\n🏪 : Khao Man Gai Shop\n📍 : 123 Sukhumvit')
+    expect(out).toBe('👤 : Somchai\n🏠 : Khao Man Gai Shop\n📍 : 123 Sukhumvit')
     expect(out).not.toContain('should-not-appear')
   })
 

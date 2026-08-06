@@ -94,7 +94,7 @@ export default function ClientDetail({
     const parts: string[] = []
     if (mode !== 'maps') {
       parts.push(`👤 : ${client.name}`)
-      if (client.shopName) parts.push(`🛒 : ${client.shopName}`)
+      if (client.shopName) parts.push(`🏠 : ${client.shopName}`)
       if (client.address) parts.push(`📌 : ${client.address}`)
     }
     let text = parts.join('\n')
