@@ -2,7 +2,7 @@
 import { memo } from 'react'
 import { motion } from 'motion/react'
 import type { Client, FilterKey } from '@/types'
-import ClientCopyButtons from '@/components/ClientCopyButtons'
+import ClientCopyButton from '@/components/ClientCopyButton'
 import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import BadgeTag from '@/components/BadgeTag'
@@ -20,8 +20,7 @@ copiedKey: string | null
   hasMore: boolean
   onSelectClient: (client: Client) => void
   onToggleSelect: (id: string) => void
-  onCopyText: (client: Client) => void
-  onCopyTextAndMaps: (client: Client) => void
+  onCopySmart: (client: Client) => void
   onLoadMore: () => void
  isGlobalEmpty: boolean
  filter: FilterKey
@@ -39,8 +38,7 @@ copiedKey,
   hasMore,
   onSelectClient,
   onToggleSelect,
-  onCopyText,
-  onCopyTextAndMaps,
+  onCopySmart,
   onLoadMore,
   isGlobalEmpty,
   filter,
@@ -109,11 +107,10 @@ copiedKey,
    <td className="px-3 py-2 align-middle hidden md:table-cell">
 <div className="flex items-center gap-2">
   <BadgeTag badge={client.badge} size="sm" />
-  <ClientCopyButtons
+  <ClientCopyButton
  client={client}
  copiedKey={copiedKey}
- onCopyText={onCopyText}
- onCopyTextAndMaps={onCopyTextAndMaps}
+ onCopySmart={onCopySmart}
  />
   </div>
   </td>

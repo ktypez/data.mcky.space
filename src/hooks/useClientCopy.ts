@@ -30,5 +30,12 @@ export function useClientCopy() {
     if (ok) flashCopied(`${client.id}:maps`)
   }, [])
 
-  return { handleCopy, handleCopyTextAndMaps }
+  // Smart: maps + text when coords exist, otherwise text only. One key per
+  // client so a single button flashes correctly.
+  const handleCopySmart = useCallback(async (client: Client) => {
+    const ok = await copyToClipboard(clientTextWithMaps(client, getMapsUrl))
+    if (ok) flashCopied(client.id)
+  }, [])
+
+  return { handleCopy, handleCopyTextAndMaps, handleCopySmart }
 }

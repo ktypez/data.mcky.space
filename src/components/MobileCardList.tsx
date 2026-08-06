@@ -1,7 +1,7 @@
 
 import { memo } from 'react'
 import { motion } from 'motion/react'
-import ClientCopyButtons from '@/components/ClientCopyButtons'
+import ClientCopyButton from '@/components/ClientCopyButton'
 import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import LoadMore from '@/components/LoadMore'
@@ -24,8 +24,7 @@ copiedKey: string | null
   search: string
   onSelectClient: (client: Client) => void
   onToggleSelect: (id: string) => void
-  onCopyText: (client: Client) => void
-  onCopyTextAndMaps: (client: Client) => void
+  onCopySmart: (client: Client) => void
   onLoadMore: () => void
 }
 
@@ -44,8 +43,7 @@ copiedKey,
   search,
   onSelectClient,
   onToggleSelect,
-  onCopyText,
-  onCopyTextAndMaps,
+  onCopySmart,
   onLoadMore,
 }: MobileCardListProps) {
  return (
@@ -99,11 +97,10 @@ copiedKey,
   )}
   </div>
 <div className="shrink-0">
-  <ClientCopyButtons
+  <ClientCopyButton
  client={client}
  copiedKey={copiedKey}
- onCopyText={onCopyText}
- onCopyTextAndMaps={onCopyTextAndMaps}
+ onCopySmart={onCopySmart}
  />
   </div>
  </Card>

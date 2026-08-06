@@ -80,7 +80,7 @@ export function PageClient() {
   const { pendingIds: pendingSuggestionIds, refreshKey: suggestRefresh } = useSuggestionStore()
 
   const { counts, filtered, displayed, hasMore } = useFilteredClients()
-  const { handleCopy, handleCopyTextAndMaps } = useClientCopy()
+  const { handleCopySmart } = useClientCopy()
   const { planRoute, handleManualOrigin } = useRoutePlanner()
 
   useEffect(() => {
@@ -316,8 +316,7 @@ export function PageClient() {
                           search={search}
                           onSelectClient={navToDetail}
                           onToggleSelect={handleToggleSelect}
-                          onCopyText={handleCopy}
-                          onCopyTextAndMaps={handleCopyTextAndMaps}
+                          onCopySmart={handleCopySmart}
                           onLoadMore={handleLoadMore}
                         />
                       </div>
@@ -337,8 +336,7 @@ export function PageClient() {
                           search={search}
                           onSelectClient={navToDetail}
                           onToggleSelect={handleToggleSelect}
-                          onCopyText={handleCopy}
-                          onCopyTextAndMaps={handleCopyTextAndMaps}
+                          onCopySmart={handleCopySmart}
                           onLoadMore={handleLoadMore}
                         />
                       </div>
@@ -359,8 +357,7 @@ export function PageClient() {
                           search={search}
                           onSelectClient={navToDetail}
                           onToggleSelect={handleToggleSelect}
-                          onCopyText={handleCopy}
-                          onCopyTextAndMaps={handleCopyTextAndMaps}
+                          onCopySmart={handleCopySmart}
                           onLoadMore={handleLoadMore}
                         />
                       </div>
