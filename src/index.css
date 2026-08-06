@@ -136,11 +136,11 @@
    --------------------------------------------------------------------------- */
 .copy-press {
   transition:
-    transform 0.22s cubic-bezier(0.34, 1.45, 0.5, 1),
-    box-shadow 0.18s ease,
-    background-color 0.18s ease,
-    color 0.18s ease,
-    border-color 0.18s ease;
+    transform 0.32s cubic-bezier(0.34, 1.8, 0.36, 1),
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
 }
 .copy-press:active {
   transform: translateY(1px) scale(0.97);
