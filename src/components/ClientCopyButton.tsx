@@ -28,7 +28,7 @@ export default function ClientCopyButton({
         e.stopPropagation()
         onCopySmart(client)
       }}
-      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[4px] text-[14px] font-medium transition-all cursor-pointer ring-1 ${
+      className={`copy-press flex items-center gap-1.5 px-2.5 py-1.5 rounded-[4px] text-[14px] font-medium cursor-pointer ring-1 ${
         isCopied
           ? 'bg-success/10 text-success ring-success/30'
           : 'bg-card text-muted-foreground hover:bg-card ring-border'

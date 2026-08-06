@@ -141,3 +141,10 @@
   --scroll-progress-glow: 0 0 8px oklch(0.6 0.06 255 / 0.3);
   --frame-radius: 0.5rem;
 }
+
+/* ---- copy button press: clean steel ring ---- */
+[data-theme='slate'] .copy-press:active {
+  background: oklch(0.94 0.003 255);
+  color: oklch(0.45 0.08 255);
+  box-shadow: 0 0 0 2px oklch(0.45 0.08 255 / 0.4);
+}

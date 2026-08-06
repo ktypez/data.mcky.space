@@ -179,3 +179,15 @@
   --scroll-progress-glow: 0 0 12px #4af62688;
   --frame-radius: 0;
 }
+
+/* ---- copy button press: phosphor blink ---- */
+@keyframes copy-crt-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+[data-theme='crt'] .copy-press:active {
+  animation: copy-crt-blink 0.32s steps(1) infinite;
+  background: #4af626;
+  color: #060605;
+  box-shadow: 0 0 0 1px #4af626, 0 0 16px #4af62688;
+}

@@ -163,3 +163,11 @@
   --scroll-progress-glow: none;
   --frame-radius: 0;
 }
+
+/* ---- copy button press: hard stamp, shadow collapses ---- */
+[data-theme='brut'] .copy-press:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 #0d0d0d;
+  background: #0d0d0d;
+  color: #ffffff;
+}

@@ -144,3 +144,15 @@
   --scroll-progress-glow: 0 0 12px #ffb00088;
   --frame-radius: 0;
 }
+
+/* ---- copy button press: amber LED blink ---- */
+@keyframes copy-rack-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+[data-theme='rack'] .copy-press:active {
+  animation: copy-rack-blink 0.4s steps(1) infinite;
+  background: #ffb000;
+  color: #0a0a0c;
+  box-shadow: 0 0 0 1px #ffb000, 0 0 14px #ffb00088;
+}

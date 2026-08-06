@@ -138,3 +138,14 @@
   --scroll-progress-glow: 0 0 12px #35f0c888;
   --frame-radius: 0;
 }
+
+/* ---- copy button press: packet pulse ---- */
+@keyframes copy-noc-pulse {
+  0%, 100% { background: rgba(53, 240, 200, 0.05); }
+  50% { background: rgba(53, 240, 200, 0.2); }
+}
+[data-theme='noc'] .copy-press:active {
+  animation: copy-noc-pulse 0.4s ease infinite;
+  color: #35f0c8;
+  box-shadow: 0 0 0 1px #35f0c8, 0 0 14px #35f0c866;
+}

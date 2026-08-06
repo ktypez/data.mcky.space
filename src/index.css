@@ -128,6 +128,24 @@
   scrollbar-width: none;
 }
 
+/* ---------------------------------------------------------------------------
+   Press feedback for interactive elements (e.g. the list copy button).
+   Base: a gentle sink so clicks always feel tactile even before any theme
+   overrides. Themes layer their own character on top via
+   `[data-theme='x'] .copy-press:active`.
+   --------------------------------------------------------------------------- */
+.copy-press {
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+.copy-press:active {
+  transform: translateY(1px) scale(0.97);
+}
+
 /* App viewport + frame = bearnie-style canvas with header OUTSIDE the border.
    The viewport is a position:fixed container filling the viewport with 8px
    inset on all sides. The header sits inside the viewport as a non-scrolling

@@ -191,3 +191,11 @@
   --scroll-progress-glow: 0 0 6px #ffe06655;
   --frame-radius: 0;
 }
+
+/* ---- copy button press: hard shadow collapses ---- */
+[data-theme='mcky'] .copy-press:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--border);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}

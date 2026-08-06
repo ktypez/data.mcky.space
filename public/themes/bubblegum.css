@@ -125,3 +125,11 @@
   --scroll-progress-glow: 0 0 10px oklch(0.62 0.18 348 / 0.4);
   --frame-radius: 0.5rem;
 }
+
+/* ---- copy button press: soft chunky squash ---- */
+[data-theme='bubblegum'] .copy-press:active {
+  transform: scale(0.93);
+  background: oklch(0.92 0.08 88);
+  color: oklch(0.62 0.18 348);
+  box-shadow: 0 0 0 2px oklch(0.62 0.18 348 / 0.5);
+}

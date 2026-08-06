@@ -189,3 +189,14 @@
 .dark[data-theme='moss'] ::selection {
   background: rgba(139, 181, 90, 0.35);
 }
+
+/* ---- copy button press: earthy moss ring ---- */
+[data-theme='moss'] .copy-press:active {
+  background: #e9e0cd;
+  color: #6a8c3f;
+  box-shadow: 0 0 0 2px #6a8c3f88;
+}
+.dark[data-theme='moss'] .copy-press:active {
+  background: #3a3c32;
+  color: #9fc97a;
+}
