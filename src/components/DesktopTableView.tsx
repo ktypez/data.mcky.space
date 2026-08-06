@@ -2,7 +2,7 @@
 import { memo } from 'react'
 import { motion } from 'motion/react'
 import type { Client, FilterKey } from '@/types'
-import CopyDropdown from '@/components/CopyDropdown'
+import ClientCopyButtons from '@/components/ClientCopyButtons'
 import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import BadgeTag from '@/components/BadgeTag'
@@ -16,16 +16,13 @@ interface DesktopTableViewProps {
  selectionMode: boolean
  selectedIds: Set<string>
  pendingSuggestionIds: Set<string>
- copiedId: string | null
- openCopyId: string | null
- hasMore: boolean
- onSelectClient: (client: Client) => void
- onToggleSelect: (id: string) => void
- onToggleCopyDropdown: (clientId: string) => void
- onCopyText: (client: Client) => void
- onCopyTextAndMaps: (client: Client) => void
- onCloseCopyDropdown: () => void
- onLoadMore: () => void
+copiedKey: string | null
+  hasMore: boolean
+  onSelectClient: (client: Client) => void
+  onToggleSelect: (id: string) => void
+  onCopyText: (client: Client) => void
+  onCopyTextAndMaps: (client: Client) => void
+  onLoadMore: () => void
  isGlobalEmpty: boolean
  filter: FilterKey
  search: string
@@ -38,19 +35,16 @@ const DesktopTableView = memo(function DesktopTableView({
  selectionMode,
  selectedIds,
  pendingSuggestionIds,
- copiedId,
- openCopyId,
- hasMore,
- onSelectClient,
- onToggleSelect,
- onToggleCopyDropdown,
- onCopyText,
- onCopyTextAndMaps,
- onCloseCopyDropdown,
- onLoadMore,
- isGlobalEmpty,
- filter,
- search,
+copiedKey,
+  hasMore,
+  onSelectClient,
+  onToggleSelect,
+  onCopyText,
+  onCopyTextAndMaps,
+  onLoadMore,
+  isGlobalEmpty,
+  filter,
+  search,
 }: DesktopTableViewProps) {
  return (
   <>
@@ -113,18 +107,14 @@ const DesktopTableView = memo(function DesktopTableView({
    )}
    </td>
    <td className="px-3 py-2 align-middle hidden md:table-cell">
-   <div className="flex items-center gap-2" data-copy-dropdown="true">
-   <BadgeTag badge={client.badge} size="sm" />
-   <CopyDropdown
-   client={client}
-   copiedId={copiedId}
-   isOpen={openCopyId === client.id}
-   onToggle={() => onToggleCopyDropdown(client.id)}
-   onCopyText={onCopyText}
-   onCopyTextAndMaps={onCopyTextAndMaps}
-   onClose={onCloseCopyDropdown}
-   size="sm"
-  />
+<div className="flex items-center gap-2">
+  <BadgeTag badge={client.badge} size="sm" />
+  <ClientCopyButtons
+ client={client}
+ copiedKey={copiedKey}
+ onCopyText={onCopyText}
+ onCopyTextAndMaps={onCopyTextAndMaps}
+ />
   </div>
   </td>
   </motion.tr>

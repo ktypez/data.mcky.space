@@ -75,7 +75,6 @@ export function PageClient() {
     manualOriginLat,
     manualOriginLng,
     copiedId,
-    openCopyId,
     newClientCount,
   } = useUIStore()
   const { pendingIds: pendingSuggestionIds, refreshKey: suggestRefresh } = useSuggestionStore()
@@ -172,16 +171,6 @@ export function PageClient() {
 
   const handleToggleSelect = useCallback(
     (id: string) => useClientStore.getState().toggleSelect(id),
-    [],
-  )
-
-  const handleToggleCopyDropdown = useCallback((id: string) => {
-    const ui = useUIStore.getState()
-    ui.setOpenCopyId(ui.openCopyId === id ? null : id)
-  }, [])
-
-  const handleCloseCopyDropdown = useCallback(
-    () => useUIStore.getState().setOpenCopyId(null),
     [],
   )
 
@@ -321,17 +310,14 @@ export function PageClient() {
                           selectedIds={selectedIds}
                           pendingSuggestionIds={pendingSuggestionIds}
                           copiedId={copiedId}
-                          openCopyId={openCopyId}
                           hasMore={hasMore}
                           isGlobalEmpty={clients.length === 0}
                           filter={filter}
                           search={search}
                           onSelectClient={navToDetail}
                           onToggleSelect={handleToggleSelect}
-                          onToggleCopyDropdown={handleToggleCopyDropdown}
                           onCopyText={handleCopy}
                           onCopyTextAndMaps={handleCopyTextAndMaps}
-                          onCloseCopyDropdown={handleCloseCopyDropdown}
                           onLoadMore={handleLoadMore}
                         />
                       </div>
@@ -345,17 +331,14 @@ export function PageClient() {
                           selectedIds={selectedIds}
                           pendingSuggestionIds={pendingSuggestionIds}
                           copiedId={copiedId}
-                          openCopyId={openCopyId}
                           hasMore={hasMore}
                           isGlobalEmpty={clients.length === 0}
                           filter={filter}
                           search={search}
                           onSelectClient={navToDetail}
                           onToggleSelect={handleToggleSelect}
-                          onToggleCopyDropdown={handleToggleCopyDropdown}
                           onCopyText={handleCopy}
                           onCopyTextAndMaps={handleCopyTextAndMaps}
-                          onCloseCopyDropdown={handleCloseCopyDropdown}
                           onLoadMore={handleLoadMore}
                         />
                       </div>
@@ -370,17 +353,14 @@ export function PageClient() {
                           isAdmin={isAdmin}
                           pendingSuggestionIds={pendingSuggestionIds}
                           copiedId={copiedId}
-                          openCopyId={openCopyId}
                           hasMore={hasMore}
                           isGlobalEmpty={clients.length === 0}
                           filter={filter}
                           search={search}
                           onSelectClient={navToDetail}
                           onToggleSelect={handleToggleSelect}
-                          onToggleCopyDropdown={handleToggleCopyDropdown}
                           onCopyText={handleCopy}
                           onCopyTextAndMaps={handleCopyTextAndMaps}
-                          onCloseCopyDropdown={handleCloseCopyDropdown}
                           onLoadMore={handleLoadMore}
                         />
                       </div>
@@ -424,10 +404,6 @@ export function PageClient() {
         </div>
         <VerticalBar containerRef={frameRef} />
       </div>
-
-      {openCopyId && (
-        <div className="fixed inset-0 z-40" onClick={handleCloseCopyDropdown} />
-      )}
     </div>
   )
 }

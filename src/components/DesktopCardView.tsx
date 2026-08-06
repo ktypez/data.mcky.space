@@ -2,7 +2,7 @@
 import { memo } from 'react'
 import { motion } from 'motion/react'
 import type { Client, FilterKey } from '@/types'
-import CopyDropdown from '@/components/CopyDropdown'
+import ClientCopyButtons from '@/components/ClientCopyButtons'
 import EmptyState from '@/components/EmptyState'
 import { formatDate } from '@/lib/utils'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
@@ -18,19 +18,16 @@ interface DesktopCardViewProps {
  selectionMode: boolean
  selectedIds: Set<string>
  pendingSuggestionIds: Set<string>
- copiedId: string | null
- openCopyId: string | null
- hasMore: boolean
- isGlobalEmpty: boolean
- filter: FilterKey
- search: string
- onSelectClient: (client: Client) => void
- onToggleSelect: (id: string) => void
- onToggleCopyDropdown: (clientId: string) => void
- onCopyText: (client: Client) => void
- onCopyTextAndMaps: (client: Client) => void
- onCloseCopyDropdown: () => void
- onLoadMore: () => void
+copiedKey: string | null
+  hasMore: boolean
+  isGlobalEmpty: boolean
+  filter: FilterKey
+  search: string
+  onSelectClient: (client: Client) => void
+  onToggleSelect: (id: string) => void
+  onCopyText: (client: Client) => void
+  onCopyTextAndMaps: (client: Client) => void
+  onLoadMore: () => void
 }
 
 const DesktopCardView = memo(function DesktopCardView({
@@ -40,19 +37,16 @@ const DesktopCardView = memo(function DesktopCardView({
  selectionMode,
  selectedIds,
  pendingSuggestionIds,
- copiedId,
- openCopyId,
- hasMore,
- isGlobalEmpty,
- filter,
- search,
- onSelectClient,
- onToggleSelect,
- onToggleCopyDropdown,
- onCopyText,
- onCopyTextAndMaps,
- onCloseCopyDropdown,
- onLoadMore,
+copiedKey,
+  hasMore,
+  isGlobalEmpty,
+  filter,
+  search,
+  onSelectClient,
+  onToggleSelect,
+  onCopyText,
+  onCopyTextAndMaps,
+  onLoadMore,
 }: DesktopCardViewProps) {
  return (
  <div className="max-md:hidden p-4">
@@ -119,15 +113,11 @@ const DesktopCardView = memo(function DesktopCardView({
  </span>
   <div className="flex items-center gap-1.5">
   <BadgeTag badge={client.badge} size="sm" />
-  <CopyDropdown
+  <ClientCopyButtons
   client={client}
-  copiedId={copiedId}
-  isOpen={openCopyId === client.id}
-  onToggle={() => onToggleCopyDropdown(client.id)}
+  copiedKey={copiedKey}
   onCopyText={onCopyText}
   onCopyTextAndMaps={onCopyTextAndMaps}
-  onClose={onCloseCopyDropdown}
-  size="sm"
   />
   </div>
  </div>

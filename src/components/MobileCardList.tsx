@@ -1,7 +1,7 @@
 
 import { memo } from 'react'
 import { motion } from 'motion/react'
-import CopyDropdown from '@/components/CopyDropdown'
+import ClientCopyButtons from '@/components/ClientCopyButtons'
 import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import LoadMore from '@/components/LoadMore'
@@ -17,19 +17,16 @@ interface MobileCardListProps {
  selectedIds: Set<string>
  isAdmin: boolean
  pendingSuggestionIds: Set<string>
- copiedId: string | null
- openCopyId: string | null
- hasMore: boolean
- isGlobalEmpty: boolean
- filter: FilterKey
- search: string
- onSelectClient: (client: Client) => void
- onToggleSelect: (id: string) => void
- onToggleCopyDropdown: (clientId: string) => void
- onCopyText: (client: Client) => void
- onCopyTextAndMaps: (client: Client) => void
- onCloseCopyDropdown: () => void
- onLoadMore: () => void
+copiedKey: string | null
+  hasMore: boolean
+  isGlobalEmpty: boolean
+  filter: FilterKey
+  search: string
+  onSelectClient: (client: Client) => void
+  onToggleSelect: (id: string) => void
+  onCopyText: (client: Client) => void
+  onCopyTextAndMaps: (client: Client) => void
+  onLoadMore: () => void
 }
 
 const MobileCardList = memo(function MobileCardList({
@@ -40,19 +37,16 @@ const MobileCardList = memo(function MobileCardList({
  selectedIds,
  isAdmin,
  pendingSuggestionIds,
- copiedId,
- openCopyId,
- hasMore,
- isGlobalEmpty,
- filter,
- search,
- onSelectClient,
- onToggleSelect,
- onToggleCopyDropdown,
- onCopyText,
- onCopyTextAndMaps,
- onCloseCopyDropdown,
- onLoadMore,
+copiedKey,
+  hasMore,
+  isGlobalEmpty,
+  filter,
+  search,
+  onSelectClient,
+  onToggleSelect,
+  onCopyText,
+  onCopyTextAndMaps,
+  onLoadMore,
 }: MobileCardListProps) {
  return (
  <div className="md:hidden p-3 space-y-2">
@@ -104,19 +98,14 @@ const MobileCardList = memo(function MobileCardList({
   </div>
   )}
   </div>
-  <div className="shrink-0 flex flex-col items-center gap-0.5">
-  <CopyDropdown
+<div className="shrink-0">
+  <ClientCopyButtons
  client={client}
- copiedId={copiedId}
- isOpen={openCopyId === client.id}
- onToggle={() => onToggleCopyDropdown(client.id)}
+ copiedKey={copiedKey}
  onCopyText={onCopyText}
  onCopyTextAndMaps={onCopyTextAndMaps}
- onClose={onCloseCopyDropdown}
- size="sm"
- mt="mt-1"
  />
- </div>
+  </div>
  </Card>
  </motion.div>
  )

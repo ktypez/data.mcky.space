@@ -6,27 +6,28 @@ import type { Client } from '@/types'
 
 const COPIED_FLASH_MS = 1500
 
-function flashCopied(id: string) {
-  useUIStore.getState().setCopiedId(id)
+function flashCopied(key: string) {
+  useUIStore.getState().setCopiedId(key)
   setTimeout(() => useUIStore.getState().setCopiedId(null), COPIED_FLASH_MS)
 }
 
 /**
  * Clipboard + "copied" flash for the clients list.
  *
- * Pulls all actions from `useUIStore.getState()` so the hook itself
- * doesn't re-subscribe on every render — the copied-id state is read
- * by `Clients.tsx` already.
+ * The flash key encodes both the client and the action (`<id>:text` /
+ * `<id>:maps`) so a row with two copy buttons can highlight the exact one
+ * that succeeded. Pulls all actions from `useUIStore.getState()` so the hook
+ * itself doesn't re-subscribe on every render.
  */
 export function useClientCopy() {
   const handleCopy = useCallback(async (client: Client) => {
     const ok = await copyToClipboard(clientText(client))
-    if (ok) flashCopied(client.id)
+    if (ok) flashCopied(`${client.id}:text`)
   }, [])
 
   const handleCopyTextAndMaps = useCallback(async (client: Client) => {
     const ok = await copyToClipboard(clientTextWithMaps(client, getMapsUrl))
-    if (ok) flashCopied(client.id)
+    if (ok) flashCopied(`${client.id}:maps`)
   }, [])
 
   return { handleCopy, handleCopyTextAndMaps }

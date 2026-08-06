@@ -14,7 +14,6 @@ interface UIState {
   manualOriginLng: string
   mapFocusId: string | null
   copiedId: string | null
-  openCopyId: string | null
   newClientCount: number
   theme: string
 
@@ -27,7 +26,6 @@ interface UIState {
   setManualOriginLng: (lng: string) => void
   setMapFocusId: (id: string | null) => void
   setCopiedId: (id: string | null) => void
-  setOpenCopyId: (id: string | null) => void
   setNewClientCount: (count: number) => void
   setTheme: (theme: string) => void
   clearViewStates: () => void
@@ -52,7 +50,6 @@ export const useUIStore = create<UIState>()(
       manualOriginLng: '',
       mapFocusId: null,
       copiedId: null,
-      openCopyId: null,
       newClientCount: 0,
       theme: 'claude',
 
@@ -65,7 +62,6 @@ export const useUIStore = create<UIState>()(
       setManualOriginLng: (manualOriginLng) => set({ manualOriginLng }),
       setMapFocusId: (mapFocusId) => set({ mapFocusId }),
       setCopiedId: (copiedId) => set({ copiedId }),
-      setOpenCopyId: (openCopyId) => set({ openCopyId }),
       setNewClientCount: (newClientCount) => set({ newClientCount }),
       setTheme: (theme) => set({ theme }),
       clearViewStates: () =>
@@ -77,7 +73,6 @@ export const useUIStore = create<UIState>()(
         set({
           viewState: { view: 'list' },
           mapFocusId: null,
-          openCopyId: null,
         }),
       openDetail: (clientId, client) =>
         set({ viewState: { view: 'detail', clientId, client } }),
