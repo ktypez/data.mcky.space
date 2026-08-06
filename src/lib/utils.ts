@@ -5,20 +5,42 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/** Copy text to clipboard with fallback for older browsers. */
-export function copyToClipboard(text: string) {
-  if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(text).catch(() => console.warn('Clipboard write failed'))
-  } else {
+/**
+ * Copy text to clipboard. Returns true on success.
+ *
+ * Tries the legacy synchronous execCommand path FIRST — it runs entirely
+ * inside the click handler (no async gap), so it works even in dropdown /
+ * popover menus where browsers may revoke the transient user activation
+ * needed by the async Clipboard API. Falls back to navigator.clipboard.
+ */
+export function copyToClipboard(text: string): Promise<boolean> {
+  // 1) Synchronous execCommand — reliable in any user-gesture context.
+  try {
     const ta = document.createElement('textarea')
     ta.value = text
+    ta.setAttribute('readonly', '')
     ta.style.position = 'fixed'
+    ta.style.top = '0'
+    ta.style.left = '0'
     ta.style.opacity = '0'
     document.body.appendChild(ta)
     ta.select()
-    document.execCommand('copy')
+    ta.setSelectionRange(0, ta.value.length) // required on iOS
+    const ok = document.execCommand('copy')
     document.body.removeChild(ta)
+    if (ok) return Promise.resolve(true)
+  } catch {
+    /* fall through to async API */
   }
+
+  // 2) Async Clipboard API as fallback.
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text).then(
+      () => true,
+      () => false,
+    )
+  }
+  return Promise.resolve(false)
 }
 
 /** Build a Google Maps URL from lat/lng coordinates. */

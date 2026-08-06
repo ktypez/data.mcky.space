@@ -19,14 +19,14 @@ function flashCopied(id: string) {
  * by `Clients.tsx` already.
  */
 export function useClientCopy() {
-  const handleCopy = useCallback((client: Client) => {
-    copyToClipboard(clientText(client))
-    flashCopied(client.id)
+  const handleCopy = useCallback(async (client: Client) => {
+    const ok = await copyToClipboard(clientText(client))
+    if (ok) flashCopied(client.id)
   }, [])
 
-  const handleCopyTextAndMaps = useCallback((client: Client) => {
-    copyToClipboard(clientTextWithMaps(client, getMapsUrl))
-    flashCopied(client.id)
+  const handleCopyTextAndMaps = useCallback(async (client: Client) => {
+    const ok = await copyToClipboard(clientTextWithMaps(client, getMapsUrl))
+    if (ok) flashCopied(client.id)
   }, [])
 
   return { handleCopy, handleCopyTextAndMaps }

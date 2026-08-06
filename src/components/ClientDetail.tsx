@@ -104,9 +104,11 @@ export default function ClientDetail({
       const mapsText = `🗺️ : ${url}`
       text = mode === 'maps' ? mapsText : text + '\n' + mapsText
     }
-    copyToClipboard(text)
-    setCopied(mode)
-    setTimeout(() => setCopied(null), 1500)
+    copyToClipboard(text).then((ok) => {
+      if (!ok) return
+      setCopied(mode)
+      setTimeout(() => setCopied(null), 1500)
+    })
   }, [client])
 
  const handleDelete = useCallback(() => {

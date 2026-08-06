@@ -13,9 +13,11 @@ export default function ClientShareCard({ clientId }: ClientShareCardProps) {
   const url = typeof window !== 'undefined' ? `${window.location.origin}/c/${clientId}` : ''
 
   const handleCopy = () => {
-    copyToClipboard(url)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    copyToClipboard(url).then((ok) => {
+      if (!ok) return
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
   }
 
   return (
