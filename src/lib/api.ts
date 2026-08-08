@@ -1,10 +1,35 @@
-function authHeaders(): Record<string, string> {
-  const token = localStorage.getItem('ezzylist_admin_token')
-  return token ? { 'x-admin-token': token } : {}
+import { useAuthStore } from '@/stores/auth-store'
+
+// Returns the active Clerk session JWT for backend calls (used for write-only
+// API routes like /api/clients/update & /api/profile/theme).
+// Returns null if no session yet (visitor is guest).
+//
+// Clerk's getToken() only exists inside the provider context (useAuth hook);
+// AuthSync stashes it into the auth store so non-component code can call it.
+export async function clerkToken(): Promise<string | null> {
+  try {
+    const fn = useAuthStore.getState().getToken
+    return fn ? await fn() : null
+  } catch {
+    return null
+  }
 }
 
-export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const headers = { ...authHeaders(), ...options.headers as Record<string, string> }
+/**
+ * Wrapper for fetch that attaches a Clerk session token as Bearer header when
+ * available. It replaces the legacy `x-admin-token` header (which the old
+ * password based flow used). If there is no session yet, the header is simply
+ * omitted.
+ */
+export async function apiFetch(
+  url: string,
+  options: RequestInit = {},
+): Promise<Response> {
+  const token = await clerkToken()
+  const headers = {
+    ...options.headers as Record<string, string>,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
   return fetch(url, { ...options, headers })
 }
 

@@ -2,16 +2,17 @@ import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { useAuthStore } from './stores/auth-store'
-import { useClientStore } from './stores/client-store'
+import { useAuth } from '@clerk/clerk-react'
 import { useMotion } from './lib/motion'
+import { AuthSync } from './components/AuthSync'
 
-const LoginModal = lazy(() => import('./components/LoginModal'))
 const Clients = lazy(() => import('./pages/Clients').then((m) => ({ default: m.PageClient })))
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'))
 const MapPage = lazy(() => import('./pages/MapPage'))
 const SuggestionsPage = lazy(() => import('./pages/SuggestionsPage'))
 const TrashPage = lazy(() => import('./pages/TrashPage'))
 const AddEditPage = lazy(() => import('./pages/AddEditPage'))
+const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })))
 
 function PageTransition({ children }: { children: React.ReactNode }) {
   const { slideUp, spring } = useMotion()
@@ -29,7 +30,7 @@ function PageTransition({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  const { loginOpen, setLoginOpen, setAdmin } = useAuthStore()
+  const { isLoaded, isSignedIn } = useAuth()
   const location = useLocation()
 
   useEffect(() => {
@@ -46,41 +47,53 @@ function App() {
       navigator.serviceWorker?.removeEventListener('message', onSwMessage)
   }, [])
 
-  useEffect(() => {
-    if (localStorage.getItem('ezzylist_admin_token')) {
-      useAuthStore.getState().checkAuth()
-    }
-  }, [])
+  // Don't gate the app; we let any route render and rely on client-side checks.
+  // Pages that need admin access will prompt the sign-in modal.
+  // If the user explicitly asks to sign in ("/login" route), render the Clerk
+  // sign-in page. (Existing visitors keep viewing the guests-crud content.)
+  const { loginOpen } = useAuthStore()
+  const wantsLogin = location.pathname === '/login' || loginOpen
 
+  if (!isLoaded) {
+    return (
+      <div
+        style={{
+          minHeight: '100dvh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontWeight: 500,
+          color: 'var(--muted)',
+        }}
+      >
+        กำลังโหลด...
+      </div>
+    )
+  }
+
+  if (wantsLogin && !isSignedIn) {
+    return <Login />
+  }
+
+  // After we know the user is signed in or a guest (not asking to sign in),
+  // route normally.
   return (
-    <>
-      <Suspense fallback={null}>
-        <LoginModal
-          open={loginOpen}
-          onClose={() => setLoginOpen(false)}
-          onSuccess={() => {
-            setAdmin(true)
-            // Apply the admin's saved profile theme right after login.
-            useAuthStore.getState().syncProfileTheme()
-            // Data already loaded by initialize() on mount; no extra D1 fetch.
-          }}
-        />
-      </Suspense>
+    <Suspense fallback={null}>
+      <AuthSync />
       <AnimatePresence mode="wait">
-        <Suspense fallback={null}>
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<PageTransition><Clients /></PageTransition>} />
-            <Route path="/maps" element={<PageTransition><MapPage /></PageTransition>} />
-            <Route path="/suggestions" element={<PageTransition><SuggestionsPage /></PageTransition>} />
-            <Route path="/trash" element={<PageTransition><TrashPage /></PageTransition>} />
-            <Route path="/add" element={<PageTransition><AddEditPage /></PageTransition>} />
-            <Route path="/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
-            <Route path="/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
+        <Routes location={location} key={location.pathname}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<PageTransition><Clients /></PageTransition>} />
+          <Route path="/maps" element={<PageTransition><MapPage /></PageTransition>} />
+          <Route path="/suggestions" element={<PageTransition><SuggestionsPage /></PageTransition>} />
+          <Route path="/trash" element={<PageTransition><TrashPage /></PageTransition>} />
+          <Route path="/add" element={<PageTransition><AddEditPage /></PageTransition>} />
+          <Route path="/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
+          <Route path="/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </AnimatePresence>
-    </>
+    </Suspense>
   )
 }
 

@@ -1,52 +1,69 @@
-
 import { create } from 'zustand'
-import { apiFetch, getProfileTheme } from '@/lib/api'
+import { useUser, useAuth } from '@clerk/clerk-react'
+import { isAdminEmail } from '@/lib/clerk-config'
 import { useUIStore } from '@/stores/ui-store'
 
 interface AuthState {
-  isAdmin: boolean
+  // open the Clerk-powered login modal (or page) from anywhere.
   loginOpen: boolean
-  checking: boolean
+  setLoginOpen: (open: boolean) => void
+  // Kept for back-compat with old code that reads `useAuthStore().isAdmin`.
+  // New code should use `useAdminAuth()` instead.
+  isAdmin: boolean
   setAdmin: (isAdmin: boolean) => void
-  setLoginOpen: (loginOpen: boolean) => void
+  checking: boolean
   setChecking: (checking: boolean) => void
-  checkAuth: () => Promise<void>
-  syncProfileTheme: () => Promise<void>
-  logout: () => Promise<void>
+  // Fresh Clerk session token obtainer — populated by AuthSync from the
+  // `useAuth()` hook (the only place the token minting function lives).
+  // apiFetch uses it to attach `Authorization: Bearer <JWT>`.
+  getToken: (() => Promise<string | null>) | null
+  setTokenGetter: (fn: (() => Promise<string | null>) | null) => void
+  // Sign-out function stashed from Clerk (useClerk().signOut) by AuthSync.
+  signOut: (() => Promise<void>) | null
+  setSignOut: (fn: (() => Promise<void>) | null) => void
+  // Signed-in flag (back-compat with old code that read useAuthStore()).
+  isSignedIn: boolean
+  setSignedIn: (v: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  isAdmin: false,
   loginOpen: false,
-  checking: true,
+  setLoginOpen: (open) => set({ loginOpen: open }),
+  isAdmin: false,
   setAdmin: (isAdmin) => set({ isAdmin }),
-  setLoginOpen: (loginOpen) => set({ loginOpen }),
+  checking: true,
   setChecking: (checking) => set({ checking }),
-  checkAuth: async () => {
-    set({ checking: true })
-    try {
-      const res = await apiFetch('/api/auth')
-      set({ isAdmin: res.ok, checking: false })
-      if (res.ok) {
-        await useAuthStore.getState().syncProfileTheme()
-      }
-    } catch {
-      set({ isAdmin: false, checking: false })
-    }
-  },
-  // Pull the admin's server-side theme and apply it if it differs from the
-  // local one (ThemeInjector picks it up without a reload).
-  syncProfileTheme: async () => {
-    const profileTheme = await getProfileTheme()
-    if (!profileTheme) return
-    const current = useUIStore.getState().theme
-    if (profileTheme !== current) {
-      useUIStore.getState().setTheme(profileTheme)
-    }
-  },
-  logout: async () => {
-    await apiFetch('/api/auth', { method: 'DELETE' })
-    localStorage.removeItem('ezzylist_admin_token')
-    set({ isAdmin: false, loginOpen: false })
-  },
+  getToken: null,
+  setTokenGetter: (getToken) => set({ getToken }),
+  signOut: null,
+  setSignOut: (signOut) => set({ signOut }),
+  isSignedIn: false,
+  setSignedIn: (v) => set({ isSignedIn: v }),
 }))
+
+// Store-level logout used by legacy components (e.g. NavDropdown).
+// Delegates to the Clerk signOut stashed by AuthSync; no-op if unset.
+export async function logout() {
+  const fn = useAuthStore.getState().signOut
+  if (fn) await fn()
+  useAuthStore.getState().setLoginOpen(false)
+}
+
+// Call this from components to check Clerk's current auth state.
+// It always reflects the latest session status (loaded, signed-in, admin).
+export function useAdminAuth() {
+  const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+  const email = user?.primaryEmailAddress?.emailAddress ?? null
+  const isAdmin = isAdminEmail(email)
+
+  return {
+    isLoaded,
+    isSignedIn,
+    isAdmin,
+    email,
+  }
+}
+
+// Re-exported so callers can keep one import line.
+export { isAdminEmail }

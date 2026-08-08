@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '@/stores/auth-store'
+import { useAuthStore, logout } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
 import { ArrowLeft, MapTrifold, ChatDots, Trash, SignOut, LockKey } from '@phosphor-icons/react'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
 export default function NavDropdown() {
   const navigate = useNavigate()
-  const { isAdmin, logout, setLoginOpen } = useAuthStore()
+  const { isAdmin, isSignedIn, setLoginOpen } = useAuthStore()
   const { resetView } = useUIStore()
   const [open, setOpen] = useState(false)
 
@@ -65,9 +65,9 @@ export default function NavDropdown() {
       )}
 
       <div className="my-1 mx-2 h-px bg-border" />
-      {isAdmin ? (
+      {isSignedIn ? (
         <button
-          onClick={() => { close(); logout() }}
+          onClick={() => { close(); void logout() }}
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-destructive hover:bg-destructive/10 transition-colors"
         >
           <SignOut className="w-4 h-4 shrink-0" />
