@@ -1,102 +1,151 @@
-async function pbkdf2(password: string, salt: Uint8Array): Promise<Uint8Array> {
-  const enc = new TextEncoder()
-  const key = await crypto.subtle.importKey(
-    'raw', enc.encode(password), 'PBKDF2', false, ['deriveBits'],
-  )
-  const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
-    key, 512,
-  )
-  return new Uint8Array(bits)
-}
+import { createRemoteJWKSet, jwtVerify } from 'jose'
 
-function toHex(buf: Uint8Array): string {
-  return Array.from(buf).map((b) => b.toString(16).padStart(2, '0')).join('')
-}
+// ---------------------------------------------------------------------------
+// Clerk-based admin authentication for the functions runtime (migrated from
+// the legacy password + HMAC token flow).
+//
+// Flow:
+//   * Frontend sends Clerk session as `Authorization: Bearer <JWT>`.
+//   * We verify the JWT against Clerk's JWKS (FAPI = clerk.mcky.space).
+//   * The `sub` claim is the Clerk user ID. Session tokens do NOT carry an
+//     email claim by default, so we resolve the email via the Clerk Backend
+//     API (https://api.clerk.com/v1/users/{id}) using env.CLERK_SECRET_KEY
+//     and check it against the same admin allowlist the frontend uses
+//     (src/lib/clerk-config.ts).
+//   * Resolved email→user mappings are cached in memory (module scope) to
+//     avoid an API round-trip on every request.
+//   * Legacy `x-admin-token` / `ezzylist_token` (HMAC) is kept as a
+//     transitional fallback so already-open tabs keep working until they
+//     refresh into the Clerk flow.
+// ---------------------------------------------------------------------------
 
-function fromHex(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2)
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16)
+// Clerk session token issuer — always the frontend API base.
+const CLERK_ISSUER = 'https://clerk.mcky.space'
+const CLERK_API_BASE = 'https://api.clerk.com/v1'
+
+// Keep in sync with src/lib/clerk-config.ts ADMIN_EMAILS.
+const ADMIN_EMAILS = new Set([
+  'bankkh@gmail.com',
+  'daily@mcky.space',
+  'mcky@ezzy.com',
+  'mcky@mcky.space',
+  'papapun2707@gmail.com',
+  'pitchy@ezzy.com',
+])
+
+// Remote JWKS, lazy-initialized (module-scoped cache across invocations).
+let _jwks: ReturnType<typeof createRemoteJWKSet> | null = null
+function jwks() {
+  if (!_jwks) {
+    _jwks = createRemoteJWKSet(new URL(`${CLERK_ISSUER}/.well-known/jwks.json`))
   }
-  return bytes
+  return _jwks
 }
 
-function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false
-  let diff = 0
-  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i]
-  return diff === 0
+// per-user email cache: sub -> { email, at }
+const emailCache = new Map<string, { email: string; at: number }>()
+const EMAIL_CACHE_TTL = 10 * 60 * 1000 // 10 min
+
+/** Resolve a Clerk user's primary email (cached). Null if unknown. */
+async function resolveUserEmail(
+  sub: string,
+  env: { CLERK_SECRET_KEY?: string },
+): Promise<string | null> {
+  const hit = emailCache.get(sub)
+  if (hit && Date.now() - hit.at < EMAIL_CACHE_TTL) return hit.email
+  if (!env.CLERK_SECRET_KEY) return null
+
+  try {
+    const res = await fetch(`${CLERK_API_BASE}/users/${encodeURIComponent(sub)}`, {
+      headers: { Authorization: `Bearer ${env.CLERK_SECRET_KEY}` },
+    })
+    if (!res.ok) return null
+    const user = (await res.json()) as {
+      email_addresses?: { email_address: string }[]
+      primary_email_address_id?: string | null
+    }
+    const emails = user.email_addresses ?? []
+    const primary =
+      emails.find((e) => e.email_address === user.primary_email_address_id) ??
+      emails[0]
+    const email = primary?.email_address?.trim().toLowerCase() ?? null
+    if (email) emailCache.set(sub, { email, at: Date.now() })
+    return email
+  } catch {
+    return null
+  }
 }
 
-export async function hashPassword(password: string): Promise<string> {
-  const salt = crypto.getRandomValues(new Uint8Array(16))
-  const hash = await pbkdf2(password, salt)
-  return `${toHex(salt)}:${toHex(hash)}`
+/** Verify a Clerk session JWT and return its payload, or null on failure. */
+export async function verifyClerkToken(
+  token: string,
+): Promise<Record<string, unknown> | null> {
+  try {
+    const { payload } = await jwtVerify(token, jwks(), { issuer: CLERK_ISSUER })
+    return payload as Record<string, unknown>
+  } catch {
+    return null
+  }
 }
 
-export async function checkPassword(password: string, stored: string): Promise<boolean> {
-  const idx = stored.indexOf(':')
-  if (idx === -1) return false
-  const salt = fromHex(stored.slice(0, idx))
-  const hash = fromHex(stored.slice(idx + 1))
-  const derived = await pbkdf2(password, salt)
-  return timingSafeEqual(derived, hash)
-}
-
-export async function createToken(secretHex: string): Promise<string> {
-  const timestamp = Date.now().toString()
-  const enc = new TextEncoder()
-  const key = await crypto.subtle.importKey(
-    'raw', fromHex(secretHex), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
-  )
-  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(timestamp))
-  return `${timestamp}.${toHex(new Uint8Array(sig))}`
-}
-
-export async function verifyToken(token: string, secretHex: string): Promise<boolean> {
-  const parts = token.split('.')
-  if (parts.length !== 2) return false
-  const [timestamp, signature] = parts
-  const ts = parseInt(timestamp, 10)
-  if (isNaN(ts)) return false
-
-  const enc = new TextEncoder()
-  const key = await crypto.subtle.importKey(
-    'raw', fromHex(secretHex), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
-  )
-  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, enc.encode(timestamp)))
-  const expected = fromHex(signature)
-  if (!timingSafeEqual(sig, expected)) return false
-
-  return Date.now() - ts < 30 * 24 * 60 * 60 * 1000
-}
-
-export function getTokenFromRequest(request: Request): string | null {
-  const cookie = request.headers.get('cookie') || ''
-  const match = cookie.match(/(?:^|;\s*)ezzylist_token=([^;]*)/)
-  if (match) return decodeURIComponent(match[1])
-  return request.headers.get('x-admin-token')
+/** Check whether a token belongs to an admin. Caches per-user email. */
+export async function isClerkAdminToken(
+  token: string,
+  env: { CLERK_SECRET_KEY?: string },
+): Promise<boolean> {
+  const payload = await verifyClerkToken(token)
+  if (!payload) return false
+  const sub = typeof payload.sub === 'string' ? payload.sub : ''
+  if (!sub) return false
+  if (env.CLERK_SECRET_KEY) {
+    const email = await resolveUserEmail(sub, env)
+    return !!email && ADMIN_EMAILS.has(email)
+  }
+  // Without a secret key we can't resolve identity — fail closed.
+  return false
 }
 
 /**
- * Convenience helper: extract token from request, look up the D1-stored
- * signing secret (with env.TOKEN_SECRET fallback), and verify.
+ * Server-side admin check: does this request carry a valid admin identity?
  *
- * CRITICAL: callers MUST use this (not raw verifyToken with env.TOKEN_SECRET).
- * The signing secret can be rotated in D1 on password change (M3), so
- * any endpoint that verifies with the static env var will reject
- * tokens issued after the rotation — locking the admin out of write
- * actions even though login still works.
+ *  1. `Authorization: Bearer <Clerk JWT>` → verified + email allowlisted.
+ *  2. Legacy HMAC token (transitional) → verified against D1 secret.
  */
+export async function isAdminRequest(
+  request: Request,
+  env: { CLERK_SECRET_KEY?: string; TOKEN_SECRET?: string; DB?: D1Database },
+): Promise<boolean> {
+  // -- Primary: Clerk session JWT ----------------------------------------
+  const auth = request.headers.get('authorization') || ''
+  const m = auth.match(/^Bearer\s+([\w-]+\.[\w-]+\.[\w-]+)$/i)
+  if (m) {
+    return isClerkAdminToken(m[1], env)
+  }
+
+  // -- Fallback: legacy HMAC token (transitional) ------------------------
+  if (env.DB) {
+    try {
+      const { getTokenFromRequest, verifyToken } = await import('./auth-legacy')
+      const token = getTokenFromRequest(request)
+      if (!token) return false
+      const { getTokenSecret } = await import('./auth-secret')
+      const { createDb } = await import('./db')
+      const db = createDb(env.DB)
+      const secret = await getTokenSecret(db as any, env.TOKEN_SECRET || '')
+      return verifyToken(token, secret)
+    } catch {
+      return false
+    }
+  }
+  return false
+}
+
+// Back-compat alias — old callers use verifyTokenFromRequest(request, env, db).
+// `db` is ignored now (Clerk path needs no DB; HMAC fallback re-derives it).
 export async function verifyTokenFromRequest(
   request: Request,
-  env: { TOKEN_SECRET: string; DB: D1Database },
-  db: ReturnType<typeof import('./db').createDb>,
+  env: { CLERK_SECRET_KEY?: string; TOKEN_SECRET?: string; DB?: D1Database },
+  _db?: unknown,
 ): Promise<boolean> {
-  const token = getTokenFromRequest(request)
-  if (!token) return false
-  const { getTokenSecret } = await import('./auth-secret')
-  const secret = await getTokenSecret(db, env.TOKEN_SECRET)
-  return verifyToken(token, secret)
+  return isAdminRequest(request, env as any)
 }

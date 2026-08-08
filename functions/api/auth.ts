@@ -1,127 +1,52 @@
-import { createDb } from '../lib/db'
-import { settings } from '../lib/schema'
-import { eq } from 'drizzle-orm'
-import { hashPassword, checkPassword, createToken, verifyToken, getTokenFromRequest, verifyTokenFromRequest } from '../lib/auth'
-import { getTokenSecret, rotateTokenSecret } from '../lib/auth-secret'
-import { json, error, unauthorized } from '../lib/response'
-import { rateLimitAuth } from '../lib/rate-limit'
-import { logAudit } from '../lib/audit'
+import { isClerkAdminToken } from '../lib/auth'
 
-const PASSWORD_KEY = 'admin_pw_hash'
+const CLERK_API_BASE = 'https://api.clerk.com/v1'
 
-function cookieResponse(token: string) {
-  const res = json({ ok: true, token })
-  res.headers.set(
-    'Set-Cookie',
-    `ezzylist_token=${encodeURIComponent(token)}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${30 * 24 * 60 * 60}`,
-  )
-  return res
+// Lightweight helpers (kept local to this file to avoid relative-import churn).
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
+}
+function unauthorized() {
+  return json({ error: 'Unauthorized' }, 401)
 }
 
+/**
+ * Reconciliation endpoint for the Clerk migration.
+ *
+ * GET  ?x-clerk-check=1 → returns whether the Clerk JWT (if auth'd) resolves
+ *                         to an admin. Lets the frontend decide whether to
+ *                         offer admin UI without trusting client-side only.
+ *
+ * POST   → 410 Gone (old password sign-in flow is gone).
+ * DELETE → 410 Gone (old password sign-out flow is gone).
+ */
 export async function onRequestGet(context: EventContext<Env, any, any>) {
-  const { env, request } = context
-  const url = new URL(request.url)
+  const { request } = context
+  const { env } = context
 
-  if (url.searchParams.get('check') === 'setup') {
-    const db = createDb(env.DB)
-    const stored = await db.select().from(settings).where(eq(settings.key, PASSWORD_KEY))
-    return json({ configured: stored.length > 0 && stored[0].value !== '' })
+  if (request.headers.get('x-clerk-check') === 'true') {
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader) return json({ configured: true })
+
+    try {
+      const token = authHeader.replace(/^Bearer\s+/i, '').trim()
+      const admin = await isClerkAdminToken(token, env as any)
+      return json({ ok: true, configured: true, admin })
+    } catch (err: any) {
+      return json({ ok: false, error: err?.message ?? 'Invalid token' }, 401)
+    }
   }
 
-  const db = createDb(env.DB)
-  if (await verifyTokenFromRequest(request, env, db)) {
-    return json({ ok: true })
-  }
-  return unauthorized()
+  return json({ ok: true })
 }
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {
-  const { env, request } = context
-  // H5 fix: rate-limit login attempts per IP
-  const limited = rateLimitAuth(request)
-  if (limited) return limited
-
-  let body: unknown
-  try { body = await request.json() } catch { return error('Invalid request') }
-
-  const { password, newPassword } = body as Record<string, unknown>
-  if (typeof password !== 'string' || !password) return error('Invalid request')
-
-  const db = createDb(env.DB)
-
-  // Fetch stored password hash from D1
-  const stored = await db.select().from(settings).where(eq(settings.key, PASSWORD_KEY))
-  const currentHash = stored[0]?.value ?? ''
-
-  if (!currentHash) {
-    // First-time setup — no password exists yet
-    if (password.length < 8) return error('Password must be at least 8 characters')
-    const hash = await hashPassword(password)
-    await db.insert(settings).values({ key: PASSWORD_KEY, value: hash })
-    const secret = await getTokenSecret(db, env.TOKEN_SECRET)
-    const token = await createToken(secret)
-    await logAudit(env, request, { action: 'auth.setup' })
-    return cookieResponse(token)
-  }
-
-  // Existing password login
-  if (await checkPassword(password, currentHash)) {
-    // Optionally change password
-    if (typeof newPassword === 'string' && newPassword) {
-      if (newPassword.length < 8) return error('Password must be at least 8 characters')
-      const newHash = await hashPassword(newPassword)
-      await db.update(settings).set({ value: newHash }).where(eq(settings.key, PASSWORD_KEY))
-      // M3 fix: rotate the token secret so all old tokens become invalid
-      await rotateTokenSecret(db, env.TOKEN_SECRET)
-      await logAudit(env, request, { action: 'auth.password_change' })
-    } else {
-      await logAudit(env, request, { action: 'auth.login' })
-    }
-    const secret = await getTokenSecret(db, env.TOKEN_SECRET)
-    const token = await createToken(secret)
-    return cookieResponse(token)
-  }
-
-  await logAudit(env, request, { action: 'auth.login_failed' })
-  return error('Invalid password', 401)
+  return json({ error: 'Deprecated — use Clerk sign-in' }, 410)
 }
 
-export async function onRequestPut(context: EventContext<Env, any, any>) {
-  const { env, request } = context
-  const db = createDb(env.DB)
-  if (!(await verifyTokenFromRequest(request, env, db))) return unauthorized()
-
-  let body: unknown
-  try { body = await request.json() } catch { return error('Invalid request') }
-
-  const { currentPassword, newPassword } = body as Record<string, unknown>
-  if (
-    typeof currentPassword !== 'string' || !currentPassword ||
-    typeof newPassword !== 'string' || !newPassword
-  ) return error('Invalid request')
-
-  const stored = await db.select().from(settings).where(eq(settings.key, PASSWORD_KEY))
-  const currentHash = stored[0]?.value ?? ''
-
-  if (!(await checkPassword(currentPassword, currentHash))) {
-    return error('Current password is incorrect', 403)
-  }
-
-  if (newPassword.length < 8) return error('Password must be at least 8 characters')
-  const newHash = await hashPassword(newPassword)
-  await db.update(settings).set({ value: newHash }).where(eq(settings.key, PASSWORD_KEY))
-  // M3 fix: rotate the token secret on password change (PUT endpoint
-  // is "change password while logged in")
-  await rotateTokenSecret(db, env.TOKEN_SECRET)
-  await logAudit(env, request, { action: 'auth.password_change' })
-  return json({ ok: true, rotated: true })
-}
-
-export async function onRequestDelete() {
-  const res = json({ ok: true })
-  res.headers.set(
-    'Set-Cookie',
-    'ezzylist_token=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0',
-  )
-  return res
+export async function onRequestDelete(context: EventContext<Env, any, any>) {
+  return json({ error: 'Deprecated — use Clerk sign-out' }, 410)
 }
