@@ -3,8 +3,8 @@ import {
   coerceStringArray,
   normalizeClient,
   clientTitle,
+  clientTitleWithShops,
   clientNamesJoined,
-  clientShopsJoined,
   clientSubNames,
   clientMatchesQuery,
 } from './clientNames'
@@ -64,26 +64,29 @@ describe('clientSubNames', () => {
   })
 })
 
-describe('clientNamesJoined / clientShopsJoined (separate groups)', () => {
-  it('keeps names and shops in their own groups — never mixed', () => {
+describe('clientTitleWithShops / clientNamesJoined (separate groups)', () => {
+  it('puts all shops on the title line, names on their own line — never mixed', () => {
     const c = { name: ['aaaaa', 'bbbbb', 'cccc'], shopName: ['xxx', 'yyy', 'zzz'] }
-    // title = first shop → names keep all values, shops drop the title
-    expect(clientTitle(c)).toBe('xxx')
+    expect(clientTitleWithShops(c)).toBe('xxx / yyy / zzz')
     expect(clientNamesJoined(c)).toBe('aaaaa / bbbbb / cccc')
-    expect(clientShopsJoined(c)).toBe('yyy / zzz')
   })
 
-  it('names group drops the title when title is a name (no shops)', () => {
+  it('title falls back to first name when no shops', () => {
     const c = { name: ['aaaaa', 'bbbbb', 'cccc'], shopName: [] }
-    expect(clientTitle(c)).toBe('aaaaa')
+    expect(clientTitleWithShops(c)).toBe('aaaaa')
     expect(clientNamesJoined(c)).toBe('bbbbb / cccc')
-    expect(clientShopsJoined(c)).toBe('')
   })
 
-  it('returns empty groups when only a single value exists', () => {
+  it('single shop → title is just the shop, names line shows all names', () => {
     const c = { name: ['Alice'], shopName: ['Cafe'] }
+    expect(clientTitleWithShops(c)).toBe('Cafe')
     expect(clientNamesJoined(c)).toBe('Alice')
-    expect(clientShopsJoined(c)).toBe('')
+  })
+
+  it('multiple shops + single name → shops all on title, name on its own line', () => {
+    const c = { name: ['Alice'], shopName: ['xxx', 'yyy', 'zzz'] }
+    expect(clientTitleWithShops(c)).toBe('xxx / yyy / zzz')
+    expect(clientNamesJoined(c)).toBe('Alice')
   })
 })
 

@@ -60,21 +60,23 @@ export function clientTitle(c: Pick<Client, 'name' | 'shopName'>): string {
 }
 
 /**
+ * Title line including every shop name appended to the primary shop:
+ * "xxx / yyy / zzz". If there are no shops, falls back to the first name.
+ * Shop names stay on the title line — never on a separate line.
+ */
+export function clientTitleWithShops(c: Pick<Client, 'name' | 'shopName'>): string {
+  const shops = coerceStringArray(c.shopName)
+  if (shops.length > 0) return shops.join(' / ')
+  return coerceStringArray(c.name)[0] || ''
+}
+
+/**
  * Person-names group as a joined line ("a / b / c"), excluding the title
  * when it is one of them. Kept separate from shop names — never mixed.
  */
 export function clientNamesJoined(c: Pick<Client, 'name' | 'shopName'>): string {
   const title = clientTitle(c)
   return coerceStringArray(c.name).filter((n) => n !== title).join(' / ')
-}
-
-/**
- * Shop-names group as a joined line ("x / y / z"), excluding the title
- * when it is one of them. Kept separate from person names — never mixed.
- */
-export function clientShopsJoined(c: Pick<Client, 'name' | 'shopName'>): string {
-  const title = clientTitle(c)
-  return coerceStringArray(c.shopName).filter((n) => n !== title).join(' / ')
 }
 
 /**
