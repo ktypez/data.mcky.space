@@ -1,37 +1,35 @@
 import { Warning } from '@phosphor-icons/react'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
-interface DuplicateInfo {
-  exact: { name: string; shopName?: string } | null
-  similar: { client: { name: string; shopName?: string }; score: number }[]
-}
+import MultiValueInput from '@/components/MultiValueInput'
+import type { DuplicateResult } from '@/lib/duplicate-names'
+import { clientTitle, clientSubNames } from '@/lib/clientNames'
 
 interface FormNameFieldProps {
-  value: string
-  onChange: (value: string) => void
-  hasConflict: boolean
-  dupResult: DuplicateInfo
+  values: string[]
+  onChange: (values: string[]) => void
+  dupResult: DuplicateResult
   autoFocus?: boolean
 }
 
 export default function FormNameField({
-  value,
+  values,
   onChange,
-  hasConflict,
   dupResult,
   autoFocus,
 }: FormNameFieldProps) {
+  const hasConflict = !!(dupResult.exact || dupResult.similar.length > 0)
+
   return (
     <div className="space-y-1">
       <Label>ชื่อลูกค้า</Label>
-      <Input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+      <MultiValueInput
+        values={values}
+        onChange={onChange}
+        placeholder="ชื่อลูกค้า"
         maxLength={40}
-        autoFocus={autoFocus}
+        addLabel="เพิ่มชื่อ"
         variant={hasConflict ? 'error' : 'default'}
+        autoFocus={autoFocus}
       />
       {hasConflict && (
         <div className="flex items-start gap-2 py-2 px-3 rounded-[6px] bg-destructive/10 border border-destructive/40 text-[13px] text-destructive">
@@ -39,8 +37,8 @@ export default function FormNameField({
           <span className="leading-relaxed">
             {dupResult.exact && (
               <>
-                มีชื่อ &ldquo;{dupResult.exact.name}&rdquo; อยู่แล้ว
-                {dupResult.exact.shopName ? ` (${dupResult.exact.shopName})` : ''}
+                มีชื่อ &ldquo;{clientTitle(dupResult.exact)}&rdquo; อยู่แล้ว
+                {clientSubNames(dupResult.exact) ? ` (${clientSubNames(dupResult.exact)})` : ''}
               </>
             )}
             {!dupResult.exact && dupResult.similar.length > 0 && (
@@ -49,7 +47,7 @@ export default function FormNameField({
                 {dupResult.similar
                   .map(
                     (m) =>
-                      `${m.client.name}${m.client.shopName ? ` (${m.client.shopName})` : ''}`,
+                      `${clientTitle(m.client)}${clientSubNames(m.client) ? ` (${clientSubNames(m.client)})` : ''}`,
                   )
                   .join(', ')}
               </>

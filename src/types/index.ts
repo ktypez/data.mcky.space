@@ -1,7 +1,7 @@
 export interface Client {
   id: string
-  name: string
-  shopName: string
+  name: string[]
+  shopName: string[]
   address: string
   lat: number | null
   lng: number | null

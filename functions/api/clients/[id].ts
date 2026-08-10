@@ -5,6 +5,7 @@ import { json, error, notFound, unauthorized } from '../../lib/response'
 import { logAudit } from '../../lib/audit'
 import { roundLatLng } from '../../lib/geo'
 import { verifyTokenFromRequest } from '../../lib/auth'
+import { normalizeClient, serializeNames } from '../../lib/names'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, params, request } = context
@@ -18,7 +19,7 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   // param later.
   const url = new URL(request.url)
   if (url.searchParams.get('raw') === 'true') return json(row)
-  return json(roundLatLng(row))
+  return json(roundLatLng(normalizeClient(row)))
 }
 
 export async function onRequestPut(context: EventContext<Env, any, any>) {
@@ -31,8 +32,8 @@ export async function onRequestPut(context: EventContext<Env, any, any>) {
   const data = body as Record<string, unknown>
 
   await db.update(clients).set({
-    name: String(data.name ?? ''),
-    shopName: String(data.shopName ?? ''),
+    name: serializeNames(data.name),
+    shopName: serializeNames(data.shopName),
     address: String(data.address ?? ''),
     lat: typeof data.lat === 'number' ? data.lat : null,
     lng: typeof data.lng === 'number' ? data.lng : null,

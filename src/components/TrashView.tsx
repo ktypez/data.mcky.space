@@ -5,10 +5,11 @@ import { apiFetch } from '@/lib/api'
 import { Card, CardAction } from '@/components/ui/card'
 import BadgeTag from '@/components/BadgeTag'
 import { PlaceholderAvatar } from '@/components/ClientCardBadges'
+import { clientTitle, clientSubNames } from '@/lib/clientNames'
 interface TrashItem {
   id: string
-  name: string
-  shopName: string
+  name: string[]
+  shopName: string[]
   images: string[]
   badge: string | null
   deletedAt: number
@@ -121,11 +122,11 @@ export default function TrashView({ onClose }: Props) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold text-[16px] text-foreground truncate">
-                    {client.shopName || client.name}
+                    {clientTitle(client)}
                   </div>
-                  {client.shopName && (
+                  {clientSubNames(client) && (
                     <div className="text-[14px] text-muted-foreground truncate">
-                      {client.name}
+                      {clientSubNames(client)}
                     </div>
                   )}
                 </div>

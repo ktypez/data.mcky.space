@@ -5,6 +5,7 @@ import { verifyTokenFromRequest } from '../../lib/auth'
 import { json, notFound, unauthorized } from '../../lib/response'
 import { deleteClientImages } from '../../lib/r2'
 import { logAudit, purgeOldAuditLog } from '../../lib/audit'
+import { normalizeClient } from '../../lib/names'
 
 // M5 fix: trash keys use namespaced format `trash:v1:<id>` (was `trash_<id>`).
 // The versioned namespace prevents accidental matches if future settings
@@ -55,7 +56,11 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
     .where(sql`${settings.key} LIKE ${TRASH_KEY_PREFIX + '%'}`)
   const parsed: Record<string, unknown>[] = []
   for (const r of rows) {
-    try { parsed.push({ ...JSON.parse(r.value), _trashKey: r.key }) } catch { }
+    try {
+      // Trash snapshots store the raw DB row (name/shopName as TEXT), so
+      // normalize them to arrays before sending to the client.
+      parsed.push({ ...normalizeClient(JSON.parse(r.value)), _trashKey: r.key })
+    } catch { }
   }
   return json(parsed.sort((a, b) => (b as any).deletedAt - (a as any).deletedAt))
 }

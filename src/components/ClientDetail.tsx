@@ -5,6 +5,8 @@ import MapPreview from '@/components/MapPreviewDynamic'
 import AddClientForm from '@/components/AddClientForm'
 import { deleteClient } from '@/lib/storage'
 import { copyToClipboard, getMapsUrl, hasValidCoords } from '@/lib/utils'
+import { clientText } from '@/lib/clientText'
+import { clientTitle } from '@/lib/clientNames'
 import Lightbox from '@/components/Lightbox'
 import { ArrowSquareOut } from '@phosphor-icons/react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -51,19 +53,19 @@ export default function ClientDetail({
   }, [client.lat, client.lng])
 
   const handleCopy = useCallback((mode: 'text' | 'maps' | 'text+maps' = 'text') => {
-    const parts: string[] = []
-    if (mode !== 'maps') {
-      parts.push(`👤 : ${client.name}`)
-      if (client.shopName) parts.push(`🏠 : ${client.shopName}`)
-      if (client.address) parts.push(`📌 : ${client.address}`)
+    // text mode → central helper (👤/🏠 per line, 📍 address)
+    if (mode === 'text') {
+      copyToClipboard(clientText(client)).then((ok) => {
+        if (!ok) return
+        setCopied(mode)
+        setTimeout(() => setCopied(null), 1500)
+      })
+      return
     }
-    let text = parts.join('\n')
-    if (mode === 'maps' || mode === 'text+maps') {
-      if (!client.lat || !client.lng) return
-      const url = getMapsUrl(client.lat, client.lng)
-      const mapsText = `🗺️ : ${url}`
-      text = mode === 'maps' ? mapsText : text + '\n' + mapsText
-    }
+    // maps / text+maps need coords
+    if (!client.lat || !client.lng) return
+    const mapsText = `🗺️ : ${getMapsUrl(client.lat, client.lng)}`
+    const text = mode === 'maps' ? mapsText : `${clientText(client)}\n${mapsText}`
     copyToClipboard(text).then((ok) => {
       if (!ok) return
       setCopied(mode)
@@ -161,7 +163,7 @@ export default function ClientDetail({
   open={deleteConfirm}
   onOpenChange={setDeleteConfirm}
   title="ยืนยันลบข้อมูลลูกค้านี้?"
-  description={client.shopName || client.name}
+  description={clientTitle(client)}
   confirmLabel="ลบ"
   variant="danger"
   onConfirm={handleDelete}
@@ -171,7 +173,7 @@ export default function ClientDetail({
  <ConfirmDialog
   open={showMapConfirm}
   onOpenChange={setShowMapConfirm}
-  title={`นำทางไปยัง ${client.shopName || client.name}?`}
+  title={`นำทางไปยัง ${clientTitle(client)}?`}
   description="เปิดแผนที่เพื่อนำทาง"
   confirmLabel="เปิดแผนที่"
   variant="default"

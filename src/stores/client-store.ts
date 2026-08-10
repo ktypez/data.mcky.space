@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import type { Client } from '@/types'
 import { fetchClients } from '@/lib/storage'
 import { getAllClients, purgeExpiredClients } from '@/lib/offline-db'
+import { normalizeClients } from '@/lib/clientNames'
 
 interface ClientState {
   clients: Client[]
@@ -97,7 +98,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
       try {
         const idb = await getAllClients()
         if (idb.length > 0) {
-          const sorted = (idb as unknown as Client[]).sort(
+          const sorted = normalizeClients(idb).sort(
             (a, b) => b.updatedAt - a.updatedAt,
           )
           set({ clients: sorted, loading: false, initialized: true })
@@ -128,7 +129,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
       try {
         const idb = await getAllClients()
         if (idb.length > 0) {
-          const sorted = (idb as unknown as Client[]).sort(
+          const sorted = normalizeClients(idb).sort(
             (a, b) => b.updatedAt - a.updatedAt,
           )
           set({ clients: sorted, refreshing: false })

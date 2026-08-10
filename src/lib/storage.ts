@@ -1,9 +1,19 @@
 import type { Client } from '@/types'
 import { getAllClients, putClient, putClients, deleteClient as deleteClientFromDb } from '@/lib/offline-db'
 import { apiFetch } from '@/lib/api'
+import { normalizeClients } from '@/lib/clientNames'
 
 function toRaw(c: Client): Record<string, unknown> {
   return c as unknown as Record<string, unknown>
+}
+
+/**
+ * IDB caches can hold either the new array format or legacy plain-string
+ * name/shopName (cached before the multi-name deploy). Normalize on read so
+ * consumers always get `string[]`.
+ */
+function normalizeFromIdb(rows: Record<string, unknown>[]): Client[] {
+  return normalizeClients(rows)
 }
 
 /** True if the string is a base64-embedded image data URL (too large for D1). */
@@ -70,7 +80,7 @@ export async function fetchClients(limit?: number): Promise<Client[]> {
   const res = await apiFetch(url)
   if (!res.ok) {
     const idb = await getAllClients()
-    if (idb.length > 0) return idb as unknown as Client[]
+    if (idb.length > 0) return normalizeFromIdb(idb)
     throw new Error('Failed to fetch clients')
   }
   const fresh = (await res.json()) as Client[]

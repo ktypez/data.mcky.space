@@ -1,16 +1,16 @@
 import type { Client } from '@/types'
+import { coerceStringArray } from '@/lib/clientNames'
 
 /**
  * Format a client for clipboard sharing.
  *
- * The `👤` / `🏠` / `📍` prefixes are the same ones the original
- * `clientText()` used (encoded as `\uD83D\uDC64` etc.) — kept for
- * visual consistency with the v1 mobile UI.
+ * Each name gets its own `👤` line and each shop name its own `🏠` line,
+ * so multi-name clients copy every value. Address keeps the `📍` prefix.
  */
 export function clientText(client: Client): string {
   const parts: string[] = []
-  parts.push(`👤 : ${client.name}`)
-  if (client.shopName) parts.push(`🏠 : ${client.shopName}`)
+  for (const n of coerceStringArray(client.name)) parts.push(`👤 : ${n}`)
+  for (const s of coerceStringArray(client.shopName)) parts.push(`🏠 : ${s}`)
   if (client.address) parts.push(`📍 : ${client.address}`)
   return parts.join('\n')
 }

@@ -9,6 +9,7 @@ import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadg
 import BadgeTag from '@/components/BadgeTag'
 import LoadMore from '@/components/LoadMore'
 import { Card } from '@/components/ui/card'
+import { clientTitle, clientSubNames } from '@/lib/clientNames'
 import { staggerContainer, staggerItem } from '@/lib/motion'
 
 interface DesktopCardViewProps {
@@ -89,16 +90,16 @@ copiedKey,
    hasBadge={!!client.badge}
  />
  </div>
-  <div className="min-w-0 flex-1">
-  <div className="font-semibold text-[16px] text-foreground truncate">
-  {client.shopName || client.name}
-  </div>
-   {client.shopName && (
-   <div className="text-[14px] text-muted-foreground truncate">
-   {client.name}
+   <div className="min-w-0 flex-1">
+   <div className="font-semibold text-[16px] text-foreground truncate">
+   {clientTitle(client)}
    </div>
-   )}
-   </div>
+    {clientSubNames(client) && (
+    <div className="text-[14px] text-muted-foreground truncate">
+    {clientSubNames(client)}
+    </div>
+    )}
+    </div>
  </div>
 
  {/* Footer: date + badge + copy */}

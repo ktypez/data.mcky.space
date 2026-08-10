@@ -4,6 +4,7 @@ import type { Client } from '@/types'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { clientTitle, clientSubNames } from '@/lib/clientNames'
 
 type RouteItem = { client: Client; dist: number }
 type RouteData = { origin: { lat: number; lng: number }; clients: RouteItem[] }
@@ -184,10 +185,10 @@ export default function RouteModal({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="max-md:text-[15px] md:text-[16px] font-medium text-foreground truncate">
-                      {item.client.shopName || item.client.name}
+                      {clientTitle(item.client)}
                     </div>
                     <div className="font-mono max-md:text-[13px] md:text-[14px] text-muted-foreground truncate">
-                      {item.client.shopName ? item.client.name : item.client.address}
+                      {clientSubNames(item.client) || item.client.address}
                     </div>
                   </div>
                   <div className="text-right shrink-0">

@@ -5,6 +5,7 @@ import AddClientForm from '@/components/AddClientForm'
 import PageHeader from '@/components/PageHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import { VerticalBar } from '@/components/ScrollIndicator'
+import { clientTitle } from '@/lib/clientNames'
 
 interface InlineAddEditViewProps {
   editClient: Client | null
@@ -28,7 +29,7 @@ export default function InlineAddEditView({
     <div className="app-viewport">
       <PageHeader
         variant="add-edit"
-        title={editClient ? editClient.shopName || editClient.name : 'เพิ่มลูกค้าใหม่'}
+        title={editClient ? clientTitle(editClient) : 'เพิ่มลูกค้าใหม่'}
         showBack
         onBack={onBack}
       />

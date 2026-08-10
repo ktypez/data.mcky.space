@@ -7,6 +7,7 @@ import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import BadgeTag from '@/components/BadgeTag'
 import LoadMore from '@/components/LoadMore'
+import { clientTitle, clientSubNames } from '@/lib/clientNames'
 import { staggerContainer, staggerItem } from '@/lib/motion'
 
 interface DesktopTableViewProps {
@@ -92,11 +93,11 @@ copiedKey,
   </td>
   <td className="px-3 py-2 align-middle">
   <div className="font-semibold max-md:text-[17px] md:text-[15px] text-foreground ">
-  {client.shopName || client.name}
+  {clientTitle(client)}
   </div>
-   {client.shopName && (
+   {clientSubNames(client) && (
    <div className="font-sans font-medium max-md:text-[16px] md:text-[14px] text-muted-foreground mt-[1px]">
-   {client.name}
+   {clientSubNames(client)}
    </div>
    )}
    </td>

@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import * as schema from '../../functions/lib/schema'
+import { serializeNames } from '../../functions/lib/names'
 
 /**
  * Create a Drizzle instance backed by an in-memory SQLite database
@@ -64,13 +65,24 @@ export function createTestDb() {
 /** Type alias matching the shape of the D1 `env.DB` binding. */
 export type TestDb = ReturnType<typeof createTestDb>['db']
 
+/**
+ * Storage helper mirroring production: legacy rows keep plain-string
+ * name/shopName, new (multi-name) rows store JSON arrays. `serializeNames`
+ * wraps single strings too, so pass arrays explicitly for the new format
+ * and strings for the legacy format.
+ */
+function toStoredName(v: string | string[] | undefined): string {
+  if (Array.isArray(v)) return serializeNames(v)
+  return v ?? ''
+}
+
 /** Seed a handful of clients for tests. */
 export function seedClients(
   db: TestDb,
   rows: Array<{
     id: string
-    name: string
-    shopName?: string
+    name: string | string[]
+    shopName?: string | string[]
     address?: string
     lat?: number | null
     lng?: number | null
@@ -84,8 +96,8 @@ export function seedClients(
   for (const r of rows) {
     db.insert(schema.clients).values({
       id: r.id,
-      name: r.name,
-      shopName: r.shopName ?? '',
+      name: toStoredName(r.name),
+      shopName: toStoredName(r.shopName),
       address: r.address ?? '',
       lat: r.lat ?? null,
       lng: r.lng ?? null,

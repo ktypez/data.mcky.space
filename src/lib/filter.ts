@@ -1,4 +1,5 @@
 import { FilterKey, type Client } from '@/types'
+import { clientMatchesQuery } from '@/lib/clientNames'
 
 /**
  * Counts for the filter chips shown in `SelectionToolbar`.
@@ -44,8 +45,7 @@ export function applyFilter(
   if (query) {
     result = result.filter(
       (c) =>
-        c.name.toLowerCase().includes(query) ||
-        c.shopName.toLowerCase().includes(query) ||
+        clientMatchesQuery(c, query) ||
         c.address.toLowerCase().includes(query) ||
         c.id.toLowerCase().includes(query),
     )

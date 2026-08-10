@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useMemo, useRef, type FormEvent } from 'react'
 import type { Client } from '@/types'
-import { checkDuplicateName } from '@/lib/duplicate-names'
+import { checkDuplicateName, type DuplicateResult } from '@/lib/duplicate-names'
 import { generateId } from '@/lib/utils'
 import { X } from '@phosphor-icons/react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
@@ -14,6 +14,7 @@ import FormNameField from '@/components/FormNameField'
 import FormNotesField from '@/components/FormNotesField'
 import FormBadgeField from '@/components/FormBadgeField'
 import FormSubmitButtons from '@/components/FormSubmitButtons'
+import MultiValueInput from '@/components/MultiValueInput'
 
 interface Props {
   open: boolean
@@ -26,6 +27,12 @@ interface Props {
   uploadProgress?: number
 }
 
+/** Normalize an incoming value into a non-empty string array. */
+function toArray(v: string | string[] | undefined): string[] {
+  if (Array.isArray(v)) return v.length > 0 ? [...v] : ['']
+  return [v ?? '']
+}
+
 export default function AddClientForm({
   open,
   onOpenChange,
@@ -36,42 +43,56 @@ export default function AddClientForm({
   uploading,
   uploadProgress,
 }: Props) {
-  const [name, setName] = useState(() => editClient?.name ?? '')
-  const [shopName, setShopName] = useState(() => editClient?.shopName ?? '')
+  const [name, setName] = useState<string[]>(() => toArray(editClient?.name))
+  const [shopName, setShopName] = useState<string[]>(() => toArray(editClient?.shopName))
   const [address, setAddress] = useState(() => editClient?.address ?? '')
   const [lat, setLat] = useState<number | null>(() => editClient?.lat ?? null)
   const [lng, setLng] = useState<number | null>(() => editClient?.lng ?? null)
   const [images, setImages] = useState<string[]>(() => editClient?.images ?? [])
   const [badge, setBadge] = useState<string | null>(() => editClient?.badge ?? null)
   const [notes, setNotes] = useState<string>(() => editClient?.notes ?? '')
-  const [debouncedName, setDebouncedName] = useState(() => editClient?.name ?? '')
+  const [debouncedName, setDebouncedName] = useState(() => name.join('\u0000'))
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const editing = !!editClient
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => setDebouncedName(name), 250)
+    debounceRef.current = setTimeout(() => setDebouncedName(name.join('\u0000')), 250)
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
   }, [name])
 
-  const dupResult = useMemo(() => {
-    const target = debouncedName.trim()
-    if (!target) return { exact: null, similar: [] }
-    return checkDuplicateName(existingClients, target, editClient?.id)
+  const dupResult = useMemo<DuplicateResult>(() => {
+    const targets = debouncedName.split('\u0000').map((n) => n.trim()).filter(Boolean)
+    if (targets.length === 0) return { exact: null, similar: [] }
+    // Aggregate exact + similar across every non-empty name value.
+    const similarMap = new Map<string, { client: Client; similarity: number }>()
+    let exact: Client | null = null
+    for (const t of targets) {
+      const r = checkDuplicateName(existingClients, t, editClient?.id)
+      if (r.exact) { exact = r.exact; break }
+      for (const m of r.similar) {
+        const prev = similarMap.get(m.client.id)
+        if (!prev || m.similarity > prev.similarity) similarMap.set(m.client.id, m)
+      }
+    }
+    return {
+      exact,
+      similar: [...similarMap.values()].sort((a, b) => b.similarity - a.similarity),
+    }
   }, [debouncedName, existingClients, editClient?.id])
-
-  const hasConflict = !!(dupResult.exact || dupResult.similar.length > 0)
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    if (!name.trim() && !shopName.trim()) return
+    const cleanName = name.map((n) => n.trim()).filter(Boolean)
+    const cleanShopName = shopName.map((n) => n.trim()).filter(Boolean)
+    if (cleanName.length === 0 && cleanShopName.length === 0) return
     onSave({
       id: editClient?.id ?? generateId(),
-      name: name.trim(),
-      shopName: shopName.trim(),
+      name: cleanName,
+      shopName: cleanShopName,
       address: address.trim(),
       lat,
       lng,
@@ -90,9 +111,8 @@ export default function AddClientForm({
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormNameField
-        value={name}
+        values={name}
         onChange={setName}
-        hasConflict={hasConflict}
         dupResult={dupResult}
         autoFocus
       />
@@ -100,13 +120,14 @@ export default function AddClientForm({
       {/* Shop Name */}
       <div className="space-y-1">
         <Label>ชื่อร้านค้า *</Label>
-        <Input
-          type="text"
-          value={shopName}
-          onChange={(e) => setShopName(e.target.value)}
+        <MultiValueInput
+          values={shopName}
+          onChange={setShopName}
+          placeholder="ชื่อร้านค้า"
           maxLength={60}
+          addLabel="เพิ่มชื่อร้าน"
         />
-        {!name.trim() && !shopName.trim() && (
+        {name.every((n) => !n.trim()) && shopName.every((n) => !n.trim()) && (
           <p className="text-[13px] text-destructive">กรุณากรอกชื่อลูกค้า หรือ ชื่อร้านค้า อย่างน้อย 1 อย่าง</p>
         )}
       </div>

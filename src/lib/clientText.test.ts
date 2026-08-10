@@ -4,8 +4,8 @@ import type { Client } from '@/types'
 
 const base: Client = {
   id: 'abc123',
-  name: 'Somchai',
-  shopName: 'Khao Man Gai Shop',
+  name: ['Somchai'],
+  shopName: ['Khao Man Gai Shop'],
   address: '123 Sukhumvit',
   lat: 13.7563,
   lng: 100.5018,
@@ -23,7 +23,7 @@ describe('clientText', () => {
   })
 
   it('omits shopName line when empty', () => {
-    const out = clientText({ ...base, shopName: '' })
+    const out = clientText({ ...base, shopName: [] })
     expect(out).toBe('👤 : Somchai\n📍 : 123 Sukhumvit')
   })
 
@@ -33,14 +33,24 @@ describe('clientText', () => {
   })
 
   it('returns just the name when both shopName and address are empty', () => {
-    const out = clientText({ ...base, shopName: '', address: '' })
+    const out = clientText({ ...base, shopName: [], address: '' })
     expect(out).toBe('👤 : Somchai')
   })
 
   it('treats null shopName/address the same as empty', () => {
-    const out = clientText({ ...base, shopName: '', address: '' })
-    const outNull = clientText({ ...base, shopName: null as unknown as string, address: null as unknown as string })
+    const out = clientText({ ...base, shopName: [], address: '' })
+    const outNull = clientText({ ...base, shopName: null as unknown as string[], address: null as unknown as string })
     expect(out).toBe(outNull)
+  })
+
+  it('puts every name value on its own line', () => {
+    const out = clientText({ ...base, name: ['Somchai', 'Somsak'], shopName: [] })
+    expect(out).toBe('👤 : Somchai\n👤 : Somsak\n📍 : 123 Sukhumvit')
+  })
+
+  it('puts every shopName value on its own line', () => {
+    const out = clientText({ ...base, shopName: ['Shop A', 'Shop B'] })
+    expect(out).toBe('👤 : Somchai\n🏠 : Shop A\n🏠 : Shop B\n📍 : 123 Sukhumvit')
   })
 })
 

@@ -14,6 +14,12 @@ function normalizeName(name: string): string {
   return name.trim().replace(/\s+/g, '').toLowerCase()
 }
 
+/** All of a client's name values (each name may appear multiple times). */
+function clientNameValues(client: Client): string[] {
+  const names = Array.isArray(client.name) ? client.name : [String(client.name ?? '')]
+  return names.filter((n) => n.trim() !== '')
+}
+
 function jaro(s1: string, s2: string): number {
   if (s1 === s2) return s1.length === 0 ? 0 : 1
 
@@ -75,8 +81,11 @@ function findClientByName(
   if (!target) return null
 
   return (
-    clients.find((client) => client.id !== excludeId && normalizeName(client.name) === target) ??
-    null
+    clients.find(
+      (client) =>
+        client.id !== excludeId &&
+        clientNameValues(client).some((n) => normalizeName(n) === target),
+    ) ?? null
   )
 }
 
@@ -93,11 +102,14 @@ function findSimilarClients(
   for (const client of clients) {
     if (client.id === excludeId) continue
 
-    const candidate = normalizeName(client.name)
-    if (!candidate || candidate === target) continue
-
-    const similarity = jaroWinkler(target, candidate)
-    if (similarity >= threshold) matches.push({ client, similarity })
+    // Similarity is the best score across all of the client's names.
+    let best = 0
+    for (const n of clientNameValues(client)) {
+      const candidate = normalizeName(n)
+      if (!candidate || candidate === target) continue
+      best = Math.max(best, jaroWinkler(target, candidate))
+    }
+    if (best >= threshold) matches.push({ client, similarity: best })
   }
 
   return matches.sort((a, b) => b.similarity - a.similarity)

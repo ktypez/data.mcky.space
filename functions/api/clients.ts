@@ -5,6 +5,7 @@ import { verifyTokenFromRequest } from '../lib/auth'
 import { json, error } from '../lib/response'
 import { roundLatLngList } from '../lib/geo'
 import { logAudit } from '../lib/audit'
+import { normalizeClientList, serializeNames } from '../lib/names'
 
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, request } = context
@@ -16,13 +17,13 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   if (limit === 'all') {
     const rows = await db.select().from(clients).orderBy(clients.updatedAt)
     // L2 fix: round lat/lng to ~11m precision in list responses
-    return json(roundLatLngList(rows.reverse()))
+    return json(roundLatLngList(normalizeClientList(rows.reverse())))
   }
 
   const numLimit = limit ? parseInt(limit, 10) : undefined
   const query = db.select().from(clients).orderBy(clients.updatedAt)
   const rows = numLimit ? await query.limit(numLimit) : await query
-  return json(roundLatLngList(rows.reverse()))
+  return json(roundLatLngList(normalizeClientList(rows.reverse())))
 }
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {
@@ -41,8 +42,8 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
 
   await db.insert(clients).values({
     id,
-    name: String(data.name ?? ''),
-    shopName: String(data.shopName ?? ''),
+    name: serializeNames(data.name),
+    shopName: serializeNames(data.shopName),
     address: String(data.address ?? ''),
     lat: typeof data.lat === 'number' ? data.lat : null,
     lng: typeof data.lng === 'number' ? data.lng : null,

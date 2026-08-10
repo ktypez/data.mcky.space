@@ -6,6 +6,7 @@ import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import LoadMore from '@/components/LoadMore'
 import type { Client, FilterKey } from '@/types'
+import { clientTitle, clientSubNames } from '@/lib/clientNames'
 import { Card } from '@/components/ui/card'
 import { staggerContainer, staggerItem } from '@/lib/motion'
 
@@ -83,16 +84,16 @@ copiedKey,
    hasBadge={!!client.badge}
  />
  </div>
-  <div className="flex-1 min-w-0 text-left">
-  <div className="font-semibold text-[17px] text-foreground truncate">
-  {client.shopName || client.name}
-  </div>
-  {client.shopName && (
-  <div className="font-medium max-md:text-[16px] md:text-[14px] text-muted-foreground mt-[1px] truncate">
-  {client.name}
-  </div>
-  )}
-  </div>
+   <div className="flex-1 min-w-0 text-left">
+   <div className="font-semibold text-[17px] text-foreground truncate">
+   {clientTitle(client)}
+   </div>
+   {clientSubNames(client) && (
+   <div className="font-medium max-md:text-[16px] md:text-[14px] text-muted-foreground mt-[1px] truncate">
+   {clientSubNames(client)}
+   </div>
+   )}
+   </div>
 <div className="shrink-0">
   <ClientCopyButton
  client={client}

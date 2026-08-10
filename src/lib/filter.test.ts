@@ -2,9 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { applyCounts, applyFilter } from './filter'
 import { FilterKey, type Client } from '@/types'
 
-function mk(over: Partial<Client> & { id: string; name: string }): Client {
+function mk(over: Partial<Client> & { id: string; name: string | string[] }): Client {
   return {
-    shopName: '',
+    name: Array.isArray(over.name) ? over.name : [over.name],
+    shopName: over.shopName ? (Array.isArray(over.shopName) ? over.shopName : [over.shopName]) : [],
     address: '',
     lat: null,
     lng: null,
@@ -14,7 +15,7 @@ function mk(over: Partial<Client> & { id: string; name: string }): Client {
     createdAt: 0,
     updatedAt: 0,
     ...over,
-  }
+  } as Client
 }
 
 const cutoff = 1_700_000_000_000
@@ -77,6 +78,22 @@ describe('applyFilter', () => {
   it('filters by shopName', () => {
     const out = applyFilter(clients, 'cafe', FilterKey.All, cutoff)
     expect(out.map((c) => c.id)).toEqual(['c'])
+  })
+
+  it('matches ANY value in a multi-name client', () => {
+    const multi = [
+      mk({ id: 'm1', name: ['Alice', 'Somchai'], shopName: ['Cafe A'] }),
+      mk({ id: 'm2', name: ['Bob'], shopName: ['Noodle', 'Ramen'] }),
+    ]
+    expect(applyFilter(multi, 'somchai', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['m1'])
+    expect(applyFilter(multi, 'alice', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['m1'])
+    expect(applyFilter(multi, 'noodle', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['m2'])
+    expect(applyFilter(multi, 'ramen', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['m2'])
+  })
+
+  it('does not match when no value contains the query', () => {
+    const multi = [mk({ id: 'm1', name: ['Alice', 'Somchai'] })]
+    expect(applyFilter(multi, 'zzz', FilterKey.All, cutoff)).toEqual([])
   })
 
   it('filters by address', () => {

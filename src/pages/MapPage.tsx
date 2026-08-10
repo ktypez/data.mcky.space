@@ -8,6 +8,7 @@ import { useUIStore } from '@/stores/ui-store'
 import { useDebounce } from '@/hooks/useDebounce'
 import PageHeader from '@/components/PageHeader'
 import { hasValidCoords } from '@/lib/utils'
+import { clientMatchesQuery } from '@/lib/clientNames'
 import SearchDropdown from '@/components/SearchDropdown'
 import { VerticalBar } from '@/components/ScrollIndicator'
 
@@ -35,8 +36,7 @@ export default function MapPage() {
     if (query) {
       result = result.filter(
         (c) =>
-          c.name.toLowerCase().includes(query) ||
-          c.shopName.toLowerCase().includes(query) ||
+          clientMatchesQuery(c, query) ||
           c.address.toLowerCase().includes(query) ||
           c.id.toLowerCase().includes(query),
       )
