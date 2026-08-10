@@ -4,9 +4,9 @@ import { motion } from 'motion/react'
 import ClientCopyButton from '@/components/ClientCopyButton'
 import EmptyState from '@/components/EmptyState'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
+import ClientNames from '@/components/ClientNames'
 import LoadMore from '@/components/LoadMore'
 import type { Client, FilterKey } from '@/types'
-import { clientTitle, clientSubNames } from '@/lib/clientNames'
 import { Card } from '@/components/ui/card'
 import { staggerContainer, staggerItem } from '@/lib/motion'
 
@@ -85,14 +85,11 @@ copiedKey,
  />
  </div>
    <div className="flex-1 min-w-0 text-left">
-   <div className="font-semibold text-[17px] text-foreground truncate">
-   {clientTitle(client)}
-   </div>
-   {clientSubNames(client) && (
-   <div className="font-medium max-md:text-[16px] md:text-[14px] text-muted-foreground mt-[1px] truncate">
-   {clientSubNames(client)}
-   </div>
-   )}
+   <ClientNames
+     client={client}
+     titleClassName="font-semibold text-[17px] text-foreground truncate"
+     subClassName="font-medium max-md:text-[16px] md:text-[14px] text-muted-foreground mt-[1px] truncate"
+   />
    </div>
 <div className="shrink-0">
   <ClientCopyButton

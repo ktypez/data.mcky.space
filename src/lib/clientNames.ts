@@ -59,7 +59,29 @@ export function clientTitle(c: Pick<Client, 'name' | 'shopName'>): string {
   return shops[0] || names[0] || ''
 }
 
-/** Secondary line: every remaining name/shop value, joined by " / ". */
+/**
+ * Person-names group as a joined line ("a / b / c"), excluding the title
+ * when it is one of them. Kept separate from shop names — never mixed.
+ */
+export function clientNamesJoined(c: Pick<Client, 'name' | 'shopName'>): string {
+  const title = clientTitle(c)
+  return coerceStringArray(c.name).filter((n) => n !== title).join(' / ')
+}
+
+/**
+ * Shop-names group as a joined line ("x / y / z"), excluding the title
+ * when it is one of them. Kept separate from person names — never mixed.
+ */
+export function clientShopsJoined(c: Pick<Client, 'name' | 'shopName'>): string {
+  const title = clientTitle(c)
+  return coerceStringArray(c.shopName).filter((n) => n !== title).join(' / ')
+}
+
+/**
+ * Secondary line: every remaining name/shop value, joined by " / ".
+ * Legacy helper — still used by the duplicate-check warning in FormNameField,
+ * where a single combined hint line is acceptable.
+ */
 export function clientSubNames(c: Pick<Client, 'name' | 'shopName'>): string {
   const title = clientTitle(c)
   const rest = [...coerceStringArray(c.name), ...coerceStringArray(c.shopName)].filter(

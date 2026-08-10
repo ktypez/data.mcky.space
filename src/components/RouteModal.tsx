@@ -4,7 +4,7 @@ import type { Client } from '@/types'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { clientTitle, clientSubNames } from '@/lib/clientNames'
+import { clientTitle, clientSubNames, clientNamesJoined, clientShopsJoined } from '@/lib/clientNames'
 
 type RouteItem = { client: Client; dist: number }
 type RouteData = { origin: { lat: number; lng: number }; clients: RouteItem[] }
@@ -187,9 +187,18 @@ export default function RouteModal({
                     <div className="max-md:text-[15px] md:text-[16px] font-medium text-foreground truncate">
                       {clientTitle(item.client)}
                     </div>
-                    <div className="font-mono max-md:text-[13px] md:text-[14px] text-muted-foreground truncate">
-                      {clientSubNames(item.client) || item.client.address}
-                    </div>
+                    {clientSubNames(item.client) ? (
+                      <div className="font-mono max-md:text-[13px] md:text-[14px] text-muted-foreground truncate">
+                        {clientNamesJoined(item.client)}
+                        {clientShopsJoined(item.client)
+                          ? ` · ${clientShopsJoined(item.client)}`
+                          : ''}
+                      </div>
+                    ) : (
+                      <div className="font-mono max-md:text-[13px] md:text-[14px] text-muted-foreground truncate">
+                        {item.client.address}
+                      </div>
+                    )}
                   </div>
                   <div className="text-right shrink-0">
                     <div className="font-mono max-md:text-[14px] md:text-[15px] font-semibold text-foreground">

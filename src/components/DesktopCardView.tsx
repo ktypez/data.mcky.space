@@ -8,8 +8,8 @@ import { formatDate } from '@/lib/utils'
 import ClientCardBadges, { PlaceholderAvatar } from '@/components/ClientCardBadges'
 import BadgeTag from '@/components/BadgeTag'
 import LoadMore from '@/components/LoadMore'
+import ClientNames from '@/components/ClientNames'
 import { Card } from '@/components/ui/card'
-import { clientTitle, clientSubNames } from '@/lib/clientNames'
 import { staggerContainer, staggerItem } from '@/lib/motion'
 
 interface DesktopCardViewProps {
@@ -91,15 +91,12 @@ copiedKey,
  />
  </div>
    <div className="min-w-0 flex-1">
-   <div className="font-semibold text-[16px] text-foreground truncate">
-   {clientTitle(client)}
+   <ClientNames
+     client={client}
+     titleClassName="font-semibold text-[16px] text-foreground truncate"
+     subClassName="text-[14px] text-muted-foreground truncate"
+   />
    </div>
-    {clientSubNames(client) && (
-    <div className="text-[14px] text-muted-foreground truncate">
-    {clientSubNames(client)}
-    </div>
-    )}
-    </div>
  </div>
 
  {/* Footer: date + badge + copy */}

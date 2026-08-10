@@ -3,8 +3,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { hasValidCoords } from '@/lib/utils'
 import BadgeTag from './BadgeTag'
+import ClientNames from './ClientNames'
 import type { Client } from '@/types'
-import { clientTitle, clientSubNames } from '@/lib/clientNames'
 
 interface ClientInfoCardProps {
   client: Client
@@ -25,12 +25,11 @@ export default function ClientInfoCard({ client, copied, onCopy }: ClientInfoCar
     <Card className="overflow-hidden">
       <CardContent className="px-3 pt-3 pb-2 space-y-2">
         <div>
-          <h1 className="text-lg font-bold text-foreground break-words font-serif">
-            {clientTitle(client)}
-          </h1>
-          {clientSubNames(client) && (
-            <p className="text-sm text-muted-foreground mt-0.5 ml-0.5">{clientSubNames(client)}</p>
-          )}
+          <ClientNames
+            client={client}
+            titleClassName="text-lg font-bold text-foreground break-words font-serif"
+            subClassName="text-sm text-muted-foreground mt-0.5 ml-0.5"
+          />
         </div>
 
         {client.address && (

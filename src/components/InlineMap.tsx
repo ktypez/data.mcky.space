@@ -6,7 +6,7 @@ import { X } from '@phosphor-icons/react'
 import { getMapStyle } from '@/lib/map-styles'
 import { cssVarToHex, hasValidCoords } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
-import { clientTitle, clientSubNames } from '@/lib/clientNames'
+import ClientNames from '@/components/ClientNames'
 
 const SOURCE_ID = 'clients'
 const CLUSTER_LAYER = 'clusters'
@@ -284,14 +284,11 @@ export default function InlineMap({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[17px] font-bold text-foreground truncate">
-                    {clientTitle(selectedPin)}
-                  </div>
-                  {clientSubNames(selectedPin) && (
-                    <div className="text-[15px] text-muted-foreground truncate">
-                      {clientSubNames(selectedPin)}
-                    </div>
-                  )}
+                  <ClientNames
+                    client={selectedPin}
+                    titleClassName="text-[17px] font-bold text-foreground truncate"
+                    subClassName="text-[15px] text-muted-foreground truncate"
+                  />
                 </div>
                 <button
                   className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted"
