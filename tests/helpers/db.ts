@@ -41,21 +41,6 @@ export function createTestDb() {
       value TEXT NOT NULL
     );
 
-    CREATE TABLE suggestions (
-      id TEXT PRIMARY KEY,
-      client_id TEXT NOT NULL,
-      suggested TEXT NOT NULL,
-      original TEXT,
-      status TEXT NOT NULL DEFAULT 'pending',
-      suggested_photo TEXT,
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL,
-      FOREIGN KEY (client_id) REFERENCES clients(id) ON UPDATE no action ON DELETE cascade
-    );
-    CREATE INDEX suggestions_client_id_idx ON suggestions(client_id);
-    CREATE INDEX suggestions_status_idx ON suggestions(status);
-    CREATE INDEX suggestions_client_status_idx ON suggestions(client_id, status);
-
     CREATE TABLE audit_log (
       id TEXT PRIMARY KEY,
       actor TEXT,

@@ -33,7 +33,6 @@ interface UIState {
   openDetail: (clientId: string, client?: Client) => void
   openMap: (focusId?: string | null) => void
   openAddEdit: (editClientId?: string | null) => void
-  openSuggestions: () => void
   openTrash: () => void
   closeView: () => void
 }
@@ -80,8 +79,6 @@ export const useUIStore = create<UIState>()(
         set({ viewState: { view: 'map', focusId } }),
       openAddEdit: (editClientId = null) =>
         set({ viewState: { view: 'add-edit', editClientId } }),
-  openSuggestions: () =>
-    set({ viewState: { view: 'suggestions' } }),
   openTrash: () =>
     set({ viewState: { view: 'trash' } }),
   closeView: () => set({ viewState: { view: 'list' } }),

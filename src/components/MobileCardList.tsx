@@ -14,9 +14,8 @@ interface MobileCardListProps {
  filtered: Client[]
  displayLimit: number
  selectionMode: boolean
- selectedIds: Set<string>
- isAdmin: boolean
- pendingSuggestionIds: Set<string>
+selectedIds: Set<string>
+  isAdmin: boolean
 copiedKey: string | null
   hasMore: boolean
   isGlobalEmpty: boolean
@@ -33,9 +32,8 @@ const MobileCardList = memo(function MobileCardList({
  filtered,
  displayLimit,
  selectionMode,
- selectedIds,
- isAdmin,
- pendingSuggestionIds,
+selectedIds,
+  isAdmin,
 copiedKey,
   hasMore,
   isGlobalEmpty,
@@ -83,7 +81,6 @@ copiedKey,
  <ClientCardBadges
    hasNotes={!!client.notes}
    hasBadge={!!client.badge}
-   hasSuggestion={pendingSuggestionIds.has(client.id)}
  />
  </div>
   <div className="flex-1 min-w-0 text-left">

@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
-import { ArrowLeft, MapTrifold, ChatDots, Trash, SignOut, LockKey } from '@phosphor-icons/react'
+import { ArrowLeft, MapTrifold, Trash, SignOut, LockKey } from '@phosphor-icons/react'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
 export default function NavDropdown() {
@@ -53,13 +53,6 @@ export default function NavDropdown() {
           >
             <Trash className="w-4 h-4 text-muted-foreground shrink-0" />
             <span className="text-[15px] font-medium">ถังขยะ</span>
-          </button>
-          <button
-            onClick={() => { close(); navigate('/suggestions') }}
-            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
-          >
-            <ChatDots className="w-4 h-4 text-muted-foreground shrink-0" />
-            <span className="text-[15px] font-medium">คำแนะนำการแก้ไข</span>
           </button>
         </>
       )}

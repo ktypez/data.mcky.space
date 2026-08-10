@@ -9,7 +9,6 @@ import { AuthSync } from './components/AuthSync'
 const Clients = lazy(() => import('./pages/Clients').then((m) => ({ default: m.PageClient })))
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'))
 const MapPage = lazy(() => import('./pages/MapPage'))
-const SuggestionsPage = lazy(() => import('./pages/SuggestionsPage'))
 const TrashPage = lazy(() => import('./pages/TrashPage'))
 const AddEditPage = lazy(() => import('./pages/AddEditPage'))
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })))
@@ -85,7 +84,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<PageTransition><Clients /></PageTransition>} />
           <Route path="/maps" element={<PageTransition><MapPage /></PageTransition>} />
-          <Route path="/suggestions" element={<PageTransition><SuggestionsPage /></PageTransition>} />
           <Route path="/trash" element={<PageTransition><TrashPage /></PageTransition>} />
           <Route path="/add" element={<PageTransition><AddEditPage /></PageTransition>} />
           <Route path="/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />

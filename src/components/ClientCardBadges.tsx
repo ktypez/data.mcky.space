@@ -1,10 +1,8 @@
 import { Note, CurrencyDollar } from '@phosphor-icons/react'
-import SuggestionBadge from '@/components/SuggestionBadge'
 
 interface ClientCardBadgesProps {
   hasNotes: boolean
   hasBadge: boolean
-  hasSuggestion: boolean
   size?: 'sm' | 'md'
 }
 
@@ -14,10 +12,9 @@ const dotSize = { sm: 'p-0.5', md: 'p-0.5' }
 export default function ClientCardBadges({
   hasNotes,
   hasBadge,
-  hasSuggestion,
   size = 'sm',
 }: ClientCardBadgesProps) {
-  const hasAny = hasNotes || hasBadge || hasSuggestion
+  const hasAny = hasNotes || hasBadge
   if (!hasAny) return null
 
   return (
@@ -32,7 +29,6 @@ export default function ClientCardBadges({
           <CurrencyDollar className={`${iconSize[size]} text-destructive-foreground`} />
         </div>
       )}
-      {hasSuggestion && <SuggestionBadge size="sm" />}
     </div>
   )
 }

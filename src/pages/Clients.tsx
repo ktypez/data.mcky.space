@@ -10,7 +10,6 @@ import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
-import { useSuggestionStore } from '@/stores/suggestion-store'
 import { useFilteredClients, DISPLAY_STEP } from '@/hooks/useFilteredClients'
 import { useClientCopy } from '@/hooks/useClientCopy'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
@@ -77,7 +76,6 @@ export function PageClient() {
     copiedId,
     newClientCount,
   } = useUIStore()
-  const { pendingIds: pendingSuggestionIds, refreshKey: suggestRefresh } = useSuggestionStore()
 
   const { counts, filtered, displayed, hasMore } = useFilteredClients()
   const { handleCopySmart } = useClientCopy()
@@ -86,13 +84,6 @@ export function PageClient() {
   useEffect(() => {
     initialize()
   }, [initialize])
-
-  useEffect(() => {
-    if (suggestRefresh > 0) {
-      useClientStore.getState().refresh().catch(() => console.warn('Refresh failed'))
-    }
-    useSuggestionStore.getState().refreshPendingIds()
-  }, [suggestRefresh])
 
   const handleRefresh = useCallback(() => {
     const { refreshing: busy, refresh, setRefreshing, setProgress } =
@@ -218,11 +209,6 @@ export function PageClient() {
     [handleDetailDelete],
   )
 
-  const handleSuggestRefresh = useCallback(
-    () => useSuggestionStore.getState().incrementRefresh(),
-    [],
-  )
-
   const isListView = viewState.view === 'list'
   const showDetail = viewState.view === 'detail'
   const isCardsView = viewMode === 'cards'
@@ -265,7 +251,6 @@ export function PageClient() {
                   clients={clients}
                   onClientUpdated={handleDetailUpdate}
                   onClientDeleted={handleDetailDeleted}
-                  onSuggestRefresh={handleSuggestRefresh}
                 />
               </motion.div>
             )}
@@ -308,7 +293,6 @@ export function PageClient() {
                           displayLimit={displayLimit}
                           selectionMode={selectionMode}
                           selectedIds={selectedIds}
-                          pendingSuggestionIds={pendingSuggestionIds}
                           copiedId={copiedId}
                           hasMore={hasMore}
                           isGlobalEmpty={clients.length === 0}
@@ -328,7 +312,6 @@ export function PageClient() {
                           displayLimit={displayLimit}
                           selectionMode={selectionMode}
                           selectedIds={selectedIds}
-                          pendingSuggestionIds={pendingSuggestionIds}
                           copiedId={copiedId}
                           hasMore={hasMore}
                           isGlobalEmpty={clients.length === 0}
@@ -349,7 +332,6 @@ export function PageClient() {
                           selectionMode={selectionMode}
                           selectedIds={selectedIds}
                           isAdmin={isAdmin}
-                          pendingSuggestionIds={pendingSuggestionIds}
                           copiedId={copiedId}
                           hasMore={hasMore}
                           isGlobalEmpty={clients.length === 0}

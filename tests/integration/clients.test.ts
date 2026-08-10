@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { createTestDb, seedClients } from '../helpers/db'
-import { clients, settings, suggestions, schema } from '../../functions/lib/schema'
+import { clients, settings, schema } from '../../functions/lib/schema'
 import { eq, sql } from 'drizzle-orm'
 
 // Mirror the queries in functions/api/clients.ts. If a test starts failing
@@ -117,60 +117,6 @@ describe('clients DELETE (soft + H3 cascade snapshot)', () => {
     const parsed = JSON.parse(snapshot.value)
     expect(parsed.name).toBe('Alice')
     expect(parsed.deletedAt).toBeGreaterThan(0)
-  })
-
-  it('FK CASCADE drops suggestions when client is deleted', async () => {
-    seedClients(ctx.db, [{ id: 'abc', name: 'Alice' }])
-    await ctx.db.insert(suggestions).values({
-      id: 's1',
-      clientId: 'abc',
-      suggested: { name: 'New', shopName: '', address: '', lat: null, lng: null },
-      status: 'pending',
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    })
-
-    // sanity: suggestion exists
-    let sugg = await ctx.db.select().from(suggestions).where(eq(suggestions.clientId, 'abc'))
-    expect(sugg).toHaveLength(1)
-
-    await ctx.db.delete(clients).where(eq(clients.id, 'abc'))
-
-    sugg = await ctx.db.select().from(suggestions).where(eq(suggestions.clientId, 'abc'))
-    expect(sugg).toHaveLength(0)
-  })
-
-  it('snapshotting suggestions BEFORE the delete preserves them (H3 + restore parity)', async () => {
-    seedClients(ctx.db, [{ id: 'abc', name: 'Alice' }])
-    await ctx.db.insert(suggestions).values({
-      id: 's1',
-      clientId: 'abc',
-      suggested: { name: 'New', shopName: '', address: '', lat: null, lng: null },
-      status: 'pending',
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    })
-
-    // This is the order the DELETE handler uses:
-    // 1) snapshot client, 2) snapshot suggestions, 3) delete client
-    //    (cascade drops suggestions, but we already saved them).
-    const [row] = await ctx.db.select().from(clients).where(eq(clients.id, 'abc'))
-    const suggs = await ctx.db.select().from(suggestions).where(eq(suggestions.clientId, 'abc'))
-    await ctx.db.insert(settings).values({
-      key: `trash:v1:abc`,
-      value: JSON.stringify({ ...row, deletedAt: Date.now() }),
-    })
-    await ctx.db.insert(settings).values({
-      key: `trash:v1:abc:suggestions`,
-      value: JSON.stringify(suggs),
-    })
-    await ctx.db.delete(clients).where(eq(clients.id, 'abc'))
-
-    const suggSnapshot = await ctx.db.select().from(settings).where(eq(settings.key, 'trash:v1:abc:suggestions'))
-    expect(suggSnapshot).toHaveLength(1)
-    const restored = JSON.parse(suggSnapshot[0].value)
-    expect(restored).toHaveLength(1)
-    expect(restored[0].id).toBe('s1')
   })
 
   it('onConflictDoNothing lets restore re-insert without tripping on existing key', async () => {

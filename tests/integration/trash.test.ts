@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { createTestDb, seedClients } from '../helpers/db'
-import { clients, settings, suggestions } from '../../functions/lib/schema'
+import { clients, settings } from '../../functions/lib/schema'
 import { eq, sql } from 'drizzle-orm'
 
 // Mirror helpers in functions/api/clients/trash.ts
@@ -8,13 +8,12 @@ const TRASH_KEY_PREFIX = 'trash:v1:'
 const TRASH_TTL_DAYS = 30
 const TRASH_TTL_MS = TRASH_TTL_DAYS * 86_400_000
 const trashKey = (id: string) => `${TRASH_KEY_PREFIX}${id}`
-const suggestionsTrashKey = (id: string) => `${TRASH_KEY_PREFIX}${id}:suggestions`
 
 async function listTrash(db: ReturnType<typeof createTestDb>['db']) {
   const rows = await db
     .select()
     .from(settings)
-    .where(sql`${settings.key} LIKE ${TRASH_KEY_PREFIX + '%'} AND ${settings.key} NOT LIKE ${TRASH_KEY_PREFIX + '%:suggestions'}`)
+    .where(sql`${settings.key} LIKE ${TRASH_KEY_PREFIX + '%'}`)
   const parsed: Record<string, unknown>[] = []
   for (const r of rows) {
     try { parsed.push({ ...JSON.parse(r.value), _trashKey: r.key }) } catch { /* skip */ }
@@ -46,19 +45,6 @@ async function restoreClient(db: ReturnType<typeof createTestDb>['db'], id: stri
   void _d
   await db.insert(clients).values(clientRow as typeof clients.$inferInsert)
 
-  const suggKey = suggestionsTrashKey(id)
-  const [suggRow] = await db.select().from(settings).where(eq(settings.key, suggKey))
-  if (suggRow) {
-    try {
-      const saved = JSON.parse(suggRow.value) as Array<Record<string, unknown>>
-      if (Array.isArray(saved) && saved.length > 0) {
-        await db.insert(suggestions).values(saved as typeof suggestions.$inferInsert[])
-      }
-      await db.delete(settings).where(eq(settings.key, suggKey))
-    } catch {
-      await db.delete(settings).where(eq(settings.key, suggKey))
-    }
-  }
   await db.delete(settings).where(eq(settings.key, trashKey(id)))
   return clientRow
 }
@@ -67,21 +53,6 @@ describe('trash list + purge', () => {
   let ctx: ReturnType<typeof createTestDb>
   beforeEach(() => {
     ctx = createTestDb()
-  })
-
-  it('returns only client snapshots, not the parallel :suggestions rows', async () => {
-    seedClients(ctx.db, [{ id: '1', name: 'A' }])
-    await ctx.db.insert(settings).values({
-      key: 'trash:v1:1',
-      value: JSON.stringify({ id: '1', name: 'A', deletedAt: Date.now() }),
-    })
-    await ctx.db.insert(settings).values({
-      key: 'trash:v1:1:suggestions',
-      value: JSON.stringify([]),
-    })
-    const list = await listTrash(ctx.db)
-    expect(list).toHaveLength(1)
-    expect(list[0]._trashKey).toBe('trash:v1:1')
   })
 
   it('sorts by deletedAt desc (newest first)', async () => {
@@ -131,7 +102,7 @@ describe('trash restore', () => {
     ctx = createTestDb()
   })
 
-  it('re-inserts the client and drops both trash keys', async () => {
+  it('re-inserts the client and drops the trash key', async () => {
     seedClients(ctx.db, [{ id: 'r1', name: 'Restore' }])
     const [row] = await ctx.db.select().from(clients).where(eq(clients.id, 'r1'))
     await ctx.db.insert(settings).values({
@@ -170,52 +141,8 @@ describe('trash restore', () => {
     expect((row as { deletedAt?: number }).deletedAt).toBeUndefined()
   })
 
-  it('restores suggestions from the parallel snapshot (H3 parity)', async () => {
-    await ctx.db.insert(settings).values({
-      key: trashKey('r3'),
-      value: JSON.stringify({
-        id: 'r3', name: 'Y', shopName: '', address: '',
-        lat: null, lng: null, images: [], badge: null, notes: null,
-        createdAt: 100, updatedAt: 200, deletedAt: Date.now(),
-      }),
-    })
-    await ctx.db.insert(settings).values({
-      key: suggestionsTrashKey('r3'),
-      value: JSON.stringify([{
-        id: 's1', clientId: 'r3', status: 'pending',
-        suggested: { name: 'New', shopName: '', address: '', lat: null, lng: null },
-        createdAt: 100, updatedAt: 200,
-      }]),
-    })
-
-    await restoreClient(ctx.db, 'r3')
-
-    const suggs = await ctx.db.select().from(suggestions).where(eq(suggestions.clientId, 'r3'))
-    expect(suggs).toHaveLength(1)
-    expect(suggs[0].id).toBe('s1')
-
-    // The :suggestions key is consumed
-    const stillThere = await ctx.db.select().from(settings).where(eq(settings.key, suggestionsTrashKey('r3')))
-    expect(stillThere).toHaveLength(0)
-  })
-
   it('restore is a no-op when the trash key does not exist', async () => {
     const restored = await restoreClient(ctx.db, 'nope')
     expect(restored).toBeNull()
-  })
-
-  it('restore still works when the parallel :suggestions snapshot is missing (legacy)', async () => {
-    // No :suggestions key — client restore should still succeed
-    await ctx.db.insert(settings).values({
-      key: trashKey('legacy'),
-      value: JSON.stringify({
-        id: 'legacy', name: 'Z', shopName: '', address: '',
-        lat: null, lng: null, images: [], badge: null, notes: null,
-        createdAt: 100, updatedAt: 200, deletedAt: Date.now(),
-      }),
-    })
-    await restoreClient(ctx.db, 'legacy')
-    const [row] = await ctx.db.select().from(clients).where(eq(clients.id, 'legacy'))
-    expect(row).toBeDefined()
   })
 })

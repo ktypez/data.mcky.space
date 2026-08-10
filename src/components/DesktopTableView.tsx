@@ -15,7 +15,6 @@ interface DesktopTableViewProps {
  displayLimit: number
  selectionMode: boolean
  selectedIds: Set<string>
- pendingSuggestionIds: Set<string>
 copiedKey: string | null
   hasMore: boolean
   onSelectClient: (client: Client) => void
@@ -33,7 +32,6 @@ const DesktopTableView = memo(function DesktopTableView({
  displayLimit,
  selectionMode,
  selectedIds,
- pendingSuggestionIds,
 copiedKey,
   hasMore,
   onSelectClient,
@@ -80,7 +78,6 @@ copiedKey,
   <ClientCardBadges
     hasNotes={!!client.notes}
     hasBadge={!!client.badge}
-    hasSuggestion={pendingSuggestionIds.has(client.id)}
   />
   </div>
   ) : (
@@ -89,7 +86,6 @@ copiedKey,
     <ClientCardBadges
       hasNotes={!!client.notes}
       hasBadge={!!client.badge}
-      hasSuggestion={pendingSuggestionIds.has(client.id)}
     />
   </div>
   )}

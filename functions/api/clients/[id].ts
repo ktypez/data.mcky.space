@@ -1,5 +1,5 @@
 import { createDb } from '../../lib/db'
-import { clients, settings, suggestions } from '../../lib/schema'
+import { clients, settings } from '../../lib/schema'
 import { eq } from 'drizzle-orm'
 import { json, error, notFound, unauthorized } from '../../lib/response'
 import { logAudit } from '../../lib/audit'
@@ -58,31 +58,11 @@ export async function onRequestDelete(context: EventContext<Env, any, any>) {
   // restored with intact images. R2 cleanup happens on force-delete.
   // (C1 fix: previously R2 was deleted here, breaking restore.)
   // M5 fix: use namespaced key `trash:v1:<id>` (was `trash_<id>`).
-  //
-  // H3 + restore parity: the FK `suggestions.client_id → clients.id
-  // ON DELETE CASCADE` means deleting the client row will also delete
-  // all its suggestions. To preserve restore parity, we snapshot
-  // suggestions into a parallel `trash:v1:<id>:suggestions` setting
-  // row BEFORE the delete. The trash restore handler reads both
-  // snapshots and re-inserts them.
-  const relatedSuggestions = await db
-    .select()
-    .from(suggestions)
-    .where(eq(suggestions.clientId, params.id))
-
   const clientData = JSON.stringify({ ...row, deletedAt: Date.now() })
-  const suggestionsData = JSON.stringify(relatedSuggestions)
 
   await db.insert(settings).values({ key: `trash:v1:${params.id}`, value: clientData }).onConflictDoNothing()
-  if (relatedSuggestions.length > 0) {
-    await db
-      .insert(settings)
-      .values({ key: `trash:v1:${params.id}:suggestions`, value: suggestionsData })
-      .onConflictDoNothing()
-  }
-  // The CASCADE will now drop the suggestions from the live table.
   await db.delete(clients).where(eq(clients.id, params.id))
 
-  await logAudit(env, request, { action: 'client.delete', target: params.id, payload: { suggestionCount: relatedSuggestions.length } })
+  await logAudit(env, request, { action: 'client.delete', target: params.id })
   return json({ ok: true })
 }

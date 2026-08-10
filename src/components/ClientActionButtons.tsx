@@ -1,4 +1,4 @@
-import { Pencil, PencilSimple, Trash } from '@phosphor-icons/react'
+import { Pencil, Trash } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 
 interface ClientActionButtonsProps {
@@ -6,7 +6,6 @@ interface ClientActionButtonsProps {
   hideActions?: boolean
   onEdit: () => void
   onDelete: () => void
-  onSuggest: () => void
 }
 
 export default function ClientActionButtons({
@@ -14,24 +13,8 @@ export default function ClientActionButtons({
   hideActions,
   onEdit,
   onDelete,
-  onSuggest,
 }: ClientActionButtonsProps) {
-  if (hideActions) return null
-
-  if (!isAdmin) {
-    return (
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          className="flex-1 h-12 border-accent text-accent"
-          onClick={onSuggest}
-        >
-          <PencilSimple className="w-4 h-4" />
-          แจ้งแก้ไขข้อมูล
-        </Button>
-      </div>
-    )
-  }
+  if (hideActions || !isAdmin) return null
 
   return (
     <div className="flex gap-2">

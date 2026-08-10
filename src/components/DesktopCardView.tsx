@@ -17,7 +17,6 @@ interface DesktopCardViewProps {
  displayLimit: number
  selectionMode: boolean
  selectedIds: Set<string>
- pendingSuggestionIds: Set<string>
 copiedKey: string | null
   hasMore: boolean
   isGlobalEmpty: boolean
@@ -35,7 +34,6 @@ const DesktopCardView = memo(function DesktopCardView({
  displayLimit,
  selectionMode,
  selectedIds,
- pendingSuggestionIds,
 copiedKey,
   hasMore,
   isGlobalEmpty,
@@ -89,7 +87,6 @@ copiedKey,
  <ClientCardBadges
    hasNotes={!!client.notes}
    hasBadge={!!client.badge}
-   hasSuggestion={pendingSuggestionIds.has(client.id)}
  />
  </div>
   <div className="min-w-0 flex-1">
