@@ -27,6 +27,7 @@ export default function ClientInfoCard({ client, copied, onCopy }: ClientInfoCar
         <div>
           <ClientNames
             client={client}
+            variant="detail"
             titleClassName="text-lg font-bold text-foreground break-words font-serif"
             subClassName="text-sm text-muted-foreground mt-0.5 ml-0.5"
           />

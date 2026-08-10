@@ -65,9 +65,15 @@ export function clientTitle(c: Pick<Client, 'name' | 'shopName'>): string {
  * Shop names stay on the title line — never on a separate line.
  */
 export function clientTitleWithShops(c: Pick<Client, 'name' | 'shopName'>): string {
+  return clientShopNames(c).join(' / ')
+}
+
+/** Values for the title line: all shops, else the first person name. */
+export function clientShopNames(c: Pick<Client, 'name' | 'shopName'>): string[] {
   const shops = coerceStringArray(c.shopName)
-  if (shops.length > 0) return shops.join(' / ')
-  return coerceStringArray(c.name)[0] || ''
+  if (shops.length > 0) return shops
+  const names = coerceStringArray(c.name)
+  return names[0] ? [names[0]] : []
 }
 
 /**
@@ -75,8 +81,16 @@ export function clientTitleWithShops(c: Pick<Client, 'name' | 'shopName'>): stri
  * when it is one of them. Kept separate from shop names — never mixed.
  */
 export function clientNamesJoined(c: Pick<Client, 'name' | 'shopName'>): string {
-  const title = clientTitle(c)
-  return coerceStringArray(c.name).filter((n) => n !== title).join(' / ')
+  return clientNameValues(c).join(' / ')
+}
+
+/** Values for the person-names line: all names, else names after the title. */
+export function clientNameValues(c: Pick<Client, 'name' | 'shopName'>): string[] {
+  const shops = coerceStringArray(c.shopName)
+  const names = coerceStringArray(c.name)
+  if (shops.length > 0) return names
+  const title = names[0]
+  return names.filter((n) => n !== title)
 }
 
 /**

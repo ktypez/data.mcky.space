@@ -4,6 +4,8 @@ import {
   normalizeClient,
   clientTitle,
   clientTitleWithShops,
+  clientShopNames,
+  clientNameValues,
   clientNamesJoined,
   clientSubNames,
   clientMatchesQuery,
@@ -87,6 +89,25 @@ describe('clientTitleWithShops / clientNamesJoined (separate groups)', () => {
     const c = { name: ['Alice'], shopName: ['xxx', 'yyy', 'zzz'] }
     expect(clientTitleWithShops(c)).toBe('xxx / yyy / zzz')
     expect(clientNamesJoined(c)).toBe('Alice')
+  })
+})
+
+describe('clientShopNames / clientNameValues (array forms)', () => {
+  it('title values = all shops; name values = all names when shops exist', () => {
+    const c = { name: ['aaaaa', 'bbbbb'], shopName: ['xxx', 'yyy'] }
+    expect(clientShopNames(c)).toEqual(['xxx', 'yyy'])
+    expect(clientNameValues(c)).toEqual(['aaaaa', 'bbbbb'])
+  })
+
+  it('no shops → title = first name, name values = the rest', () => {
+    const c = { name: ['aaaaa', 'bbbbb', 'cccc'], shopName: [] }
+    expect(clientShopNames(c)).toEqual(['aaaaa'])
+    expect(clientNameValues(c)).toEqual(['bbbbb', 'cccc'])
+  })
+
+  it('empty when nothing to show', () => {
+    expect(clientShopNames({ name: [], shopName: [] })).toEqual([])
+    expect(clientNameValues({ name: [], shopName: [] })).toEqual([])
   })
 })
 

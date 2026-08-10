@@ -4,7 +4,8 @@ import type { Client } from '@/types'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { clientTitleWithShops, clientNamesJoined } from '@/lib/clientNames'
+import { clientShopNames, clientNameValues } from '@/lib/clientNames'
+import OverflowLine from '@/components/OverflowLine'
 
 type RouteItem = { client: Client; dist: number }
 type RouteData = { origin: { lat: number; lng: number }; clients: RouteItem[] }
@@ -184,13 +185,15 @@ export default function RouteModal({
                     {i + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="max-md:text-[15px] md:text-[16px] font-medium text-foreground truncate">
-                      {clientTitleWithShops(item.client)}
-                    </div>
-                    {clientNamesJoined(item.client) ? (
-                      <div className="font-mono max-md:text-[13px] md:text-[14px] text-muted-foreground truncate">
-                        {clientNamesJoined(item.client)}
-                      </div>
+                    <OverflowLine
+                      values={clientShopNames(item.client)}
+                      className="max-md:text-[15px] md:text-[16px] font-medium text-foreground truncate"
+                    />
+                    {clientNameValues(item.client).length > 0 ? (
+                      <OverflowLine
+                        values={clientNameValues(item.client)}
+                        className="font-mono max-md:text-[13px] md:text-[14px] text-muted-foreground truncate"
+                      />
                     ) : (
                       <div className="font-mono max-md:text-[13px] md:text-[14px] text-muted-foreground truncate">
                         {item.client.address}
