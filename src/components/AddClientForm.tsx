@@ -110,13 +110,6 @@ export default function AddClientForm({
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <FormNameField
-        values={name}
-        onChange={setName}
-        dupResult={dupResult}
-        autoFocus
-      />
-
       {/* Shop Name */}
       <div className="space-y-1">
         <Label>ชื่อร้านค้า *</Label>
@@ -126,11 +119,18 @@ export default function AddClientForm({
           placeholder="ชื่อร้านค้า"
           maxLength={60}
           addLabel="เพิ่มชื่อร้าน"
+          autoFocus
         />
         {name.every((n) => !n.trim()) && shopName.every((n) => !n.trim()) && (
           <p className="text-[13px] text-destructive">กรุณากรอกชื่อลูกค้า หรือ ชื่อร้านค้า อย่างน้อย 1 อย่าง</p>
         )}
       </div>
+
+      <FormNameField
+        values={name}
+        onChange={setName}
+        dupResult={dupResult}
+      />
 
       {/* Address / Details */}
       <div className="space-y-1">
