@@ -18,6 +18,9 @@ export const THEME_IDS = [
   'brut',
   'moss',
   'mcky',
+  'dusk',
+  'blueprint',
+  'noir',
 ] as const
 
 export type ThemeId = (typeof THEME_IDS)[number]

@@ -1,0 +1,232 @@
+/* ============================================================================
+   blueprint.css — data.mcky.space character theme (BLUEPRINT)
+   ----------------------------------------------------------------------------
+   Architectural / technical drawing: pale blueprint paper, steel blue ink,
+   hairline blue dividers, whisper of grid. IBM Plex Sans body + Plex Serif
+   for display. Precision without coldness.
+   Dual mode (light is the brand; dark = "midnight drafting table")
+   ============================================================================ */
+
+/* ---- tokens light (blueprint paper) ---- */
+[data-theme='blueprint'] {
+  --background: #eef2f7;
+  --foreground: #1a2942;
+  --card: #f8fafc;
+  --card-foreground: #1a2942;
+  --popover: #f8fafc;
+  --popover-foreground: #1a2942;
+  --primary: #2b5aa8;
+  --primary-foreground: #eef2f7;
+  --secondary: #dde4ee;
+  --secondary-foreground: #4a5a72;
+  --muted: #e2e8f2;
+  --muted-foreground: #5a6a82;
+  --accent: #d66a2b;
+  --accent-foreground: #ffffff;
+  --destructive: #c23a3a;
+  --destructive-foreground: #ffffff;
+  --success: #3a7a4a;
+  --success-foreground: #ffffff;
+  --warning: #a8782a;
+  --warning-foreground: #ffffff;
+  --info: #2b7aa8;
+  --info-foreground: #ffffff;
+  --border: rgba(43, 90, 168, 0.16);
+  --input: rgba(43, 90, 168, 0.22);
+  --ring: #2b5aa8;
+  --sidebar: #dde4ee;
+  --sidebar-foreground: #1a2942;
+  --sidebar-accent: #f8fafc;
+  --sidebar-accent-foreground: #4a5a72;
+  --sidebar-border: rgba(43, 90, 168, 0.16);
+  --sidebar-ring: #2b5aa8;
+  --radius: 0.25rem;   /* architectural precision */
+  --pin-color: #2b5aa8;
+
+  --theme-font-display: 'IBM Plex Serif', 'Noto Serif Thai', Georgia, serif;
+  --theme-font-body: 'IBM Plex Sans', 'Sarabun', system-ui, sans-serif;
+  --theme-font-mono: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;
+
+  --shadow-xs: 0 1px 1px rgba(26, 41, 66, 0.05);
+  --shadow-sm: 0 1px 3px rgba(26, 41, 66, 0.07), 0 1px 2px rgba(26, 41, 66, 0.05);
+  --shadow-md: 0 5px 14px -6px rgba(26, 41, 66, 0.1);
+  --shadow-lg: 0 12px 32px -12px rgba(26, 41, 66, 0.14);
+  --shadow-xl: 0 20px 48px -16px rgba(26, 41, 66, 0.18);
+  --shadow-2xl: 0 28px 64px -20px rgba(26, 41, 66, 0.22);
+
+  --frame-radius: 0.25rem;
+  --scroll-indicator-color: rgba(43, 90, 168, 0.3);
+  --scroll-progress-color: #2b5aa8;
+  --scroll-progress-glow: 0 0 6px rgba(43, 90, 168, 0.25);
+}
+
+/* ---- tokens dark (midnight drafting table) ---- */
+.dark[data-theme='blueprint'],
+[data-theme='blueprint'].dark {
+  --background: #131a24;
+  --foreground: #dbe4f0;
+  --card: #1a2330;
+  --card-foreground: #dbe4f0;
+  --popover: #1a2330;
+  --popover-foreground: #dbe4f0;
+  --primary: #6ea1ea;
+  --primary-foreground: #131a24;
+  --secondary: #212c3c;
+  --secondary-foreground: #96a8bf;
+  --muted: #1b2432;
+  --muted-foreground: #96a8bf;
+  --accent: #ec9f6a;
+  --accent-foreground: #131a24;
+  --destructive: #e86a6a;
+  --destructive-foreground: #131a24;
+  --success: #7ac98a;
+  --success-foreground: #131a24;
+  --warning: #e8ba6a;
+  --warning-foreground: #131a24;
+  --info: #6ea1ea;
+  --info-foreground: #131a24;
+  --border: rgba(110, 161, 234, 0.14);
+  --input: rgba(110, 161, 234, 0.2);
+  --ring: #6ea1ea;
+  --sidebar: #1a2330;
+  --sidebar-foreground: #dbe4f0;
+  --sidebar-accent: #212c3c;
+  --sidebar-accent-foreground: #96a8bf;
+  --sidebar-border: rgba(110, 161, 234, 0.14);
+  --sidebar-ring: #6ea1ea;
+  --radius: 0.25rem;
+  --pin-color: #6ea1ea;
+
+  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 5px 14px -6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 20px 48px -16px rgba(0, 0, 0, 0.7);
+  --shadow-2xl: 0 28px 64px -20px rgba(0, 0, 0, 0.8);
+
+  --scroll-indicator-color: rgba(110, 161, 234, 0.3);
+  --scroll-progress-color: #6ea1ea;
+  --scroll-progress-glow: 0 0 8px rgba(110, 161, 234, 0.3);
+}
+
+/* ---- base ---- */
+[data-theme='blueprint'] body {
+  background-color: var(--background);
+  line-height: 1.65;
+}
+
+/* blueprint grid background — subtle + cheap */
+[data-theme='blueprint'] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    linear-gradient(to right, rgba(43, 90, 168, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(43, 90, 168, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px, 24px 24px;
+}
+.dark[data-theme='blueprint'] body::before,
+[data-theme='blueprint'].dark body::before {
+  background-image:
+    linear-gradient(to right, rgba(110, 161, 234, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(110, 161, 234, 0.03) 1px, transparent 1px);
+}
+
+/* ---- header: hairline blue divider ---- */
+[data-theme='blueprint'] header {
+  background: var(--card);
+  backdrop-filter: none;
+  box-shadow: inset 0 -1px 0 var(--border);
+}
+
+/* ---- headings: Plex Serif for display — editorial architect vibe ---- */
+[data-theme='blueprint'] h1,
+[data-theme='blueprint'] h2 {
+  font-family: var(--theme-font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+[data-theme='blueprint'] h3 {
+  font-family: var(--theme-font-body);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  font-size: 0.875em;
+}
+
+/* ---- cards: sharp corners, hairline blue border ---- */
+[data-theme='blueprint'] [data-slot='card'] {
+  border-color: var(--border);
+  border-radius: 0.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- buttons: architectural precision — no lift, just press in ---- */
+[data-theme='blueprint'] [data-slot='button'] {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+[data-theme='blueprint'] [data-slot='button'][class*='bg-primary'] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 3px rgba(26, 41, 66, 0.15);
+}
+.dark[data-theme='blueprint'] [data-slot='button'][class*='bg-primary'],
+[data-theme='blueprint'].dark [data-slot='button'][class*='bg-primary'] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- inputs: bracketed by blue hairlines ---- */
+[data-theme='blueprint'] input,
+[data-theme='blueprint'] textarea {
+  caret-color: var(--ring);
+  background-color: var(--card);
+}
+[data-theme='blueprint'] input:focus,
+[data-theme='blueprint'] textarea:focus,
+[data-theme='blueprint'] input:focus-visible,
+[data-theme='blueprint'] textarea:focus-visible {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 15%, transparent);
+}
+
+/* ---- table: hairline row dividers, blueprint hover ---- */
+[data-theme='blueprint'] tbody tr {
+  border-bottom-color: var(--border) !important;
+}
+[data-theme='blueprint'] tbody tr:hover {
+  background: rgba(43, 90, 168, 0.05);
+}
+.dark[data-theme='blueprint'] tbody tr:hover,
+[data-theme='blueprint'].dark tbody tr:hover {
+  background: rgba(110, 161, 234, 0.06);
+}
+
+/* ---- selection ---- */
+[data-theme='blueprint'] ::selection {
+  background: rgba(43, 90, 168, 0.22);
+  color: var(--foreground);
+}
+.dark[data-theme='blueprint'] ::selection,
+[data-theme='blueprint'].dark ::selection {
+  background: rgba(110, 161, 234, 0.26);
+  color: var(--foreground);
+}
+
+/* ---- copy button press: technical stamp ---- */
+[data-theme='blueprint'] .copy-press:active {
+  background: rgba(43, 90, 168, 0.12);
+  color: var(--ring);
+  box-shadow: 0 0 0 2px rgba(43, 90, 168, 0.25);
+}
+.dark[data-theme='blueprint'] .copy-press:active,
+[data-theme='blueprint'].dark .copy-press:active {
+  background: rgba(110, 161, 234, 0.14);
+  color: var(--ring);
+}
+
+/* ---- badge / chip: outlined blue ---- */
+[data-theme='blueprint'] [data-slot='badge'],
+[data-theme='blueprint'] .badge-tag {
+  border-radius: 0.125rem;
+}

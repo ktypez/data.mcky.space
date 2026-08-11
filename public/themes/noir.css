@@ -1,0 +1,240 @@
+/* ============================================================================
+   noir.css — data.mcky.space character theme (NOIR)
+   ----------------------------------------------------------------------------
+   Whiskey-bar luxe / old money: deep oxblood + brass, low light.
+   Playfair Display italic lean, generous letter-spacing on labels, hairline
+   brass dividers like menu cards. Slow-fast-slow interactions.
+   Dual mode (dark is the brand; light = "day-lit speakeasy" — pale tan leather)
+   ============================================================================ */
+
+/* ---- tokens light (day-lit speakeasy — pale tan leather) ---- */
+[data-theme='noir'] {
+  --background: #efe9dd;
+  --foreground: #2a1f1a;
+  --card: #f7f2e8;
+  --card-foreground: #2a1f1a;
+  --popover: #f7f2e8;
+  --popover-foreground: #2a1f1a;
+  --primary: #7a3a2a;                 /* oxblood */
+  --primary-foreground: #f7f2e8;
+  --secondary: #e3d9c3;
+  --secondary-foreground: #5a4538;
+  --muted: #e8ddc8;
+  --muted-foreground: #6a584a;
+  --accent: #b3853a;                   /* brass */
+  --accent-foreground: #2a1f1a;
+  --destructive: #8a2a2a;
+  --destructive-foreground: #efe9dd;
+  --success: #4a6a4a;
+  --success-foreground: #efe9dd;
+  --warning: #8a6a2a;
+  --warning-foreground: #efe9dd;
+  --info: #4a5a7a;
+  --info-foreground: #efe9dd;
+  --border: rgba(122, 58, 42, 0.18);
+  --input: rgba(122, 58, 42, 0.25);
+  --ring: #b3853a;
+  --sidebar: #e3d9c3;
+  --sidebar-foreground: #2a1f1a;
+  --sidebar-accent: #f7f2e8;
+  --sidebar-accent-foreground: #5a4538;
+  --sidebar-border: rgba(122, 58, 42, 0.18);
+  --sidebar-ring: #b3853a;
+  --radius: 0.375rem;
+  --pin-color: #7a3a2a;
+
+  --theme-font-display: 'Playfair Display', 'Noto Serif Thai', Georgia, serif;
+  --theme-font-body: 'Inter', 'Sarabun', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --shadow-xs: 0 1px 1px rgba(42, 31, 26, 0.06);
+  --shadow-sm: 0 1px 3px rgba(42, 31, 26, 0.08);
+  --shadow-md: 0 6px 18px -8px rgba(42, 31, 26, 0.15);
+  --shadow-lg: 0 14px 36px -14px rgba(42, 31, 26, 0.22);
+  --shadow-xl: 0 22px 56px -18px rgba(42, 31, 26, 0.28);
+  --shadow-2xl: 0 30px 80px -24px rgba(42, 31, 26, 0.35);
+
+  --frame-radius: 0.375rem;
+  --scroll-indicator-color: rgba(179, 133, 58, 0.35);
+  --scroll-progress-color: #b3853a;
+  --scroll-progress-glow: 0 0 8px rgba(179, 133, 58, 0.3);
+}
+
+/* ---- tokens dark (the brand — whiskey bar at 1am) ---- */
+.dark[data-theme='noir'],
+[data-theme='noir'].dark {
+  --background: #150d0a;
+  --foreground: #ede0cc;
+  --card: #1e1410;
+  --card-foreground: #ede0cc;
+  --popover: #1e1410;
+  --popover-foreground: #ede0cc;
+  --primary: #c97a5a;                  /* lit brass-copper */
+  --primary-foreground: #150d0a;
+  --secondary: #2a1c15;
+  --secondary-foreground: #a88a6a;
+  --muted: #1c1410;
+  --muted-foreground: #a88a6a;
+  --accent: #e0a84c;                   /* polished brass */
+  --accent-foreground: #150d0a;
+  --destructive: #d46a5a;
+  --destructive-foreground: #150d0a;
+  --success: #8ab582;
+  --success-foreground: #150d0a;
+  --warning: #e0a84c;
+  --warning-foreground: #150d0a;
+  --info: #a88a6a;
+  --info-foreground: #150d0a;
+  --border: rgba(224, 168, 76, 0.18);
+  --input: rgba(224, 168, 76, 0.24);
+  --ring: #e0a84c;
+  --sidebar: #1e1410;
+  --sidebar-foreground: #ede0cc;
+  --sidebar-accent: #2a1c15;
+  --sidebar-accent-foreground: #a88a6a;
+  --sidebar-border: rgba(224, 168, 76, 0.18);
+  --sidebar-ring: #e0a84c;
+  --radius: 0.375rem;
+  --pin-color: #c97a5a;
+
+  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.55);
+  --shadow-md: 0 6px 18px -8px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 14px 36px -14px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 22px 56px -18px rgba(0, 0, 0, 0.75);
+  --shadow-2xl: 0 30px 80px -24px rgba(0, 0, 0, 0.85);
+
+  --scroll-indicator-color: rgba(224, 168, 76, 0.3);
+  --scroll-progress-color: #e0a84c;
+  --scroll-progress-glow: 0 0 10px rgba(224, 168, 76, 0.4);
+}
+
+/* ---- base ---- */
+[data-theme='noir'] body {
+  background-color: var(--background);
+  line-height: 1.7;
+}
+
+/* vignette on dark — whiskey lounge ambience */
+.dark[data-theme='noir'] body::before,
+[data-theme='noir'].dark body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(224, 168, 76, 0.04), transparent 50%),
+    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(0, 0, 0, 0.35), transparent 60%);
+}
+
+/* ---- header: menucard hairline brass ---- */
+[data-theme='noir'] header {
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: inset 0 -1px 0 var(--border);
+}
+
+/* ---- display font: Playfair Display with soft italic lean ---- */
+[data-theme='noir'] h1 {
+  font-family: var(--theme-font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-style: italic;
+}
+[data-theme='noir'] h2 {
+  font-family: var(--theme-font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+[data-theme='noir'] h3,
+[data-theme='noir'] .font-display {
+  font-family: var(--theme-font-display);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* small caps on labels — menucard detail */
+[data-theme='noir'] h2.text-sm,
+[data-theme='noir'] .text-xs.font-medium,
+[data-theme='noir'] .text-\[14px\].font-medium,
+[data-theme='noir'] .uppercase {
+  letter-spacing: 0.08em;
+}
+
+/* ---- cards: tan leather, hairline brass border ---- */
+[data-theme='noir'] [data-slot='card'] {
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.dark[data-theme='noir'] [data-slot='card'],
+[data-theme='noir'].dark [data-slot='card'] {
+  background: linear-gradient(180deg, rgba(224, 168, 76, 0.03), transparent 40%), var(--card);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(224, 168, 76, 0.04);
+}
+
+/* ---- primary button: oxblood/copper with inset highlight ---- */
+[data-theme='noir'] [data-slot='button'][class*='bg-primary'] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 3px rgba(42, 31, 26, 0.18);
+}
+.dark[data-theme='noir'] [data-slot='button'][class*='bg-primary'],
+[data-theme='noir'].dark [data-slot='button'][class*='bg-primary'] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 4px 14px -4px rgba(224, 168, 76, 0.3);
+}
+.dark[data-theme='noir'] [data-slot='button'][class*='bg-primary']:hover,
+[data-theme='noir'].dark [data-slot='button'][class*='bg-primary']:hover {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 20px -4px rgba(224, 168, 76, 0.4);
+}
+
+/* ---- inputs: brass caret + ring ---- */
+[data-theme='noir'] input,
+[data-theme='noir'] textarea {
+  caret-color: var(--accent);
+  background-color: var(--card);
+}
+[data-theme='noir'] input:focus,
+[data-theme='noir'] textarea:focus,
+[data-theme='noir'] input:focus-visible,
+[data-theme='noir'] textarea:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* ---- table rows: whiskey leathery hover ---- */
+[data-theme='noir'] tbody tr:hover {
+  background: rgba(122, 58, 42, 0.05);
+}
+.dark[data-theme='noir'] tbody tr:hover,
+[data-theme='noir'].dark tbody tr:hover {
+  background: rgba(224, 168, 76, 0.05);
+}
+
+/* ---- selection: brass tint ---- */
+[data-theme='noir'] ::selection {
+  background: rgba(179, 133, 58, 0.32);
+  color: var(--foreground);
+}
+.dark[data-theme='noir'] ::selection,
+[data-theme='noir'].dark ::selection {
+  background: rgba(224, 168, 76, 0.28);
+  color: #ede0cc;
+}
+
+/* ---- copy button press: brass glint ---- */
+[data-theme='noir'] .copy-press:active {
+  background: rgba(179, 133, 58, 0.2);
+  color: var(--ring);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 35%, transparent);
+}
+.dark[data-theme='noir'] .copy-press:active,
+[data-theme='noir'].dark .copy-press:active {
+  background: rgba(224, 168, 76, 0.2);
+  color: #e0a84c;
+}
+
+/* ---- slow-fast-slow: take the sting out of micro-interactions ---- */
+[data-theme='noir'] [data-slot='button'],
+[data-theme='noir'] [data-slot='card'] {
+  transition-timing-function: cubic-bezier(0.6, 0.05, 0.2, 1);
+}
