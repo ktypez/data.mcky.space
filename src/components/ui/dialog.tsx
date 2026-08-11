@@ -22,14 +22,14 @@ function Dialog({ open, onOpenChange, popupClassName, children }: DialogProps) {
           exit="hidden"
         >
           <motion.div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/50 backdrop-blur-[6px]"
             variants={fadeIn}
             transition={spring}
             onClick={() => onOpenChange?.(false)}
           />
           <motion.div
             className={cn(
-              'relative w-[calc(100%-2rem)] max-w-lg rounded-xl border bg-card p-4 shadow-lg',
+              'relative w-[calc(100%-2rem)] max-w-lg rounded-xl border border-border/60 bg-card p-4 shadow-2xl',
               popupClassName,
             )}
             variants={scaleIn}

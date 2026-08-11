@@ -1,4 +1,4 @@
-import { MapPin, ClipboardText } from '@phosphor-icons/react'
+import { MapPin, ClipboardText, Check } from '@phosphor-icons/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { hasValidCoords } from '@/lib/utils'
@@ -47,32 +47,56 @@ export default function ClientInfoCard({ client, copied, onCopy }: ClientInfoCar
         <div className="grid grid-cols-3 gap-1.5">
           <Button
             variant="outline"
-            className={`h-9 px-1 ${copied === 'text' ? 'border-success text-success' : ''}`}
+            className={`h-9 px-1 transition-all duration-150 ${
+              copied === 'text'
+                ? 'border-success bg-success/10 text-success'
+                : ''
+            }`}
             onClick={() => onCopy()}
           >
-            <ClipboardText className="w-3.5 h-3.5 shrink-0" />
-            <span className="text-[11px]">ข้อความ</span>
+            {copied === 'text' ? (
+              <Check weight="bold" className="w-3.5 h-3.5 shrink-0" />
+            ) : (
+              <ClipboardText className="w-3.5 h-3.5 shrink-0" />
+            )}
+            <span className="text-[11px]">{copied === 'text' ? 'คัดลอกแล้ว' : 'ข้อความ'}</span>
           </Button>
 
           {hasCoords && (
             <Button
               variant="outline"
-              className={`h-9 px-1 ${copied === 'text+maps' ? 'border-success text-success' : ''}`}
+              className={`h-9 px-1 transition-all duration-150 ${
+                copied === 'text+maps'
+                  ? 'border-success bg-success/10 text-success'
+                  : ''
+              }`}
               onClick={() => onCopy('text+maps')}
             >
-              <ClipboardText className="w-3.5 h-3.5 shrink-0" />
-              <span className="text-[11px]">ข้อความ+แผนที่</span>
+              {copied === 'text+maps' ? (
+                <Check weight="bold" className="w-3.5 h-3.5 shrink-0" />
+              ) : (
+                <ClipboardText className="w-3.5 h-3.5 shrink-0" />
+              )}
+              <span className="text-[11px]">{copied === 'text+maps' ? 'คัดลอกแล้ว' : 'ข้อความ+แผนที่'}</span>
             </Button>
           )}
 
           {hasCoords && (
             <Button
               variant="outline"
-              className={`h-9 px-1 ${copied === 'maps' ? 'border-success text-success' : ''}`}
+              className={`h-9 px-1 transition-all duration-150 ${
+                copied === 'maps'
+                  ? 'border-success bg-success/10 text-success'
+                  : ''
+              }`}
               onClick={() => onCopy('maps')}
             >
-              {mapSvg}
-              <span className="text-[11px]">แผนที่</span>
+              {copied === 'maps' ? (
+                <Check weight="bold" className="w-3.5 h-3.5 shrink-0" />
+              ) : (
+                mapSvg
+              )}
+              <span className="text-[11px]">{copied === 'maps' ? 'คัดลอกแล้ว' : 'แผนที่'}</span>
             </Button>
           )}
         </div>

@@ -94,12 +94,38 @@
   button:focus-visible,
   a:focus-visible,
   [role='button']:focus-visible,
-  input:focus-visible {
+  [role='switch']:focus-visible,
+  [role='checkbox']:focus-visible,
+  [role='tab']:focus-visible,
+  [tabindex]:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
     @apply outline-2 outline-offset-2 outline-ring;
   }
   ::selection {
-    background: color-mix(in oklch, var(--primary) 15%, transparent);
+    background: color-mix(in oklch, var(--primary) 20%, transparent);
   }
+}
+
+/* Hard-shadow / brutalist themes: disable lift+scale "premium press" because the
+   theme's own press language (collapse hard offset shadow) is the right metaphor. */
+[data-theme='brut'] button:hover,
+[data-theme='mcky'] button:hover,
+[data-theme='bubblegum'] button:hover,
+[data-theme='brut'] [role='button']:hover,
+[data-theme='mcky'] [role='button']:hover,
+[data-theme='bubblegum'] [role='button']:hover {
+  transform: none !important;
+}
+[data-theme='brut'] button:active,
+[data-theme='mcky'] button:active,
+[data-theme='bubblegum'] button:active,
+[data-theme='brut'] [role='button']:active,
+[data-theme='mcky'] [role='button']:active,
+[data-theme='bubblegum'] [role='button']:active {
+  transform: translate(2px, 2px) !important;
+  scale: 1 !important;
 }
 
 @utility font-display {
@@ -214,6 +240,34 @@
 }
 @utility animate-spin-slow {
   animation: spin-slow 2s linear infinite;
+}
+
+/* Skeleton shimmer — compositor-only via transform on ::after band */
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%) }
+  100% { transform: translateX(250%) }
+}
+.skeleton-shimmer {
+  position: relative;
+  isolation: isolate;
+}
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklch, var(--foreground) 8%, transparent) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: shimmer-sweep 2s ease-in-out infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after { animation: none }
 }
 
 @media (prefers-reduced-motion: reduce) {

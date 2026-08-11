@@ -24,13 +24,15 @@ export function useMotion() {
       smooth: instant,
       snappy: instant,
       springSmall: instant,
-      instant,
-      fadeIn: { hidden: {}, visible: {} },
-      slideUp: { hidden: {}, visible: {} },
-      slideLeft: { hidden: {}, visible: {} },
-      slideRight: { hidden: {}, visible: {} },
-      scaleIn: { hidden: {}, visible: {} },
-      staggerContainer: () => ({ hidden: {}, visible: {} }),
+    instant,
+    fadeIn: { hidden: {}, visible: {} },
+    slideUp: { hidden: {}, visible: {} },
+    slideLeft: { hidden: {}, visible: {} },
+    slideRight: { hidden: {}, visible: {} },
+    scaleIn: { hidden: {}, visible: {} },
+    fadeScaleIn: { hidden: {}, visible: {} },
+    liftSm: { hidden: {}, visible: {} },
+    staggerContainer: () => ({ hidden: {}, visible: {} }),
       staggerItem: { hidden: {}, visible: {} },
       sheetVariants: (_side: string) => ({ hidden: {}, visible: {} }),
     }
@@ -47,6 +49,8 @@ export function useMotion() {
     slideLeft,
     slideRight,
     scaleIn,
+    fadeScaleIn,
+    liftSm,
     staggerContainer,
     staggerItem,
     sheetVariants,
@@ -99,6 +103,18 @@ export const slideRight: Variants = {
 export const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.96 },
   visible: { opacity: 1, scale: 1 },
+}
+
+/** Popover preset — slightly punchier than scaleIn */
+export const fadeScaleIn: Variants = {
+  hidden: { opacity: 0, scale: 0.94 },
+  visible: { opacity: 1, scale: 1 },
+}
+
+/** List-row hover lift — used onFocus/hover only, transform-only */
+export const liftSm: Variants = {
+  hidden: { opacity: 0, y: 2 },
+  visible: { opacity: 1, y: 0 },
 }
 
 // ---------------------------------------------------------------------------

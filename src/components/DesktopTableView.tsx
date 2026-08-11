@@ -59,11 +59,12 @@ copiedKey,
    key={client.id}
    variants={staggerItem}
    onClick={() => (selectionMode ? onToggleSelect(client.id) : onSelectClient(client))}
-   className={`transition-colors duration-75 cursor-pointer border-b border-border/50 ${
-    isSelected
-     ? 'bg-accent/10 '
-     : 'bg-card hover:bg-card '
-   }`}
+   className={`group transition-[background-color,box-shadow] duration-100 cursor-pointer border-b border-border/50 hover:bg-muted/60 ${
+     isSelected
+      ? 'bg-accent/10 [box-shadow:inset_3px_0_0_0_var(--primary)]'
+      : 'bg-card'
+    }`}
+   whileTap={{ scale: 0.995 }}
   >
   <td className="px-3 py-2 align-middle w-10 shrink-0 relative">
   {client.images.length > 0 ? (
@@ -105,7 +106,15 @@ copiedKey,
  client={client}
  copiedKey={copiedKey}
  onCopySmart={onCopySmart}
- />
+  />
+  <span
+    className="ml-auto inline-flex items-center justify-center text-muted-foreground/40 opacity-0 -translate-x-1 transition-all duration-150 group-hover:translate-x-0 group-hover:opacity-100"
+    aria-hidden="true"
+  >
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </span>
   </div>
   </td>
   </motion.tr>

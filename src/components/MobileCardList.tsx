@@ -62,12 +62,14 @@ copiedKey,
  const isSelected = selectedIds.has(client.id)
  return (
    <motion.div key={client.id} variants={staggerItem}>
-     <Card
-       onClick={() => (selectionMode ? onToggleSelect(client.id) : onSelectClient(client))}
-       className={`size-sm w-full p-2.5 flex flex-row items-center gap-2.5 overflow-visible transition-all active:shadow-md cursor-pointer ${
-         isSelected ? 'ring-1 ring-accent' : ''
-       }`}
-     >
+      <Card
+        onClick={() => (selectionMode ? onToggleSelect(client.id) : onSelectClient(client))}
+        className={`size-sm w-full p-2.5 flex flex-row items-center gap-2.5 overflow-visible transition-all active:shadow-md cursor-pointer ${
+          isSelected
+            ? 'ring-1 ring-primary bg-accent/10 [box-shadow:inset_3px_0_0_0_var(--primary)]'
+            : ''
+        }`}
+      >
  <div className="relative shrink-0">
  {client.images.length > 0 ? (
  <img

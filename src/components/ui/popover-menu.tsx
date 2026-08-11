@@ -13,7 +13,7 @@ interface PopoverMenuProps {
 }
 
 export function PopoverMenu({ open, onOpenChange, trigger, children, position = 'auto' }: PopoverMenuProps) {
-  const { scaleIn, fadeIn, spring } = useMotion()
+  const { fadeScaleIn, fadeIn, spring } = useMotion()
 
   const [pos, setPos] = useState({ top: 0, left: 0 })
 
@@ -71,7 +71,7 @@ export function PopoverMenu({ open, onOpenChange, trigger, children, position = 
             {open && (
               <motion.div
                 key="popover-backdrop"
-                className="fixed inset-0 z-40"
+                className="fixed inset-0 z-40 bg-black/10 backdrop-blur-[2px]"
                 variants={fadeIn}
                 initial="hidden"
                 animate="visible"
@@ -97,7 +97,7 @@ export function PopoverMenu({ open, onOpenChange, trigger, children, position = 
                   left: position === 'right-edge' ? undefined : pos.left,
                   right: position === 'right-edge' ? 8 : undefined,
                 }}
-                variants={scaleIn}
+                variants={fadeScaleIn}
                 initial="hidden"
                 animate="visible"
                 exit="hidden"

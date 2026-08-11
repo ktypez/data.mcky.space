@@ -2,16 +2,27 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  `inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4`,
+  `inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap select-none outline-none
+   transition-[transform,background-color,border-color,color,box-shadow] duration-150 ease-out
+   hover:-translate-y-px
+   active:translate-y-0 active:scale-[0.97] active:duration-75
+   focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background
+   disabled:pointer-events-none disabled:opacity-50 disabled:saturate-50
+   [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4`,
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground shadow-xs hover:bg-primary/85',
-        outline: 'border-border bg-background text-foreground shadow-xs hover:bg-muted hover:text-foreground aria-expanded:bg-muted',
-        secondary: 'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
-        ghost: 'hover:bg-muted hover:text-foreground aria-expanded:bg-muted',
-        destructive: 'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20',
-        link: 'text-primary underline-offset-4 hover:underline',
+        default:
+          'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 hover:shadow-md active:shadow-xs',
+        outline:
+          'border-border bg-background text-foreground shadow-xs hover:bg-muted hover:text-foreground hover:shadow-sm aria-expanded:bg-muted',
+        secondary:
+          'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 hover:shadow-sm',
+        ghost:
+          'hover:bg-muted hover:text-foreground aria-expanded:bg-muted shadow-none hover:shadow-none',
+        destructive:
+          'bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/20 hover:border-destructive/40',
+        link: 'text-primary shadow-none underline-offset-4 hover:!translate-y-0 hover:shadow-none hover:underline active:!scale-100',
       },
       size: {
         default: 'h-8 gap-1.5 px-3',

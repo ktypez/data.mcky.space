@@ -64,26 +64,27 @@ export default function ClientPhotoGallery({ images, onLightboxOpen }: ClientPho
             <button
               key={i}
               onClick={() => onLightboxOpen(i)}
-              className="min-w-full h-full overflow-hidden cursor-pointer hover:opacity-85 transition-opacity"
+              className="min-w-full h-full overflow-hidden cursor-zoom-in group"
+              aria-label={`เปิดรูปที่ ${i + 1} แบบขยาย`}
             >
               <AppImage
                 src={src}
                 alt={`Photo ${i + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
               />
             </button>
           ))}
         </div>
         {images.length > 1 && (
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 pointer-events-auto">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 pointer-events-auto rounded-full bg-black/40 backdrop-blur-sm px-2 py-1.5">
             {images.map((_, i) => (
               <button
                 key={i}
                 onClick={(e) => { e.stopPropagation(); setPhotoIdx(i) }}
-                className={`w-2 h-2 rounded-full transition-all duration-200 cursor-pointer ${
+                className={`rounded-full transition-all duration-200 cursor-pointer ${
                   i === photoIdx
-                    ? 'bg-foreground w-5'
-                    : 'bg-muted-foreground/40 hover:bg-muted-foreground/60'
+                    ? 'bg-white w-5 h-2'
+                    : 'bg-white/50 w-2 h-2 hover:bg-white/80'
                 }`}
                 aria-label={`Photo ${i + 1}`}
               />
