@@ -50,7 +50,7 @@ export const useUIStore = create<UIState>()(
       mapFocusId: null,
       copiedId: null,
       newClientCount: 0,
-      theme: 'claude',
+      theme: 'dusk',
 
       setViewState: (viewState) => set({ viewState }),
       setRouteData: (routeData) => set({ routeData }),

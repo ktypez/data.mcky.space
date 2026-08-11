@@ -37,6 +37,26 @@
             if (data && data.state && typeof data.state.theme === 'string') id = data.state.theme;
           }
         } catch (e) {}
+        // One-time migration (after default changed claude → dusk):
+        // existing users who saved 'claude' get switched to 'dusk' once, then
+        // we stamp a flag so future visits respect whatever they pick next.
+        var MIG_KEY = 'theme-migrated-to-dusk-v1';
+        try {
+          if (id === 'claude' && !localStorage.getItem(MIG_KEY)) {
+            id = 'dusk';
+            try {
+              var raw2 = localStorage.getItem('ezzylist-ui');
+              if (raw2) {
+                var data2 = JSON.parse(raw2);
+                if (data2 && data2.state) {
+                  data2.state.theme = 'dusk';
+                  localStorage.setItem('ezzylist-ui', JSON.stringify(data2));
+                }
+              }
+            } catch (e) {}
+            try { localStorage.setItem(MIG_KEY, '1'); } catch (e) {}
+          }
+        } catch (e) {}
         if (!THEMES[id]) id = 'dusk'; // invalid/stale id → default theme
         var t = THEMES[id];
         var root = document.documentElement;

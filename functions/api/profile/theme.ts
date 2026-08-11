@@ -7,11 +7,11 @@ import { logAudit } from '../../lib/audit'
 import { isThemeId } from '../../lib/theme-ids'
 
 const THEME_KEY = 'theme'
-const DEFAULT_THEME = 'claude'
+const DEFAULT_THEME = 'dusk'
 
 /**
  * Per-admin profile preference (single admin today → settings table).
- * GET returns the saved theme (defaults to 'claude'), PUT upserts it.
+ * GET returns the saved theme (defaults to 'dusk'), PUT upserts it.
  */
 export async function onRequestGet(context: EventContext<Env, any, any>) {
   const { env, request } = context
