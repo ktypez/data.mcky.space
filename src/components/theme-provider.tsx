@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { ThemeProvider as CustomThemeProvider, useTheme } from '@/lib/theme-context'
 import { useUIStore } from '@/stores/ui-store'
-import { getTheme, isDarkOnlyTheme } from '@/lib/design/themes'
+import { getTheme, isDarkOnlyTheme, isLightOnlyTheme } from '@/lib/design/themes'
 
 const CSS_LINK_ID = 'theme-static-css'
 const FONT_LINK_ID = 'theme-font'
@@ -22,19 +22,21 @@ function removeElement(id: string) {
 
 /**
  * Single owner of the active theme on <html>: sets data-theme, toggles .dark
- * (dark-only themes force it), loads the theme's static stylesheet + fonts.
- * Every theme ships a full static CSS now — no JS-injected vars remain.
+ * (dark-only themes force dark; light-only themes force light), loads the
+ * theme's static stylesheet + fonts. Every theme ships a full static CSS now.
  */
 function ThemeInjector() {
   const themeId = useUIStore((s) => s.theme)
   const { resolvedTheme } = useTheme()
   const theme = getTheme(themeId)
   const darkOnly = isDarkOnlyTheme(theme)
+  const lightOnly = isLightOnlyTheme(theme)
 
   useEffect(() => {
     const root = document.documentElement
     root.dataset.theme = theme.id
-    root.classList.toggle('dark', darkOnly || resolvedTheme === 'dark')
+    const forceDark = darkOnly || (!lightOnly && resolvedTheme === 'dark')
+    root.classList.toggle('dark', forceDark)
 
     // Every theme owns a static stylesheet (boot already loaded it pre-paint;
     // this keeps it correct on live switches without a reload).
@@ -48,7 +50,7 @@ function ThemeInjector() {
     } else {
       removeElement(FONT_LINK_ID)
     }
-  }, [themeId, resolvedTheme, theme, darkOnly])
+  }, [themeId, resolvedTheme, theme, darkOnly, lightOnly])
 
   return null
 }

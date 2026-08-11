@@ -9,6 +9,7 @@ export const THEME_IDS = [
   'bubblegum',
   'slate',
   // character
+  'dusk',
   'glitchpage',
   'crt',
   'claude',
@@ -16,9 +17,7 @@ export const THEME_IDS = [
   'noc',
   'min',
   'brut',
-  'moss',
   'mcky',
-  'dusk',
   'blueprint',
   'noir',
 ] as const

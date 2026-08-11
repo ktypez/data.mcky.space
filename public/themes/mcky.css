@@ -1,9 +1,8 @@
 /* ============================================================================
-   mcky.css — data.mcky.space character theme (MCKY — house style)
+   mcky.css — data.mcky.space character theme (MCKY house style)
    ----------------------------------------------------------------------------
-   แกะ DNA จาก design-gallery/concepts/mcky.css
-   กระดาษ + ขอบดำ + amber highlight + เงาแข็ง (offset ไม่เบลอ) + mono labels
-   Dual mode (light/dark)
+   สไตล์บ้าน mcky: กระดาษ + ขอบดำ + amber highlight + เงาแข็ง (offset ไม่เบลอ)
+   + mono labels. Light-only — hard-shadow metaphor needs a paper surface.
    ============================================================================ */
 
 /* ---- tokens light ---- */
@@ -54,50 +53,6 @@
   --shadow-2xl: 8px 8px 0 0 #000000;
 }
 
-/* ---- tokens dark ---- */
-.dark[data-theme='mcky'] {
-  --background: #171712;
-  --foreground: #f5f5f0;
-  --card: #242420;
-  --card-foreground: #f5f5f0;
-  --popover: #242420;
-  --popover-foreground: #f5f5f0;
-  --primary: #ffe066;
-  --primary-foreground: #171712;
-  --secondary: #2c2c27;
-  --secondary-foreground: #c0c0b4;
-  --muted: #2c2c27;
-  --muted-foreground: #c0c0b4;
-  --accent: #9b5de5;
-  --accent-foreground: #171712;
-  --destructive: #ff6b6b;
-  --destructive-foreground: #171712;
-  --success: #06d6a0;
-  --success-foreground: #171712;
-  --warning: #ff9f43;
-  --warning-foreground: #171712;
-  --info: #7a9ff0;
-  --info-foreground: #171712;
-  --border: #f5f5f0;
-  --input: #f5f5f0;
-  --ring: #f5f5f0;
-  --sidebar: #242420;
-  --sidebar-foreground: #f5f5f0;
-  --sidebar-accent: #ffe066;
-  --sidebar-accent-foreground: #171712;
-  --sidebar-border: #f5f5f0;
-  --sidebar-ring: #f5f5f0;
-  --pin-color: #ffe066;
-
-  --shadow-xs: 2px 2px 0 0 #f5f5f0;
-  --shadow-sm: 2px 2px 0 0 #f5f5f0;
-  --shadow-md: 4px 4px 0 0 #f5f5f0;
-  --shadow-lg: 4px 4px 0 0 #f5f5f0;
-  --shadow-xl: 6px 6px 0 0 #f5f5f0;
-  --shadow-2xl: 8px 8px 0 0 #f5f5f0;
-}
-
-/* base */
 [data-theme='mcky'] body {
   background-color: var(--background);
 }

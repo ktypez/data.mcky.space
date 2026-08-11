@@ -9,12 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <script>
       // Pre-paint theme boot: ALWAYS load a full theme stylesheet before
-      // React mounts (saved theme, else the default = claude), so the app is
+      // React mounts (saved theme, else the default = dusk), so the app is
       // never unstyled and the :root/.dark fallback vars are unnecessary.
       // Keep THEMES in sync with src/lib/design/themes.ts (id + staticCss +
       // dark-only flag). Fonts load lazily via ThemeInjector, not here.
       (function () {
         var THEMES = {
+          dusk: { css: '/themes/dusk.css', dark: false },
           bubblegum: { css: '/themes/bubblegum.css', dark: false },
           slate: { css: '/themes/slate.css', dark: false },
           glitchpage: { css: '/themes/glitchpage.css', dark: true },
@@ -22,11 +23,9 @@
           claude: { css: '/themes/claude.css', dark: false },
           rack: { css: '/themes/rack.css', dark: true },
           noc: { css: '/themes/noc.css', dark: true },
-          min: { css: '/themes/min.css', dark: false },
-          brut: { css: '/themes/brut.css', dark: false },
-          moss: { css: '/themes/moss.css', dark: false },
-          mcky: { css: '/themes/mcky.css', dark: false },
-          dusk: { css: '/themes/dusk.css', dark: false },
+          min: { css: '/themes/min.css', dark: false, light: true },
+          brut: { css: '/themes/brut.css', dark: false, light: true },
+          mcky: { css: '/themes/mcky.css', dark: false, light: true },
           blueprint: { css: '/themes/blueprint.css', dark: false },
           noir: { css: '/themes/noir.css', dark: false },
         };
@@ -38,13 +37,14 @@
             if (data && data.state && typeof data.state.theme === 'string') id = data.state.theme;
           }
         } catch (e) {}
-        if (!THEMES[id]) id = 'claude'; // invalid/stale id → default theme
+        if (!THEMES[id]) id = 'dusk'; // invalid/stale id → default theme
         var t = THEMES[id];
         var root = document.documentElement;
         root.setAttribute('data-theme', id);
-        // dark-only themes force .dark; dual themes respect saved mode/system.
+        // dark-only themes force .dark; light-only themes always stay light;
+        // dual themes respect saved mode/system.
         var dark = t.dark;
-        if (!dark) {
+        if (!dark && !t.light) {
           var mode = null;
           try { mode = localStorage.getItem('theme'); } catch (e) {}
           if (mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
