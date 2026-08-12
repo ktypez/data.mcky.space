@@ -9,7 +9,6 @@ import { updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { useClientStore } from '@/stores/client-store'
-import { useUIStore } from '@/stores/ui-store'
 import { VerticalBar } from '@/components/ScrollIndicator'
 import type { Client } from '@/types'
 
@@ -26,31 +25,6 @@ export default function ClientDetailPage() {
   const cliStore = useClientStore()
   const mountedRef = useRef(true)
   const frameRef = useRef<HTMLDivElement>(null)
-
-  // Desktop: redirect to / and open detail in side pane instead
-  useEffect(() => {
-    if (!id) return
-    const isDesktop = document.documentElement.getAttribute('data-viewport') === 'desktop'
-    if (isDesktop) {
-      // Find client from store and open in side pane
-      const all = useClientStore.getState().clients
-      const found = all.find((c) => c.id === id)
-      if (found) {
-        useUIStore.getState().openDetail(id, found)
-      } else {
-        // Fetch then open
-        apiFetch(`/api/clients/${encodeURIComponent(id)}`)
-          .then((r) => r.ok ? r.json() : null)
-          .then((data: Client | null) => {
-            if (data && mountedRef.current) {
-              useUIStore.getState().openDetail(id, data)
-            }
-          })
-          .catch(() => {})
-      }
-      navigate('/', { replace: true })
-    }
-  }, [id, navigate])
 
   const loadData = useCallback(async () => {
     if (!id) return
