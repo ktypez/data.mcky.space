@@ -61,15 +61,13 @@ export default function AddEditPage() {
   )
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <InlineAddEditView
-        editClient={editClient}
-        clients={clients}
-        onBack={() => navigate('/')}
-        onSave={handleSave}
-        uploading={uploading}
-        uploadProgress={uploadProgress}
-      />
-    </div>
+    <InlineAddEditView
+      editClient={editClient}
+      clients={clients}
+      onBack={() => navigate('/')}
+      onSave={handleSave}
+      uploading={uploading}
+      uploadProgress={uploadProgress}
+    />
   )
 }

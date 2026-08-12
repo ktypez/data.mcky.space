@@ -1,11 +1,7 @@
 
-import { useRef } from 'react'
 import type { Client } from '@/types'
 import AddClientForm from '@/components/AddClientForm'
-import PageHeader from '@/components/PageHeader'
 import { Card, CardContent } from '@/components/ui/card'
-import { VerticalBar } from '@/components/ScrollIndicator'
-import { clientTitle } from '@/lib/clientNames'
 
 interface InlineAddEditViewProps {
   editClient: Client | null
@@ -24,35 +20,23 @@ export default function InlineAddEditView({
   uploading,
   uploadProgress,
 }: InlineAddEditViewProps) {
-  const frameRef = useRef<HTMLDivElement>(null)
   return (
-    <div className="app-viewport">
-      <PageHeader
-        variant="add-edit"
-        title={editClient ? clientTitle(editClient) : 'เพิ่มลูกค้าใหม่'}
-        showBack
-        onBack={onBack}
-      />
-      <div className="app-frame" ref={frameRef}>
-        <div className="flex-1 overflow-auto p-4 md:p-6 max-w-4xl mx-auto w-full">
-          <Card>
-            <CardContent className="px-3 py-2">
-              <AddClientForm
-                key={editClient?.id ?? 'new'}
-                open={true}
-                onOpenChange={onBack}
-                onSave={onSave}
-                editClient={editClient ?? undefined}
-                existingClients={clients}
-                variant="inline"
-                uploading={uploading}
-                uploadProgress={uploadProgress}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      <VerticalBar containerRef={frameRef} />
+    <div className="flex-1 overflow-auto p-4 md:p-6 max-w-4xl mx-auto w-full">
+      <Card>
+        <CardContent className="px-3 py-2">
+          <AddClientForm
+            key={editClient?.id ?? 'new'}
+            open={true}
+            onOpenChange={onBack}
+            onSave={onSave}
+            editClient={editClient ?? undefined}
+            existingClients={clients}
+            variant="inline"
+            uploading={uploading}
+            uploadProgress={uploadProgress}
+          />
+        </CardContent>
+      </Card>
     </div>
   )
 }

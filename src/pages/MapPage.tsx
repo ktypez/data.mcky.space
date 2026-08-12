@@ -1,19 +1,15 @@
 
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useDebounce } from '@/hooks/useDebounce'
-import PageHeader from '@/components/PageHeader'
 import { hasValidCoords } from '@/lib/utils'
 import { clientMatchesQuery } from '@/lib/clientNames'
 import SearchDropdown from '@/components/SearchDropdown'
-import { VerticalBar } from '@/components/ScrollIndicator'
 
-// Lazy-load the map (and maplibre-gl) into its own chunk so a map failure
-// can never break the rest of the app.
 const InlineMap = lazy(() => import('@/components/InlineMap'))
 
 export default function MapPage() {
@@ -22,7 +18,6 @@ export default function MapPage() {
   const { search, setSearch } = useFilterStore()
   const { isAdmin } = useAuthStore()
   const { mapFocusId, setMapFocusId } = useUIStore()
-  const frameRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     initialize()
@@ -49,62 +44,20 @@ export default function MapPage() {
   }, [navigate])
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="app-viewport">
-        <PageHeader
-          variant="map"
-          showBack
-          onBack={() => navigate('/')}
-          search={search}
-          onSearchChange={(v) => {
-            setSearch(v)
-            setMapFocusId(null)
-          }}
-          onSearchClear={() => {
-            setSearch('')
-            setMapFocusId(null)
-          }}
-          onSearchKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              setSearch('')
-              setMapFocusId(null)
-              ;(e.target as HTMLInputElement).blur()
-            }
-          }}
-          searchDropdown={
-            search.trim() ? (
-              <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-60 overflow-y-auto rounded-lg border bg-card shadow-xl">
-                <SearchDropdown
-                  clients={clients}
-                  query={query}
-                  onSelect={(id) => {
-                    setSearch('')
-                    setMapFocusId(id)
-                  }}
-                />
-              </div>
-            ) : undefined
-          }
-        />
-        <div className="app-frame" ref={frameRef}>
-          <div className="relative flex-1 min-h-0">
-            <Suspense
-              fallback={
-                <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-                  กำลังโหลดแผนที่…
-                </div>
-              }
-            >
-              <InlineMap
-                clients={filtered.filter((c) => hasValidCoords(c.lat, c.lng))}
-                focusClientId={mapFocusId}
-                onSelectClient={navigateToClient}
-              />
-            </Suspense>
+    <div className="relative flex-1 min-h-0">
+      <Suspense
+        fallback={
+          <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+            กำลังโหลดแผนที่…
           </div>
-        </div>
-        <VerticalBar containerRef={frameRef} />
-      </div>
+        }
+      >
+        <InlineMap
+          clients={filtered.filter((c) => hasValidCoords(c.lat, c.lng))}
+          focusClientId={mapFocusId}
+          onSelectClient={navigateToClient}
+        />
+      </Suspense>
     </div>
   )
 }

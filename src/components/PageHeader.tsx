@@ -5,7 +5,6 @@ import ThemePresetPicker from '@/components/ThemePresetPicker'
 import ThemeModePicker from '@/components/ThemeModePicker'
 import ViewportToggle from '@/components/ViewportToggle'
 import NavDropdown from '@/components/NavDropdown'
-import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { springSmall } from '@/lib/motion'
 
@@ -21,6 +20,7 @@ interface PageHeaderProps {
   searchDropdown?: React.ReactNode
   showAddButton?: boolean
   onAdd?: () => void
+  scrolled?: boolean
 }
 
 export default function PageHeader({
@@ -35,32 +35,8 @@ export default function PageHeader({
   searchDropdown,
   showAddButton,
   onAdd,
+  scrolled,
 }: PageHeaderProps) {
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    let frame: HTMLElement | null = null
-    let raf = 0
-    const onScroll = () => {
-      const s = (frame?.scrollTop ?? 0) > 8
-      setScrolled((prev) => (prev === s ? prev : s))
-    }
-    const attach = () => {
-      frame = document.querySelector('.app-frame')
-      if (!frame) {
-        raf = requestAnimationFrame(attach)
-        return
-      }
-      onScroll()
-      frame.addEventListener('scroll', onScroll, { passive: true })
-    }
-    attach()
-    return () => {
-      cancelAnimationFrame(raf)
-      frame?.removeEventListener('scroll', onScroll)
-    }
-  }, [])
-
   return (
     <header className="page-header h-14 bg-card flex items-center gap-3 px-4 z-30 border border-border rounded-[var(--frame-radius)] transition-[background-color,box-shadow,backdrop-filter] duration-200 data-[scrolled=true]:shadow-md data-[scrolled=true]:backdrop-blur-md" data-scrolled={scrolled || undefined}>
       <NavDropdown />

@@ -1,7 +1,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft } from '@phosphor-icons/react'
 import { Spinner } from '@/components/ui/spinner'
 import { Button } from '@/components/ui/button'
 import ClientDetail from '@/components/ClientDetail'
@@ -9,7 +8,6 @@ import { updateClient } from '@/lib/storage'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { useClientStore } from '@/stores/client-store'
-import { VerticalBar } from '@/components/ScrollIndicator'
 import type { Client } from '@/types'
 
 export default function ClientDetailPage() {
@@ -24,7 +22,6 @@ export default function ClientDetailPage() {
   const { isAdmin } = useAuthStore()
   const cliStore = useClientStore()
   const mountedRef = useRef(true)
-  const frameRef = useRef<HTMLDivElement>(null)
 
   const loadData = useCallback(async () => {
     if (!id) return
@@ -38,7 +35,6 @@ export default function ClientDetailPage() {
       setClient(data)
       setClients([data])
     } catch {
-      // Fallback to the already-loaded store list (no extra D1 fetch).
       const all = cliStore.clients
       const found = all.find((c) => c.id === id)
       if (found) {
@@ -74,7 +70,7 @@ export default function ClientDetailPage() {
         setClient(saved)
         cliStore.updateClient(saved.id, saved)
       } catch {
-        // Keep the current store list; no extra D1 fetch on failure.
+        // Keep the current store list
       } finally {
         setUploading(false)
         setUploadProgress(0)
@@ -85,7 +81,7 @@ export default function ClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex flex-1 items-center justify-center bg-background">
         <div className="flex items-center gap-3 text-muted-foreground">
           <Spinner size={20} />
           <span className="text-sm">Loading...</span>
@@ -96,7 +92,7 @@ export default function ClientDetailPage() {
 
   if (fetchError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex flex-1 items-center justify-center bg-background">
         <div className="space-y-3 text-center">
           <p className="text-lg font-medium text-foreground">Failed to load data</p>
           <p className="text-sm text-muted-foreground">Check your connection</p>
@@ -108,7 +104,7 @@ export default function ClientDetailPage() {
 
   if (!client) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex flex-1 items-center justify-center bg-background">
         <div className="space-y-3 text-center">
           <p className="text-2xl font-bold text-foreground">Client not found</p>
           <p className="text-sm text-muted-foreground">This link may be expired or the data was deleted</p>
@@ -121,28 +117,14 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="app-viewport">
-        <div className="flex h-11 shrink-0 items-center gap-2 bg-card px-3 border border-border rounded-[var(--frame-radius)]">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-            <ArrowLeft className="size-3.5" />
-            Back
-          </Button>
-        </div>
-
-        <div className="app-frame" ref={frameRef}>
-          <ClientDetail
-            client={client}
-            isAdmin={isAdmin}
-            clients={clients}
-            onClientUpdated={handleUpdate}
-            onClientDeleted={handleDelete}
-            uploading={uploading}
-            uploadProgress={uploadProgress}
-          />
-        </div>
-        <VerticalBar containerRef={frameRef} />
-      </div>
-    </div>
+    <ClientDetail
+      client={client}
+      isAdmin={isAdmin}
+      clients={clients}
+      onClientUpdated={handleUpdate}
+      onClientDeleted={handleDelete}
+      uploading={uploading}
+      uploadProgress={uploadProgress}
+    />
   )
 }
