@@ -15,7 +15,7 @@ import { useClientCopy } from '@/hooks/useClientCopy'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
 import { updateClient } from '@/lib/storage'
 import { slideLeft, slideRight, spring, springSmall } from '@/lib/motion'
-import type { Client, FilterKey, RouteData, ViewMode } from '@/types'
+import type { Client, FilterKey, RouteData } from '@/types'
 
 function FetchErrorScreen({ onRetry }: { onRetry: () => void }) {
   return (
@@ -41,7 +41,6 @@ const ClientDetail = lazyLoad(() => import('@/components/ClientDetail'))
 const SelectionToolbar = lazyLoad(() => import('@/components/SelectionToolbar'))
 const RouteModal = lazyLoad(() => import('@/components/RouteModal'))
 const DesktopTableView = lazyLoad(() => import('@/components/DesktopTableView'))
-const DesktopCardView = lazyLoad(() => import('@/components/DesktopCardView'))
 const MobileCardList = lazyLoad(() => import('@/components/MobileCardList'))
 const SwUpdateToast = lazyLoad(() => import('@/components/SwUpdateToast'))
 
@@ -58,7 +57,7 @@ export function PageClient() {
     refreshing,
     initialize,
   } = useClientStore()
-  const { search, filter, viewMode, setSearch } = useFilterStore()
+  const { search, filter, setSearch } = useFilterStore()
   const { isAdmin } = useAuthStore()
   const {
     viewState,
@@ -131,10 +130,6 @@ export function PageClient() {
     useUIStore.getState().openDetail(client.id, client)
   }, [])
 
-  const handleViewModeChange = useCallback(
-    (v: ViewMode) => useFilterStore.getState().setViewMode(v),
-    [],
-  )
   const handleFilter = useCallback(
     (f: FilterKey) => useFilterStore.getState().setFilter(f),
     [],
@@ -198,7 +193,6 @@ export function PageClient() {
 
   const isListView = viewState.view === 'list'
   const showDetail = viewState.view === 'detail'
-  const isCardsView = viewMode === 'cards'
 
   if (error) return <FetchErrorScreen onRetry={handleRetry} />
 
@@ -238,8 +232,6 @@ export function PageClient() {
             className="flex min-w-0 flex-1 flex-col"
           >
             <SelectionToolbar
-              viewMode={viewMode}
-              onViewModeChange={handleViewModeChange}
               refreshing={refreshing}
               onRefresh={handleRefresh}
               selectionMode={selectionMode}
@@ -258,27 +250,8 @@ export function PageClient() {
                 <TableSkeletonLoader />
               ) : (
                 <>
-                  <div className={`${isCardsView ? 'hidden' : 'block'} max-md:hidden`}>
+                  <div className="max-md:hidden">
                     <DesktopTableView
-                      displayed={displayed}
-                      filtered={filtered}
-                      displayLimit={displayLimit}
-                      selectionMode={selectionMode}
-                      selectedIds={selectedIds}
-                      copiedId={copiedId}
-                      hasMore={hasMore}
-                      isGlobalEmpty={clients.length === 0}
-                      filter={filter}
-                      search={search}
-                      onSelectClient={navToDetail}
-                      onToggleSelect={handleToggleSelect}
-                      onCopySmart={handleCopySmart}
-                      onLoadMore={handleLoadMore}
-                    />
-                  </div>
-
-                  <div className={`${isCardsView ? '' : 'hidden'} max-md:hidden`}>
-                    <DesktopCardView
                       displayed={displayed}
                       filtered={filtered}
                       displayLimit={displayLimit}
