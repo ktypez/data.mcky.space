@@ -1,10 +1,12 @@
 
-import { X, List, ArrowClockwise, NavigationArrow, Check } from '@phosphor-icons/react'
+import { X, List, SquaresFour, ArrowClockwise, NavigationArrow, Check } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import ProgressBar from '@/components/ProgressBar'
 import FilterDropdown from '@/components/FilterDropdown'
 import { motion } from 'motion/react'
 import type { FilterKey } from '@/types'
+
+type ViewMode = 'table' | 'cards'
 
 interface Counts {
   total: number
@@ -14,6 +16,8 @@ interface Counts {
 }
 
 interface Props {
+  viewMode: ViewMode
+  onViewModeChange: (mode: ViewMode) => void
   refreshing: boolean
   onRefresh: () => void
   selectionMode: boolean
@@ -29,6 +33,8 @@ interface Props {
 }
 
 export default function SelectionToolbar({
+  viewMode,
+  onViewModeChange,
   refreshing,
   onRefresh,
   selectionMode,
@@ -46,6 +52,26 @@ export default function SelectionToolbar({
     <div className="bg-card border-b border-border">
       <div className="px-4 py-2 flex items-center gap-2 min-h-[40px] overflow-x-auto">
         <div className="flex items-center gap-2 w-full">
+          <div className="hidden md:flex gap-0.5 bg-muted p-0.5 rounded-[4px]">
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => onViewModeChange('table')}
+              aria-label="แสดงตาราง"
+              className={viewMode === 'table' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'}
+            >
+              <List className="w-3.5 h-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => onViewModeChange('cards')}
+              aria-label="แสดงการ์ด"
+              className={viewMode === 'cards' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'}
+            >
+              <SquaresFour className="w-3.5 h-3.5" />
+            </Button>
+          </div>
           <FilterDropdown filter={filter} counts={counts} onFilter={onFilter} />
           <Button
             variant="secondary"
