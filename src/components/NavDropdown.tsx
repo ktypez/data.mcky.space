@@ -1,17 +1,47 @@
 import { useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
-import { ArrowLeft, MapTrifold, Trash, SignOut, LockKey } from '@phosphor-icons/react'
+import { ArrowLeft, MapTrifold, Trash, SignOut, LockKey, Check } from '@phosphor-icons/react'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
+/**
+ * NavDropdown — main nav.
+ * Active-route highlight: the menu item matching location.pathname gets
+ * a primary tint + right-aligned check icon. Non-route items (login/logout)
+ * never get the highlight.
+ */
 export default function NavDropdown() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAdmin, isSignedIn, setLoginOpen } = useAuthStore()
   const { resetView } = useUIStore()
   const [open, setOpen] = useState(false)
 
   const close = useCallback(() => setOpen(false), [])
+
+  const pathname = location.pathname
+
+  // Route detection:
+  //   - '/' and '/c/:id' (client detail, comes back to list) → หน้าแรก
+  //   - '/maps*' → แผนที่
+  //   - '/trash*' → ถังขยะ
+  //   - '/add', '/edit/:id', '/login' → no highlight (flow screens)
+  const isHome = pathname === '/' || pathname.startsWith('/c/')
+  const isMap = pathname === '/maps' || pathname.startsWith('/maps/')
+  const isTrash = pathname === '/trash' || pathname.startsWith('/trash/')
+
+  const itemClass = (active: boolean, danger = false) =>
+    [
+      'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors',
+      active
+        ? 'bg-primary/10 text-primary font-semibold ring-1 ring-primary/25'
+        : danger
+          ? 'text-destructive hover:bg-destructive/10'
+          : 'text-foreground hover:bg-muted',
+    ].join(' ')
+  const iconClass = (active: boolean) =>
+    active ? 'w-4 h-4 shrink-0 text-primary' : 'w-4 h-4 shrink-0 text-muted-foreground'
 
   const trigger = (
     <button
@@ -31,17 +61,22 @@ export default function NavDropdown() {
     <PopoverMenu open={open} onOpenChange={setOpen} trigger={trigger}>
       <button
         onClick={() => { close(); resetView(); navigate('/') }}
-        className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
+        className={itemClass(isHome)}
+        aria-current={isHome ? 'page' : undefined}
       >
-        <ArrowLeft className="w-4 h-4 text-muted-foreground shrink-0" />
-        <span className="text-[15px] font-medium">หน้าแรก</span>
+        <ArrowLeft className={iconClass(isHome)} />
+        <span className="text-[15px] font-medium flex-1">หน้าแรก</span>
+        {isHome && <Check className="w-4 h-4 shrink-0" weight="bold" />}
       </button>
+
       <button
         onClick={() => { close(); navigate('/maps') }}
-        className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
+        className={itemClass(isMap)}
+        aria-current={isMap ? 'page' : undefined}
       >
-        <MapTrifold className="w-4 h-4 text-muted-foreground shrink-0" />
-        <span className="text-[15px] font-medium">แผนที่</span>
+        <MapTrifold className={iconClass(isMap)} />
+        <span className="text-[15px] font-medium flex-1">แผนที่</span>
+        {isMap && <Check className="w-4 h-4 shrink-0" weight="bold" />}
       </button>
 
       {isAdmin && (
@@ -49,10 +84,12 @@ export default function NavDropdown() {
           <div className="my-1 mx-2 h-px bg-border" />
           <button
             onClick={() => { close(); navigate('/trash') }}
-            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
+            className={itemClass(isTrash)}
+            aria-current={isTrash ? 'page' : undefined}
           >
-            <Trash className="w-4 h-4 text-muted-foreground shrink-0" />
-            <span className="text-[15px] font-medium">ถังขยะ</span>
+            <Trash className={iconClass(isTrash)} />
+            <span className="text-[15px] font-medium flex-1">ถังขยะ</span>
+            {isTrash && <Check className="w-4 h-4 shrink-0" weight="bold" />}
           </button>
         </>
       )}
@@ -61,18 +98,18 @@ export default function NavDropdown() {
       {isSignedIn ? (
         <button
           onClick={() => { close(); void logout() }}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-destructive hover:bg-destructive/10 transition-colors"
+          className={itemClass(false, true)}
         >
           <SignOut className="w-4 h-4 shrink-0" />
-          <span className="text-[15px] font-medium">ออกจากระบบ</span>
+          <span className="text-[15px] font-medium flex-1">ออกจากระบบ</span>
         </button>
       ) : (
         <button
           onClick={() => { close(); setLoginOpen(true) }}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-foreground hover:bg-muted transition-colors"
+          className={itemClass(false)}
         >
           <LockKey className="w-4 h-4 text-muted-foreground shrink-0" />
-          <span className="text-[15px] font-medium">เข้าระบบ</span>
+          <span className="text-[15px] font-medium flex-1">เข้าระบบ</span>
         </button>
       )}
     </PopoverMenu>

@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button'
 import ThemePresetPicker from '@/components/ThemePresetPicker'
 import ThemeModePicker from '@/components/ThemeModePicker'
 import NavDropdown from '@/components/NavDropdown'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { springSmall } from '@/lib/motion'
 
 interface PageHeaderProps {
   variant: 'list' | 'detail' | 'map' | 'add-edit'
@@ -32,8 +35,33 @@ export default function PageHeader({
   showAddButton,
   onAdd,
 }: PageHeaderProps) {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    let frame: HTMLElement | null = null
+    let raf = 0
+    const onScroll = () => {
+      const s = (frame?.scrollTop ?? 0) > 8
+      setScrolled((prev) => (prev === s ? prev : s))
+    }
+    const attach = () => {
+      frame = document.querySelector('.app-frame')
+      if (!frame) {
+        raf = requestAnimationFrame(attach)
+        return
+      }
+      onScroll()
+      frame.addEventListener('scroll', onScroll, { passive: true })
+    }
+    attach()
+    return () => {
+      cancelAnimationFrame(raf)
+      frame?.removeEventListener('scroll', onScroll)
+    }
+  }, [])
+
   return (
-    <header className="h-14 bg-card flex items-center gap-3 px-4 z-30 border border-border rounded-[var(--frame-radius)]">
+    <header className="page-header h-14 bg-card flex items-center gap-3 px-4 z-30 border border-border rounded-[var(--frame-radius)] transition-[background-color,box-shadow,backdrop-filter] duration-200 data-[scrolled=true]:shadow-md data-[scrolled=true]:backdrop-blur-md" data-scrolled={scrolled || undefined}>
       <NavDropdown />
 
       {showBack && onBack && (
@@ -58,17 +86,27 @@ export default function PageHeader({
             onKeyDown={onSearchKeyDown}
             className="h-9 w-full pl-9 pr-9 text-[16px] font-sans rounded-lg bg-muted border border-border text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/30 transition-all duration-200 placeholder:text-muted-foreground"
           />
-          {search && (
-            <Button
-              variant="destructive"
-              size="icon-sm"
-              onClick={onSearchClear}
-              aria-label="ล้างการค้นหา"
-              className="absolute right-1.5 top-1/2 -translate-y-1/2"
-            >
-              <X className="w-3 h-3" />
-            </Button>
-          )}
+          <AnimatePresence>
+            {search && (
+              <motion.div
+                key="search-clear"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={springSmall}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2"
+              >
+                <Button
+                  variant="destructive"
+                  size="icon-sm"
+                  onClick={onSearchClear}
+                  aria-label="ล้างการค้นหา"
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {searchDropdown}
         </div>
       ) : (

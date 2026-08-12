@@ -8,6 +8,8 @@ import { setProfileTheme } from '@/lib/api'
 import { themes, isCharacterTheme, isDarkOnlyTheme, isLightOnlyTheme, isDualModeTheme } from '@/lib/design/themes'
 import type { Theme } from '@/lib/design/tokens'
 import { PopoverMenu } from '@/components/ui/popover-menu'
+import { motion } from 'motion/react'
+import { staggerContainer, staggerItem } from '@/lib/motion'
 
 function Swatch({ color, label }: { color: string; label: string }) {
   return (
@@ -96,17 +98,23 @@ function ThemeRow({
       <p className="px-1 pb-1 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
         {title}
       </p>
-      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none snap-x">
+      <motion.div
+        className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none snap-x"
+        variants={staggerContainer(0.03)}
+        initial="hidden"
+        animate="visible"
+      >
         {items.map((t) => (
-          <ThemeCard
-            key={t.id}
-            t={t}
-            active={activeId === t.id}
-            resolved={resolved}
-            onPick={() => onPick(t.id)}
-          />
+          <motion.div key={t.id} variants={staggerItem} className="shrink-0">
+            <ThemeCard
+              t={t}
+              active={activeId === t.id}
+              resolved={resolved}
+              onPick={() => onPick(t.id)}
+            />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </>
   )
 }
@@ -139,39 +147,50 @@ export default function ThemePresetPicker() {
 
   return (
     <PopoverMenu open={open} onOpenChange={setOpen} trigger={trigger} position="right-edge">
-      <div className="w-[340px] max-w-[90vw]">
-        <ThemeRow
-          title="Classic"
-          items={dualThemes}
-          activeId={themeId}
-          resolved={resolved}
-          onPick={handlePick}
-        />
+      <motion.div
+        className="w-[340px] max-w-[90vw]"
+        variants={staggerContainer(0.04)}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={staggerItem}>
+          <ThemeRow
+            title="Classic"
+            items={dualThemes}
+            activeId={themeId}
+            resolved={resolved}
+            onPick={handlePick}
+          />
+        </motion.div>
         {lightOnlyThemes.length > 0 && (
           <>
             <div className="h-2" />
-            <ThemeRow
-              title="Light only"
-              items={lightOnlyThemes}
-              activeId={themeId}
-              resolved={resolved}
-              onPick={handlePick}
-            />
+            <motion.div variants={staggerItem}>
+              <ThemeRow
+                title="Light only"
+                items={lightOnlyThemes}
+                activeId={themeId}
+                resolved={resolved}
+                onPick={handlePick}
+              />
+            </motion.div>
           </>
         )}
         {darkOnlyThemes.length > 0 && (
           <>
             <div className="h-2" />
-            <ThemeRow
-              title="Dark only"
-              items={darkOnlyThemes}
-              activeId={themeId}
-              resolved={resolved}
-              onPick={handlePick}
-            />
+            <motion.div variants={staggerItem}>
+              <ThemeRow
+                title="Dark only"
+                items={darkOnlyThemes}
+                activeId={themeId}
+                resolved={resolved}
+                onPick={handlePick}
+              />
+            </motion.div>
           </>
         )}
-      </div>
+      </motion.div>
     </PopoverMenu>
   )
 }

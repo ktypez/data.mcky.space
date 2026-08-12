@@ -3,6 +3,7 @@ import { X, List, SquaresFour, ArrowClockwise, NavigationArrow, Check } from '@p
 import { Button } from '@/components/ui/button'
 import ProgressBar from '@/components/ProgressBar'
 import FilterDropdown from '@/components/FilterDropdown'
+import { motion } from 'motion/react'
 import type { FilterKey } from '@/types'
 
 type ViewMode = 'table' | 'cards'
@@ -80,7 +81,13 @@ export default function SelectionToolbar({
             className="shrink-0"
             title="รีเฟรชข้อมูล"
           >
-            <ArrowClockwise className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
+            <motion.span
+              className="inline-flex"
+              animate={refreshing ? { rotate: 360 } : { rotate: 0 }}
+              transition={refreshing ? { repeat: Infinity, duration: 0.8, ease: 'linear' } : { type: 'spring', stiffness: 300, damping: 20 }}
+            >
+              <ArrowClockwise className="w-3 h-3" />
+            </motion.span>
             <span>รีเฟรช</span>
           </Button>
 
