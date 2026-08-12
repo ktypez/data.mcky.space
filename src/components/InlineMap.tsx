@@ -4,7 +4,7 @@ import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { X } from '@phosphor-icons/react'
 import { getMapStyle } from '@/lib/map-styles'
-import { cssVarToHex, hasValidCoords } from '@/lib/utils'
+import { cssVarToHex, hasValidCoords, DEFAULT_MAP_CENTER } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 import ClientNames from '@/components/ClientNames'
 
@@ -63,7 +63,7 @@ export default function InlineMap({
     const map = new maplibregl.Map({
       container: mapRef.current,
       style: getMapStyle(),
-      center: [102.8236, 16.4322],
+      center: DEFAULT_MAP_CENTER,
       zoom: 6,
       attributionControl: false,
     })

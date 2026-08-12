@@ -10,7 +10,7 @@
 //
 // This list is checked against the JWT `sub` claim of the Clerk session
 // token so no extra Clerk instance API round-trip is needed.
-export const ADMIN_EMAILS = new Set<string>([
+const ADMIN_EMAILS = new Set<string>([
   'bankkh@gmail.com',
   'daily@mcky.space',
   'mcky@ezzy.com',

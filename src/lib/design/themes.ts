@@ -1177,7 +1177,7 @@ const characterThemes: Theme[] = [dusk, glitchpage, crt, claude, rack, noc, min,
 
 export const themes: Theme[] = [...baseThemes, ...characterThemes]
 
-export const defaultTheme: Theme = dusk
+const defaultTheme: Theme = dusk
 
 /** Resolve a theme by id, falling back to the default. */
 export function getTheme(id: string | undefined | null): Theme {
@@ -1206,4 +1206,4 @@ export function isDualModeTheme(t: Theme): boolean {
 }
 
 /** ids ที่ backend อนุญาต — ต้องตรงกับ registry นี้ (mirror ใน functions/lib/theme-ids.ts) */
-export const THEME_IDS: string[] = themes.map((t) => t.id)
+const THEME_IDS: string[] = themes.map((t) => t.id)

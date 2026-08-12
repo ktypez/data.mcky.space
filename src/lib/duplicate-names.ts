@@ -1,6 +1,6 @@
 import type { Client } from '@/types'
 
-export interface DuplicateMatch {
+interface DuplicateMatch {
   client: Client
   similarity: number
 }

@@ -4,7 +4,7 @@ import type { Client } from '@/types'
 import MapPreview from '@/components/MapPreviewDynamic'
 import AddClientForm from '@/components/AddClientForm'
 import { deleteClient } from '@/lib/storage'
-import { copyToClipboard, getMapsUrl, hasValidCoords } from '@/lib/utils'
+import { copyToClipboard, getMapsUrl, hasValidCoords, COPIED_FLASH_MS } from '@/lib/utils'
 import { clientText } from '@/lib/clientText'
 import { clientTitle } from '@/lib/clientNames'
 import Lightbox from '@/components/Lightbox'
@@ -58,7 +58,7 @@ export default function ClientDetail({
       copyToClipboard(clientText(client)).then((ok) => {
         if (!ok) return
         setCopied(mode)
-        setTimeout(() => setCopied(null), 1500)
+        setTimeout(() => setCopied(null), COPIED_FLASH_MS)
       })
       return
     }
@@ -69,7 +69,7 @@ export default function ClientDetail({
     copyToClipboard(text).then((ok) => {
       if (!ok) return
       setCopied(mode)
-      setTimeout(() => setCopied(null), 1500)
+      setTimeout(() => setCopied(null), COPIED_FLASH_MS)
     })
   }, [client])
 

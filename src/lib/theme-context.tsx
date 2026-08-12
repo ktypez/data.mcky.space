@@ -11,7 +11,7 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
-export function ThemeProvider({ children, ..._props }: { children: ReactNode; [key: string]: any }) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem('theme') as ThemeMode | null
     return saved && ['system', 'light', 'dark'].includes(saved) ? saved : 'system'

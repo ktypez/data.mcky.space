@@ -41,7 +41,7 @@ async function uploadBase64Images(
     const data = await xhrPost<{ images: string[] }>('/api/photo-request', payload, onProgress)
     if (data) return { ok: true, images: data.images }
   } catch (e) {
-    console.warn('Failed to upload images to R2')
+    console.warn('Failed to upload images to R2:', e)
   }
   return { ok: false }
 }
@@ -51,6 +51,8 @@ function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => voi
     const xhr = new XMLHttpRequest()
     xhr.open('POST', url)
     xhr.setRequestHeader('Content-Type', 'application/json')
+    // Transitional: legacy HMAC token for photo uploads (server still accepts it as fallback).
+    // Will be removed once all sessions migrate to Clerk.
     const token = localStorage.getItem('ezzylist_admin_token')
     if (token) xhr.setRequestHeader('x-admin-token', token)
     xhr.upload.onprogress = (e) => {

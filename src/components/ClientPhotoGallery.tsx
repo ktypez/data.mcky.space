@@ -14,10 +14,12 @@ export default function ClientPhotoGallery({ images, onLightboxOpen }: ClientPho
   const [prevLen, setPrevLen] = useState(images.length)
 
   // Reset photoIdx when images array changes
-  if (images.length !== prevLen) {
-    setPrevLen(images.length)
-    setPhotoIdx(0)
-  }
+  useEffect(() => {
+    if (images.length !== prevLen) {
+      setPrevLen(images.length)
+      setPhotoIdx(0)
+    }
+  }, [images.length, prevLen])
 
   useEffect(() => {
     for (const src of images) {

@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { OpenLocationCode } from 'open-location-code'
 import { pinHtml } from '@/lib/pin'
 import { getMapStyle } from '@/lib/map-styles'
-import { cssVarToHex } from '@/lib/utils'
+import { cssVarToHex, DEFAULT_MAP_CENTER } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
 // SECURITY: pinHtml() outputs raw HTML into DOM via innerHTML.
@@ -17,8 +17,6 @@ function getOlc(): OpenLocationCode {
   if (!olcInstance) olcInstance = new OpenLocationCode()
   return olcInstance
 }
-
-const DEFAULT_CENTER: [number, number] = [102.8236, 16.4322]
 
 function getPinColor(): string {
   return cssVarToHex('--pin-color', '#2563eb')
@@ -56,7 +54,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
       map = new maplibregl.Map({
         container: containerRef.current,
         style: getMapStyle(),
-        center: lngRef.current != null && latRef.current != null ? [lngRef.current, latRef.current] : DEFAULT_CENTER,
+        center: lngRef.current != null && latRef.current != null ? [lngRef.current, latRef.current] : DEFAULT_MAP_CENTER,
         zoom: latRef.current != null ? PIN_ZOOM : DEFAULT_ZOOM,
         attributionControl: false,
       })
@@ -117,7 +115,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
 
     if (!initializedRef.current) {
       initializedRef.current = true
-      if (lat !== DEFAULT_CENTER[1] || lng !== DEFAULT_CENTER[0]) {
+      if (lat !== DEFAULT_MAP_CENTER[1] || lng !== DEFAULT_MAP_CENTER[0]) {
         map.flyTo({ center: [lng, lat], zoom: PIN_ZOOM, duration: 600 })
       }
       if (!markerRef.current) {

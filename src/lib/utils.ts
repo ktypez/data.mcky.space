@@ -5,6 +5,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/** Default map center (Vientiane / Thailand region). */
+export const DEFAULT_MAP_CENTER: [number, number] = [102.8236, 16.4322]
+
+/** Duration for "copied" flash feedback (ms). */
+export const COPIED_FLASH_MS = 1500
+
+/** Geolocation API timeout (ms). */
+export const GEOLOCATION_TIMEOUT_MS = 10000
+
 /**
  * Copy text to clipboard. Returns true on success.
  *

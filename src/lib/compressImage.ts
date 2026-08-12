@@ -37,7 +37,9 @@ export async function compressImage(file: File, maxSizeMB = 0.5): Promise<File> 
     if (blob) {
       return new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' })
     }
-  } catch {}
+  } catch (e) {
+    console.warn('Image compression failed, using original:', e)
+  }
 
   return file
 }

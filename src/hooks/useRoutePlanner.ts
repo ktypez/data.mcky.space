@@ -1,11 +1,9 @@
 import { useCallback } from 'react'
 import { useClientStore } from '@/stores/client-store'
 import { useUIStore } from '@/stores/ui-store'
-import { hasValidCoords } from '@/lib/utils'
+import { hasValidCoords, GEOLOCATION_TIMEOUT_MS } from '@/lib/utils'
 import { haversineKm } from '@/lib/geo-client'
 import type { RouteData } from '@/types'
-
-const GEOLOCATION_TIMEOUT_MS = 10000
 
 function buildRoute(
   origin: { lat: number; lng: number },

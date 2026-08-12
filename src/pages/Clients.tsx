@@ -199,6 +199,15 @@ export function PageClient() {
   const isListView = viewState.view === 'list'
   const showDetail = viewState.view === 'detail'
   const isCardsView = viewMode === 'cards'
+  const detailClient = showDetail
+    ? (viewState.client ?? clients.find((c) => c.id === viewState.clientId) ?? null)
+    : null
+
+  // If detail view is open but client not found (e.g. deleted), close it
+  if (showDetail && !detailClient) {
+    useUIStore.getState().closeView()
+    return null
+  }
 
   if (error) return <FetchErrorScreen onRetry={handleRetry} />
 
@@ -218,11 +227,11 @@ export function PageClient() {
             className="flex min-w-0 flex-1 flex-col"
           >
             <ClientDetail
-              client={viewState.client ?? clients.find((c) => c.id === viewState.clientId)!}
+              client={detailClient!}
               isAdmin={isAdmin}
               clients={clients}
               onClientUpdated={handleDetailUpdate}
-              onClientDeleted={handleDetailDeleted}
+              onClientDeleted={handleDetailDelete}
             />
           </motion.div>
         )}

@@ -1,16 +1,14 @@
 import { useState } from 'react'
+import { GEOLOCATION_TIMEOUT_MS } from '@/lib/utils'
 
 export function useGeolocation() {
   const [locating, setLocating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const getCurrentLocation = (): Promise<{ lat: number; lng: number } | null> => {
     if (!navigator.geolocation) {
-      setError('Geolocation not available')
       return Promise.resolve(null)
     }
     setLocating(true)
-    setError(null)
     return new Promise((resolve) => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -19,13 +17,12 @@ export function useGeolocation() {
         },
         () => {
           setLocating(false)
-          setError('Failed to get location')
           resolve(null)
         },
-        { enableHighAccuracy: true, timeout: 10000 },
+        { enableHighAccuracy: true, timeout: GEOLOCATION_TIMEOUT_MS },
       )
     })
   }
 
-  return { getCurrentLocation, locating, error, setError }
+  return { getCurrentLocation, locating }
 }

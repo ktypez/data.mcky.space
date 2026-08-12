@@ -34,5 +34,5 @@ function Spinner({ className, size }: SpinnerProps) {
   )
 }
 
-export { Spinner, spinnerVariants }
+export { Spinner }
 export default Spinner

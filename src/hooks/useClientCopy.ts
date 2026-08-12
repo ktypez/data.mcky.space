@@ -1,10 +1,8 @@
 import { useCallback } from 'react'
 import { useUIStore } from '@/stores/ui-store'
-import { copyToClipboard, getMapsUrl } from '@/lib/utils'
+import { copyToClipboard, getMapsUrl, COPIED_FLASH_MS } from '@/lib/utils'
 import { clientText, clientTextWithMaps } from '@/lib/clientText'
 import type { Client } from '@/types'
-
-const COPIED_FLASH_MS = 1500
 
 function flashCopied(key: string) {
   useUIStore.getState().setCopiedId(key)

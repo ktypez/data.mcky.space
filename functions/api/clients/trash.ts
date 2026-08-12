@@ -72,14 +72,24 @@ export async function onRequestPost(context: EventContext<Env, any, any>) {
 
   const url = new URL(request.url)
   const action = url.searchParams.get('action')
-  const body = await request.json() as { id?: string }
+  let body: { id?: string }
+  try {
+    body = await request.json() as { id?: string }
+  } catch {
+    return json({ error: 'Invalid JSON body' }, 400)
+  }
   if (!body.id) return json({ error: 'Missing id' }, 400)
 
   const [row] = await db.select().from(settings).where(eq(settings.key, trashKey(body.id)))
   if (!row) return notFound()
 
   if (action === 'restore') {
-    const data = JSON.parse(row.value)
+    let data: Record<string, unknown>
+    try {
+      data = JSON.parse(row.value)
+    } catch {
+      return json({ error: 'Corrupted trash data' }, 422)
+    }
     // Strip the deletedAt marker before re-inserting
     const { deletedAt: _deletedAt, ...clientRow } = data as Record<string, unknown> & { deletedAt?: number }
     void _deletedAt

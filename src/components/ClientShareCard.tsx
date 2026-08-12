@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { LinkSimple, Check } from '@phosphor-icons/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { copyToClipboard } from '@/lib/utils'
+import { copyToClipboard, COPIED_FLASH_MS } from '@/lib/utils'
 
 interface ClientShareCardProps {
   clientId: string
@@ -16,7 +16,7 @@ export default function ClientShareCard({ clientId }: ClientShareCardProps) {
     copyToClipboard(url).then((ok) => {
       if (!ok) return
       setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
+      setTimeout(() => setCopied(false), COPIED_FLASH_MS)
     })
   }
 

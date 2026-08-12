@@ -65,5 +65,3 @@ export function useAdminAuth() {
   }
 }
 
-// Re-exported so callers can keep one import line.
-export { isAdminEmail }

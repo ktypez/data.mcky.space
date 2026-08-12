@@ -15,10 +15,10 @@ const labelVariants = cva(
   }
 )
 
-export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement>, VariantProps<typeof labelVariants> {}
+interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement>, VariantProps<typeof labelVariants> {}
 
 function Label({ className, required, ...props }: LabelProps) {
   return <label className={cn(labelVariants({ required, className }))} {...props} />
 }
 
-export { Label, labelVariants }
+export { Label }

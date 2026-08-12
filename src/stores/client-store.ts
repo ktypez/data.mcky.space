@@ -104,7 +104,9 @@ export const useClientStore = create<ClientState>((set, get) => ({
           set({ clients: sorted, loading: false, initialized: true })
           return
         }
-      } catch {}
+      } catch (idbErr) {
+        console.error('IDB fallback failed:', idbErr)
+      }
       set({ error: 'Failed to load clients', loading: false, initialized: true })
       return
     }
