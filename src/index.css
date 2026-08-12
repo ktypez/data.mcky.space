@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 @custom-variant dark (&:is(.dark *));
+@custom-variant vd (&:is([data-viewport='desktop'] *));
+@custom-variant max-vd (&:not([data-viewport='desktop'] *));
 
 @theme inline {
   --color-background: var(--background);
@@ -189,11 +191,17 @@
   border-radius: var(--frame-radius);
   overflow: hidden;
 }
+/* Desktop: sidebar offset */
+@media (min-width: 768px) {
+  .app-viewport {
+    left: 236px;
+  }
+}
 @media (min-width: 1536px) {
   .app-viewport {
-    left: 0;
+    left: 236px;
     right: 0;
-    max-width: 1400px;
+    max-width: calc(1400px - 220px);
     box-shadow: 0 0 60px -20px color-mix(in oklch, var(--foreground) 20%, transparent);
   }
 }

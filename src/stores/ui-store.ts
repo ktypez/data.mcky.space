@@ -16,6 +16,7 @@ interface UIState {
   copiedId: string | null
   newClientCount: number
   theme: string
+  viewportMode: 'auto' | 'mobile' | 'desktop'
 
   setViewState: (state: ViewState) => void
   setRouteData: (data: RouteData | null) => void
@@ -28,6 +29,7 @@ interface UIState {
   setCopiedId: (id: string | null) => void
   setNewClientCount: (count: number) => void
   setTheme: (theme: string) => void
+  setViewportMode: (mode: 'auto' | 'mobile' | 'desktop') => void
   clearViewStates: () => void
   resetView: () => void
   openDetail: (clientId: string, client?: Client) => void
@@ -51,6 +53,7 @@ export const useUIStore = create<UIState>()(
       copiedId: null,
       newClientCount: 0,
       theme: 'dusk',
+      viewportMode: 'auto',
 
       setViewState: (viewState) => set({ viewState }),
       setRouteData: (routeData) => set({ routeData }),
@@ -63,6 +66,7 @@ export const useUIStore = create<UIState>()(
       setCopiedId: (copiedId) => set({ copiedId }),
       setNewClientCount: (newClientCount) => set({ newClientCount }),
       setTheme: (theme) => set({ theme }),
+      setViewportMode: (viewportMode) => set({ viewportMode }),
       clearViewStates: () =>
         set({
           viewState: { view: 'list' },
@@ -85,7 +89,7 @@ export const useUIStore = create<UIState>()(
     }),
     {
       name: 'ezzylist-ui',
-      partialize: (state) => ({ theme: state.theme }),
+      partialize: (state) => ({ theme: state.theme, viewportMode: state.viewportMode }),
     },
   ),
 )

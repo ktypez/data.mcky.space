@@ -12,6 +12,8 @@ const MapPage = lazy(() => import('./pages/MapPage'))
 const TrashPage = lazy(() => import('./pages/TrashPage'))
 const AddEditPage = lazy(() => import('./pages/AddEditPage'))
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })))
+const NavSidebar = lazy(() => import('./components/NavSidebar'))
+const ViewportEffect = lazy(() => import('./components/ViewportEffect'))
 
 function PageTransition({ children }: { children: React.ReactNode }) {
   const { slideUp, spring } = useMotion()
@@ -79,6 +81,8 @@ function App() {
   return (
     <Suspense fallback={null}>
       <AuthSync />
+      <ViewportEffect />
+      <NavSidebar />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/login" element={<Login />} />

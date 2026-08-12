@@ -3,6 +3,7 @@ import { MagnifyingGlass, Plus, X, ArrowLeft } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import ThemePresetPicker from '@/components/ThemePresetPicker'
 import ThemeModePicker from '@/components/ThemeModePicker'
+import ViewportToggle from '@/components/ViewportToggle'
 import NavDropdown from '@/components/NavDropdown'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
@@ -130,6 +131,9 @@ export default function PageHeader({
         )}
         <ThemePresetPicker />
         <ThemeModePicker />
+        <div className="max-md:hidden">
+          <ViewportToggle />
+        </div>
       </div>
     </header>
   )
