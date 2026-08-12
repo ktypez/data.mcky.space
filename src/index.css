@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 @custom-variant dark (&:is(.dark *));
-@custom-variant vd (&:is([data-viewport='desktop'] *));
-@custom-variant max-vd (&:not([data-viewport='desktop'] *));
 
 @theme inline {
   --color-background: var(--background);

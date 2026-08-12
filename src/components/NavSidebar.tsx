@@ -4,7 +4,6 @@ import { useUIStore } from '@/stores/ui-store'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import ThemePresetPicker from '@/components/ThemePresetPicker'
 import ThemeModePicker from '@/components/ThemeModePicker'
-import ViewportToggle from '@/components/ViewportToggle'
 import { useTheme } from '@/lib/theme-context'
 import { getTheme, isDarkOnlyTheme, isLightOnlyTheme } from '@/lib/design/themes'
 
@@ -111,7 +110,6 @@ export default function NavSidebar() {
         <div className="flex items-center gap-1.5">
           <ThemePresetPicker />
           {!hideModePicker && <ThemeModePicker />}
-          <ViewportToggle />
         </div>
         <div className="text-[12px] text-muted-foreground">
           {isSignedIn ? (
