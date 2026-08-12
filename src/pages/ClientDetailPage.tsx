@@ -30,9 +30,7 @@ export default function ClientDetailPage() {
   // Desktop: redirect to / and open detail in side pane instead
   useEffect(() => {
     if (!id) return
-    const root = document.documentElement
-    const isDesktop = root.getAttribute('data-viewport') === 'desktop'
-      || (!root.hasAttribute('data-viewport') && window.matchMedia('(min-width: 768px)').matches)
+    const isDesktop = document.documentElement.getAttribute('data-viewport') === 'desktop'
     if (isDesktop) {
       // Find client from store and open in side pane
       const all = useClientStore.getState().clients

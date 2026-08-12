@@ -134,10 +134,8 @@ export function PageClient() {
   }, [])
 
   const navToDetail = useCallback((client: Client) => {
-    const root = document.documentElement
-    const isDesktopViewport = root.getAttribute('data-viewport') === 'desktop'
-      || (!root.hasAttribute('data-viewport') && window.matchMedia('(min-width: 768px)').matches)
-    if (isDesktopViewport) {
+    const isDesktop = document.documentElement.getAttribute('data-viewport') === 'desktop'
+    if (isDesktop) {
       // Desktop: open detail in side pane (no navigation)
       useUIStore.getState().openDetail(client.id, client)
     } else {
