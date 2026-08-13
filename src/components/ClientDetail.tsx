@@ -22,7 +22,7 @@ interface Props {
  client: Client
  isAdmin: boolean
  clients: Client[]
- onClientUpdated: (client: Client) => void
+ onClientUpdated: (client: Client) => Promise<void>
  onClientDeleted: (id: string) => void
  hideActions?: boolean
  uploading?: boolean
@@ -46,6 +46,7 @@ export default function ClientDetail({
  const [deleteConfirm, setDeleteConfirm] = useState(false)
  const [copied, setCopied] = useState<string | null>(null)
  const [showMapConfirm, setShowMapConfirm] = useState(false)
+ const [saveError, setSaveError] = useState<string | null>(null)
 
   const openMapApp = useCallback(() => {
   if (!client.lat || !client.lng) return
@@ -77,15 +78,22 @@ export default function ClientDetail({
  const deletedClient = client
  onClientDeleted(client.id)
  deleteClient(deletedClient.id).catch(() => {
- onClientUpdated(deletedClient)
+  onClientUpdated(deletedClient).catch(() => {})
  })
  }, [client, onClientDeleted, onClientUpdated])
 
  const handleEditSave = useCallback(
-  (data: Omit<Client, 'createdAt' | 'updatedAt'>) => {
+  async (data: Omit<Client, 'createdAt' | 'updatedAt'>) => {
+  setSaveError(null)
   const updated: Client = { ...client, ...data, updatedAt: Date.now() }
-  onClientUpdated(updated)
-  setEditOpen(false)
+  try {
+    await onClientUpdated(updated)
+    setEditOpen(false)
+  } catch (e) {
+    // Save failed (e.g. photo upload) — keep the edit form open with the
+    // user's data so they can retry instead of silently losing changes.
+    setSaveError(e instanceof Error ? e.message : 'บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่')
+  }
   },
   [client, onClientUpdated],
   )
@@ -108,6 +116,7 @@ export default function ClientDetail({
       variant="inline"
       uploading={uploading}
       uploadProgress={uploadProgress}
+      error={saveError}
     />
    </CardContent>
   </Card>

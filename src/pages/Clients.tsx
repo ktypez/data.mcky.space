@@ -114,11 +114,14 @@ export function PageClient() {
       const cli = useClientStore.getState()
       cli.updateClient(saved.id, saved)
       useUIStore.getState().openDetail(saved.id, saved)
-    } catch {
+    } catch (e) {
       useClientStore
         .getState()
         .refresh()
         .catch(() => console.warn('Refresh failed after update'))
+      // Re-throw so the edit form can surface the error instead of the
+      // save failing silently (e.g. photo upload).
+      throw e
     }
   }, [])
 

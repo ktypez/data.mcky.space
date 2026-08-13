@@ -1,6 +1,6 @@
 import { createDb } from '../lib/db'
 import { clients } from '../lib/schema'
-import { eq, sql } from 'drizzle-orm'
+import { desc } from 'drizzle-orm'
 import { verifyTokenFromRequest } from '../lib/auth'
 import { json, error } from '../lib/response'
 import { roundLatLngList } from '../lib/geo'
@@ -14,16 +14,18 @@ export async function onRequestGet(context: EventContext<Env, any, any>) {
   const url = new URL(request.url)
   const limit = url.searchParams.get('limit')
 
+  // Order newest-first by updatedAt directly (no ASC + reverse hack — that
+  // used to make ?limit=N return the N OLDEST clients).
   if (limit === 'all') {
-    const rows = await db.select().from(clients).orderBy(clients.updatedAt)
+    const rows = await db.select().from(clients).orderBy(desc(clients.updatedAt))
     // L2 fix: round lat/lng to ~11m precision in list responses
-    return json(roundLatLngList(normalizeClientList(rows.reverse())))
+    return json(roundLatLngList(normalizeClientList(rows)))
   }
 
   const numLimit = limit ? parseInt(limit, 10) : undefined
-  const query = db.select().from(clients).orderBy(clients.updatedAt)
+  const query = db.select().from(clients).orderBy(desc(clients.updatedAt))
   const rows = numLimit ? await query.limit(numLimit) : await query
-  return json(roundLatLngList(normalizeClientList(rows.reverse())))
+  return json(roundLatLngList(normalizeClientList(rows)))
 }
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {

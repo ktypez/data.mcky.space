@@ -69,8 +69,10 @@ export default function ClientDetailPage() {
         const saved = await updateClient(updated, setUploadProgress)
         setClient(saved)
         cliStore.updateClient(saved.id, saved)
-      } catch {
-        // Keep the current store list
+      } catch (e) {
+        // Keep the current store list, but re-throw so the edit form can
+        // surface the error instead of the save failing silently.
+        throw e
       } finally {
         setUploading(false)
         setUploadProgress(0)

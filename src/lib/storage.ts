@@ -1,7 +1,10 @@
 import type { Client } from '@/types'
 import { getAllClients, putClient, putClients, deleteClient as deleteClientFromDb } from '@/lib/offline-db'
-import { apiFetch } from '@/lib/api'
+import { apiFetch, clerkToken } from '@/lib/api'
 import { normalizeClients } from '@/lib/clientNames'
+
+/** User-facing error when a photo upload fails (was silently swallowed). */
+export const PHOTO_UPLOAD_ERROR = 'อัปโหลดรูปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'
 
 function toRaw(c: Client): Record<string, unknown> {
   return c as unknown as Record<string, unknown>
@@ -51,10 +54,19 @@ function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => voi
     const xhr = new XMLHttpRequest()
     xhr.open('POST', url)
     xhr.setRequestHeader('Content-Type', 'application/json')
-    // Transitional: legacy HMAC token for photo uploads (server still accepts it as fallback).
-    // Will be removed once all sessions migrate to Clerk.
-    const token = localStorage.getItem('ezzylist_admin_token')
-    if (token) xhr.setRequestHeader('x-admin-token', token)
+    // Clerk migration fix: photo uploads used to send only the legacy HMAC
+    // token, which is never written to localStorage anymore — so every new
+    // admin session got a silent 401 and photos were dropped. Attach the
+    // Clerk session JWT as the primary auth, keep the legacy header as a
+    // transitional fallback for sessions that predate the migration.
+    void clerkToken()
+      .then((clerk) => {
+        if (clerk) xhr.setRequestHeader('Authorization', `Bearer ${clerk}`)
+        const legacy = localStorage.getItem('ezzylist_admin_token')
+        if (legacy) xhr.setRequestHeader('x-admin-token', legacy)
+        xhr.send(body)
+      })
+      .catch(() => xhr.send(body))
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100))
     }
@@ -66,7 +78,6 @@ function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => voi
       }
     }
     xhr.onerror = () => reject(new Error('Network error'))
-    xhr.send(body)
   })
 }
 
@@ -110,8 +121,17 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
     if (result.ok) {
       // Keep only R2 URLs — strip any base64 that may have been in D1
       finalImages = result.images.filter((s) => !isBase64Image(s))
+    } else {
+      // Photo upload failed — roll back the just-created client so the
+      // entry can't be saved without its photos, and let the caller
+      // surface the error instead of failing silently.
+      try {
+        await apiFetch(`/api/clients/${id}`, { method: 'DELETE' })
+      } catch {
+        // best-effort rollback
+      }
+      throw new Error(PHOTO_UPLOAD_ERROR)
     }
-    // result.ok === false → skip photos so entry still saves
   }
 
   const saved: Client = { ...client, id, images: finalImages }
@@ -144,8 +164,12 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
     if (result.ok) {
       // Keep only R2 URLs — strip any base64 that may have been in D1
       finalImages = result.images.filter((s) => !isBase64Image(s))
+    } else {
+      // Photo upload failed — abort the update so the client can't be
+      // overwritten without its new photos. Nothing has been persisted yet
+      // (upload happens before putClient / the D1 PUT).
+      throw new Error(PHOTO_UPLOAD_ERROR)
     }
-    // result.ok === false → keep cleanImages (old R2 URLs), entry still saves
   }
 
   // Persist to IndexedDB

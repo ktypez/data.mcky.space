@@ -15,6 +15,7 @@ export default function AddEditPage() {
   const { isAdmin } = useAuthStore()
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
     initialize()
@@ -29,6 +30,7 @@ export default function AddEditPage() {
       try {
         setUploading(true)
         setUploadProgress(0)
+        setSaveError(null)
         let saved: Client
         if (existing) {
           const updated: Client = {
@@ -48,7 +50,10 @@ export default function AddEditPage() {
           cliStore.addClient(saved)
         }
         navigate('/')
-      } catch {
+      } catch (e) {
+        // Keep the form open with the user's data intact so they can retry
+        // (e.g. photo upload failed — nothing was silently dropped).
+        setSaveError(e instanceof Error ? e.message : 'บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่')
         cliStore.refresh()
           .then(() => {})
           .catch(() => console.warn('Refresh failed after save'))
@@ -68,6 +73,7 @@ export default function AddEditPage() {
       onSave={handleSave}
       uploading={uploading}
       uploadProgress={uploadProgress}
+      error={saveError}
     />
   )
 }

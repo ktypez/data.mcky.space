@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { createTestDb, seedClients } from '../helpers/db'
 import { clients, settings, schema } from '../../functions/lib/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, desc } from 'drizzle-orm'
 
 // Mirror the queries in functions/api/clients.ts. If a test starts failing
 // after a query change in the endpoint, update both — the failure is the
@@ -9,9 +9,9 @@ import { eq, sql } from 'drizzle-orm'
 
 async function listClients(db: ReturnType<typeof createTestDb>['db'], limit?: number | 'all') {
   if (limit === 'all') {
-    return db.select().from(clients).orderBy(clients.updatedAt).all()
+    return db.select().from(clients).orderBy(desc(clients.updatedAt)).all()
   }
-  const q = db.select().from(clients).orderBy(clients.updatedAt)
+  const q = db.select().from(clients).orderBy(desc(clients.updatedAt))
   return limit ? q.limit(limit).all() : q.all()
 }
 
@@ -26,18 +26,14 @@ describe('clients GET', () => {
     ])
   })
 
-  it('returns all clients ordered by updatedAt asc (endpoint reverses for desc)', async () => {
+  it('returns all clients ordered by updatedAt desc (newest first)', async () => {
     const rows = await listClients(ctx.db)
-    // Endpoint reverses the result for newest-first UI display
-    const reversed = rows.reverse()
-    expect(reversed.map((r) => r.id)).toEqual(['2', '3', '1'])
+    expect(rows.map((r) => r.id)).toEqual(['2', '3', '1'])
   })
 
-  it('honors ?limit=N', async () => {
-    // Query orders ASC by updatedAt; the endpoint reverses for newest-first UI.
-    // So limit=2 returns the 2 oldest, not the 2 newest.
+  it('honors ?limit=N — returns the N newest, not the N oldest', async () => {
     const rows = await listClients(ctx.db, 2)
-    expect(rows.map((r) => r.id)).toEqual(['1', '3'])
+    expect(rows.map((r) => r.id)).toEqual(['2', '3'])
   })
 
   it('honors ?limit=all', async () => {

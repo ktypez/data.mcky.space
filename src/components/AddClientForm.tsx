@@ -25,6 +25,7 @@ interface Props {
   variant?: 'sheet' | 'inline'
   uploading?: boolean
   uploadProgress?: number
+  error?: string | null
 }
 
 /** Normalize an incoming value into a non-empty string array. */
@@ -42,6 +43,7 @@ export default function AddClientForm({
   variant = 'sheet',
   uploading,
   uploadProgress,
+  error,
 }: Props) {
   const [name, setName] = useState<string[]>(() => toArray(editClient?.name))
   const [shopName, setShopName] = useState<string[]>(() => toArray(editClient?.shopName))
@@ -147,6 +149,11 @@ export default function AddClientForm({
       <PhotoSection images={images} onImagesChange={setImages} uploading={uploading} />
       <FormNotesField value={notes} onChange={setNotes} />
       <FormBadgeField badge={badge} onChange={setBadge} visible={editing} />
+      {error && (
+        <p className="text-[13px] font-medium text-destructive" role="alert">
+          {error}
+        </p>
+      )}
       <FormSubmitButtons editing={editing} uploading={uploading} onCancel={() => onOpenChange(false)} />
     </form>
   )

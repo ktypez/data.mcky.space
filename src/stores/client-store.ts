@@ -74,9 +74,12 @@ export const useClientStore = create<ClientState>((set, get) => ({
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
   updateClient: (id, updates) =>
-    set((s) => ({
-      clients: s.clients.map((c) => (c.id === id ? { ...c, ...updates } : c)),
-    })),
+    set((s) => {
+      const next = s.clients.map((c) => (c.id === id ? { ...c, ...updates } : c))
+      // Server sorts by updatedAt DESC — mirror that in the store so an
+      // edited client surfaces at the top immediately, no refresh needed.
+      return { clients: next.sort((a, b) => b.updatedAt - a.updatedAt) }
+    }),
   addClient: (client) =>
     set((s) => ({ clients: [client, ...s.clients] })),
   removeClient: (id) =>
@@ -86,14 +89,25 @@ export const useClientStore = create<ClientState>((set, get) => ({
 
   initialize: async () => {
     if (get().initialized) return
-    set({ loading: true, error: null })
-    // D1 is the source of truth. Load the full list ONCE per app session
-    // (guarded by `initialized`) so search/filter work on complete data
-    // without hammering Cloudflare Pages on every navigation.
-    // IndexedDB is only a fallback for when the network is fully down.
+    // Claim `initialized` BEFORE the fetch (not after) so a slow first load
+    // can't stomp clients that were added/edited while the fetch was in
+    // flight — the fetch result is merged below with "newer wins" semantics.
+    set({ initialized: true, loading: true, error: null })
     try {
       const data = await fetchClients()
-      set({ clients: data, loading: false, initialized: true })
+      set((s) => {
+        // Merge: server data is the baseline, but any client mutated into
+        // the store during flight (added via AddEditPage) is kept, and the
+        // newer copy wins when both exist. Keeps the list newest-first.
+        const byId = new Map<string, Client>()
+        for (const c of data) byId.set(c.id, c)
+        for (const c of s.clients) {
+          const existing = byId.get(c.id)
+          if (!existing || c.updatedAt > existing.updatedAt) byId.set(c.id, c)
+        }
+        const merged = [...byId.values()].sort((a, b) => b.updatedAt - a.updatedAt)
+        return { clients: merged, loading: false }
+      })
     } catch {
       try {
         const idb = await getAllClients()
