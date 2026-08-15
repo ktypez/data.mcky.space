@@ -1,6 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSwipe } from '@/hooks/useSwipe'
 import AppImage from '@/components/AppImage'
+
+// Module-level cache: url -> size in bytes. Persists across component
+// instances so we only ever HEAD-fetch an image once per session.
+const sizeCache = new Map<string, number>()
 
 interface ClientPhotoGalleryProps {
   images: string[]
@@ -21,18 +25,34 @@ export default function ClientPhotoGallery({ images, onLightboxOpen }: ClientPho
     }
   }, [images.length, prevLen])
 
+  // Fetch image sizes lazily (once per URL, cached globally).
+  // Only requests sizes we don't already know, and only for the
+  // currently-visible image first to reduce initial burst.
   useEffect(() => {
-    for (const src of images) {
-      if (fetchedUrls.current.has(src)) continue
+    if (images.length === 0) return
+    // Priority: current image first, then the rest.
+    const order = [photoIdx, ...Array.from({ length: images.length }, (_, i) => i).filter(i => i !== photoIdx)]
+    for (const i of order) {
+      const src = images[i]
+      if (!src || fetchedUrls.current.has(src)) continue
+      if (sizeCache.has(src)) {
+        setImageSizes((prev) => ({ ...prev, [src]: sizeCache.get(src)! }))
+        continue
+      }
       fetchedUrls.current.add(src)
       fetch(src, { method: 'HEAD' })
         .then((r) => {
+          if (!r.ok) return
           const len = r.headers.get('Content-Length')
-          if (len) setImageSizes((prev) => ({ ...prev, [src]: Number(len) }))
+          if (len) {
+            const size = Number(len)
+            sizeCache.set(src, size)
+            setImageSizes((prev) => ({ ...prev, [src]: size }))
+          }
         })
         .catch(() => {})
     }
-  }, [images])
+  }, [images, photoIdx])
 
   const cardSwipe = useSwipe(
     () => { if (photoIdx < images.length - 1) setPhotoIdx(photoIdx + 1) },

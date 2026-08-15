@@ -23,7 +23,7 @@ import { createRemoteJWKSet, jwtVerify } from 'jose'
 const CLERK_ISSUER = 'https://clerk.mcky.space'
 const CLERK_API_BASE = 'https://api.clerk.com/v1'
 
-// Keep in sync with src/lib/clerk-config.ts ADMIN_EMAILS.
+// Keep in sync with src/lib/clerk-config.ts ADMIN_EMAILS (canonical source).
 const ADMIN_EMAILS = new Set([
   'bankkh@gmail.com',
   'daily@mcky.space',
@@ -66,7 +66,7 @@ async function resolveUserEmail(
     }
     const emails = user.email_addresses ?? []
     const primary =
-      emails.find((e) => e.email_address === user.primary_email_address_id) ??
+      emails.find((e) => e.id === user.primary_email_address_id) ??
       emails[0]
     const email = primary?.email_address?.trim().toLowerCase() ?? null
     if (email) emailCache.set(sub, { email, at: Date.now() })

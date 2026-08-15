@@ -172,9 +172,10 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
     }
   }
 
-  // Persist to IndexedDB
+  // Persist to IndexedDB only after the API call succeeds so the cache
+  // never diverges from the server. If the API fails the caller will
+  // surface the error and the user can retry without stale local data.
   const saved = { ...client, images: finalImages }
-  await putClient(toRaw(saved))
 
   // Update D1 — payload is now small (only R2 URLs, no base64)
   const res = await apiFetch(`/api/clients/${client.id}`, {
@@ -186,16 +187,20 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
   try {
     const data = (await res.json()) as Partial<Client> | { ok: boolean }
     if (data && typeof data === 'object' && 'id' in data && (data as Client).id) {
+      await putClient(toRaw(data as Client))
       return data as Client
     }
   } catch {
     // ignore non-JSON / { ok: true } responses — fall back to input client
   }
+  await putClient(toRaw(saved))
   return saved
 }
 
 export async function deleteClient(id: string): Promise<void> {
-  await deleteClientFromDb(id)
   const res = await apiFetch(`/api/clients/${id}`, { method: 'DELETE' })
   if (!res.ok) throw new Error('Failed to delete client')
+  // Only remove from IDB after the server confirms the delete so a failed
+  // API call can't leave the local cache out of sync.
+  await deleteClientFromDb(id)
 }

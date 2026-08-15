@@ -57,23 +57,23 @@ export function getMapsUrl(lat: number, lng: number): string {
   return `https://maps.google.com/?q=${lat},${lng}`
 }
 
-/** Format a unix timestamp as YYYY-MM-DD HH:MM. */
+/** Format a unix timestamp as YYYY-MM-DD HH:MM (UTC). */
 export function formatDateTime(ts: number): string {
   const d = new Date(ts)
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const h = String(d.getHours()).padStart(2, '0')
-  const min = String(d.getMinutes()).padStart(2, '0')
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(d.getUTCDate()).padStart(2, '0')
+  const h = String(d.getUTCHours()).padStart(2, '0')
+  const min = String(d.getUTCMinutes()).padStart(2, '0')
   return `${y}-${m}-${day} ${h}:${min}`
 }
 
-/** Format a unix timestamp as YYYY-MM-DD. */
+/** Format a unix timestamp as YYYY-MM-DD (UTC). */
 export function formatDate(ts: number): string {
   const d = new Date(ts)
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(d.getUTCDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
 }
 
