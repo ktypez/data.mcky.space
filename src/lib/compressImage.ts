@@ -1,5 +1,35 @@
 const MAX_DIMENSION = 1024
 
+/**
+ * Fallback decoder: createImageBitmap rejects some formats on some browsers
+ * (e.g. certain WebP/EXIF variants) that a plain <img> element can render
+ * fine. Decodes via an object URL + <img>, redraws on a canvas, then returns
+ * an ImageBitmap of the canvas. Returns null when the file is undecodable.
+ */
+async function decodeViaImageElement(file: File): Promise<ImageBitmap | null> {
+  const url = URL.createObjectURL(file)
+  try {
+    const img = new Image()
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve()
+      img.onerror = () => reject(new Error('Image decode failed'))
+      img.src = url
+    })
+    if (!img.naturalWidth || !img.naturalHeight) return null
+    const canvas = document.createElement('canvas')
+    canvas.width = img.naturalWidth
+    canvas.height = img.naturalHeight
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    ctx.drawImage(img, 0, 0)
+    return await createImageBitmap(canvas)
+  } catch {
+    return null
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}
+
 export async function compressImage(file: File, maxSizeMB = 0.5): Promise<File> {
   const targetBytes = maxSizeMB * 1024 * 1024
 
@@ -7,10 +37,17 @@ export async function compressImage(file: File, maxSizeMB = 0.5): Promise<File> 
   if (file.type === 'image/jpeg' && file.size <= targetBytes) return file
 
   try {
-    const bitmap = await createImageBitmap(file, {
-      imageOrientation: 'from-image',
-      colorSpaceConversion: 'default',
-    })
+    let bitmap: ImageBitmap | null
+    try {
+      bitmap = await createImageBitmap(file, {
+        imageOrientation: 'from-image',
+        colorSpaceConversion: 'default',
+      })
+    } catch {
+      // Fallback decode path for formats createImageBitmap can't handle.
+      bitmap = await decodeViaImageElement(file)
+    }
+    if (!bitmap) return file
 
     let w = bitmap.width, h = bitmap.height
     if (w > MAX_DIMENSION || h > MAX_DIMENSION) {

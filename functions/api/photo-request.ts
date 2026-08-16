@@ -6,9 +6,10 @@ import { verifyTokenFromRequest } from '../lib/auth'
 import { json, error, unauthorized } from '../lib/response'
 
 // M6 fix: per-image size cap on base64 payloads accepted by this endpoint.
-// The client compresses to ~0.5MB; we allow some headroom for non-compressed
-// uploads (e.g. SVG, GIF) while preventing accidental megabyte blowups.
-const MAX_BASE64_BYTES_PER_IMAGE = 5 * 1024 * 1024
+// The client compresses to ~0.5MB; we allow headroom for non-compressed
+// uploads (e.g. SVG, GIF, or a browser that failed to compress) while
+// preventing accidental megabyte blowups. 8MB of base64 string ≈ 6MB binary.
+const MAX_BASE64_BYTES_PER_IMAGE = 8 * 1024 * 1024
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {
   const { env, request } = context

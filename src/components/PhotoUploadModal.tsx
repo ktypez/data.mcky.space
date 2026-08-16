@@ -1,5 +1,5 @@
 
-import { useState, useRef, useCallback, type DragEvent } from 'react'
+import { useState, useCallback, type DragEvent } from 'react'
 import { Upload, X, Camera, Spinner, Check } from '@phosphor-icons/react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,24 @@ function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/** True if the file is (or claims to be) a raster image — checked by MIME
+ * or extension, because Android pickers sometimes report generic types
+ * like application/octet-stream for gallery images. */
+function looksLikeImage(f: File): boolean {
+  return (
+    f.type.startsWith('image/') ||
+    /\.(jpe?g|png|webp|gif|bmp|avif|heic|heif)$/i.test(f.name)
+  )
+}
+
+function isHeic(f: File): boolean {
+  return (
+    f.type === 'image/heic' ||
+    f.type === 'image/heif' ||
+    /\.heic$/i.test(f.name)
+  )
 }
 
 interface Props {
@@ -26,7 +44,6 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
   const [dragOver, setDragOver] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const reset = useCallback(() => {
     setOriginalSize(0)
@@ -45,7 +62,13 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
   }, [reset, onOpenChange])
 
   const handleFile = useCallback(async (f: File) => {
-    if (!f.type.startsWith('image/')) return
+    // Don't silently ignore non-images — Android pickers sometimes report a
+    // generic MIME (application/octet-stream) for gallery photos, so check
+    // the extension too, and surface a real message when it's not an image.
+    if (!looksLikeImage(f)) {
+      setError('ไฟล์นี้ไม่ใช่รูปภาพ — เลือกไฟล์ JPEG, PNG หรือ WebP')
+      return
+    }
     if (f.size > 10 * 1024 * 1024) {
       setError('ไฟล์ใหญ่เกิน 10 MB')
       return
@@ -55,6 +78,17 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
     setCompressing(true)
     try {
       const compressed = await compressImage(f)
+
+      // HEIC/HEIF this browser can't decode (e.g. Android Chrome):
+      // compressImage returns the original File unchanged. The raw file
+      // can't be displayed or compressed here, so abort with a clear
+      // message instead of uploading something the gallery can't render.
+      if (isHeic(f) && compressed === f) {
+        setOriginalSize(0)
+        setError('รูป HEIC (จาก iPhone) ยังเปิดไม่ได้บนอุปกรณ์นี้ — กรุณาแปลงเป็น JPEG/PNG ก่อน')
+        return
+      }
+
       const reader = new FileReader()
       const url = await new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve(reader.result as string)
@@ -107,24 +141,38 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
         <h3 className="text-lg font-bold text-foreground text-center">เพิ่มรูปร้านค้า</h3>
 
         {!dataUrl && !compressing ? (
-          <div
-            onDrop={handleDrop}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-            onDragLeave={() => setDragOver(false)}
-            onClick={() => fileInputRef.current?.click()}
-            className={`flex cursor-pointer flex-col items-center gap-3 rounded-lg border-2 border-dashed p-8 transition-colors ${
-              dragOver
-                ? 'border-primary bg-primary/5'
-                : 'border-border hover:border-muted-foreground'
-            }`}
-          >
-            <Upload className="w-8 h-8 text-muted-foreground" />
-            <div className="text-center">
-              <p className="text-sm font-medium text-foreground">ลากมาวาง หรือแตะเพื่อเลือกรูป</p>
-              <p className="mt-1 text-xs text-muted-foreground">JPEG, PNG</p>
-            </div>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = '' }} />
+          <div className="space-y-3">
+            {/*
+              Native <label> triggers the file input without relying on a
+              programmatic .click() on a display:none input — that pattern
+              silently fails on Android Chrome. The input is visually hidden
+              (sr-only) but stays in the DOM so the label works everywhere.
+            */}
+            <label
+              htmlFor="photo-upload-input"
+              onDrop={handleDrop}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+              onDragLeave={() => setDragOver(false)}
+              className={`flex cursor-pointer flex-col items-center gap-3 rounded-lg border-2 border-dashed p-8 transition-colors ${
+                dragOver
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-muted-foreground'
+              }`}
+            >
+              <Upload className="w-8 h-8 text-muted-foreground" />
+              <div className="text-center">
+                <p className="text-sm font-medium text-foreground">ลากมาวาง หรือแตะเพื่อเลือกรูป</p>
+                <p className="mt-1 text-xs text-muted-foreground">JPEG, PNG</p>
+              </div>
+            </label>
+            <input
+              id="photo-upload-input"
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = '' }}
+            />
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
           </div>
         ) : compressing ? (
           <div className="flex flex-col items-center gap-3 py-8">
