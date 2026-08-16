@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import type { Client } from '@/types'
-import maplibregl from 'maplibre-gl'
+import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { X } from '@phosphor-icons/react'
 import { getMapStyle } from '@/lib/map-styles'
@@ -59,6 +59,12 @@ export default function InlineMap({
   // Init map
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
+
+    // Guard: maplibre-gl namespace must be present (v5 CJS interop safety).
+    if (!maplibregl.Map) {
+      console.error('[InlineMap] maplibregl.Map not available — maplibre-gl failed to load')
+      return
+    }
 
     const map = new maplibregl.Map({
       container: mapRef.current,

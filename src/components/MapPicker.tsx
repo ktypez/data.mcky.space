@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react'
-import maplibregl from 'maplibre-gl'
+import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { OpenLocationCode } from 'open-location-code'
 import { pinHtml } from '@/lib/pin'
@@ -51,6 +51,11 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
 
     let map: maplibregl.Map
     try {
+      // Guard: maplibre-gl namespace must be present.
+      if (!maplibregl.Map) {
+        console.error('[MapPicker] maplibregl.Map not available')
+        return
+      }
       map = new maplibregl.Map({
         container: containerRef.current,
         style: getMapStyle(),
