@@ -10,8 +10,10 @@
     <!-- maplibre-gl: loaded once globally (outside Vite chunks) so all lazy
       map components see it on window.maplibregl regardless of code-split order.
       The CSS is bundled separately via the Vite import in each component. -->
-    <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js">
-    </script>
+    <script
+      src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"
+      onerror="window.__maplibre_cdn_failed=1"
+    ></script>
     <script>
       // Pre-paint theme boot: ALWAYS load a full theme stylesheet before
       // React mounts (saved theme, else the default = dusk), so the app is
