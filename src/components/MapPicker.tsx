@@ -13,6 +13,17 @@ import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
 const GL = (window as any).maplibregl
 
+// Mirror InlineMap fallback — covers MapPreview/detail page as well.
+if (!GL && typeof document !== 'undefined') {
+  setTimeout(() => {
+    if ((window as any).maplibregl) return
+    const s = document.createElement('script')
+    s.src = 'https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js'
+    s.onerror = () => console.error('[MapPicker] CDN fallback failed')
+    document.head.appendChild(s)
+  }, 1200)
+}
+
 let olcInstance: OpenLocationCode | null = null
 function getOlc(): OpenLocationCode {
   if (!olcInstance) olcInstance = new OpenLocationCode()

@@ -9,6 +9,25 @@ import ClientNames from '@/components/ClientNames'
 
 const GL = (window as any).maplibregl
 
+// Log for diagnosis — visible in any remote-log capture.
+if (typeof console !== 'undefined') {
+  console.log('[InlineMap] window.maplibregl:', GL ? 'present' : 'absent')
+}
+
+// Fallback loader: if the CDN script in index.html hasn't loaded within
+// 1200 ms, try jsDelivr as backup. Avoids map staying blank when one CDN
+// is unreachable (some ISPs/regions block unpkg).
+if (!GL && typeof document !== 'undefined') {
+  setTimeout(() => {
+    if ((window as any).maplibregl) return // loaded in the meantime
+    const s = document.createElement('script')
+    s.src = 'https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js'
+    s.onload = () => console.log('[InlineMap] maplibre-gl loaded via jsDelivr fallback')
+    s.onerror = () => console.error('[InlineMap] CDN fallback (jsDelivr) also failed')
+    document.head.appendChild(s)
+  }, 1200)
+}
+
 const SOURCE_ID = 'clients'
 const CLUSTER_LAYER = 'clusters'
 const CLUSTER_COUNT_LAYER = 'cluster-count'
@@ -51,170 +70,185 @@ export default function InlineMap({
   const mapInstanceRef = useRef<any>(null)
   const clientsRef = useRef(clients)
   const [selectedPin, setSelectedPin] = useState<Client | null>(null)
+  const [mapError, setMapError] = useState<string | null>(null)
   const layersAddedRef = useRef(false)
 
   useEffect(() => {
     clientsRef.current = clients
   }, [clients])
 
-  // Init map
+  // Init map — entire body wrapped so no uncaught crash can blank the page.
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
 
-    // Guard: maplibre-gl namespace must be present (v5 CJS interop safety).
-    const map = new GL.Map({
-      container: mapRef.current,
-      style: getMapStyle(),
-      center: DEFAULT_MAP_CENTER,
-      zoom: 6,
-      attributionControl: false,
-    })
-
-    map.addControl(new GL.NavigationControl(), 'bottom-right')
-    mapInstanceRef.current = map
-
-    let listenersAdded = false
-    let initialFitDone = false
-
-    function addLayers() {
-      for (const id of [
-        HIGHLIGHT_LAYER,
-        POINT_LAYER,
-        CLUSTER_COUNT_LAYER,
-        CLUSTER_LAYER,
-      ]) {
-        if (map.getLayer(id)) map.removeLayer(id)
-      }
-      if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID)
-
-      map.addSource(SOURCE_ID, {
-        type: 'geojson',
-        data: buildGeoJSON(clientsRef.current),
-        cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 50,
-      })
-
-      map.addLayer({
-        id: CLUSTER_LAYER,
-        type: 'circle',
-        source: SOURCE_ID,
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': getPinColor(),
-          'circle-radius': ['step', ['get', 'point_count'], 20, 10, 26, 30, 34],
-          'circle-opacity': 0.85,
-          'circle-stroke-width': 3,
-          'circle-stroke-color': getStrokeColor(),
-        },
-      })
-
-      map.addLayer({
-        id: CLUSTER_COUNT_LAYER,
-        type: 'symbol',
-        source: SOURCE_ID,
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': ['get', 'point_count_abbreviated'],
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 13,
-        },
-        paint: {
-          'text-color': getStrokeColor(),
-        },
-      })
-
-      map.addLayer({
-        id: POINT_LAYER,
-        type: 'circle',
-        source: SOURCE_ID,
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': getPinColor(),
-          'circle-radius': 6,
-          'circle-stroke-width': 2.5,
-          'circle-stroke-color': getStrokeColor(),
-        },
-      })
-
-      map.addLayer({
-        id: HIGHLIGHT_LAYER,
-        type: 'circle',
-        source: SOURCE_ID,
-        filter: ['==', 'id', ''],
-        paint: {
-          'circle-color': getPinColor(),
-          'circle-radius': 12,
-          'circle-stroke-width': 4,
-          'circle-stroke-color': getStrokeColor(),
-          'circle-opacity': 0.9,
-        },
-      })
-
-      layersAddedRef.current = true
-
-      if (!initialFitDone) {
-        initialFitDone = true
-        const data = buildGeoJSON(clientsRef.current)
-        if (data.features.length > 0) {
-          const bounds = new GL.LngLatBounds()
-          data.features.forEach((f) => {
-            const coords = (f.geometry as GeoJSON.Point).coordinates
-            bounds.extend(coords as [number, number])
-          })
-          map.fitBounds(bounds, { padding: 50, maxZoom: 15 })
-        }
-      }
+    // Bail early if GL isn't on the global (CDN load race/failure).
+    if (!GL || !GL.Map) {
+      setMapError('ไม่พบไลบรารีแผนที่ — กรุณารีเฟรชหน้า')
+      return
     }
 
-    function setupListeners() {
-      if (listenersAdded) return
-      listenersAdded = true
-
-      map.on('click', CLUSTER_LAYER, (e) => {
-        const feature = e.features?.[0]
-        if (!feature) return
-        const coords = (feature.geometry as GeoJSON.Point).coordinates
-        const zoom = map.getZoom() + 2
-        map.flyTo({ center: coords as [number, number], zoom, duration: 600 })
+    try {
+      const map = new GL.Map({
+        container: mapRef.current,
+        style: getMapStyle(),
+        center: DEFAULT_MAP_CENTER,
+        zoom: 6,
+        attributionControl: false,
       })
 
-      function onPointClick(
-        e: GL.MapMouseEvent & {
-          features?: GL.MapGeoJSONFeature[]
-        },
-      ) {
-        const feature = e.features?.[0]
-        if (!feature || !feature.properties) return
-        const id = feature.properties.id as string
-        const client = clientsRef.current.find((c) => c.id === id)
-        if (client) {
-          setSelectedPin(client)
-          try {
-            map.setFilter(HIGHLIGHT_LAYER, ['==', 'id', id])
-          } catch {}
+      map.addControl(new GL.NavigationControl(), 'bottom-right')
+      // Assign ref BEFORE registering listeners so cleanup can always .remove().
+      mapInstanceRef.current = map
+
+      let listenersAdded = false
+      let initialFitDone = false
+
+      // --- layers ---
+      function addLayers() {
+        for (const id of [
+          HIGHLIGHT_LAYER,
+          POINT_LAYER,
+          CLUSTER_COUNT_LAYER,
+          CLUSTER_LAYER,
+        ]) {
+          if (map.getLayer(id)) map.removeLayer(id)
+        }
+        if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID)
+
+        map.addSource(SOURCE_ID, {
+          type: 'geojson',
+          data: buildGeoJSON(clientsRef.current),
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 50,
+        })
+
+        map.addLayer({
+          id: CLUSTER_LAYER,
+          type: 'circle',
+          source: SOURCE_ID,
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': getPinColor(),
+            'circle-radius': ['step', ['get', 'point_count'], 20, 10, 26, 30, 34],
+            'circle-opacity': 0.85,
+            'circle-stroke-width': 3,
+            'circle-stroke-color': getStrokeColor(),
+          },
+        })
+
+        map.addLayer({
+          id: CLUSTER_COUNT_LAYER,
+          type: 'symbol',
+          source: SOURCE_ID,
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': ['get', 'point_count_abbreviated'],
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 13,
+          },
+          paint: {
+            'text-color': getStrokeColor(),
+          },
+        })
+
+        map.addLayer({
+          id: POINT_LAYER,
+          type: 'circle',
+          source: SOURCE_ID,
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': getPinColor(),
+            'circle-radius': 6,
+            'circle-stroke-width': 2.5,
+            'circle-stroke-color': getStrokeColor(),
+          },
+        })
+
+        map.addLayer({
+          id: HIGHLIGHT_LAYER,
+          type: 'circle',
+          source: SOURCE_ID,
+          filter: ['==', 'id', ''],
+          paint: {
+            'circle-color': getPinColor(),
+            'circle-radius': 12,
+            'circle-stroke-width': 4,
+            'circle-stroke-color': getStrokeColor(),
+            'circle-opacity': 0.9,
+          },
+        })
+
+        layersAddedRef.current = true
+
+        if (!initialFitDone) {
+          initialFitDone = true
+          const data = buildGeoJSON(clientsRef.current)
+          if (data.features.length > 0) {
+            const bounds = new GL.LngLatBounds()
+            data.features.forEach((f) => {
+              const coords = (f.geometry as GeoJSON.Point).coordinates
+              bounds.extend(coords as [number, number])
+            })
+            map.fitBounds(bounds, { padding: 50, maxZoom: 15 })
+          }
         }
       }
-      map.on('click', POINT_LAYER, onPointClick)
-      map.on('click', HIGHLIGHT_LAYER, onPointClick)
 
-      map.on('mouseenter', CLUSTER_LAYER, () => (map.getCanvas().style.cursor = 'pointer'))
-      map.on('mouseleave', CLUSTER_LAYER, () => (map.getCanvas().style.cursor = ''))
-      map.on('mouseenter', POINT_LAYER, () => (map.getCanvas().style.cursor = 'pointer'))
-      map.on('mouseleave', POINT_LAYER, () => (map.getCanvas().style.cursor = ''))
-      map.on('mouseenter', HIGHLIGHT_LAYER, () => (map.getCanvas().style.cursor = 'pointer'))
-      map.on('mouseleave', HIGHLIGHT_LAYER, () => (map.getCanvas().style.cursor = ''))
-    }
+      // --- listeners ---
+      function setupListeners() {
+        if (listenersAdded) return
+        listenersAdded = true
 
-    map.on('style.load', () => {
-      addLayers()
-      setupListeners()
-    })
+        map.on('click', CLUSTER_LAYER, (e) => {
+          const feature = e.features?.[0]
+          if (!feature) return
+          const coords = (feature.geometry as GeoJSON.Point).coordinates
+          const zoom = map.getZoom() + 2
+          map.flyTo({ center: coords as [number, number], zoom, duration: 600 })
+        })
 
-    return () => {
-      map.remove()
-      mapInstanceRef.current = null
-      layersAddedRef.current = false
+        function onPointClick(
+          e: GL.MapMouseEvent & {
+            features?: GL.MapGeoJSONFeature[]
+          },
+        ) {
+          const feature = e.features?.[0]
+          if (!feature || !feature.properties) return
+          const id = feature.properties.id as string
+          const client = clientsRef.current.find((c) => c.id === id)
+          if (client) {
+            setSelectedPin(client)
+            try {
+              map.setFilter(HIGHLIGHT_LAYER, ['==', 'id', id])
+            } catch {}
+          }
+        }
+        map.on('click', POINT_LAYER, onPointClick)
+        map.on('click', HIGHLIGHT_LAYER, onPointClick)
+
+        map.on('mouseenter', CLUSTER_LAYER, () => (map.getCanvas().style.cursor = 'pointer'))
+        map.on('mouseleave', CLUSTER_LAYER, () => (map.getCanvas().style.cursor = ''))
+        map.on('mouseenter', POINT_LAYER, () => (map.getCanvas().style.cursor = 'pointer'))
+        map.on('mouseleave', POINT_LAYER, () => (map.getCanvas().style.cursor = ''))
+        map.on('mouseenter', HIGHLIGHT_LAYER, () => (map.getCanvas().style.cursor = 'pointer'))
+        map.on('mouseleave', HIGHLIGHT_LAYER, () => (map.getCanvas().style.cursor = ''))
+      }
+
+      // Wait for style to load before adding layers.
+      map.on('style.load', () => {
+        addLayers()
+        setupListeners()
+      })
+
+      return () => {
+        try { map.remove() } catch {}
+        mapInstanceRef.current = null
+        layersAddedRef.current = false
+      }
+    } catch (err) {
+      console.error('[InlineMap] init failed:', err)
+      setMapError(String(err instanceof Error ? err.message : err))
     }
   }, [])
 
@@ -223,7 +257,7 @@ export default function InlineMap({
     useCallback((newStyle) => {
       const map = mapInstanceRef.current
       if (!map) return
-      map.setStyle(newStyle)
+      try { map.setStyle(newStyle) } catch {}
     }, []),
   )
 
@@ -261,7 +295,16 @@ export default function InlineMap({
     <>
       <div ref={mapRef} className="w-full h-full" />
 
-      {selectedPin && (
+      {mapError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-card/80 backdrop-blur-sm text-destructive text-sm p-8 z-20">
+          <div className="text-center">
+            <p className="font-medium">แผนที่โหลดไม่สำเร็จ</p>
+            <p className="text-xs text-muted-foreground mt-1">{mapError}</p>
+          </div>
+        </div>
+      )}
+
+      {!mapError && selectedPin && (
         <>
           <div
             className="fixed inset-0 z-30"
