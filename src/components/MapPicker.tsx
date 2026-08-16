@@ -1,6 +1,5 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react'
-import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { OpenLocationCode } from 'open-location-code'
 import { pinHtml } from '@/lib/pin'
@@ -11,6 +10,8 @@ import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 // SECURITY: pinHtml() outputs raw HTML into DOM via innerHTML.
 // All inputs (size, selected, color) are controlled constants — never user-derived.
 // If pinHtml ever accepts user strings, sanitize them first.
+
+const GL = (window as any).maplibregl
 
 let olcInstance: OpenLocationCode | null = null
 function getOlc(): OpenLocationCode {
@@ -35,8 +36,8 @@ type Props = MapPickerProps
 
 export default function MapPicker({ lat, lng, onChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<maplibregl.Map | null>(null)
-  const markerRef = useRef<maplibregl.Marker | null>(null)
+  const mapRef = useRef<any>(null)
+  const markerRef = useRef<any>(null)
   const [mapFailed, setMapFailed] = useState(false)
   const initializedRef = useRef(false)
   const onChangeRef = useRef(onChange)
@@ -49,14 +50,9 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
 
-    let map: maplibregl.Map
+    let map: any
     try {
-      // Guard: maplibre-gl namespace must be present.
-      if (!maplibregl.Map) {
-        console.error('[MapPicker] maplibregl.Map not available')
-        return
-      }
-      map = new maplibregl.Map({
+      map = new GL.Map({
         container: containerRef.current,
         style: getMapStyle(),
         center: lngRef.current != null && latRef.current != null ? [lngRef.current, latRef.current] : DEFAULT_MAP_CENTER,
@@ -77,7 +73,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
       if (markerRef.current) markerRef.current.remove()
       const el = document.createElement('div')
       el.innerHTML = pinHtml(28, true, getPinColor())
-      markerRef.current = new maplibregl.Marker({ element: el }).setLngLat([mlng, mlat]).addTo(map)
+      markerRef.current = new GL.Marker({ element: el }).setLngLat([mlng, mlat]).addTo(map)
     })
 
     // Add initial marker if position provided
@@ -85,7 +81,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
       initializedRef.current = true
       const el = document.createElement('div')
       el.innerHTML = pinHtml(28, true, getPinColor())
-      markerRef.current = new maplibregl.Marker({ element: el }).setLngLat([lngRef.current, latRef.current]).addTo(map)
+      markerRef.current = new GL.Marker({ element: el }).setLngLat([lngRef.current, latRef.current]).addTo(map)
     }
 
     mapRef.current = map
@@ -107,7 +103,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
           markerRef.current.remove()
           const el = document.createElement('div')
           el.innerHTML = pinHtml(28, true, getPinColor())
-          markerRef.current = new maplibregl.Marker({ element: el }).setLngLat(pos).addTo(map)
+          markerRef.current = new GL.Marker({ element: el }).setLngLat(pos).addTo(map)
         }
       })
     }, []),
@@ -126,7 +122,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
       if (!markerRef.current) {
         const el = document.createElement('div')
         el.innerHTML = pinHtml(28, true, getPinColor())
-        markerRef.current = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
+        markerRef.current = new GL.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
       }
       return
     }
@@ -136,7 +132,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
     } else {
       const el = document.createElement('div')
       el.innerHTML = pinHtml(28, true, getPinColor())
-      markerRef.current = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
+      markerRef.current = new GL.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
     }
 
     map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), PIN_ZOOM), duration: 600 })

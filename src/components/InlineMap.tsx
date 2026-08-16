@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import type { Client } from '@/types'
-import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { X } from '@phosphor-icons/react'
 import { getMapStyle } from '@/lib/map-styles'
 import { cssVarToHex, hasValidCoords, DEFAULT_MAP_CENTER } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 import ClientNames from '@/components/ClientNames'
+
+const GL = (window as any).maplibregl
 
 const SOURCE_ID = 'clients'
 const CLUSTER_LAYER = 'clusters'
@@ -47,7 +48,7 @@ export default function InlineMap({
   onSelectClient,
 }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<maplibregl.Map | null>(null)
+  const mapInstanceRef = useRef<any>(null)
   const clientsRef = useRef(clients)
   const [selectedPin, setSelectedPin] = useState<Client | null>(null)
   const layersAddedRef = useRef(false)
@@ -61,12 +62,7 @@ export default function InlineMap({
     if (!mapRef.current || mapInstanceRef.current) return
 
     // Guard: maplibre-gl namespace must be present (v5 CJS interop safety).
-    if (!maplibregl.Map) {
-      console.error('[InlineMap] maplibregl.Map not available — maplibre-gl failed to load')
-      return
-    }
-
-    const map = new maplibregl.Map({
+    const map = new GL.Map({
       container: mapRef.current,
       style: getMapStyle(),
       center: DEFAULT_MAP_CENTER,
@@ -74,7 +70,7 @@ export default function InlineMap({
       attributionControl: false,
     })
 
-    map.addControl(new maplibregl.NavigationControl(), 'bottom-right')
+    map.addControl(new GL.NavigationControl(), 'bottom-right')
     mapInstanceRef.current = map
 
     let listenersAdded = false
@@ -161,7 +157,7 @@ export default function InlineMap({
         initialFitDone = true
         const data = buildGeoJSON(clientsRef.current)
         if (data.features.length > 0) {
-          const bounds = new maplibregl.LngLatBounds()
+          const bounds = new GL.LngLatBounds()
           data.features.forEach((f) => {
             const coords = (f.geometry as GeoJSON.Point).coordinates
             bounds.extend(coords as [number, number])
@@ -184,8 +180,8 @@ export default function InlineMap({
       })
 
       function onPointClick(
-        e: maplibregl.MapMouseEvent & {
-          features?: maplibregl.MapGeoJSONFeature[]
+        e: GL.MapMouseEvent & {
+          features?: GL.MapGeoJSONFeature[]
         },
       ) {
         const feature = e.features?.[0]
@@ -235,7 +231,7 @@ export default function InlineMap({
   useEffect(() => {
     const map = mapInstanceRef.current
     if (!map || !layersAddedRef.current) return
-    const source = map.getSource(SOURCE_ID) as maplibregl.GeoJSONSource
+    const source = map.getSource(SOURCE_ID) as GL.GeoJSONSource
     if (source) source.setData(buildGeoJSON(clients))
   }, [clients])
 
