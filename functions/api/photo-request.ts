@@ -8,8 +8,11 @@ import { json, error, unauthorized } from '../lib/response'
 // M6 fix: per-image size cap on base64 payloads accepted by this endpoint.
 // The client compresses to ~0.5MB; we allow headroom for non-compressed
 // uploads (e.g. SVG, GIF, or a browser that failed to compress) while
-// preventing accidental megabyte blowups. 8MB of base64 string ≈ 6MB binary.
-const MAX_BASE64_BYTES_PER_IMAGE = 8 * 1024 * 1024
+// preventing accidental megabyte blowups.
+// The cap is the base64 STRING length: base64 is ~4/3 the size of the binary
+// it encodes, so 10MB of binary ≈ 13.4MB of base64 (+ slack for the
+// `data:image/...;base64,` prefix).
+const MAX_BASE64_BYTES_PER_IMAGE = Math.ceil((10 * 1024 * 1024 * 4) / 3) + 128
 
 export async function onRequestPost(context: EventContext<Env, any, any>) {
   const { env, request } = context
