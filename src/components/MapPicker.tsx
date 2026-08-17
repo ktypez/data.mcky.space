@@ -11,12 +11,17 @@ import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 // All inputs (size, selected, color) are controlled constants — never user-derived.
 // If pinHtml ever accepts user strings, sanitize them first.
 
-const GL = (window as any).maplibregl
+// maplibre-gl is loaded globally by a CDN <script> in index.html. Read it
+// dynamically (not a frozen module-scope const) so a slow/blocked first CDN
+// that is resolved later by the jsDelivr fallback still works.
+function loadGL(): any {
+  return (window as any).maplibregl
+}
 
 // Mirror InlineMap fallback — covers MapPreview/detail page as well.
-if (!GL && typeof document !== 'undefined') {
+if (!loadGL() && typeof document !== 'undefined') {
   setTimeout(() => {
-    if ((window as any).maplibregl) return
+    if (loadGL()) return
     const s = document.createElement('script')
     s.src = 'https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js'
     s.onerror = () => console.error('[MapPicker] CDN fallback failed')
@@ -61,44 +66,69 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
 
-    let map: any
-    try {
-      map = new GL.Map({
-        container: containerRef.current,
-        style: getMapStyle(),
-        center: lngRef.current != null && latRef.current != null ? [lngRef.current, latRef.current] : DEFAULT_MAP_CENTER,
-        zoom: latRef.current != null ? PIN_ZOOM : DEFAULT_ZOOM,
-        attributionControl: false,
+    const container = containerRef.current
+    let cancelled = false
+    let retries = 0
+    const MAX_WAIT_MS = 10000
+
+    // Poll for the CDN-loaded library (mirrors InlineMap) so a slow or
+    // fallback-loaded CDN doesn't leave the picker permanently failed.
+    function tryInit() {
+      if (cancelled) return
+      const GL = loadGL()
+      if (!GL || !GL.Map) {
+        retries += 1
+        if (retries * 200 >= MAX_WAIT_MS) {
+          console.error('[MapPicker] maplibre-gl never became available on window')
+          setMapFailed(true)
+          return
+        }
+        setTimeout(tryInit, 200)
+        return
+      }
+
+      let map: any
+      try {
+        map = new GL.Map({
+          container,
+          style: getMapStyle(),
+          center: lngRef.current != null && latRef.current != null ? [lngRef.current, latRef.current] : DEFAULT_MAP_CENTER,
+          zoom: latRef.current != null ? PIN_ZOOM : DEFAULT_ZOOM,
+          attributionControl: false,
+        })
+      } catch (err) {
+        console.error('MapPicker init failed')
+        setMapFailed(true)
+        return
+      }
+
+      map.on('click', (e) => {
+        const { lng: mlng, lat: mlat } = e.lngLat
+        onChangeRef.current(mlat, mlng)
+        map.flyTo({ center: [mlng, mlat], zoom: Math.max(map.getZoom(), PIN_ZOOM), duration: 600 })
+
+        if (markerRef.current) markerRef.current.remove()
+        const el = document.createElement('div')
+        el.innerHTML = pinHtml(28, true, getPinColor())
+        markerRef.current = new GL.Marker({ element: el }).setLngLat([mlng, mlat]).addTo(map)
       })
-    } catch (err) {
-      console.error('MapPicker init failed')
-      setMapFailed(true)
-      return
+
+      // Add initial marker if position provided
+      if (latRef.current != null && lngRef.current != null) {
+        initializedRef.current = true
+        const el = document.createElement('div')
+        el.innerHTML = pinHtml(28, true, getPinColor())
+        markerRef.current = new GL.Marker({ element: el }).setLngLat([lngRef.current, latRef.current]).addTo(map)
+      }
+
+      mapRef.current = map
     }
 
-    map.on('click', (e) => {
-      const { lng: mlng, lat: mlat } = e.lngLat
-      onChangeRef.current(mlat, mlng)
-      map.flyTo({ center: [mlng, mlat], zoom: Math.max(map.getZoom(), PIN_ZOOM), duration: 600 })
-
-      if (markerRef.current) markerRef.current.remove()
-      const el = document.createElement('div')
-      el.innerHTML = pinHtml(28, true, getPinColor())
-      markerRef.current = new GL.Marker({ element: el }).setLngLat([mlng, mlat]).addTo(map)
-    })
-
-    // Add initial marker if position provided
-    if (latRef.current != null && lngRef.current != null) {
-      initializedRef.current = true
-      const el = document.createElement('div')
-      el.innerHTML = pinHtml(28, true, getPinColor())
-      markerRef.current = new GL.Marker({ element: el }).setLngLat([lngRef.current, latRef.current]).addTo(map)
-    }
-
-    mapRef.current = map
+    tryInit()
 
     return () => {
-      map.remove()
+      cancelled = true
+      mapRef.current?.remove()
       mapRef.current = null
     }
   }, [])

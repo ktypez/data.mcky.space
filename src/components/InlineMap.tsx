@@ -7,19 +7,27 @@ import { cssVarToHex, hasValidCoords, DEFAULT_MAP_CENTER } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 import ClientNames from '@/components/ClientNames'
 
-const GL = (window as any).maplibregl
+// maplibre-gl is loaded globally by a CDN <script> in index.html. Read it
+// dynamically (not a module-scope const) because the lazy-loaded chunk can
+// execute before the CDN resolves on slow networks, and there is a jsDelivr
+// fallback loader below that populates window.maplibregl a moment later.
+// Freezing `const GL = window.maplibregl` at module scope would capture
+// undefined permanently and the map could never initialize.
+function loadGL(): any {
+  return (window as any).maplibregl
+}
 
 // Log for diagnosis — visible in any remote-log capture.
 if (typeof console !== 'undefined') {
-  console.log('[InlineMap] window.maplibregl:', GL ? 'present' : 'absent')
+  console.log('[InlineMap] window.maplibregl:', loadGL() ? 'present' : 'absent')
 }
 
 // Fallback loader: if the CDN script in index.html hasn't loaded within
 // 1200 ms, try jsDelivr as backup. Avoids map staying blank when one CDN
 // is unreachable (some ISPs/regions block unpkg).
-if (!GL && typeof document !== 'undefined') {
+if (!loadGL() && typeof document !== 'undefined') {
   setTimeout(() => {
-    if ((window as any).maplibregl) return // loaded in the meantime
+    if (loadGL()) return // loaded in the meantime
     const s = document.createElement('script')
     s.src = 'https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js'
     s.onload = () => console.log('[InlineMap] maplibre-gl loaded via jsDelivr fallback')
@@ -81,123 +89,139 @@ export default function InlineMap({
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
 
-    // Bail early if GL isn't on the global (CDN load race/failure).
-    if (!GL || !GL.Map) {
-      setMapError('ไม่พบไลบรารีแผนที่ — กรุณารีเฟรชหน้า')
-      return
-    }
+    const container = mapRef.current
+    let cancelled = false
+    let retries = 0
+    const MAX_WAIT_MS = 10000
 
-    try {
-      const map = new GL.Map({
-        container: mapRef.current,
-        style: getMapStyle(),
-        center: DEFAULT_MAP_CENTER,
-        zoom: 6,
-        attributionControl: false,
-      })
-
-      map.addControl(new GL.NavigationControl(), 'bottom-right')
-      // Assign ref BEFORE registering listeners so cleanup can always .remove().
-      mapInstanceRef.current = map
-
-      let listenersAdded = false
-      let initialFitDone = false
-
-      // --- layers ---
-      function addLayers() {
-        for (const id of [
-          HIGHLIGHT_LAYER,
-          POINT_LAYER,
-          CLUSTER_COUNT_LAYER,
-          CLUSTER_LAYER,
-        ]) {
-          if (map.getLayer(id)) map.removeLayer(id)
+    // The CDN loader (index.html) and the jsDelivr fallback above populate
+    // window.maplibregl asynchronously. Poll for it instead of bailing on the
+    // first frame, so a slow CDN doesn't leave the map permanently blank.
+    function tryInit() {
+      if (cancelled) return
+      const GL = loadGL()
+      if (!GL || !GL.Map) {
+        retries += 1
+        if (retries * 200 >= MAX_WAIT_MS) {
+          console.error('[InlineMap] maplibre-gl never became available on window')
+          setMapError('ไม่พบไลบรารีแผนที่ — กรุณารีเฟรชหน้า')
+          return
         }
-        if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID)
-
-        map.addSource(SOURCE_ID, {
-          type: 'geojson',
-          data: buildGeoJSON(clientsRef.current),
-          cluster: true,
-          clusterMaxZoom: 14,
-          clusterRadius: 50,
-        })
-
-        map.addLayer({
-          id: CLUSTER_LAYER,
-          type: 'circle',
-          source: SOURCE_ID,
-          filter: ['has', 'point_count'],
-          paint: {
-            'circle-color': getPinColor(),
-            'circle-radius': ['step', ['get', 'point_count'], 20, 10, 26, 30, 34],
-            'circle-opacity': 0.85,
-            'circle-stroke-width': 3,
-            'circle-stroke-color': getStrokeColor(),
-          },
-        })
-
-        map.addLayer({
-          id: CLUSTER_COUNT_LAYER,
-          type: 'symbol',
-          source: SOURCE_ID,
-          filter: ['has', 'point_count'],
-          layout: {
-            'text-field': ['get', 'point_count_abbreviated'],
-            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 13,
-          },
-          paint: {
-            'text-color': getStrokeColor(),
-          },
-        })
-
-        map.addLayer({
-          id: POINT_LAYER,
-          type: 'circle',
-          source: SOURCE_ID,
-          filter: ['!', ['has', 'point_count']],
-          paint: {
-            'circle-color': getPinColor(),
-            'circle-radius': 6,
-            'circle-stroke-width': 2.5,
-            'circle-stroke-color': getStrokeColor(),
-          },
-        })
-
-        map.addLayer({
-          id: HIGHLIGHT_LAYER,
-          type: 'circle',
-          source: SOURCE_ID,
-          filter: ['==', 'id', ''],
-          paint: {
-            'circle-color': getPinColor(),
-            'circle-radius': 12,
-            'circle-stroke-width': 4,
-            'circle-stroke-color': getStrokeColor(),
-            'circle-opacity': 0.9,
-          },
-        })
-
-        layersAddedRef.current = true
-
-        if (!initialFitDone) {
-          initialFitDone = true
-          const data = buildGeoJSON(clientsRef.current)
-          if (data.features.length > 0) {
-            const bounds = new GL.LngLatBounds()
-            data.features.forEach((f) => {
-              const coords = (f.geometry as GeoJSON.Point).coordinates
-              bounds.extend(coords as [number, number])
-            })
-            map.fitBounds(bounds, { padding: 50, maxZoom: 15 })
-          }
-        }
+        setTimeout(tryInit, 200)
+        return
       }
 
-      // --- listeners ---
-      function setupListeners() {
-        if (listenersAdded) return
+      try {
+        const map = new GL.Map({
+          container,
+          style: getMapStyle(),
+          center: DEFAULT_MAP_CENTER,
+          zoom: 6,
+          attributionControl: false,
+        })
+
+        map.addControl(new GL.NavigationControl(), 'bottom-right')
+        // Assign ref BEFORE registering listeners so cleanup can always .remove().
+        mapInstanceRef.current = map
+
+        let listenersAdded = false
+        let initialFitDone = false
+
+        // --- layers ---
+        function addLayers() {
+          for (const id of [
+            HIGHLIGHT_LAYER,
+            POINT_LAYER,
+            CLUSTER_COUNT_LAYER,
+            CLUSTER_LAYER,
+          ]) {
+            if (map.getLayer(id)) map.removeLayer(id)
+          }
+          if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID)
+
+          map.addSource(SOURCE_ID, {
+            type: 'geojson',
+            data: buildGeoJSON(clientsRef.current),
+            cluster: true,
+            clusterMaxZoom: 14,
+            clusterRadius: 50,
+          })
+
+          map.addLayer({
+            id: CLUSTER_LAYER,
+            type: 'circle',
+            source: SOURCE_ID,
+            filter: ['has', 'point_count'],
+            paint: {
+              'circle-color': getPinColor(),
+              'circle-radius': ['step', ['get', 'point_count'], 20, 10, 26, 30, 34],
+              'circle-opacity': 0.85,
+              'circle-stroke-width': 3,
+              'circle-stroke-color': getStrokeColor(),
+            },
+          })
+
+          map.addLayer({
+            id: CLUSTER_COUNT_LAYER,
+            type: 'symbol',
+            source: SOURCE_ID,
+            filter: ['has', 'point_count'],
+            layout: {
+              'text-field': ['get', 'point_count_abbreviated'],
+              'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+              'text-size': 13,
+            },
+            paint: {
+              'text-color': getStrokeColor(),
+            },
+          })
+
+          map.addLayer({
+            id: POINT_LAYER,
+            type: 'circle',
+            source: SOURCE_ID,
+            filter: ['!', ['has', 'point_count']],
+            paint: {
+              'circle-color': getPinColor(),
+              'circle-radius': 6,
+              'circle-stroke-width': 2.5,
+              'circle-stroke-color': getStrokeColor(),
+            },
+          })
+
+          map.addLayer({
+            id: HIGHLIGHT_LAYER,
+            type: 'circle',
+            source: SOURCE_ID,
+            filter: ['==', 'id', ''],
+            paint: {
+              'circle-color': getPinColor(),
+              'circle-radius': 12,
+              'circle-stroke-width': 4,
+              'circle-stroke-color': getStrokeColor(),
+              'circle-opacity': 0.9,
+            },
+          })
+
+          layersAddedRef.current = true
+
+          if (!initialFitDone) {
+            initialFitDone = true
+            const data = buildGeoJSON(clientsRef.current)
+            if (data.features.length > 0) {
+              const bounds = new GL.LngLatBounds()
+              data.features.forEach((f) => {
+                const coords = (f.geometry as GeoJSON.Point).coordinates
+                bounds.extend(coords as [number, number])
+              })
+              map.fitBounds(bounds, { padding: 50, maxZoom: 15 })
+            }
+          }
+        }
+
+        // --- listeners ---
+        function setupListeners() {
+          if (listenersAdded) return
         listenersAdded = true
 
         map.on('click', CLUSTER_LAYER, (e) => {
@@ -236,19 +260,34 @@ export default function InlineMap({
       }
 
       // Wait for style to load before adding layers.
+      map.on('error', (e) => {
+        const err = (e as any).error || e
+        const httpStatus = err?.status as number | undefined
+        const msg = httpStatus
+          ? `ไม่สามารถโหลด tile (HTTP ${httpStatus})`
+          : err?.message || 'เกิดข้อผิดพลาดในการโหลดแผนที่'
+        console.error('[InlineMap error]', err)
+        setMapError(msg)
+      })
       map.on('style.load', () => {
+        setMapError(null) // clear any tile error once style is ready
         addLayers()
         setupListeners()
       })
-
-      return () => {
-        try { map.remove() } catch {}
-        mapInstanceRef.current = null
-        layersAddedRef.current = false
-      }
     } catch (err) {
       console.error('[InlineMap] init failed:', err)
       setMapError(String(err instanceof Error ? err.message : err))
+    }
+      }
+
+    // Kick off the (re)trying init.
+    tryInit()
+
+    return () => {
+      cancelled = true
+      try { mapInstanceRef.current?.remove() } catch {}
+      mapInstanceRef.current = null
+      layersAddedRef.current = false
     }
   }, [])
 
