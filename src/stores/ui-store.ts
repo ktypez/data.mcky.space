@@ -12,7 +12,6 @@ interface UIState {
   showManualOrigin: boolean
   manualOriginLat: string
   manualOriginLng: string
-  mapFocusId: string | null
   copiedId: string | null
   newClientCount: number
   theme: string
@@ -24,14 +23,12 @@ interface UIState {
   setShowManualOrigin: (show: boolean) => void
   setManualOriginLat: (lat: string) => void
   setManualOriginLng: (lng: string) => void
-  setMapFocusId: (id: string | null) => void
   setCopiedId: (id: string | null) => void
   setNewClientCount: (count: number) => void
   setTheme: (theme: string) => void
   clearViewStates: () => void
   resetView: () => void
   openDetail: (clientId: string, client?: Client) => void
-  openMap: (focusId?: string | null) => void
   openAddEdit: (editClientId?: string | null) => void
   openTrash: () => void
   closeView: () => void
@@ -47,7 +44,6 @@ export const useUIStore = create<UIState>()(
       showManualOrigin: false,
       manualOriginLat: '',
       manualOriginLng: '',
-      mapFocusId: null,
       copiedId: null,
       newClientCount: 0,
       theme: 'dusk',
@@ -59,24 +55,19 @@ export const useUIStore = create<UIState>()(
       setShowManualOrigin: (showManualOrigin) => set({ showManualOrigin }),
       setManualOriginLat: (manualOriginLat) => set({ manualOriginLat }),
       setManualOriginLng: (manualOriginLng) => set({ manualOriginLng }),
-      setMapFocusId: (mapFocusId) => set({ mapFocusId }),
       setCopiedId: (copiedId) => set({ copiedId }),
       setNewClientCount: (newClientCount) => set({ newClientCount }),
       setTheme: (theme) => set({ theme }),
       clearViewStates: () =>
         set({
           viewState: { view: 'list' },
-          mapFocusId: null,
         }),
       resetView: () =>
         set({
           viewState: { view: 'list' },
-          mapFocusId: null,
         }),
       openDetail: (clientId, client) =>
         set({ viewState: { view: 'detail', clientId, client } }),
-      openMap: (focusId = null) =>
-        set({ viewState: { view: 'map', focusId } }),
       openAddEdit: (editClientId = null) =>
         set({ viewState: { view: 'add-edit', editClientId } }),
   openTrash: () =>

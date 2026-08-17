@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
-import { ArrowLeft, MapTrifold, Trash, SignOut, LockKey, Check } from '@phosphor-icons/react'
+import { ArrowLeft, Trash, SignOut, LockKey, Check } from '@phosphor-icons/react'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
 /**
@@ -24,11 +24,9 @@ export default function NavDropdown() {
 
   // Route detection:
   //   - '/' and '/c/:id' (client detail, comes back to list) → หน้าแรก
-  //   - '/maps*' → แผนที่
   //   - '/trash*' → ถังขยะ
   //   - '/add', '/edit/:id', '/login' → no highlight (flow screens)
   const isHome = pathname === '/' || pathname.startsWith('/c/')
-  const isMap = pathname === '/maps' || pathname.startsWith('/maps/')
   const isTrash = pathname === '/trash' || pathname.startsWith('/trash/')
 
   const itemClass = (active: boolean, danger = false) =>
@@ -67,16 +65,6 @@ export default function NavDropdown() {
         <ArrowLeft className={iconClass(isHome)} />
         <span className="text-[15px] font-medium flex-1">หน้าแรก</span>
         {isHome && <Check className="w-4 h-4 shrink-0" weight="bold" />}
-      </button>
-
-      <button
-        onClick={() => { close(); navigate('/maps') }}
-        className={itemClass(isMap)}
-        aria-current={isMap ? 'page' : undefined}
-      >
-        <MapTrifold className={iconClass(isMap)} />
-        <span className="text-[15px] font-medium flex-1">แผนที่</span>
-        {isMap && <Check className="w-4 h-4 shrink-0" weight="bold" />}
       </button>
 
       {isAdmin && (

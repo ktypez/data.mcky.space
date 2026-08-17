@@ -25,7 +25,6 @@ export type ViewMode = 'table' | 'cards'
 export type ViewState =
   | { view: 'list' }
   | { view: 'detail'; clientId: string; client?: Client }
-  | { view: 'map'; focusId: string | null }
   | { view: 'add-edit'; editClientId: string | null }
   | { view: 'trash' }
 

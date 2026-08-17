@@ -13,7 +13,6 @@ import PageHeader from './components/PageHeader'
 
 const Clients = lazy(() => import('./pages/Clients').then((m) => ({ default: m.PageClient })))
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'))
-const MapPage = lazy(() => import('./pages/MapPage'))
 const TrashPage = lazy(() => import('./pages/TrashPage'))
 const AddEditPage = lazy(() => import('./pages/AddEditPage'))
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })))
@@ -47,7 +46,6 @@ function RouteHeader() {
 
   const showDetail = viewState.view === 'detail'
   const isList = pathname === '/'
-  const isMap = pathname === '/maps'
   const isTrash = pathname === '/trash'
   const isAddEdit = pathname === '/add' || pathname.startsWith('/edit')
   const isDetailRoute = pathname.startsWith('/c/')
@@ -81,26 +79,6 @@ function RouteHeader() {
         onSearchClear={handleSearchClear}
         showAddButton={isAdmin}
         onAdd={navToAdd}
-      />
-    )
-  }
-
-  // Map view
-  if (isMap) {
-    return (
-      <PageHeader
-        variant="map"
-        showBack
-        onBack={() => navigate('/')}
-        search={search}
-        onSearchChange={handleSearchChange}
-        onSearchClear={handleSearchClear}
-        onSearchKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            setSearch('')
-            ;(e.target as HTMLInputElement).blur()
-          }
-        }}
       />
     )
   }
@@ -181,11 +159,11 @@ function App() {
           <Routes location={location} key={location.pathname}>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<PageTransition><Clients /></PageTransition>} />
-            <Route path="/maps" element={<PageTransition><MapPage /></PageTransition>} />
             <Route path="/trash" element={<PageTransition><TrashPage /></PageTransition>} />
             <Route path="/add" element={<PageTransition><AddEditPage /></PageTransition>} />
             <Route path="/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
             <Route path="/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
+            <Route path="/maps" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AnimatePresence>

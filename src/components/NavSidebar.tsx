@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { House, MapTrifold, Trash, Check } from '@phosphor-icons/react'
+import { House, Trash, Check } from '@phosphor-icons/react'
 import { useUIStore } from '@/stores/ui-store'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import ThemePresetPicker from '@/components/ThemePresetPicker'
@@ -9,7 +9,6 @@ import { getTheme, isDarkOnlyTheme, isLightOnlyTheme } from '@/lib/design/themes
 
 const NAV_ITEMS = [
   { path: '/', label: 'หน้าแรก', icon: House, exact: true },
-  { path: '/maps', label: 'แผนที่', icon: MapTrifold, exact: false },
 ] as const
 
 function SidebarLink({
@@ -60,7 +59,6 @@ export default function NavSidebar() {
 
   // Route detection — same as NavDropdown
   const isHome = pathname === '/' || pathname.startsWith('/c/')
-  const isMap = pathname === '/maps' || pathname.startsWith('/maps/')
   const isTrash = pathname === '/trash' || pathname.startsWith('/trash/')
 
   const isDarkOnly = isDarkOnlyTheme(getTheme(themeId))

@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { springSmall } from '@/lib/motion'
 
 interface PageHeaderProps {
-  variant: 'list' | 'detail' | 'map' | 'add-edit'
+  variant: 'list' | 'detail' | 'add-edit'
   title?: string
   showBack?: boolean
   onBack?: () => void
@@ -51,7 +51,7 @@ export default function PageHeader({
         </Button>
       )}
 
-      {variant === 'list' || variant === 'map' ? (
+      {variant === 'list' ? (
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <input
