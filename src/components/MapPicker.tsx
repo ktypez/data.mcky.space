@@ -144,7 +144,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
           markerRef.current.remove()
           const el = document.createElement('div')
           el.innerHTML = pinHtml(28, true, getPinColor())
-          markerRef.current = new GL.Marker({ element: el }).setLngLat(pos).addTo(map)
+          markerRef.current = new (loadGL()).Marker({ element: el }).setLngLat(pos).addTo(map)
         }
       })
     }, []),
@@ -163,7 +163,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
       if (!markerRef.current) {
         const el = document.createElement('div')
         el.innerHTML = pinHtml(28, true, getPinColor())
-        markerRef.current = new GL.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
+        markerRef.current = new (loadGL()).Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
       }
       return
     }
@@ -173,7 +173,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
     } else {
       const el = document.createElement('div')
       el.innerHTML = pinHtml(28, true, getPinColor())
-      markerRef.current = new GL.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
+      markerRef.current = new (loadGL()).Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
     }
 
     map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), PIN_ZOOM), duration: 600 })
