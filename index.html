@@ -16,7 +16,7 @@
     ></script>
     <script>
       // Pre-paint theme boot: ALWAYS load a full theme stylesheet before
-      // React mounts (saved theme, else the default = dusk), so the app is
+      // React mounts (saved theme, else the default = portal), so the app is
       // never unstyled and the :root/.dark fallback vars are unnecessary.
       // Keep THEMES in sync with src/lib/design/themes.ts (id + staticCss +
       // dark-only flag). Fonts load lazily via ThemeInjector, not here.
@@ -65,7 +65,7 @@
             try { localStorage.setItem(MIG_KEY, '1'); } catch (e) {}
           }
         } catch (e) {}
-        if (!THEMES[id]) id = 'dusk'; // invalid/stale id → default theme
+        if (!THEMES[id]) id = 'portal'; // invalid/stale id → default theme
         var t = THEMES[id];
         var root = document.documentElement;
         root.setAttribute('data-theme', id);

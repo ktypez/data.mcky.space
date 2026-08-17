@@ -1267,7 +1267,7 @@ const characterThemes: Theme[] = [dusk, glitchpage, crt, claude, rack, noc, min,
 
 export const themes: Theme[] = [...baseThemes, ...characterThemes]
 
-const defaultTheme: Theme = dusk
+const defaultTheme: Theme = portal
 
 /** Resolve a theme by id, falling back to the default. */
 export function getTheme(id: string | undefined | null): Theme {
