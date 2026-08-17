@@ -2,7 +2,6 @@ import { lazy, Suspense, useCallback, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { useAuthStore } from './stores/auth-store'
-import { useClientStore } from './stores/client-store'
 import { useFilterStore } from './stores/filter-store'
 import { useUIStore } from './stores/ui-store'
 import { useAuth } from '@clerk/clerk-react'
@@ -10,13 +9,13 @@ import { useMotion } from './lib/motion'
 import { AuthSync } from './components/AuthSync'
 import PageLayout from './components/PageLayout'
 import PageHeader from './components/PageHeader'
+import { useMediaQuery } from './hooks/useMediaQuery'
 
 const Clients = lazy(() => import('./pages/Clients').then((m) => ({ default: m.PageClient })))
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'))
 const TrashPage = lazy(() => import('./pages/TrashPage'))
 const AddEditPage = lazy(() => import('./pages/AddEditPage'))
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })))
-const NavSidebar = lazy(() => import('./components/NavSidebar'))
 
 
 function PageTransition({ children }: { children: React.ReactNode }) {
@@ -40,9 +39,10 @@ function RouteHeader() {
   const navigate = useNavigate()
   const pathname = location.pathname
 
-  const { isAdmin, isSignedIn, setLoginOpen } = useAuthStore()
+  const { isAdmin } = useAuthStore()
   const { search, setSearch } = useFilterStore()
   const viewState = useUIStore((s) => s.viewState)
+  const isDesktop = useMediaQuery('(min-width: 768px)')
 
   const showDetail = viewState.view === 'detail'
   const isList = pathname === '/'
@@ -54,8 +54,18 @@ function RouteHeader() {
   const handleSearchClear = useCallback(() => setSearch(''), [setSearch])
   const navToAdd = useCallback(() => navigate('/add'), [navigate])
 
-  // Detail view (inside Clients page via viewState)
+  // Detail view (inside Clients page via viewState) — desktop shows
+  // "detail" header (title only, no back) since the right pane replaces
+  // full-screen detail; mobile keeps the back-button detail header.
   if (showDetail || isDetailRoute) {
+    if (isDesktop) {
+      return (
+        <PageHeader
+          variant="detail"
+          title="Detail"
+        />
+      )
+    }
     return (
       <PageHeader
         variant="detail"
@@ -153,7 +163,6 @@ function App() {
   return (
     <Suspense fallback={null}>
       <AuthSync />
-      <NavSidebar />
       <PageLayout header={<RouteHeader />}>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>

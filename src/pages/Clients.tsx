@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { Plus } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { TableSkeletonLoader } from '@/components/TableSkeletonLoader'
+import EmptyDetailPlaceholder from '@/components/EmptyDetailPlaceholder'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
 import { useAuthStore } from '@/stores/auth-store'
@@ -13,6 +14,7 @@ import { useUIStore } from '@/stores/ui-store'
 import { useFilteredClients, DISPLAY_STEP } from '@/hooks/useFilteredClients'
 import { useClientCopy } from '@/hooks/useClientCopy'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { updateClient } from '@/lib/storage'
 import { slideLeft, slideRight, spring, springSmall } from '@/lib/motion'
 import type { Client, FilterKey, RouteData, ViewMode } from '@/types'
@@ -45,8 +47,217 @@ const DesktopCardView = lazyLoad(() => import('@/components/DesktopCardView'))
 const MobileCardList = lazyLoad(() => import('@/components/MobileCardList'))
 const SwUpdateToast = lazyLoad(() => import('@/components/SwUpdateToast'))
 
+interface ListPaneProps {
+  viewMode: ViewMode
+  isCardsView: boolean
+  selectionMode: boolean
+  selectedIds: Set<string>
+  copiedId: string | null
+  refreshing: boolean
+  newClientCount: number
+  filter: FilterKey
+  search: string
+  loading: boolean
+  totalClients: number
+  displayed: Client[]
+  filtered: Client[]
+  displayLimit: number
+  hasMore: boolean
+  isAdmin: boolean
+  counts: { total: number; withImages: number; noImages: number; recent: number }
+  onSelectClient: (client: Client) => void
+  onToggleSelect: (id: string) => void
+  onCopySmart: (client: Client) => void
+  onViewModeChange: (v: ViewMode) => void
+  onRefresh: () => void
+  onToggleSelectionMode: () => void
+  onPlanRoute: () => void
+  onRouting: boolean
+  onFilter: (f: FilterKey) => void
+  onLoadMore: () => void
+  onNavigateAdd: () => void
+}
+
+/**
+ * ListPane — the left pane (desktop) or full content (mobile) that renders
+ * SelectionToolbar + the appropriate list view (table / cards / mobile).
+ * Owns its own scroll container, advertised as the primary scroll source
+ * on desktop so the global scroll indicator tracks it.
+ */
+function ListPane(props: ListPaneProps) {
+  const {
+    viewMode,
+    isCardsView,
+    selectionMode,
+    selectedIds,
+    copiedId,
+    refreshing,
+    newClientCount,
+    filter,
+    search,
+    loading,
+    totalClients,
+    displayed,
+    filtered,
+    displayLimit,
+    hasMore,
+    isAdmin,
+    counts,
+    onSelectClient,
+    onToggleSelect,
+    onCopySmart,
+    onViewModeChange,
+    onRefresh,
+    onToggleSelectionMode,
+    onPlanRoute,
+    onRouting,
+    onFilter,
+    onLoadMore,
+    onNavigateAdd,
+  } = props
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <SelectionToolbar
+        viewMode={viewMode}
+        onViewModeChange={onViewModeChange}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        selectionMode={selectionMode}
+        onToggleSelectionMode={onToggleSelectionMode}
+        selectedCount={selectedIds.size}
+        onPlanRoute={onPlanRoute}
+        routing={onRouting}
+        newCount={newClientCount}
+        filter={filter}
+        counts={counts}
+        onFilter={onFilter}
+      />
+
+      <div data-pane-scroll="primary" className="flex-1 overflow-auto">
+        {loading && totalClients === 0 ? (
+          <TableSkeletonLoader />
+        ) : (
+          <>
+            <div className={`${isCardsView ? 'hidden' : 'block'} max-md:hidden`}>
+              <DesktopTableView
+                displayed={displayed}
+                filtered={filtered}
+                displayLimit={displayLimit}
+                selectionMode={selectionMode}
+                selectedIds={selectedIds}
+                copiedId={copiedId}
+                hasMore={hasMore}
+                isGlobalEmpty={totalClients === 0}
+                filter={filter}
+                search={search}
+                onSelectClient={onSelectClient}
+                onToggleSelect={onToggleSelect}
+                onCopySmart={onCopySmart}
+                onLoadMore={onLoadMore}
+              />
+            </div>
+
+            <div className={`${isCardsView ? '' : 'hidden'} max-md:hidden`}>
+              <DesktopCardView
+                displayed={displayed}
+                filtered={filtered}
+                displayLimit={displayLimit}
+                selectionMode={selectionMode}
+                selectedIds={selectedIds}
+                copiedId={copiedId}
+                hasMore={hasMore}
+                isGlobalEmpty={totalClients === 0}
+                filter={filter}
+                search={search}
+                onSelectClient={onSelectClient}
+                onToggleSelect={onToggleSelect}
+                onCopySmart={onCopySmart}
+                onLoadMore={onLoadMore}
+              />
+            </div>
+
+            <div className="md:hidden">
+              <MobileCardList
+                displayed={displayed}
+                filtered={filtered}
+                displayLimit={displayLimit}
+                selectionMode={selectionMode}
+                selectedIds={selectedIds}
+                isAdmin={isAdmin}
+                copiedId={copiedId}
+                hasMore={hasMore}
+                isGlobalEmpty={totalClients === 0}
+                filter={filter}
+                search={search}
+                onSelectClient={onSelectClient}
+                onToggleSelect={onToggleSelect}
+                onCopySmart={onCopySmart}
+                onLoadMore={onLoadMore}
+              />
+            </div>
+          </>
+        )}
+      </div>
+
+      {isAdmin && (
+        <motion.div
+          className="fixed bottom-5 right-5 z-40 md:hidden"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={springSmall}
+        >
+          <Button
+            className="size-12 rounded-full shadow-lg"
+            size="icon"
+            aria-label="Add client"
+            onClick={onNavigateAdd}
+          >
+            <Plus className="size-5" />
+          </Button>
+        </motion.div>
+      )}
+    </div>
+  )
+}
+
+interface DetailPaneProps {
+  client: Client | null
+  isAdmin: boolean
+  clients: Client[]
+  onClientUpdated: (updated: Client) => Promise<void>
+  onClientDeleted: (id: string) => void
+}
+
+/**
+ * DetailPane — right pane on desktop. Owns its own scroll container
+ * (independent of the left pane so selection swaps don't reset scroll
+ * position in either side).
+ */
+function DetailPane({
+  client,
+  isAdmin,
+  clients,
+  onClientUpdated,
+  onClientDeleted,
+}: DetailPaneProps) {
+  if (!client) return <EmptyDetailPlaceholder />
+  return (
+    <div data-pane-scroll="secondary" className="flex min-h-0 flex-1 flex-col">
+      <ClientDetail
+        client={client}
+        isAdmin={isAdmin}
+        clients={clients}
+        onClientUpdated={onClientUpdated}
+        onClientDeleted={onClientDeleted}
+      />
+    </div>
+  )
+}
+
 export function PageClient() {
   const navigate = useNavigate()
+  const isDesktop = useMediaQuery('(min-width: 768px)')
 
   const {
     clients,
@@ -127,6 +338,7 @@ export function PageClient() {
 
   const handleDetailDelete = useCallback((deletedId: string) => {
     useClientStore.getState().removeClient(deletedId)
+    // Close detail (desktop: right pane goes back to placeholder; mobile: list view).
     useUIStore.getState().closeView()
   }, [])
 
@@ -181,6 +393,7 @@ export function PageClient() {
     (v: string) => useUIStore.getState().setManualOriginLat(v),
     [],
   )
+
   const handleManualOriginLngChange = useCallback(
     (v: string) => useUIStore.getState().setManualOriginLng(v),
     [],
@@ -214,156 +427,116 @@ export function PageClient() {
 
   if (error) return <FetchErrorScreen onRetry={handleRetry} />
 
+  // ── Shared list-pane props ──
+  const listPaneProps: ListPaneProps = {
+    viewMode,
+    isCardsView,
+    selectionMode,
+    selectedIds,
+    copiedId,
+    refreshing,
+    newClientCount,
+    filter,
+    search,
+    loading,
+    totalClients: clients.length,
+    displayed,
+    filtered,
+    displayLimit,
+    hasMore,
+    isAdmin,
+    counts,
+    onSelectClient: navToDetail,
+    onToggleSelect: handleToggleSelect,
+    onCopySmart: handleCopySmart,
+    onViewModeChange: handleViewModeChange,
+    onRefresh: handleRefresh,
+    onToggleSelectionMode: handleToggleSelectionMode,
+    onPlanRoute: planRoute,
+    onRouting: routing,
+    onFilter: handleFilter,
+    onLoadMore: handleLoadMore,
+    onNavigateAdd: () => navigate('/add'),
+  }
+
   return (
     <>
       <SwUpdateToast />
 
-      <AnimatePresence mode="wait">
-        {showDetail && (
-          <motion.div
-            key="detail"
-            variants={slideLeft}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            transition={spring}
-            className="flex min-w-0 flex-1 flex-col"
-          >
-            <ClientDetail
-              client={detailClient!}
-              isAdmin={isAdmin}
-              clients={clients}
-              onClientUpdated={handleDetailUpdate}
-              onClientDeleted={handleDetailDelete}
-            />
-          </motion.div>
-        )}
+      {isDesktop ? (
+        // ── DESKTOP: 2-pane mail app layout ──
+        <div className="flex min-h-0 flex-1">
+          {/* Left pane: list */}
+          <div className="w-[420px] shrink-0 border-r border-border flex min-h-0 flex-col">
+            <ListPane {...listPaneProps} />
+          </div>
 
-        {isListView && (
-          <motion.div
-            key="list"
-            variants={slideRight}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            transition={spring}
-            className="flex min-w-0 flex-1 flex-col"
-          >
-            <SelectionToolbar
-              viewMode={viewMode}
-              onViewModeChange={handleViewModeChange}
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              selectionMode={selectionMode}
-              onToggleSelectionMode={handleToggleSelectionMode}
-              selectedCount={selectedIds.size}
-              onPlanRoute={planRoute}
-              routing={routing}
-              newCount={newClientCount}
-              filter={filter}
-              counts={counts}
-              onFilter={handleFilter}
-            />
-
-            <div className="flex-1 overflow-auto">
-              {loading && clients.length === 0 ? (
-                <TableSkeletonLoader />
-              ) : (
-                <>
-                  <div className={`${isCardsView ? 'hidden' : 'block'} max-md:hidden`}>
-                    <DesktopTableView
-                      displayed={displayed}
-                      filtered={filtered}
-                      displayLimit={displayLimit}
-                      selectionMode={selectionMode}
-                      selectedIds={selectedIds}
-                      copiedId={copiedId}
-                      hasMore={hasMore}
-                      isGlobalEmpty={clients.length === 0}
-                      filter={filter}
-                      search={search}
-                      onSelectClient={navToDetail}
-                      onToggleSelect={handleToggleSelect}
-                      onCopySmart={handleCopySmart}
-                      onLoadMore={handleLoadMore}
-                    />
-                  </div>
-
-                  <div className={`${isCardsView ? '' : 'hidden'} max-md:hidden`}>
-                    <DesktopCardView
-                      displayed={displayed}
-                      filtered={filtered}
-                      displayLimit={displayLimit}
-                      selectionMode={selectionMode}
-                      selectedIds={selectedIds}
-                      copiedId={copiedId}
-                      hasMore={hasMore}
-                      isGlobalEmpty={clients.length === 0}
-                      filter={filter}
-                      search={search}
-                      onSelectClient={navToDetail}
-                      onToggleSelect={handleToggleSelect}
-                      onCopySmart={handleCopySmart}
-                      onLoadMore={handleLoadMore}
-                    />
-                  </div>
-
-                  <div className="md:hidden">
-                    <MobileCardList
-                      displayed={displayed}
-                      filtered={filtered}
-                      displayLimit={displayLimit}
-                      selectionMode={selectionMode}
-                      selectedIds={selectedIds}
-                      isAdmin={isAdmin}
-                      copiedId={copiedId}
-                      hasMore={hasMore}
-                      isGlobalEmpty={clients.length === 0}
-                      filter={filter}
-                      search={search}
-                      onSelectClient={navToDetail}
-                      onToggleSelect={handleToggleSelect}
-                      onCopySmart={handleCopySmart}
-                      onLoadMore={handleLoadMore}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-
-            {isAdmin && (
-              <motion.div
-                className="fixed bottom-5 right-5 z-40 md:hidden"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={springSmall}
-              >
-                <Button
-                  className="size-12 rounded-full shadow-lg"
-                  size="icon"
-                  aria-label="Add client"
-                  onClick={() => navigate('/add')}
-                >
-                  <Plus className="size-5" />
-                </Button>
-              </motion.div>
+          {/* Right pane: detail */}
+          <div className="flex min-h-0 flex-1 flex-col bg-background">
+            {showDetail && detailClient ? (
+              <DetailPane
+                client={detailClient}
+                isAdmin={isAdmin}
+                clients={clients}
+                onClientUpdated={handleDetailUpdate}
+                onClientDeleted={handleDetailDeleted}
+              />
+            ) : (
+              <EmptyDetailPlaceholder />
             )}
+          </div>
+        </div>
+      ) : (
+        // ── MOBILE: full-screen takeover (unchanged) ──
+        <AnimatePresence mode="wait">
+          {showDetail && (
+            <motion.div
+              key="detail"
+              variants={slideLeft}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              transition={spring}
+              className="flex min-w-0 flex-1 flex-col"
+            >
+              <ClientDetail
+                client={detailClient!}
+                isAdmin={isAdmin}
+                clients={clients}
+                onClientUpdated={handleDetailUpdate}
+                onClientDeleted={handleDetailDelete}
+              />
+            </motion.div>
+          )}
 
-            <RouteModal
-              routeData={routeData}
-              routeError={routeError}
-              onClose={handleCloseRoute}
-              onReorder={handleRouteReorder}
-              showManualOrigin={showManualOrigin}
-              manualOriginLat={manualOriginLat}
-              manualOriginLng={manualOriginLng}
-              onManualOriginLatChange={handleManualOriginLatChange}
-              onManualOriginLngChange={handleManualOriginLngChange}
-              onManualOriginSubmit={handleManualOrigin}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {isListView && (
+            <motion.div
+              key="list"
+              variants={slideRight}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              transition={spring}
+              className="flex min-w-0 flex-1 flex-col"
+            >
+              <ListPane {...listPaneProps} />
+
+              <RouteModal
+                routeData={routeData}
+                routeError={routeError}
+                onClose={handleCloseRoute}
+                onReorder={handleRouteReorder}
+                showManualOrigin={showManualOrigin}
+                manualOriginLat={manualOriginLat}
+                manualOriginLng={manualOriginLng}
+                onManualOriginLatChange={handleManualOriginLatChange}
+                onManualOriginLngChange={handleManualOriginLngChange}
+                onManualOriginSubmit={handleManualOrigin}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </>
   )
 }

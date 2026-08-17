@@ -2,22 +2,27 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 
 /* ── Vertical scroll bar ──────────────────────────────────────────────────
  * Thin bar on the right edge, rendered inside .app-viewport (the gap area).
- * Uses containerRef (the .app-frame) for scroll tracking, but positions
- * itself in the viewport via offsetTop. */
+ * Tracks the primary scroll pane advertised via
+ * `[data-pane-scroll="primary"]`, falling back to `.app-frame` when no
+ * primary pane is registered (single-scroll pages). Re-resolves on DOM
+ * mutations so route changes / breakpoint switches pick up the new pane. */
 
-interface VerticalBarProps {
-  containerRef: React.RefObject<HTMLElement | null>
-}
-
-export function VerticalBar({ containerRef }: VerticalBarProps) {
+export function VerticalBar() {
   const [thumbH, setThumbH] = useState(0)
   const [thumbTop, setThumbTop] = useState(0)
   const [trackH, setTrackH] = useState(0)
   const [opacity, setOpacity] = useState(0)
   const hideTimer = useRef<number>(0)
 
+  const resolveEl = useCallback(
+    (): HTMLElement | null =>
+      document.querySelector<HTMLElement>('[data-pane-scroll="primary"]') ??
+      document.querySelector<HTMLElement>('.app-frame'),
+    [],
+  )
+
   const update = useCallback(() => {
-    const el = containerRef.current
+    const el = resolveEl()
     if (!el) return
     const { scrollTop, scrollHeight, clientHeight, offsetTop } = el
     if (scrollHeight <= clientHeight + 1) {
@@ -34,18 +39,42 @@ export function VerticalBar({ containerRef }: VerticalBarProps) {
     setOpacity(1)
     clearTimeout(hideTimer.current)
     hideTimer.current = window.setTimeout(() => setOpacity(0), 1500)
-  }, [containerRef])
+  }, [resolveEl])
 
   useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    el.addEventListener('scroll', update, { passive: true })
-    update()
+    let el: HTMLElement | null = null
+    let raf = 0
+    const onScroll = () => update()
+
+    const attach = () => {
+      el = resolveEl()
+      if (!el) {
+        raf = requestAnimationFrame(attach)
+        return
+      }
+      update()
+      el.addEventListener('scroll', onScroll, { passive: true })
+    }
+    attach()
+
+    const mo = new MutationObserver(() => {
+      const next = resolveEl()
+      if (next && next !== el) {
+        el?.removeEventListener('scroll', onScroll)
+        el = next
+        next.addEventListener('scroll', onScroll, { passive: true })
+        update()
+      }
+    })
+    mo.observe(document.body, { childList: true, subtree: true })
+
     return () => {
-      el.removeEventListener('scroll', update)
+      cancelAnimationFrame(raf)
+      mo.disconnect()
+      el?.removeEventListener('scroll', onScroll)
       clearTimeout(hideTimer.current)
     }
-  }, [containerRef, update])
+  }, [resolveEl, update])
 
   if (thumbH === 0) return null
 
@@ -66,7 +95,7 @@ export function VerticalBar({ containerRef }: VerticalBarProps) {
           opacity,
           background: 'var(--scroll-indicator-color, oklch(0.5 0 0 / 0.2))',
           borderRadius: 'var(--scroll-indicator-radius, 999px)',
-          boxShadow: 'var(--scroll-indicator-glow, none)',
+          boxShadow: 'var(--scroll-progress-glow, none)',
           transition: 'opacity 0.3s ease',
         }}
       />
