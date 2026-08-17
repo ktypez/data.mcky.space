@@ -1,0 +1,170 @@
+/* ============================================================================
+   portal.css — data.mcky.space character theme (PORTAL)
+   ----------------------------------------------------------------------------
+   me.mcky.space editorial light/dark (INK // portal).
+   - warm paper surfaces (#f6f5ef light / #0c0d0f dark)
+   - olive editorial accent (#3f5c05 / #d6ff3f)
+   - soft 14px radius, hairline borders, quiet warm shadows (no hard shadows)
+   - Kanit display + IBM Plex Sans Thai body
+   Dual mode (OS-driven).
+   ============================================================================ */
+
+/* ---- tokens light (paper editorial) ---- */
+[data-theme='portal'] {
+  --background: #f6f5ef;
+  --foreground: #17170f;
+  --card: #ffffff;
+  --card-foreground: #17170f;
+  --popover: #ffffff;
+  --popover-foreground: #17170f;
+  --primary: #3f5c05;                  /* olive — editorial accent */
+  --primary-foreground: #f6f5ef;
+  --secondary: #f0ede3;
+  --secondary-foreground: #4a483d;
+  --muted: #efece2;
+  --muted-foreground: #4a483d;
+  --accent: #3f5c05;
+  --accent-foreground: #f6f5ef;
+  --destructive: #d64545;
+  --destructive-foreground: #ffffff;
+  --success: #1f9d5c;
+  --success-foreground: #ffffff;
+  --warning: #9c5a00;
+  --warning-foreground: #ffffff;
+  --info: #3f5c05;
+  --info-foreground: #f6f5ef;
+  --border: #e2ded2;
+  --input: #e2ded2;
+  --ring: #3f5c05;
+  --sidebar: #efece2;
+  --sidebar-foreground: #17170f;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #4a483d;
+  --sidebar-border: #e2ded2;
+  --sidebar-ring: #3f5c05;
+  --radius: 0.875rem;
+  --pin-color: #3f5c05;
+
+  --theme-font-display: 'Kanit', 'IBM Plex Sans Thai', system-ui, sans-serif;
+  --theme-font-body: 'IBM Plex Sans Thai', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* light: soft warm layered shadows */
+  --shadow-xs: 0 1px 2px rgba(23, 23, 15, 0.04);
+  --shadow-sm: 0 1px 2px rgba(23, 23, 15, 0.05), 0 8px 24px rgba(23, 23, 15, 0.06);
+  --shadow-md: 0 2px 4px rgba(23, 23, 15, 0.05), 0 16px 40px -12px rgba(23, 23, 15, 0.1);
+  --shadow-lg: 0 4px 8px rgba(23, 23, 15, 0.06), 0 24px 56px -16px rgba(23, 23, 15, 0.12);
+  --shadow-xl: 0 8px 16px rgba(23, 23, 15, 0.07), 0 32px 80px -20px rgba(23, 23, 15, 0.16);
+  --shadow-2xl: 0 16px 32px rgba(23, 23, 15, 0.09), 0 40px 96px -24px rgba(23, 23, 15, 0.2);
+
+  --frame-radius: 0.875rem;
+  --scroll-indicator-color: rgba(63, 92, 5, 0.3);
+  --scroll-progress-color: #3f5c05;
+  --scroll-progress-glow: 0 0 8px rgba(63, 92, 5, 0.25);
+}
+
+/* ---- tokens dark (ink editorial) ---- */
+.dark[data-theme='portal'],
+[data-theme='portal'].dark {
+  --background: #0c0d0f;
+  --foreground: #f2f0e8;
+  --card: #16181c;
+  --card-foreground: #f2f0e8;
+  --popover: #16181c;
+  --popover-foreground: #f2f0e8;
+  --primary: #d6ff3f;
+  --primary-foreground: #10120a;
+  --secondary: #1c1f24;
+  --secondary-foreground: #b6b2a6;
+  --muted: #111316;
+  --muted-foreground: #b6b2a6;
+  --accent: #d6ff3f;
+  --accent-foreground: #10120a;
+  --destructive: #ff5c5c;
+  --destructive-foreground: #10120a;
+  --success: #3ddc84;
+  --success-foreground: #10120a;
+  --warning: #f5b23d;
+  --warning-foreground: #10120a;
+  --info: #d6ff3f;
+  --info-foreground: #10120a;
+  --border: #26292f;
+  --input: #26292f;
+  --ring: #d6ff3f;
+  --sidebar: #111316;
+  --sidebar-foreground: #f2f0e8;
+  --sidebar-accent: #1c1f24;
+  --sidebar-accent-foreground: #b6b2a6;
+  --sidebar-border: #26292f;
+  --sidebar-ring: #d6ff3f;
+  --radius: 0.875rem;
+  --pin-color: #d6ff3f;
+
+  /* dark: quiet elevation with tint, not glow */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px -12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.4), 0 24px 56px -16px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.4), 0 32px 80px -20px rgba(0, 0, 0, 0.6);
+  --shadow-2xl: 0 16px 32px rgba(0, 0, 0, 0.45), 0 40px 96px -24px rgba(0, 0, 0, 0.65);
+
+  --scroll-indicator-color: rgba(214, 255, 63, 0.3);
+  --scroll-progress-color: #d6ff3f;
+  --scroll-progress-glow: 0 0 8px rgba(214, 255, 63, 0.25);
+}
+
+/* ---- base: calm editorial rhythm ---- */
+[data-theme='portal'] body {
+  background-color: var(--background);
+  line-height: 1.6;
+  letter-spacing: 0.005em;
+}
+
+/* ---- header: paper, hairline, soft blur ---- */
+[data-theme='portal'] header {
+  background: color-mix(in srgb, var(--background) 85%, transparent);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: inset 0 -1px 0 var(--border);
+}
+
+/* ---- headings: Kanit editorial ---- */
+[data-theme='portal'] h1,
+[data-theme='portal'] h2,
+[data-theme='portal'] h3 {
+  font-family: var(--theme-font-display);
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+/* ---- cards: hairline + warm soft shadow ---- */
+[data-theme='portal'] [data-slot='card'] {
+  border-color: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- buttons: quiet olive, soft lift on hover ---- */
+[data-theme='portal'] [data-slot='button'] {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: transform 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1));
+}
+[data-theme='portal'] [data-slot='button'][class*='bg-primary']:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* ---- inputs: hairline + olive caret ---- */
+[data-theme='portal'] input,
+[data-theme='portal'] textarea {
+  caret-color: var(--ring);
+  background-color: transparent;
+}
+[data-theme='portal'] input:focus,
+[data-theme='portal'] textarea:focus,
+[data-theme='portal'] input:focus-visible,
+[data-theme='portal'] textarea:focus-visible {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 18%, transparent);
+}

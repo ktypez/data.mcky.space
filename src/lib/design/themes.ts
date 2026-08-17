@@ -993,6 +993,96 @@ const dusk: Theme = {
   },
 }
 
+// portal — me.mcky.space editorial (INK // portal): olive on paper, dual mode
+const PORTAL_FONTS = {
+  display: "'Kanit', 'IBM Plex Sans Thai', system-ui, sans-serif",
+  body: "'IBM Plex Sans Thai', system-ui, sans-serif",
+  mono: "'JetBrains Mono', ui-monospace, monospace",
+}
+const PORTAL_FONT_URL =
+  'https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'
+
+const portal: Theme = {
+  id: 'portal',
+  label: 'PORTAL',
+  description: 'Editorial paper — olive ink, quiet and calm',
+  character: 'portal',
+  modes: ['light', 'dark'],
+  fonts: PORTAL_FONTS,
+  fontUrl: PORTAL_FONT_URL,
+  staticCss: '/themes/portal.css',
+  light: {
+    '--background': '#f6f5ef',
+    '--foreground': '#17170f',
+    '--card': '#ffffff',
+    '--card-foreground': '#17170f',
+    '--popover': '#ffffff',
+    '--popover-foreground': '#17170f',
+    '--primary': '#3f5c05',
+    '--primary-foreground': '#f6f5ef',
+    '--secondary': '#f0ede3',
+    '--secondary-foreground': '#4a483d',
+    '--muted': '#efece2',
+    '--muted-foreground': '#4a483d',
+    '--accent': '#3f5c05',
+    '--accent-foreground': '#f6f5ef',
+    '--destructive': '#d64545',
+    '--destructive-foreground': '#ffffff',
+    '--success': '#1f9d5c',
+    '--success-foreground': '#ffffff',
+    '--warning': '#9c5a00',
+    '--warning-foreground': '#ffffff',
+    '--info': '#3f5c05',
+    '--info-foreground': '#f6f5ef',
+    '--border': '#e2ded2',
+    '--input': '#e2ded2',
+    '--ring': '#3f5c05',
+    '--sidebar': '#efece2',
+    '--sidebar-foreground': '#17170f',
+    '--sidebar-accent': '#ffffff',
+    '--sidebar-accent-foreground': '#4a483d',
+    '--sidebar-border': '#e2ded2',
+    '--sidebar-ring': '#3f5c05',
+    '--radius': '0.875rem',
+    '--pin-color': '#3f5c05',
+  },
+  dark: {
+    '--background': '#0c0d0f',
+    '--foreground': '#f2f0e8',
+    '--card': '#16181c',
+    '--card-foreground': '#f2f0e8',
+    '--popover': '#16181c',
+    '--popover-foreground': '#f2f0e8',
+    '--primary': '#d6ff3f',
+    '--primary-foreground': '#10120a',
+    '--secondary': '#1c1f24',
+    '--secondary-foreground': '#b6b2a6',
+    '--muted': '#111316',
+    '--muted-foreground': '#b6b2a6',
+    '--accent': '#d6ff3f',
+    '--accent-foreground': '#10120a',
+    '--destructive': '#ff5c5c',
+    '--destructive-foreground': '#10120a',
+    '--success': '#3ddc84',
+    '--success-foreground': '#10120a',
+    '--warning': '#f5b23d',
+    '--warning-foreground': '#10120a',
+    '--info': '#d6ff3f',
+    '--info-foreground': '#10120a',
+    '--border': '#26292f',
+    '--input': '#26292f',
+    '--ring': '#d6ff3f',
+    '--sidebar': '#111316',
+    '--sidebar-foreground': '#f2f0e8',
+    '--sidebar-accent': '#1c1f24',
+    '--sidebar-accent-foreground': '#b6b2a6',
+    '--sidebar-border': '#26292f',
+    '--sidebar-ring': '#d6ff3f',
+    '--radius': '0.875rem',
+    '--pin-color': '#d6ff3f',
+  },
+}
+
 // blueprint — architectural/technical drawing: pale blueprint paper + steel blue, IBM Plex (dual mode)
 const BLUEPRINT_FONTS = {
   display: "'IBM Plex Serif', 'Noto Serif Thai', Georgia, serif",
@@ -1173,7 +1263,7 @@ const noir: Theme = {
   },
 }
 
-const characterThemes: Theme[] = [dusk, glitchpage, crt, claude, rack, noc, min, brut, mcky, blueprint, noir]
+const characterThemes: Theme[] = [dusk, glitchpage, crt, claude, rack, noc, min, brut, mcky, blueprint, noir, portal]
 
 export const themes: Theme[] = [...baseThemes, ...characterThemes]
 
