@@ -189,16 +189,23 @@
   border-radius: var(--frame-radius);
   overflow: hidden;
 }
+/* Desktop: sidebar offset */
+@media (min-width: 768px) {
+  .app-viewport {
+    left: 236px;
+  }
+}
 @media (min-width: 1536px) {
   .app-viewport {
-    right: 8px;
-    max-width: 1400px;
+    left: 236px;
+    right: 0;
+    max-width: calc(1400px - 220px);
     box-shadow: 0 0 60px -20px color-mix(in oklch, var(--foreground) 20%, transparent);
   }
 }
 
 @utility app-frame {
-  @apply flex-1 flex flex-col bg-background border border-border overflow-hidden;
+  @apply flex-1 flex flex-col bg-background border border-border overflow-y-auto;
   border-radius: var(--frame-radius);
 }
 
