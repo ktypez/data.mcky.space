@@ -15,6 +15,7 @@ import { useFilteredClients, DISPLAY_STEP } from '@/hooks/useFilteredClients'
 import { useClientCopy } from '@/hooks/useClientCopy'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useHeaderSlot } from '@/components/HeaderSlot'
 import { updateClient } from '@/lib/storage'
 import { slideLeft, slideRight, spring, springSmall } from '@/lib/motion'
 import type { Client, FilterKey, RouteData, ViewMode } from '@/types'
@@ -76,6 +77,7 @@ interface ListPaneProps {
   onFilter: (f: FilterKey) => void
   onLoadMore: () => void
   onNavigateAdd: () => void
+  showToolbar?: boolean
 }
 
 /**
@@ -114,27 +116,30 @@ function ListPane(props: ListPaneProps) {
     onFilter,
     onLoadMore,
     onNavigateAdd,
+    showToolbar = true,
   } = props
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <SelectionToolbar
-        viewMode={viewMode}
-        onViewModeChange={onViewModeChange}
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-        selectionMode={selectionMode}
-        onToggleSelectionMode={onToggleSelectionMode}
-        selectedCount={selectedIds.size}
-        onPlanRoute={onPlanRoute}
-        routing={onRouting}
-        newCount={newClientCount}
-        filter={filter}
-        counts={counts}
-        onFilter={onFilter}
-      />
+      {showToolbar && (
+        <SelectionToolbar
+          viewMode={viewMode}
+          onViewModeChange={onViewModeChange}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          selectionMode={selectionMode}
+          onToggleSelectionMode={onToggleSelectionMode}
+          selectedCount={selectedIds.size}
+          onPlanRoute={onPlanRoute}
+          routing={onRouting}
+          newCount={newClientCount}
+          filter={filter}
+          counts={counts}
+          onFilter={onFilter}
+        />
+      )}
 
-      <div data-pane-scroll="primary" className="flex-1 overflow-auto">
+      <div data-pane-scroll="primary" className="min-h-0 flex-1 overflow-auto">
         {loading && totalClients === 0 ? (
           <TableSkeletonLoader />
         ) : (
@@ -457,7 +462,35 @@ export function PageClient() {
     onFilter: handleFilter,
     onLoadMore: handleLoadMore,
     onNavigateAdd: () => navigate('/add'),
+    showToolbar: !isDesktop,
   }
+
+  // ── Header slot: toolbar lives in PageHeader on desktop ──
+  const { setSlot } = useHeaderSlot()
+  useEffect(() => {
+    if (!isDesktop || !isListView) {
+      setSlot(null)
+      return
+    }
+    setSlot(
+      <SelectionToolbar
+        viewMode={viewMode}
+        onViewModeChange={handleViewModeChange}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
+        selectionMode={selectionMode}
+        onToggleSelectionMode={handleToggleSelectionMode}
+        selectedCount={selectedIds.size}
+        onPlanRoute={planRoute}
+        routing={routing}
+        newCount={newClientCount}
+        filter={filter}
+        counts={counts}
+        onFilter={handleFilter}
+      />,
+    )
+    return () => setSlot(null)
+  }, [isDesktop, isListView, viewMode, refreshing, selectionMode, selectedIds.size, routing, newClientCount, filter, counts])
 
   return (
     <>
@@ -467,7 +500,7 @@ export function PageClient() {
         // ── DESKTOP: 2-pane mail app layout ──
         <div className="flex min-h-0 flex-1">
           {/* Left pane: list */}
-          <div className="w-[420px] shrink-0 border-r border-border flex min-h-0 flex-col">
+          <div className="w-[360px] shrink-0 border-r border-border flex min-h-0 flex-col">
             <ListPane {...listPaneProps} />
           </div>
 

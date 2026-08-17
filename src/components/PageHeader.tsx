@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import ThemePresetPicker from '@/components/ThemePresetPicker'
 import ThemeModePicker from '@/components/ThemeModePicker'
 import NavDropdown from '@/components/NavDropdown'
+import { useHeaderSlot } from '@/components/HeaderSlot'
 import { AnimatePresence, motion } from 'motion/react'
 import { springSmall } from '@/lib/motion'
 
@@ -36,6 +37,8 @@ export default function PageHeader({
   onAdd,
   scrolled,
 }: PageHeaderProps) {
+  const { slot } = useHeaderSlot()
+
   return (
     <header className="page-header h-14 bg-card flex items-center gap-3 px-4 z-30 border border-border rounded-[var(--frame-radius)] transition-[background-color,box-shadow,backdrop-filter] duration-200 data-[scrolled=true]:shadow-md data-[scrolled=true]:backdrop-blur-md" data-scrolled={scrolled || undefined}>
       <NavDropdown />
@@ -90,6 +93,13 @@ export default function PageHeader({
           <span className="text-[15px] font-medium text-foreground truncate block">
             {title}
           </span>
+        </div>
+      )}
+
+      {/* Page-registered header slot (e.g. Clients toolbar on desktop) */}
+      {slot && (
+        <div className="flex items-center gap-1.5 shrink-0 mr-1 pr-2 border-r border-border">
+          {slot}
         </div>
       )}
 

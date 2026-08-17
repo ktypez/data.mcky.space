@@ -1,4 +1,3 @@
-
 import { X, List, SquaresFour, ArrowClockwise, NavigationArrow, Check } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import ProgressBar from '@/components/ProgressBar'
@@ -49,8 +48,7 @@ export default function SelectionToolbar({
   onFilter,
 }: Props) {
   return (
-    <div className="bg-card border-b border-border">
-      <div className="px-4 py-2 flex items-center gap-2 min-h-[40px] overflow-x-auto">
+    <div className="px-4 py-2 flex items-center gap-2 min-h-[40px] overflow-x-auto bg-card border-b border-border">
         <div className="flex items-center gap-2 w-full">
           <div className="hidden md:flex gap-0.5 bg-muted p-0.5 rounded-[4px]">
             <Button
@@ -131,7 +129,6 @@ export default function SelectionToolbar({
             {selectionMode ? 'ยกเลิก' : 'วางแผนเส้นทาง'}
           </Button>
         </div>
-      </div>
       {(refreshing || (typeof progress === 'number' && progress > 0)) && (
         <ProgressBar value={typeof progress === 'number' ? progress : 0} max={100} />
       )}

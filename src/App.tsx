@@ -9,6 +9,7 @@ import { useMotion } from './lib/motion'
 import { AuthSync } from './components/AuthSync'
 import PageLayout from './components/PageLayout'
 import PageHeader from './components/PageHeader'
+import { HeaderSlotProvider } from './components/HeaderSlot'
 import { useMediaQuery } from './hooks/useMediaQuery'
 
 const Clients = lazy(() => import('./pages/Clients').then((m) => ({ default: m.PageClient })))
@@ -163,20 +164,22 @@ function App() {
   return (
     <Suspense fallback={null}>
       <AuthSync />
-      <PageLayout header={<RouteHeader />}>
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<PageTransition><Clients /></PageTransition>} />
-            <Route path="/trash" element={<PageTransition><TrashPage /></PageTransition>} />
-            <Route path="/add" element={<PageTransition><AddEditPage /></PageTransition>} />
-            <Route path="/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
-            <Route path="/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
-            <Route path="/maps" element={<Navigate to="/" replace />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AnimatePresence>
-      </PageLayout>
+      <HeaderSlotProvider>
+        <PageLayout header={<RouteHeader />}>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<PageTransition><Clients /></PageTransition>} />
+              <Route path="/trash" element={<PageTransition><TrashPage /></PageTransition>} />
+              <Route path="/add" element={<PageTransition><AddEditPage /></PageTransition>} />
+              <Route path="/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
+              <Route path="/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
+              <Route path="/maps" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AnimatePresence>
+        </PageLayout>
+      </HeaderSlotProvider>
     </Suspense>
   )
 }
