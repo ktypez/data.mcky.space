@@ -36,6 +36,7 @@
           blueprint: { css: '/themes/blueprint.css', dark: false },
           noir: { css: '/themes/noir.css', dark: false },
           portal: { css: '/themes/portal.css', dark: false },
+          mono: { css: '/themes/mono.css', dark: false },
         };
         var id = null;
         try {
@@ -45,19 +46,19 @@
             if (data && data.state && typeof data.state.theme === 'string') id = data.state.theme;
           }
         } catch (e) {}
-        // One-time migration (after default changed claude → dusk):
-        // existing users who saved 'claude' get switched to 'dusk' once, then
-        // we stamp a flag so future visits respect whatever they pick next.
-        var MIG_KEY = 'theme-migrated-to-dusk-v1';
+        // One-time migration: users who still have the old 'claude' default
+        // get switched to 'portal' once, then we stamp a flag so future
+        // visits respect whatever they pick next.
+        var MIG_KEY = 'theme-migrated-to-portal-v1';
         try {
           if (id === 'claude' && !localStorage.getItem(MIG_KEY)) {
-            id = 'dusk';
+            id = 'portal';
             try {
               var raw2 = localStorage.getItem('ezzylist-ui');
               if (raw2) {
                 var data2 = JSON.parse(raw2);
                 if (data2 && data2.state) {
-                  data2.state.theme = 'dusk';
+                  data2.state.theme = 'portal';
                   localStorage.setItem('ezzylist-ui', JSON.stringify(data2));
                 }
               }

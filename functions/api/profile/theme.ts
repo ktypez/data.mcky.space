@@ -7,7 +7,7 @@ import { logAudit } from '../../lib/audit'
 import { isThemeId } from '../../lib/theme-ids'
 
 const THEME_KEY = 'theme'
-const DEFAULT_THEME = 'dusk'
+const DEFAULT_THEME = 'portal'
 
 /**
  * Per-admin profile preference (single admin today → settings table).

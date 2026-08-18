@@ -46,7 +46,7 @@ export const useUIStore = create<UIState>()(
       manualOriginLng: '',
       copiedId: null,
       newClientCount: 0,
-      theme: 'dusk',
+      theme: 'portal',
 
       setViewState: (viewState) => set({ viewState }),
       setRouteData: (routeData) => set({ routeData }),

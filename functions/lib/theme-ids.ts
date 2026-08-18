@@ -9,7 +9,6 @@ export const THEME_IDS = [
   'bubblegum',
   'slate',
   // character
-  'dusk',
   'glitchpage',
   'crt',
   'claude',
@@ -20,6 +19,7 @@ export const THEME_IDS = [
   'mcky',
   'blueprint',
   'noir',
+  'portal',
 ] as const
 
 export type ThemeId = (typeof THEME_IDS)[number]
