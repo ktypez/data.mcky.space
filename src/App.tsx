@@ -126,16 +126,6 @@ function App() {
       navigator.serviceWorker?.removeEventListener('message', onSwMessage)
   }, [])
 
-  // Redirect to portal for sign-in when not authenticated
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      const target = location.pathname + location.search
-      window.location.replace(
-        `https://me.mcky.space?from=data&redirect=${encodeURIComponent(target)}`,
-      )
-    }
-  }, [isLoaded, isSignedIn, location])
-
   const { loginOpen } = useAuthStore()
   const wantsLogin = location.pathname === '/login' || loginOpen
 
