@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
+import { thTH } from '@clerk/localizations'
 import { ThemeProvider } from '@/components/theme-provider'
 import ErrorScreen from '@/components/ErrorScreen'
 import App from './App'
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ClerkProvider
       publishableKey={CLERK_PUBLISHABLE_KEY}
+      localization={thTH}
       afterSignOutUrl="/"
       signInUrl="/login"
       signUpUrl="/login"
