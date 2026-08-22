@@ -78,6 +78,10 @@
   --scroll-indicator-radius: 999px;
   --scroll-indicator-glow: none;
   --scroll-progress-color: var(--primary);
+
+  /* Prevent iOS Safari from auto-zooming into inputs on focus */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   --scroll-progress-glow: none;
 
   /* Frame border-radius — themes override for square vs rounded */
