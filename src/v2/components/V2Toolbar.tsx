@@ -42,7 +42,7 @@ export default function V2Toolbar({
   }, [])
 
   return (
-    <div className="v2-panel flex min-h-[44px]">
+    <div className="v2-panel v2-toolbar flex min-h-[44px]">
       <div className="v2-search">
         <MagnifyingGlass aria-hidden="true" />
         <label className="sr-only" htmlFor="v2-search-input">
