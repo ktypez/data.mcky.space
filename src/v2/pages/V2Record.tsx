@@ -108,15 +108,13 @@ export default function V2Record() {
 
       {/* Panels */}
       <div className="mt-8 space-y-4">
-        <V2PanelBlock label="Notes" variant="attention">
-          {client.notes ? (
+        {client.notes && (
+          <V2PanelBlock label="Notes" variant="attention">
             <p className="px-3.5 py-3.5 text-[15px] leading-relaxed whitespace-pre-wrap">
               {client.notes}
             </p>
-          ) : (
-            <p className="px-3.5 py-3.5 font-mono text-[13px] text-muted-foreground">—</p>
-          )}
-        </V2PanelBlock>
+          </V2PanelBlock>
+        )}
 
         {coords && (
           <V2PanelBlock label="Location">
