@@ -62,7 +62,7 @@ export default function V2Catalog() {
       <section aria-labelledby="v2-catalog-title" className="flex items-start justify-between gap-8">
         <div className="v2-fade-up min-w-0">
           <p className="v2-eyebrow">Personal registry</p>
-          <h1 id="v2-catalog-title" className="v2-title uppercase">
+          <h1 id="v2-catalog-title" className="v2-title">
             client index
           </h1>
           <p className="v2-meta mt-4" role="status" aria-live="polite">
