@@ -701,3 +701,47 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
 .v2-shell [class*='rounded-']:not([class*='maplibre']) {
   border-radius: 0 !important;
 }
+
+/* ---------------------------------------------------------------------------
+   SHARP INPUT SPEC v2 — recessed mono wells, no soft-focus slop.
+   Overrides the classic Input cva (h-10 / 16px / bg-card / soft ring):
+   tighter mono text on a darker well, quiet idle line that wakes on hover,
+   hard inset accent ring on focus, accent caret, no autofill yellow.
+   (Track/thumb of [role=switch] already square via the blanket scrub.)
+   --------------------------------------------------------------------------- */
+.v2-shell input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+.v2-shell textarea,
+.v2-shell select {
+  background: var(--v2-code-bg);
+  border-color: var(--v2-line-soft);
+  caret-color: var(--primary);
+  font-family: var(--theme-font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.v2-shell textarea {
+  line-height: 1.65;
+}
+/* Idle wells wake up on hover — but never fight an active focus ring */
+.v2-shell input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not(:focus):not(:focus-visible):hover,
+.v2-shell textarea:not(:focus):not(:focus-visible):hover,
+.v2-shell select:not(:focus):not(:focus-visible):hover {
+  background: var(--card);
+  border-color: var(--v2-line-strong);
+}
+.v2-shell input[type='number']::-webkit-inner-spin-button,
+.v2-shell input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* Autofill keeps the well color instead of Chrome's pale yellow */
+.v2-shell input:-webkit-autofill,
+.v2-shell input:-webkit-autofill:hover,
+.v2-shell input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--v2-code-bg) inset;
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--primary);
+  transition: background-color 9999s ease-out;
+}
