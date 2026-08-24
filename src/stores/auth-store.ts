@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { useUser, useAuth } from '@clerk/clerk-react'
 import { isAdminEmail } from '@/lib/clerk-config'
-import { useUIStore } from '@/stores/ui-store'
 
 interface AuthState {
   // open the Clerk-powered login modal (or page) from anywhere.

@@ -85,7 +85,7 @@ export default function ClientDetailPage() {
     return (
       <div className="flex flex-1 items-center justify-center bg-background">
         <div className="flex items-center gap-3 text-muted-foreground">
-          <Spinner size={20} />
+          <Spinner size="md" />
           <span className="text-sm">Loading...</span>
         </div>
       </div>

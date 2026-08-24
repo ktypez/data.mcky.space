@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '@clerk/clerk-react'
 import { useAdminAuth } from '@/stores/auth-store'
 
 export function Login() {

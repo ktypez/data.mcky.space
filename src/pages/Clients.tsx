@@ -58,7 +58,7 @@ export function PageClient() {
     refreshing,
     initialize,
   } = useClientStore()
-  const { search, filter, viewMode, setSearch } = useFilterStore()
+  const { search, filter, viewMode } = useFilterStore()
   const { isAdmin } = useAuthStore()
   const {
     viewState,
@@ -186,19 +186,6 @@ export function PageClient() {
     [],
   )
 
-  const handleCloseDetail = useCallback(
-    () => useUIStore.getState().closeView(),
-    [],
-  )
-
-  const handleDetailDeleted = useCallback(
-    (id: string) => {
-      handleDetailDelete(id)
-      useUIStore.getState().resetView()
-    },
-    [handleDetailDelete],
-  )
-
   const isListView = viewState.view === 'list'
   const showDetail = viewState.view === 'detail'
   const isCardsView = viewMode === 'cards'
@@ -277,7 +264,7 @@ export function PageClient() {
                       displayLimit={displayLimit}
                       selectionMode={selectionMode}
                       selectedIds={selectedIds}
-                      copiedId={copiedId}
+                      copiedKey={copiedId}
                       hasMore={hasMore}
                       isGlobalEmpty={clients.length === 0}
                       filter={filter}
@@ -296,7 +283,7 @@ export function PageClient() {
                       displayLimit={displayLimit}
                       selectionMode={selectionMode}
                       selectedIds={selectedIds}
-                      copiedId={copiedId}
+                      copiedKey={copiedId}
                       hasMore={hasMore}
                       isGlobalEmpty={clients.length === 0}
                       filter={filter}
@@ -316,7 +303,7 @@ export function PageClient() {
                       selectionMode={selectionMode}
                       selectedIds={selectedIds}
                       isAdmin={isAdmin}
-                      copiedId={copiedId}
+                      copiedKey={copiedId}
                       hasMore={hasMore}
                       isGlobalEmpty={clients.length === 0}
                       filter={filter}
