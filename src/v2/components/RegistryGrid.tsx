@@ -127,7 +127,7 @@ function RegistryRow({ client }: { client: Client }) {
           client={client}
           variant="list"
           titleClassName="text-[17px] leading-snug font-semibold text-foreground"
-          subClassName="mt-1 font-mono text-[12px] text-muted-foreground"
+          subClassName="mt-1 font-mono text-[15px] leading-snug text-muted-foreground"
         />
         {/* Status line: badge + flags, omarchy card-meta vocabulary */}
         <span className="v2-meta mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
