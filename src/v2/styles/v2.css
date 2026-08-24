@@ -765,9 +765,12 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
 .v2-toolbar:hover {
   border-color: var(--v2-line-strong);
 }
-.v2-toolbar:has(.v2-search input:focus),
-.v2-toolbar:has(.v2-search input:focus-visible) {
-  border-color: var(--primary);
+/* Underline-only active language — 2px accent bar flush with the frame */
+.v2-toolbar .v2-search:focus-within {
+  box-shadow: inset 0 -2px 0 0 var(--primary);
+}
+.v2-toolbar .v2-search:focus-within > svg {
+  color: var(--primary);
 }
 .v2-select select:focus-visible {
   box-shadow: none;
