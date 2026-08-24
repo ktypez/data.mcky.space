@@ -745,3 +745,12 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
   caret-color: var(--primary);
   transition: background-color 9999s ease-out;
 }
+
+/* Toolbar search strip shares the recessed-well treatment so every text
+   entry surface in v2 sits at the same depth. */
+.v2-panel .v2-search {
+  background: var(--v2-code-bg);
+}
+.v2-panel .v2-search:focus-within {
+  background: var(--card);
+}

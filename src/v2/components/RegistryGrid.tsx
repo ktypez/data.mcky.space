@@ -126,7 +126,7 @@ function RegistryRow({ client }: { client: Client }) {
         <ClientNames
           client={client}
           variant="list"
-          titleClassName="text-[15px] leading-snug font-semibold text-foreground"
+          titleClassName="text-[17px] leading-snug font-semibold text-foreground"
           subClassName="mt-1 font-mono text-[12px] text-muted-foreground"
         />
         {/* Status line: badge + flags, omarchy card-meta vocabulary */}
