@@ -17,8 +17,7 @@ interface V2ToolbarProps {
 }
 
 /**
- * V2Toolbar — omarchy market-toolbar pattern: one hairline strip,
- * search grows left, native sort select docked right behind a hairline.
+ * V2Toolbar — search on top, sort rendered as a compact filter chip below.
  *
  * Shortcuts:
  * - Ctrl/Cmd+K anywhere dispatches `v2:focus-search` → focuses this input
@@ -42,7 +41,7 @@ export default function V2Toolbar({
   }, [])
 
   return (
-    <div className="v2-panel v2-toolbar flex min-h-[44px]">
+    <div className="v2-panel v2-toolbar flex flex-col gap-2 p-2">
       <div className="v2-search">
         <MagnifyingGlass aria-hidden="true" />
         <label className="sr-only" htmlFor="v2-search-input">
@@ -83,21 +82,23 @@ export default function V2Toolbar({
         )}
       </div>
 
-      <div className="v2-select">
-        <label className="sr-only" htmlFor="v2-sort-select">
-          Sort records
-        </label>
-        <select
-          id="v2-sort-select"
-          value={sort}
-          onChange={(e) => onSortChange(e.target.value as V2SortKey)}
-        >
-          {SORT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+      <div className="v2-filter-bar">
+        <div className="v2-select">
+          <label className="sr-only" htmlFor="v2-sort-select">
+            Sort records
+          </label>
+          <select
+            id="v2-sort-select"
+            value={sort}
+            onChange={(e) => onSortChange(e.target.value as V2SortKey)}
+          >
+            {SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   )
