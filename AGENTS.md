@@ -45,6 +45,19 @@ Use `recall` to retrieve context, `remember` to save new info.
 - git auto-deploy is OFF — manual `npm run deploy` required
 - branch: `main`
 
+## UI Versions (v1 classic / v2 registry)
+- `src/v2/**` — parallel "registry" redesign UI. Self-contained: pages, components,
+  styles (`v2.css` token scope under `.v2-shell`), tests. Entry: early-return branch
+  in `src/App.tsx` for `/v2*`; classic routes below it stay untouched.
+- Everything outside `src/v2/` = classic v1 UI.
+- v2 light/dark is private to the shell (localStorage `ezzylist-v2-mode`) — never
+  touches the global theme engine, `themes.ts`, or the boot script.
+- Deploying from a git worktree auto-detects a non-production branch → PREVIEW deploy
+  (custom domain won't update!). Always pass `--branch main`:
+  `npm run wrangler -- pages deploy ./dist --project-name data-mcky-space --branch main`
+- Verify deploys by comparing `index-*.js` hash between `dist/assets` and the custom
+  domain — HTTP 200 alone proves nothing (SPA fallback answers 200 for every path).
+
 ## MCP Source Cite
 When answering using data from an MCP server, indicate the source in square brackets at the end:
 - `[source: brain]` — from brain.mcky.space

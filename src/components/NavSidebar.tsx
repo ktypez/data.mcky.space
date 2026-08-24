@@ -105,6 +105,13 @@ export default function NavSidebar() {
 
       {/* Bottom controls */}
       <div className="px-3 py-3 border-t border-border space-y-2">
+        <button
+          onClick={() => navigate('/v2')}
+          className="flex w-full items-center gap-1.5 text-left text-[12px] font-medium text-muted-foreground transition-colors hover:text-primary"
+          title="Registry redesign (beta)"
+        >
+          registry v2 <span aria-hidden="true">↗</span>
+        </button>
         <div className="flex items-center gap-1.5">
           <ThemePresetPicker />
           {!hideModePicker && <ThemeModePicker />}

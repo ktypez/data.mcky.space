@@ -17,6 +17,8 @@ const TrashPage = lazy(() => import('./pages/TrashPage'))
 const AddEditPage = lazy(() => import('./pages/AddEditPage'))
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })))
 const NavSidebar = lazy(() => import('./components/NavSidebar'))
+// V2 "registry" redesign — parallel UI, zero shared layout with the classic shell
+const V2App = lazy(() => import('./v2/V2App'))
 
 
 function PageTransition({ children }: { children: React.ReactNode }) {
@@ -148,6 +150,17 @@ function App() {
 
   if (wantsLogin && !isSignedIn) {
     return <Login />
+  }
+
+  // /v2 — parallel redesign. Renders instead of the classic chrome entirely
+  // (own sidebar/topbar/theme scope); classic routes below stay untouched.
+  if (location.pathname.startsWith('/v2')) {
+    return (
+      <Suspense fallback={null}>
+        <AuthSync />
+        <V2App />
+      </Suspense>
+    )
   }
 
   return (

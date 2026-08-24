@@ -1,0 +1,703 @@
+/* ============================================================================
+   data.mcky.space — V2 "REGISTRY" design language
+   Inspired by omarchyplugins.com: pure-black terminal registry, hairline
+   borders, JetBrains Mono chrome, square corners, signal-orange accent.
+
+   ISOLATION CONTRACT — this file must never affect routes outside /v2:
+   - Every rule is scoped under `html:has(.v2-shell)` or `.v2-shell`.
+   - Tokens override the SAME custom properties that index.css `@theme inline`
+     maps (bg-card, border-border, font-mono, rounded-* …), but only while a
+     `.v2-shell` element exists in the document. Unmount → old theme resumes.
+   - No edits to themes.ts / boot script / functions/ required.
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap');
+
+/* ---------------------------------------------------------------------------
+   TOKENS — DARK (default). Omarchy palette.
+   --------------------------------------------------------------------------- */
+html:has(.v2-shell):root {
+  /* Core */
+  --background: #000000;
+  --foreground: #d7d7d9;
+  --card: #0b0b0d;
+  --card-foreground: #d7d7d9;
+  --popover: #101012;
+  --popover-foreground: #d7d7d9;
+
+  /* Accent — signal orange */
+  --primary: #ff5a36;
+  --primary-foreground: #111111;
+
+  /* Surfaces */
+  --secondary: #101012;
+  --secondary-foreground: #aaaab0;
+  --muted: #101012;
+  --muted-foreground: #aaaab0;
+  --accent: #ff5a36;
+  --accent-foreground: #111111;
+
+  /* Status */
+  --destructive: #ff5c5c;
+  --destructive-foreground: #111111;
+  --success: #b4c96f;
+  --success-foreground: #111111;
+  --warning: #ffb000;
+  --warning-foreground: #111111;
+  --info: #b9d4ef;
+  --info-foreground: #111111;
+
+  /* Lines & inputs — hairline */
+  --border: #28282c;
+  --input: #28282c;
+  --ring: #ff5a36;
+
+  /* Sidebar tokens (kept in sync even though v2 has its own shell) */
+  --sidebar: #0b0b0d;
+  --sidebar-foreground: #aaaab0;
+  --sidebar-accent: #101012;
+  --sidebar-accent-foreground: #d7d7d9;
+  --sidebar-border: #28282c;
+  --sidebar-ring: #ff5a36;
+
+  /* Shape — square everything, no soft shadows (hairline aesthetic) */
+  --radius: 0rem;
+  --frame-radius: 0rem;
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+
+  /* Map pin follows accent */
+  --pin-color: #ff5a36;
+
+  /* Fonts — Inter/JBM chrome, Sarabun fallback for Thai glyphs */
+  --theme-font-display: 'Inter', 'Sarabun', system-ui, sans-serif;
+  --theme-font-body: 'Inter', 'Sarabun', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', 'Sarabun', ui-monospace, 'SFMono-Regular',
+    Consolas, monospace;
+
+  /* V2-only extensions (not consumed by old components) */
+  --v2-line-soft: #1c1c20;
+  --v2-line-strong: #3a3a3f;
+  --v2-faint: #7d7d84;
+  --v2-code-bg: #050507;
+  --v2-stable: #b4c96f;
+  --v2-caution: #ffb000;
+}
+
+/* ---------------------------------------------------------------------------
+   TOKENS — LIGHT. Omarchy paper variant (#f8f8f6 + brick #c6371c).
+   Toggled by [data-mode='light'] on the .v2-shell root element only.
+   --------------------------------------------------------------------------- */
+html:has(.v2-shell[data-mode='light']):root {
+  --background: #f8f8f6;
+  --foreground: #19191b;
+  --card: #ffffff;
+  --card-foreground: #19191b;
+  --popover: #ffffff;
+  --popover-foreground: #19191b;
+
+  --primary: #c6371c;
+  --primary-foreground: #ffffff;
+
+  --secondary: #efefec;
+  --secondary-foreground: #4a4a50;
+  --muted: #efefec;
+  --muted-foreground: #65656a;
+  --accent: #c6371c;
+  --accent-foreground: #ffffff;
+
+  --destructive: #c23434;
+  --destructive-foreground: #ffffff;
+  --success: #65751e;
+  --success-foreground: #ffffff;
+  --warning: #9a6700;
+  --warning-foreground: #ffffff;
+  --info: #315d85;
+  --info-foreground: #ffffff;
+
+  --border: #cdcdca;
+  --input: #cdcdca;
+  --ring: #c6371c;
+
+  --sidebar: #f1f1ef;
+  --sidebar-foreground: #65656a;
+  --sidebar-accent: #e4e4e1;
+  --sidebar-accent-foreground: #19191b;
+  --sidebar-border: #cdcdca;
+  --sidebar-ring: #c6371c;
+
+  --pin-color: #c6371c;
+
+  --v2-line-soft: #dededb;
+  --v2-line-strong: #b9b9b6;
+  --v2-faint: #6d6d74;
+  --v2-code-bg: #ffffff;
+}
+
+/* ---------------------------------------------------------------------------
+   PAGE-LEVEL RESTORE — the global stylesheet hides every native scrollbar
+   and paints body with the active theme. While a v2 shell is mounted:
+   paint black/paper + bring back one thin scrollbar (omarchy scrolls
+   naturally, no fixed viewport frame here).
+   --------------------------------------------------------------------------- */
+html:has(.v2-shell):root {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--v2-line-strong) transparent;
+}
+html:has(.v2-shell):root body {
+  background: var(--background);
+  color: var(--foreground);
+}
+/* Webkit: re-show scrollbars inside the v2 subtree only. The global
+   stylesheet sets `*::-webkit-scrollbar { display:none !important }` —
+   these selectors are more specific, so they win while scoped here. */
+.v2-shell ::-webkit-scrollbar,
+.v2-shell::-webkit-scrollbar {
+  display: block !important;
+  width: 10px;
+  height: 10px;
+}
+.v2-shell ::-webkit-scrollbar-thumb,
+.v2-shell::-webkit-scrollbar-thumb {
+  background: var(--v2-line-strong);
+  border: 3px solid var(--background);
+}
+.v2-shell ::-webkit-scrollbar-track,
+.v2-shell::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   SHELL BASE
+   --------------------------------------------------------------------------- */
+.v2-shell {
+  min-height: 100dvh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--theme-font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* ---------------------------------------------------------------------------
+   CHROME PRIMITIVES — the mono uppercase vocabulary
+   --------------------------------------------------------------------------- */
+
+/* Eyebrow label — accent mono caps above headings */
+.v2-eyebrow {
+  margin-bottom: 12px;
+  color: var(--primary);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Big lowercase page title — omarchy h1 */
+.v2-title {
+  margin: 0;
+  color: var(--foreground);
+  font-size: clamp(26px, 4vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+/* Mono meta line — tabular numbers, pipe separators handled in markup */
+.v2-meta {
+  color: var(--foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.v2-meta > span + span::before {
+  margin-right: 12px;
+  color: var(--v2-faint);
+  content: '|';
+}
+
+/* Square-action button — joined hairline chrome buttons */
+.v2-btn {
+  display: inline-flex;
+  height: 32px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  background: transparent;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted-foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease;
+}
+.v2-btn:hover:not(:disabled),
+.v2-btn[aria-expanded='true'] {
+  background: var(--card);
+  color: var(--foreground);
+}
+.v2-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.v2-btn-icon {
+  width: 42px;
+  padding: 0;
+  justify-content: center;
+}
+.v2-btn-accent {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.v2-btn-accent:hover:not(:disabled),
+.v2-btn-accent[aria-expanded='true'] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Kbd chip — shortcut hints */
+.v2-kbd {
+  padding: 3px 7px;
+  border: 1px solid var(--v2-line-strong);
+  background: var(--v2-code-bg);
+  color: var(--foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Status dot — stable green / caution amber / accent red */
+.v2-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+.v2-dot-stable {
+  background: var(--v2-stable);
+}
+.v2-dot-caution {
+  background: var(--v2-caution);
+}
+.v2-dot-accent {
+  background: var(--primary);
+}
+
+/* Section heading — sidebar group titles */
+.v2-group-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 15px 9px;
+  color: var(--v2-faint);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Sidebar nav link — left accent bar when active (omarchy pattern) */
+.v2-nav-link {
+  display: flex;
+  width: 100%;
+  min-height: 31px;
+  padding: 5px 14px;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: transparent;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.v2-nav-link:hover {
+  background: var(--popover);
+  color: var(--foreground);
+}
+.v2-nav-link[data-active='true'] {
+  border-left-color: var(--primary);
+  background: var(--sidebar-accent);
+  color: var(--foreground);
+}
+.v2-nav-link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.v2-nav-count {
+  color: var(--v2-faint);
+  font-family: var(--theme-font-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hairline panel — command-panel / toolbar container */
+.v2-panel {
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+/* Crumbs — topbar location path */
+.v2-crumbs {
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.v2-crumbs b {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------------------
+   FORM PRIMITIVES — toolbar search, sort select, filter chips
+   --------------------------------------------------------------------------- */
+
+/* Search strip — omarchy sidebar-search pattern:
+   hairline box, transparent input, inset accent ring on focus */
+.v2-search {
+  position: relative;
+  display: flex;
+  min-height: 42px;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+.v2-search > svg {
+  width: 16px;
+  margin: 0 10px 0 12px;
+  color: var(--muted-foreground);
+  flex: none;
+  pointer-events: none;
+}
+.v2-search input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding-right: 34px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 13px;
+}
+.v2-search input::placeholder {
+  color: var(--v2-faint);
+}
+/* Native clear icon off — we render our own × button */
+.v2-search input[type='search']::-webkit-search-cancel-button,
+.v2-search input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.v2-search:focus-within {
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+.v2-search-clear {
+  position: absolute;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.v2-search-clear:hover {
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+/* Sort select — appearance-none native select, chevron painted on */
+.v2-select {
+  position: relative;
+  height: 100%;
+  min-height: 42px;
+  border-left: 1px solid var(--border);
+  flex: none;
+}
+.v2-select select {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 0 34px 0 14px;
+  border: 0;
+  outline: 0;
+  appearance: none;
+  background-color: transparent;
+  color: var(--muted-foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.v2-select select:hover,
+.v2-select select:focus {
+  color: var(--foreground);
+}
+.v2-select select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+.v2-select::after {
+  content: '';
+  position: absolute;
+  top: calc(50% - 5px);
+  right: 13px;
+  width: 8px;
+  height: 8px;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(45deg);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+/* Filter chip — mono label + tabular count */
+.v2-chip {
+  display: inline-flex;
+  min-height: 26px;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted-foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease;
+}
+.v2-chip:hover {
+  background: var(--popover);
+  color: var(--foreground);
+}
+.v2-chip[aria-pressed='true'] {
+  border-color: var(--v2-line-strong);
+  background: var(--popover);
+  color: var(--foreground);
+  box-shadow: inset 2px 0 0 0 var(--primary);
+}
+.v2-chip-count {
+  color: var(--v2-faint);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.v2-chip[aria-pressed='true'] .v2-chip-count {
+  color: var(--primary);
+}
+
+/* Load-more — full-width hairline strip button */
+.v2-loadmore {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  background: transparent;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted-foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.v2-loadmore:hover:not(:disabled) {
+  background: var(--card);
+  color: var(--foreground);
+}
+
+/* ---------------------------------------------------------------------------
+   MOTION — crisp terminal fades (no bounce). Global reduced-motion rule
+   in index.css already flattens these to ~0ms when requested.
+   --------------------------------------------------------------------------- */
+@keyframes v2-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.v2-fade-up {
+  animation: v2-fade-up 0.35s ease-out both;
+}
+.v2-delay-1 {
+  animation-delay: 0.06s;
+}
+.v2-delay-2 {
+  animation-delay: 0.12s;
+}
+.v2-delay-3 {
+  animation-delay: 0.18s;
+}
+
+/* ---------------------------------------------------------------------------
+   FORM CHROME — make reused classic primitives speak the registry dialect.
+   Scope: element rules under .v2-shell; portal-bound overlays (Radix
+   dialogs mount on <body>, OUTSIDE the shell) are covered by the
+   html:has(.v2-shell):root prefix below — tokens already inherit there,
+   these rules add the square/hairline structure.
+   --------------------------------------------------------------------------- */
+
+/* Scrub inherited "character": no lift-press, no hard shadows, no rounding */
+.v2-shell button,
+.v2-shell a {
+  transform: none !important;
+}
+.v2-shell button:hover,
+.v2-shell button:active,
+.v2-shell button:focus-visible,
+.v2-shell a:hover {
+  transform: none !important;
+}
+.v2-shell [data-slot='card'] {
+  border-radius: 0;
+  border-color: var(--border);
+  background: var(--card);
+  box-shadow: none !important;
+}
+
+/* Labels — mono micro-caps eyebrow vocabulary */
+.v2-shell label {
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+/* Required asterisk stays accent instead of destructive red */
+.v2-shell label.after\:text-destructive::after {
+  color: var(--primary);
+}
+
+/* Text entry — hairline box, transparent body, inset accent focus ring */
+.v2-shell input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+.v2-shell textarea,
+.v2-shell select {
+  border-radius: 0;
+  background: transparent;
+  border-color: var(--input);
+  color: var(--foreground);
+}
+.v2-shell input::placeholder,
+.v2-shell textarea::placeholder {
+  color: var(--v2-faint);
+}
+.v2-shell input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):focus,
+.v2-shell input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):focus-visible,
+.v2-shell textarea:focus,
+.v2-shell textarea:focus-visible,
+.v2-shell select:focus,
+.v2-shell select:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+/* Buttons — square-action vocabulary (mono caps, flat, hairline) */
+.v2-shell [data-slot='button'] {
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border-radius: 0;
+  box-shadow: none;
+  transition: background-color 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease;
+}
+.v2-shell [data-slot='button']:hover,
+.v2-shell [data-slot='button']:active {
+  box-shadow: none;
+  transform: none;
+  scale: 1;
+}
+/* Focus keeps a visible cue (ring utilities are shadow-based) */
+.v2-shell [data-slot='button']:focus-visible {
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+/* Outline / ghost variants (carry .border-border) → hairline action */
+.v2-shell [data-slot='button'].border-border {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--muted-foreground);
+}
+.v2-shell [data-slot='button'].border-border:hover {
+  background: var(--card);
+  color: var(--foreground);
+}
+/* Default variant (carries .bg-primary) → flat filled accent CTA */
+.v2-shell [data-slot='button'].bg-primary {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.v2-shell [data-slot='button'].bg-primary:hover {
+  background: color-mix(in srgb, var(--primary) 88%, black);
+}
+.v2-shell [data-slot='button'].bg-primary:disabled {
+  opacity: 0.5;
+}
+
+/* Portal-bound overlays while v2 is mounted (Radix/custom dialogs mount
+   on <body>, OUTSIDE .v2-shell — element rules above can't reach them).
+   The photo-upload dialog content carries .rounded-xl (= 4px here); make
+   it square + full-strength hairline like every other v2 surface. */
+html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
+  border-radius: 0;
+  border-color: var(--border);
+}
+
+/* Blanket square scrub — v2 is an all-square design. Any stray Tailwind
+   rounding that sneaks in from reused classic components (rounded-md /
+   rounded-full / rounded-[6px]) collapses to 0 while inside the shell.
+   MapLibre internals are exempt from the selector by class prefix. */
+.v2-shell [class*='rounded-']:not([class*='maplibre']) {
+  border-radius: 0 !important;
+}

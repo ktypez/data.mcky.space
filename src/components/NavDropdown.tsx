@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
-import { ArrowLeft, Trash, SignOut, LockKey, Check } from '@phosphor-icons/react'
+import { ArrowLeft, Trash, SignOut, LockKey, Check, Stack } from '@phosphor-icons/react'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
 /**
@@ -65,6 +65,15 @@ export default function NavDropdown() {
         <ArrowLeft className={iconClass(isHome)} />
         <span className="text-[15px] font-medium flex-1">หน้าแรก</span>
         {isHome && <Check className="w-4 h-4 shrink-0" weight="bold" />}
+      </button>
+
+      <button
+        onClick={() => { close(); navigate('/v2') }}
+        className={itemClass(false)}
+      >
+        <Stack className="w-4 h-4 text-muted-foreground shrink-0" />
+        <span className="text-[15px] font-medium flex-1">V2 Registry</span>
+        <span aria-hidden="true" className="text-xs text-muted-foreground">↗</span>
       </button>
 
       {isAdmin && (
