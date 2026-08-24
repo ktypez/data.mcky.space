@@ -154,7 +154,15 @@ export default function V2Record() {
 
         {client.images.length > 0 && (
           <V2PanelBlock label={`Photos · ${client.images.length}`}>
-            <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-3">
+            {/* Single photo → full-width 1:1 cover. 2+ → hairline grid that
+                shrinks to fit the panel. */}
+            <div
+              className={
+                client.images.length === 1
+                  ? 'grid'
+                  : 'grid grid-cols-2 gap-px bg-border sm:grid-cols-3'
+              }
+            >
               {client.images.map((src, i) => (
                 <button
                   key={`${i}-${src.slice(-16)}`}
