@@ -148,7 +148,7 @@ export default function AddClientForm({
       <LocationSection lat={lat} lng={lng} onCoordsChange={handleCoordsChange} />
       <PhotoSection images={images} onImagesChange={setImages} uploading={uploading} />
       <FormNotesField value={notes} onChange={setNotes} />
-      <FormBadgeField badge={badge} onChange={setBadge} visible={editing} />
+      <FormBadgeField badge={badge} onChange={setBadge} visible />
       {error && (
         <p className="text-[13px] font-medium text-destructive" role="alert">
           {error}
