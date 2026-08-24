@@ -784,3 +784,12 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
 .v2-toolbar .v2-select:has(select:focus-visible)::after {
   color: var(--primary);
 }
+
+/* Attention panel — accent side-bar + accent head label */
+.v2-panel-attention {
+  border-color: var(--v2-line-strong);
+  box-shadow: inset 2px 0 0 0 var(--primary);
+}
+.v2-panel-attention header h2 {
+  color: var(--primary);
+}

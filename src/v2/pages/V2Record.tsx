@@ -108,6 +108,16 @@ export default function V2Record() {
 
       {/* Panels */}
       <div className="mt-8 space-y-4">
+        <V2PanelBlock label="Notes" variant="attention">
+          {client.notes ? (
+            <p className="px-3.5 py-3.5 text-[15px] leading-relaxed whitespace-pre-wrap">
+              {client.notes}
+            </p>
+          ) : (
+            <p className="px-3.5 py-3.5 font-mono text-[13px] text-muted-foreground">—</p>
+          )}
+        </V2PanelBlock>
+
         {coords && (
           <V2PanelBlock label="Location">
             <a
@@ -141,16 +151,6 @@ export default function V2Record() {
             <p className="px-3.5 py-3.5 text-[15px] leading-relaxed">{client.address}</p>
           </V2PanelBlock>
         )}
-
-        <V2PanelBlock label="Notes">
-          {client.notes ? (
-            <p className="px-3.5 py-3.5 text-[15px] leading-relaxed whitespace-pre-wrap">
-              {client.notes}
-            </p>
-          ) : (
-            <p className="px-3.5 py-3.5 font-mono text-[13px] text-muted-foreground">—</p>
-          )}
-        </V2PanelBlock>
 
         {client.images.length > 0 && (
           <V2PanelBlock label={`Photos · ${client.images.length}`}>
