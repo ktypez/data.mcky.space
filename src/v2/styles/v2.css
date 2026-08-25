@@ -514,6 +514,15 @@ html:has(.v2-shell):root body {
   box-shadow: 0 0 0 2px var(--ring);
 }
 
+/* V2Select menu panel — anchored flush under the trigger, square hairline */
+.v2-select-menu {
+  min-width: 100%;
+  padding: 4px;
+  border: 1px solid var(--border);
+  background: var(--popover);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
 /* V2Select menu rows — mono list inside the popover, checkmark on active */
 .v2-select-option {
   display: flex;
