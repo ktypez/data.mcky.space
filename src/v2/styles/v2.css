@@ -384,24 +384,16 @@ html:has(.v2-shell):root body {
    FORM PRIMITIVES — toolbar search, sort-as-filter under search, filter chips
    --------------------------------------------------------------------------- */
 
-/* Search strip — styled like the add/edit sharp input wells:
-   recessed code-bg, quiet hairline that wakes on hover */
+/* Search strip — flat top line of the toolbar panel; recessed well and
+   active states come from .v2-panel / .v2-toolbar rules further down */
 .v2-search {
   position: relative;
   display: flex;
   width: 100%;
-  min-height: 42px;
-  padding: 0 10px;
+  min-height: 44px;
+  padding: 0 12px;
   align-items: center;
   min-width: 0;
-  border: 1px solid var(--v2-line-soft);
-  background: var(--v2-code-bg);
-  transition: border-color 0.15s ease, background-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.v2-panel .v2-search:not(:focus-within):hover {
-  border-color: var(--v2-line-strong);
-  background: var(--card);
 }
 .v2-search > svg {
   width: 16px;
@@ -452,87 +444,18 @@ html:has(.v2-shell):root body {
   color: var(--foreground);
 }
 
-/* Filter bar — row under search; children stretch like form fields */
-.v2-filter-bar {
+/* Toolbar controls — divided row under the search line; sort renders as
+   pressed chips using the shared .v2-chip vocabulary (no dropdown). */
+.v2-toolbar-controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: stretch;
-  gap: 8px;
-}
-/* PopoverMenu wraps its trigger in an inline-block span that shrinks to
-   content — stretch it so the sort control fills the row like an input. */
-.v2-filter-bar > span {
-  display: flex;
-  width: 100%;
-}
-
-/* Sort trigger — same sharp-input well as the add/edit fields, full width */
-.v2-sort-trigger {
-  display: inline-flex;
-  width: 100%;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  min-height: 42px;
-  padding: 0 14px;
-  border: 1px solid var(--v2-line-soft);
-  border-radius: 0;
-  background: var(--v2-code-bg);
-  color: var(--muted-foreground);
-  font-family: var(--theme-font-mono);
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease,
-    border-color 0.15s ease;
+  gap: 6px 14px;
+  padding: 9px 12px;
+  border-top: 1px solid var(--border);
 }
-.v2-sort-trigger:hover {
-  background: var(--card);
-  border-color: var(--v2-line-strong);
-  color: var(--foreground);
-}
-.v2-sort-trigger[aria-expanded='true'] {
-  border-color: var(--primary);
-  background: var(--card);
-  color: var(--foreground);
-}
-.v2-sort-trigger:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--ring);
-}
-
-/* Sort menu items — compact list inside the PopoverMenu dropdown */
-.v2-sort-menu-item {
-  display: flex;
-  width: 100%;
-  min-width: 160px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 12px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--foreground);
-  font-family: var(--theme-font-mono);
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
-}
-.v2-sort-menu-item:hover {
-  background: var(--popover);
-  color: var(--primary);
-}
-.v2-sort-menu-item.is-active {
-  background: var(--popover);
-  color: var(--primary);
-}
-.v2-sort-check {
-  font-size: 12px;
-  color: var(--primary);
+.v2-toolbar-controls > span {
+  flex: none;
 }
 
 /* Filter chip — mono label + tabular count */
@@ -821,35 +744,31 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
   transition: background-color 9999s ease-out;
 }
 
-/* Toolbar search strip shares the recessed-well treatment so every text
-   entry surface in v2 sits at the same depth. */
+/* ---------------------------------------------------------------------------
+   TOOLBAR ACTIVE STATES — one hairline panel: recessed search well up top,
+   divided chip row below. Accent claims the search line only on focus.
+   --------------------------------------------------------------------------- */
 .v2-panel .v2-search {
   background: var(--v2-code-bg);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
-.v2-panel .v2-search:focus-within {
+.v2-panel .v2-search:hover {
   background: var(--card);
 }
-
-/* Toolbar — column layout: search on top, filter row below */
 .v2-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px;
   transition: border-color 0.15s ease;
 }
 .v2-toolbar:hover {
   border-color: var(--v2-line-strong);
 }
-/* Underline-only active language on search — 2px accent bar flush with the frame */
+/* Focus = accent underline flush with the panel + accent icon */
 .v2-toolbar .v2-search:focus-within {
+  background: var(--card);
   box-shadow: inset 0 -2px 0 0 var(--primary);
 }
 .v2-toolbar .v2-search:focus-within > svg {
   color: var(--primary);
 }
-
-/* Filter bar — sits between search and the rest of the page */
 
 /* Attention panel — accent side-bar + accent head label */
 .v2-panel-attention {

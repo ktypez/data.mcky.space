@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { MagnifyingGlass, CaretDown } from '@phosphor-icons/react'
-import { PopoverMenu } from '@/components/ui/popover-menu'
+import { MagnifyingGlass } from '@phosphor-icons/react'
 
 export type V2SortKey = 'updated' | 'created' | 'name'
 
@@ -18,8 +17,8 @@ interface V2ToolbarProps {
 }
 
 /**
- * V2Toolbar — search on top, sort rendered as a compact filter chip below
- * using a custom PopoverMenu (no native select / system dialog).
+ * V2Toolbar — one hairline panel: flat search line up top, sort as pressed
+ * chips on a divided row below (same chip vocabulary as V2FilterBar).
  *
  * Shortcuts:
  * - Ctrl/Cmd+K anywhere dispatches `v2:focus-search` → focuses this input
@@ -42,23 +41,8 @@ export default function V2Toolbar({
     return () => window.removeEventListener('v2:focus-search', onFocusRequest)
   }, [])
 
-  const currentLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort'
-
-  const sortTrigger = (
-    <button
-      type="button"
-      className="v2-sort-trigger"
-      aria-label="Sort records"
-      aria-haspopup="listbox"
-      aria-expanded="false"
-    >
-      <span>{currentLabel}</span>
-      <CaretDown className="h-3 w-3" aria-hidden="true" />
-    </button>
-  )
-
   return (
-    <div className="v2-panel v2-toolbar flex flex-col gap-2 p-2">
+    <div className="v2-panel v2-toolbar">
       <div className="v2-search">
         <MagnifyingGlass aria-hidden="true" />
         <label className="sr-only" htmlFor="v2-search-input">
@@ -99,26 +83,23 @@ export default function V2Toolbar({
         )}
       </div>
 
-      <div className="v2-filter-bar">
-        <PopoverMenu trigger={sortTrigger} position="right-edge">
+      <div className="v2-toolbar-controls">
+        <span className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
+          Sort
+        </span>
+        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Sort records">
           {SORT_OPTIONS.map((option) => (
             <button
               key={option.value}
               type="button"
-              role="option"
-              aria-selected={sort === option.value}
-              className={`v2-sort-menu-item ${sort === option.value ? 'is-active' : ''}`}
+              className="v2-chip"
+              aria-pressed={sort === option.value}
               onClick={() => onSortChange(option.value)}
             >
-              <span>{option.label}</span>
-              {sort === option.value && (
-                <span className="v2-sort-check" aria-hidden="true">
-                  ✓
-                </span>
-              )}
+              {option.label}
             </button>
           ))}
-        </PopoverMenu>
+        </div>
       </div>
     </div>
   )
