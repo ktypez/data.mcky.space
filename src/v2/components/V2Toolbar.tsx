@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { MagnifyingGlass } from '@phosphor-icons/react'
+import { MagnifyingGlass, CaretDown } from '@phosphor-icons/react'
+import { PopoverMenu } from '@/components/ui/popover-menu'
 
 export type V2SortKey = 'updated' | 'created' | 'name'
 
@@ -17,7 +18,8 @@ interface V2ToolbarProps {
 }
 
 /**
- * V2Toolbar — search on top, sort rendered as a compact filter chip below.
+ * V2Toolbar — search on top, sort rendered as a compact filter chip below
+ * using a custom PopoverMenu (no native select / system dialog).
  *
  * Shortcuts:
  * - Ctrl/Cmd+K anywhere dispatches `v2:focus-search` → focuses this input
@@ -39,6 +41,21 @@ export default function V2Toolbar({
     window.addEventListener('v2:focus-search', onFocusRequest)
     return () => window.removeEventListener('v2:focus-search', onFocusRequest)
   }, [])
+
+  const currentLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort'
+
+  const sortTrigger = (
+    <button
+      type="button"
+      className="v2-sort-trigger"
+      aria-label="Sort records"
+      aria-haspopup="listbox"
+      aria-expanded="false"
+    >
+      <span>{currentLabel}</span>
+      <CaretDown className="h-3 w-3" aria-hidden="true" />
+    </button>
+  )
 
   return (
     <div className="v2-panel v2-toolbar flex flex-col gap-2 p-2">
@@ -83,22 +100,25 @@ export default function V2Toolbar({
       </div>
 
       <div className="v2-filter-bar">
-        <div className="v2-select">
-          <label className="sr-only" htmlFor="v2-sort-select">
-            Sort records
-          </label>
-          <select
-            id="v2-sort-select"
-            value={sort}
-            onChange={(e) => onSortChange(e.target.value as V2SortKey)}
-          >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <PopoverMenu trigger={sortTrigger} position="right-edge">
+          {SORT_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              role="option"
+              aria-selected={sort === option.value}
+              className={`v2-sort-menu-item ${sort === option.value ? 'is-active' : ''}`}
+              onClick={() => onSortChange(option.value)}
+            >
+              <span>{option.label}</span>
+              {sort === option.value && (
+                <span className="v2-sort-check" aria-hidden="true">
+                  ✓
+                </span>
+              )}
+            </button>
+          ))}
+        </PopoverMenu>
       </div>
     </div>
   )
