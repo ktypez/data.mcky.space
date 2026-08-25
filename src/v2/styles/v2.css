@@ -384,8 +384,8 @@ html:has(.v2-shell):root body {
    FORM PRIMITIVES — toolbar search, sort-as-filter under search, filter chips
    --------------------------------------------------------------------------- */
 
-/* Search strip — omarchy sidebar-search pattern:
-   hairline box, transparent input, inset accent ring on focus */
+/* Search strip — styled like the add/edit sharp input wells:
+   recessed code-bg, quiet hairline that wakes on hover */
 .v2-search {
   position: relative;
   display: flex;
@@ -394,6 +394,14 @@ html:has(.v2-shell):root body {
   padding: 0 10px;
   align-items: center;
   min-width: 0;
+  border: 1px solid var(--v2-line-soft);
+  background: var(--v2-code-bg);
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.v2-panel .v2-search:not(:focus-within):hover {
+  border-color: var(--v2-line-strong);
+  background: var(--card);
 }
 .v2-search > svg {
   width: 16px;
@@ -444,18 +452,32 @@ html:has(.v2-shell):root body {
   color: var(--foreground);
 }
 
-/* Sort trigger — compact chip-style button that opens a custom dropdown */
+/* Filter bar — row under search; children stretch like form fields */
+.v2-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+}
+/* PopoverMenu wraps its trigger in an inline-block span that shrinks to
+   content — stretch it so the sort control fills the row like an input. */
+.v2-filter-bar > span {
+  display: flex;
+  width: 100%;
+}
+
+/* Sort trigger — same sharp-input well as the add/edit fields, full width */
 .v2-sort-trigger {
   display: inline-flex;
   width: 100%;
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  min-height: 28px;
-  padding: 3px 10px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: transparent;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--v2-line-soft);
+  border-radius: 0;
+  background: var(--v2-code-bg);
   color: var(--muted-foreground);
   font-family: var(--theme-font-mono);
   font-size: 11px;
@@ -467,13 +489,14 @@ html:has(.v2-shell):root body {
     border-color 0.15s ease;
 }
 .v2-sort-trigger:hover {
-  background: var(--popover);
+  background: var(--card);
+  border-color: var(--v2-line-strong);
   color: var(--foreground);
 }
 .v2-sort-trigger[aria-expanded='true'] {
   border-color: var(--primary);
-  background: var(--popover);
-  color: var(--primary);
+  background: var(--card);
+  color: var(--foreground);
 }
 .v2-sort-trigger:focus-visible {
   outline: none;
