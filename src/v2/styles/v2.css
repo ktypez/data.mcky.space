@@ -622,8 +622,11 @@ html:has(.v2-shell):root body {
     transform: translateY(0);
   }
 }
+/* fill backwards (not both): after the reveal ends styles revert to natural
+   so no lingering transform keeps a stacking context alive — otherwise
+   anchored dropdowns under a .v2-fade-up get painted over by later content */
 .v2-fade-up {
-  animation: v2-fade-up 0.35s ease-out both;
+  animation: v2-fade-up 0.35s ease-out backwards;
 }
 .v2-delay-1 {
   animation-delay: 0.06s;
