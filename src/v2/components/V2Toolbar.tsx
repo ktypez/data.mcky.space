@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import { MagnifyingGlass } from '@phosphor-icons/react'
 
 export type V2SortKey = 'updated' | 'created' | 'name'
 
@@ -15,8 +14,9 @@ interface V2ToolbarProps {
 }
 
 /**
- * V2Toolbar — the search field itself, styled like the add/edit sharp-input
- * wells (bordered, recessed, 40px). Sort/filter selects live in V2FilterBar.
+ * V2Toolbar — the search field: a single real <input> styled like the
+ * add/edit sharp-input wells. Native type="search" supplies its own ✕.
+ * Sort/filter selects live in V2FilterBar.
  *
  * Shortcuts:
  * - Ctrl/Cmd+K anywhere dispatches `v2:focus-search` → focuses this input
@@ -35,44 +35,30 @@ export default function V2Toolbar({ search, onSearchChange }: V2ToolbarProps) {
   }, [])
 
   return (
-    <div className="v2-search">
-      <MagnifyingGlass aria-hidden="true" />
-      <label className="sr-only" htmlFor="v2-search-input">
-        Search clients
-      </label>
-      <input
-        id="v2-search-input"
-        ref={inputRef}
-        type="search"
-        value={search}
-        onChange={(e) => onSearchChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            if (e.currentTarget.value) {
-              onSearchChange('')
-            } else {
-              e.currentTarget.blur()
-            }
+    <input
+      id="v2-search-input"
+      ref={inputRef}
+      type="search"
+      className="v2-search"
+      value={search}
+      onChange={(e) => onSearchChange(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          if (e.currentTarget.value) {
+            onSearchChange('')
+          } else {
+            e.currentTarget.blur()
           }
-        }}
-        placeholder="search name, shop, address, id…"
-        maxLength={160}
-        autoComplete="off"
-        spellCheck={false}
-        role="combobox"
-        aria-expanded="false"
-        aria-controls="v2-registry-grid"
-      />
-      {search && (
-        <button
-          type="button"
-          className="v2-search-clear"
-          onClick={() => onSearchChange('')}
-          aria-label="Clear search"
-        >
-          ×
-        </button>
-      )}
-    </div>
+        }
+      }}
+      placeholder="search name, shop, address, id…"
+      maxLength={160}
+      autoComplete="off"
+      spellCheck={false}
+      role="combobox"
+      aria-expanded="false"
+      aria-controls="v2-registry-grid"
+      aria-label="Search clients"
+    />
   )
 }
