@@ -384,21 +384,23 @@ html:has(.v2-shell):root body {
    FORM PRIMITIVES — toolbar search, sort-as-filter under search, filter chips
    --------------------------------------------------------------------------- */
 
-/* Search field — one real <input>, same sharp-well spec as the add/edit
-   form fields. Native type="search" supplies its own ✕ clear affordance. */
+/* Search field — one real <input>, borderless recessed well (no outline
+   line): depth comes from the darker background, focus from the accent bar.
+   Native type="search" supplies its own ✕ clear affordance. */
 .v2-search {
   display: block;
   width: 100%;
   min-height: 40px;
   padding: 0 14px;
-  border: 1px solid var(--v2-line-soft);
+  border: 0;
   background: var(--v2-code-bg);
+  appearance: none;
+  -webkit-appearance: none;
   outline: none;
   color: var(--foreground);
   font-family: var(--theme-font-mono);
   font-size: 13px;
-  transition: border-color 0.15s ease, background-color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 .v2-search::placeholder {
   color: var(--v2-faint);
@@ -763,16 +765,14 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
 }
 
 /* ---------------------------------------------------------------------------
-   SEARCH FIELD ACTIVE STATES — same wake-up language as the add/edit wells:
-   idle hairline → hover strengthens, focus claims the accent.
+   SEARCH FIELD ACTIVE STATES — borderless well: hover lifts the surface,
+   focus claims a 2px accent underline (no outline line at rest).
    --------------------------------------------------------------------------- */
 .v2-search:hover {
   background: var(--card);
-  border-color: var(--v2-line-strong);
 }
 .v2-search:focus {
   background: var(--card);
-  border-color: var(--primary);
   box-shadow: inset 0 -2px 0 0 var(--primary);
 }
 
