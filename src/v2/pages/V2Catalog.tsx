@@ -88,13 +88,14 @@ export default function V2Catalog() {
       {!globalEmpty && (
         <>
           <div className="v2-fade-up v2-delay-2 mt-8">
-            <V2Toolbar
-              search={search}
-              onSearchChange={setSearch}
+            <V2Toolbar search={search} onSearchChange={setSearch} />
+            <V2FilterBar
+              filter={filter}
+              counts={counts}
+              onChange={setFilter}
               sort={sort}
               onSortChange={setSort}
             />
-            <V2FilterBar filter={filter} counts={counts} onChange={setFilter} />
           </div>
 
           {/* Grid */}

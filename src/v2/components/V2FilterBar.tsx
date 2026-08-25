@@ -1,4 +1,6 @@
 import { FilterKey } from '@/types'
+import V2Select from '@/v2/components/V2Select'
+import { SORT_OPTIONS, type V2SortKey } from '@/v2/components/V2Toolbar'
 
 export interface V2FilterCounts {
   total: number
@@ -12,9 +14,15 @@ interface V2FilterBarProps {
   filter: FilterKey
   counts: V2FilterCounts
   onChange: (f: FilterKey) => void
+  sort: V2SortKey
+  onSortChange: (s: V2SortKey) => void
 }
 
-const CHIPS: { key: FilterKey; label: string; countOf: (c: V2FilterCounts) => number }[] = [
+const FILTER_ITEMS: {
+  key: FilterKey
+  label: string
+  countOf: (c: V2FilterCounts) => number
+}[] = [
   { key: FilterKey.All, label: 'All', countOf: (c) => c.total },
   { key: FilterKey.WithImages, label: 'With photos', countOf: (c) => c.withImages },
   { key: FilterKey.NoImages, label: 'No photos', countOf: (c) => c.noImages },
@@ -23,42 +31,44 @@ const CHIPS: { key: FilterKey; label: string; countOf: (c: V2FilterCounts) => nu
 ]
 
 /**
- * V2FilterBar — omarchy source/category bar: mono "FILTER" label,
- * chip row with live counts, reset appears only when non-default.
+ * V2FilterBar — one controls row under the search panel:
+ * mono "SORT"/"FILTER" labels + custom popover selects (no native dialog).
  */
-export default function V2FilterBar({ filter, counts, onChange }: V2FilterBarProps) {
-  const isDefault = filter === FilterKey.All
-
+export default function V2FilterBar({
+  filter,
+  counts,
+  onChange,
+  sort,
+  onSortChange,
+}: V2FilterBarProps) {
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <span className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
-        Filter
-      </span>
+    <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+      <div className="flex items-center gap-2">
+        <span className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
+          Sort
+        </span>
+        <V2Select
+          ariaLabel="Sort records"
+          value={sort}
+          options={SORT_OPTIONS}
+          onChange={onSortChange}
+        />
+      </div>
 
-      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter records">
-        {CHIPS.map(({ key, label, countOf }) => (
-          <button
-            key={key}
-            type="button"
-            className="v2-chip"
-            aria-pressed={filter === key}
-            onClick={() => onChange(key)}
-          >
-            {label}
-            <span className="v2-chip-count">{countOf(counts)}</span>
-          </button>
-        ))}
-
-        {!isDefault && (
-          <button
-            type="button"
-            className="v2-chip !text-primary hover:!bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]"
-            onClick={() => onChange(FilterKey.All)}
-            aria-label="Reset filters"
-          >
-            reset ×
-          </button>
-        )}
+      <div className="flex items-center gap-2">
+        <span className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
+          Filter
+        </span>
+        <V2Select
+          ariaLabel="Filter records"
+          value={filter}
+          options={FILTER_ITEMS.map(({ key, label, countOf }) => ({
+            value: key,
+            label,
+            hint: countOf(counts),
+          }))}
+          onChange={onChange}
+        />
       </div>
     </div>
   )

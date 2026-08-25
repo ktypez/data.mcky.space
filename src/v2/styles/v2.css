@@ -482,6 +482,71 @@ html:has(.v2-shell):root body {
   color: var(--primary);
 }
 
+/* V2Select trigger — compact well-button, mono caps, caret right */
+.v2-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  background: var(--v2-code-bg);
+  color: var(--foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease;
+}
+.v2-select-trigger:hover {
+  background: var(--card);
+  border-color: var(--v2-line-strong);
+}
+.v2-select-trigger[aria-expanded='true'] {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.v2-select-trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+/* V2Select menu rows — mono list inside the popover, checkmark on active */
+.v2-select-option {
+  display: flex;
+  width: 100%;
+  min-width: 170px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 11px;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.v2-select-option:hover {
+  background: var(--popover);
+  color: var(--primary);
+}
+.v2-select-option.is-active {
+  color: var(--primary);
+}
+.v2-select-hint {
+  color: var(--v2-faint);
+  font-variant-numeric: tabular-nums;
+}
+.v2-select-option.is-active .v2-select-hint {
+  color: var(--primary);
+}
+
 /* Load-more — full-width hairline strip button */
 .v2-loadmore {
   display: flex;
