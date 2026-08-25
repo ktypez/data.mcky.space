@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { CaretDown, Check } from '@phosphor-icons/react'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
@@ -26,10 +27,13 @@ export default function V2Select<T extends string>({
   options,
   onChange,
 }: V2SelectProps<T>) {
+  const [open, setOpen] = useState(false)
   const current = options.find((o) => o.value === value) ?? options[0]
 
   return (
     <PopoverMenu
+      open={open}
+      onOpenChange={setOpen}
       trigger={
         <button
           type="button"
@@ -52,7 +56,10 @@ export default function V2Select<T extends string>({
               role="option"
               aria-selected={isActive}
               className={`v2-select-option${isActive ? ' is-active' : ''}`}
-              onClick={() => onChange(option.value)}
+              onClick={() => {
+                onChange(option.value)
+                setOpen(false)
+              }}
             >
               <span className="flex-1 text-left">{option.label}</span>
               {option.hint !== undefined && (
