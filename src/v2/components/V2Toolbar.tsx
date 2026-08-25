@@ -14,8 +14,8 @@ interface V2ToolbarProps {
 }
 
 /**
- * V2Toolbar — the search field: a single real <input> styled like the
- * add/edit sharp-input wells. Native type="search" supplies its own ✕.
+ * V2Toolbar — borderless recessed search well with an inline ✕ clear
+ * button (transparent wrapper keeps it reading as one input).
  * Sort/filter selects live in V2FilterBar.
  *
  * Shortcuts:
@@ -35,30 +35,42 @@ export default function V2Toolbar({ search, onSearchChange }: V2ToolbarProps) {
   }, [])
 
   return (
-    <input
-      id="v2-search-input"
-      ref={inputRef}
-      type="search"
-      className="v2-search"
-      value={search}
-      onChange={(e) => onSearchChange(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          if (e.currentTarget.value) {
-            onSearchChange('')
-          } else {
-            e.currentTarget.blur()
+    <div className="v2-search-wrap">
+      <input
+        id="v2-search-input"
+        ref={inputRef}
+        type="search"
+        className="v2-search"
+        value={search}
+        onChange={(e) => onSearchChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            if (e.currentTarget.value) {
+              onSearchChange('')
+            } else {
+              e.currentTarget.blur()
+            }
           }
-        }
-      }}
-      placeholder="search name, shop, address, id…"
-      maxLength={160}
-      autoComplete="off"
-      spellCheck={false}
-      role="combobox"
-      aria-expanded="false"
-      aria-controls="v2-registry-grid"
-      aria-label="Search clients"
-    />
+        }}
+        placeholder="search name, shop, address, id…"
+        maxLength={160}
+        autoComplete="off"
+        spellCheck={false}
+        role="combobox"
+        aria-expanded="false"
+        aria-controls="v2-registry-grid"
+        aria-label="Search clients"
+      />
+      {search && (
+        <button
+          type="button"
+          className="v2-search-clear"
+          onClick={() => onSearchChange('')}
+          aria-label="Clear search"
+        >
+          ×
+        </button>
+      )}
+    </div>
   )
 }
