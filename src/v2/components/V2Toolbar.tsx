@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { X } from '@phosphor-icons/react'
 
 export type V2SortKey = 'updated' | 'created' | 'name'
 
@@ -68,7 +69,7 @@ export default function V2Toolbar({ search, onSearchChange }: V2ToolbarProps) {
           onClick={() => onSearchChange('')}
           aria-label="Clear search"
         >
-          ×
+          <X className="h-3 w-3" aria-hidden="true" />
         </button>
       )}
     </div>

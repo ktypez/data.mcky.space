@@ -414,22 +414,21 @@ html:has(.v2-shell):root body {
   appearance: none;
 }
 
-/* Inline clear button — sits in the right padding zone of the well */
+/* Inline clear button — SVG icon flex-centered in a 24px box; block-axis
+   centering via inset-block+margin auto (transform-free, metric-proof) */
 .v2-search-clear {
   position: absolute;
-  top: 50%;
-  right: 8px;
+  inset-block: 0;
+  right: 7px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
-  transform: translateY(-50%);
+  margin-block: auto;
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted-foreground);
-  font-size: 15px;
-  line-height: 1;
   cursor: pointer;
   transition: color 0.12s ease, border-color 0.12s ease;
 }
