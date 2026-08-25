@@ -389,7 +389,9 @@ html:has(.v2-shell):root body {
 .v2-search {
   position: relative;
   display: flex;
+  width: 100%;
   min-height: 42px;
+  padding: 0 10px;
   align-items: center;
   min-width: 0;
 }
@@ -445,7 +447,9 @@ html:has(.v2-shell):root body {
 /* Sort trigger — compact chip-style button that opens a custom dropdown */
 .v2-sort-trigger {
   display: inline-flex;
+  width: 100%;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
   min-height: 28px;
   padding: 3px 10px;
