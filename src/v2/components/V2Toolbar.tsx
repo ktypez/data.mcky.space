@@ -17,8 +17,9 @@ interface V2ToolbarProps {
 }
 
 /**
- * V2Toolbar — one hairline panel: flat search line up top, sort as pressed
- * chips on a divided row below (same chip vocabulary as V2FilterBar).
+ * V2Toolbar — hairline search panel; sort lives OUTSIDE the panel as its own
+ * chip row below, sharing V2FilterBar's label+chips layout so all control
+ * rows align.
  *
  * Shortcuts:
  * - Ctrl/Cmd+K anywhere dispatches `v2:focus-search` → focuses this input
@@ -42,48 +43,50 @@ export default function V2Toolbar({
   }, [])
 
   return (
-    <div className="v2-panel v2-toolbar">
-      <div className="v2-search">
-        <MagnifyingGlass aria-hidden="true" />
-        <label className="sr-only" htmlFor="v2-search-input">
-          Search clients
-        </label>
-        <input
-          id="v2-search-input"
-          ref={inputRef}
-          type="search"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              if (e.currentTarget.value) {
-                onSearchChange('')
-              } else {
-                e.currentTarget.blur()
+    <>
+      <div className="v2-panel v2-toolbar">
+        <div className="v2-search">
+          <MagnifyingGlass aria-hidden="true" />
+          <label className="sr-only" htmlFor="v2-search-input">
+            Search clients
+          </label>
+          <input
+            id="v2-search-input"
+            ref={inputRef}
+            type="search"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                if (e.currentTarget.value) {
+                  onSearchChange('')
+                } else {
+                  e.currentTarget.blur()
+                }
               }
-            }
-          }}
-          placeholder="search name, shop, address, id…"
-          maxLength={160}
-          autoComplete="off"
-          spellCheck={false}
-          role="combobox"
-          aria-expanded="false"
-          aria-controls="v2-registry-grid"
-        />
-        {search && (
-          <button
-            type="button"
-            className="v2-search-clear"
-            onClick={() => onSearchChange('')}
-            aria-label="Clear search"
-          >
-            ×
-          </button>
-        )}
+            }}
+            placeholder="search name, shop, address, id…"
+            maxLength={160}
+            autoComplete="off"
+            spellCheck={false}
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="v2-registry-grid"
+          />
+          {search && (
+            <button
+              type="button"
+              className="v2-search-clear"
+              onClick={() => onSearchChange('')}
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="v2-toolbar-controls">
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
         <span className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
           Sort
         </span>
@@ -101,6 +104,6 @@ export default function V2Toolbar({
           ))}
         </div>
       </div>
-    </div>
+    </>
   )
 }

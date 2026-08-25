@@ -444,20 +444,6 @@ html:has(.v2-shell):root body {
   color: var(--foreground);
 }
 
-/* Toolbar controls — divided row under the search line; sort renders as
-   pressed chips using the shared .v2-chip vocabulary (no dropdown). */
-.v2-toolbar-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 14px;
-  padding: 9px 12px;
-  border-top: 1px solid var(--border);
-}
-.v2-toolbar-controls > span {
-  flex: none;
-}
-
 /* Filter chip — mono label + tabular count */
 .v2-chip {
   display: inline-flex;
@@ -745,8 +731,8 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
 }
 
 /* ---------------------------------------------------------------------------
-   TOOLBAR ACTIVE STATES — one hairline panel: recessed search well up top,
-   divided chip row below. Accent claims the search line only on focus.
+   TOOLBAR ACTIVE STATES — search panel stands alone (recessed well); the
+   sort chip row renders below it, outside the panel frame.
    --------------------------------------------------------------------------- */
 .v2-panel .v2-search {
   background: var(--v2-code-bg);
