@@ -384,20 +384,24 @@ html:has(.v2-shell):root body {
    FORM PRIMITIVES — toolbar search, sort-as-filter under search, filter chips
    --------------------------------------------------------------------------- */
 
-/* Search strip — flat top line of the toolbar panel; recessed well and
-   active states come from .v2-panel / .v2-toolbar rules further down */
+/* Search strip — a real sharp-input well, same spec as the add/edit form
+   fields: bordered, recessed code-bg, 40px tall, roomy gutters */
 .v2-search {
   position: relative;
   display: flex;
   width: 100%;
-  min-height: 44px;
+  min-height: 40px;
   padding: 0 12px;
   align-items: center;
   min-width: 0;
+  border: 1px solid var(--v2-line-soft);
+  background: var(--v2-code-bg);
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .v2-search > svg {
   width: 16px;
-  margin: 0 10px 0 12px;
+  margin: 0 11px 0 1px;
   color: var(--muted-foreground);
   flex: none;
   pointer-events: none;
@@ -422,9 +426,6 @@ html:has(.v2-shell):root body {
 .v2-search input[type='search']::-webkit-search-decoration {
   -webkit-appearance: none;
   appearance: none;
-}
-.v2-search:focus-within {
-  background: var(--card);
 }
 .v2-search-clear {
   position: absolute;
@@ -805,28 +806,19 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
 }
 
 /* ---------------------------------------------------------------------------
-   TOOLBAR ACTIVE STATES — search panel stands alone (recessed well); the
-   sort chip row renders below it, outside the panel frame.
+   SEARCH FIELD ACTIVE STATES — same wake-up language as the add/edit wells:
+   idle hairline → hover strengthens, focus claims the accent.
    --------------------------------------------------------------------------- */
-.v2-panel .v2-search {
-  background: var(--v2-code-bg);
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
-}
-.v2-panel .v2-search:hover {
+.v2-search:hover {
   background: var(--card);
-}
-.v2-toolbar {
-  transition: border-color 0.15s ease;
-}
-.v2-toolbar:hover {
   border-color: var(--v2-line-strong);
 }
-/* Focus = accent underline flush with the panel + accent icon */
-.v2-toolbar .v2-search:focus-within {
+.v2-search:focus-within {
   background: var(--card);
+  border-color: var(--primary);
   box-shadow: inset 0 -2px 0 0 var(--primary);
 }
-.v2-toolbar .v2-search:focus-within > svg {
+.v2-search:focus-within > svg {
   color: var(--primary);
 }
 
