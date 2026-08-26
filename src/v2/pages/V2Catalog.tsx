@@ -61,9 +61,12 @@ export default function V2Catalog() {
       {/* Hero — copy left, parametric widget right (desktop) */}
       <section aria-labelledby="v2-catalog-title" className="flex items-start justify-between gap-8">
         <div className="v2-fade-up min-w-0">
-          <p className="v2-eyebrow">Personal registry</p>
+          <p className="v2-eyebrow">
+            <span className="v2-ord">00</span>
+            <span className="v2-dot-mid">·</span>Personal registry
+          </p>
           <h1 id="v2-catalog-title" className="v2-title">
-            client index
+            client <em>index</em>
           </h1>
           <p className="v2-meta mt-4" role="status" aria-live="polite">
             {loading ? (

@@ -18,75 +18,79 @@
    TOKENS — DARK (default). Omarchy palette.
    --------------------------------------------------------------------------- */
 html:has(.v2-shell):root {
-  /* Core — near-black charcoal, not pure #000 (softer on OLED, keeps depth) */
-  --background: #101014;
-  --foreground: #d7d7d9;
-  --card: #16161b;
-  --card-foreground: #d7d7d9;
-  --popover: #1a1a20;
-  --popover-foreground: #d7d7d9;
+  /* Core — Night Foundry: cool-violet paper, molten-brass accent (Lumen) */
+  --background: oklch(13% 0.014 265);
+  --foreground: oklch(82% 0.01 262);
+  --card: oklch(17% 0.016 265);
+  --card-foreground: oklch(96% 0.006 262);
+  --popover: oklch(20% 0.018 264);
+  --popover-foreground: oklch(96% 0.006 262);
 
-  /* Accent — signal orange */
-  --primary: #ff5a36;
-  --primary-foreground: #111111;
+  /* Accent — molten brass */
+  --primary: oklch(76% 0.17 50);
+  --primary-foreground: oklch(13% 0.014 265);
 
   /* Surfaces */
-  --secondary: #1a1a20;
-  --secondary-foreground: #aaaab0;
-  --muted: #1a1a20;
-  --muted-foreground: #aaaab0;
-  --accent: #ff5a36;
-  --accent-foreground: #111111;
+  --secondary: oklch(22% 0.018 263);
+  --secondary-foreground: oklch(72% 0.014 263);
+  --muted: oklch(22% 0.018 263);
+  --muted-foreground: oklch(60% 0.016 263);
+  --accent: oklch(76% 0.17 50);
+  --accent-foreground: oklch(13% 0.014 265);
 
   /* Status */
-  --destructive: #ff5c5c;
-  --destructive-foreground: #111111;
-  --success: #b4c96f;
-  --success-foreground: #111111;
-  --warning: #ffb000;
-  --warning-foreground: #111111;
-  --info: #b9d4ef;
-  --info-foreground: #111111;
+  --destructive: oklch(68% 0.16 18);
+  --destructive-foreground: oklch(13% 0.014 265);
+  --success: oklch(78% 0.12 145);
+  --success-foreground: oklch(13% 0.014 265);
+  --warning: oklch(80% 0.15 85);
+  --warning-foreground: oklch(13% 0.014 265);
+  --info: oklch(75% 0.08 240);
+  --info-foreground: oklch(13% 0.014 265);
 
-  /* Lines & inputs — hairline */
-  --border: #2e2e35;
-  --input: #2e2e35;
-  --ring: #ff5a36;
+  /* Lines & inputs — hairline rules */
+  --border: oklch(30% 0.018 265);
+  --input: oklch(30% 0.018 265);
+  --ring: oklch(76% 0.17 50);
 
   /* Sidebar tokens (kept in sync even though v2 has its own shell) */
-  --sidebar: #131318;
-  --sidebar-foreground: #aaaab0;
-  --sidebar-accent: #1a1a20;
-  --sidebar-accent-foreground: #d7d7d9;
-  --sidebar-border: #2e2e35;
-  --sidebar-ring: #ff5a36;
+  --sidebar: oklch(15% 0.015 265);
+  --sidebar-foreground: oklch(60% 0.016 263);
+  --sidebar-accent: oklch(22% 0.018 263);
+  --sidebar-accent-foreground: oklch(96% 0.006 262);
+  --sidebar-border: oklch(30% 0.018 265);
+  --sidebar-ring: oklch(76% 0.17 50);
 
-  /* Shape — square everything, no soft shadows (hairline aesthetic) */
-  --radius: 0rem;
-  --frame-radius: 0rem;
-  --shadow-xs: none;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-xl: none;
-  --shadow-2xl: none;
+  /* Shape — soft-rounded cards on paper, one soft lift shadow */
+  --radius: 10px;
+  --frame-radius: 10px;
+  --shadow-xs: 0 1px 2px oklch(0% 0 0 / 0.4);
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.4);
+  --shadow-md: 0 24px 60px -28px oklch(0% 0 0 / 0.55),
+    0 1px 2px oklch(0% 0 0 / 0.4);
+  --shadow-lg: 0 24px 60px -24px oklch(0% 0 0 / 0.6),
+    0 2px 6px oklch(0% 0 0 / 0.35);
+  --shadow-xl: var(--shadow-lg);
+  --shadow-2xl: var(--shadow-lg);
 
   /* Map pin follows accent */
-  --pin-color: #ff5a36;
+  --pin-color: oklch(76% 0.17 50);
 
-  /* Fonts — Inter/JBM chrome, Sarabun fallback for Thai glyphs */
-  --theme-font-display: 'Inter', 'Sarabun', system-ui, sans-serif;
-  --theme-font-body: 'Inter', 'Sarabun', system-ui, sans-serif;
-  --theme-font-mono: 'JetBrains Mono', 'Sarabun', ui-monospace, 'SFMono-Regular',
+  /* Fonts — Instrument Serif display · Geist body · JBM labels, Sarabun for Thai */
+  --theme-font-display: 'Instrument Serif', 'Tiempos Headline', Georgia, serif;
+  --theme-font-body: 'Geist', 'Inter', 'Sarabun', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', 'Geist Mono', ui-monospace, 'SFMono-Regular',
     Consolas, monospace;
 
   /* V2-only extensions (not consumed by old components) */
-  --v2-line-soft: #222229;
-  --v2-line-strong: #42424a;
-  --v2-faint: #808088;
-  --v2-code-bg: #0b0b0f;
-  --v2-stable: #b4c96f;
-  --v2-caution: #ffb000;
+  --v2-line-soft: oklch(24% 0.016 264);
+  --v2-line-strong: oklch(42% 0.02 263);
+  --v2-faint: oklch(52% 0.014 263);
+  --v2-code-bg: oklch(11% 0.012 265);
+  --v2-stable: oklch(78% 0.12 145);
+  --v2-caution: oklch(80% 0.15 85);
+  --v2-ember: oklch(68% 0.16 18);
+  --v2-glow: oklch(80% 0.16 50 / 0.32);
 }
 
 /* ---------------------------------------------------------------------------
@@ -195,27 +199,73 @@ html:has(.v2-shell):root body {
    CHROME PRIMITIVES — the mono uppercase vocabulary
    --------------------------------------------------------------------------- */
 
-/* Eyebrow label — accent mono caps above headings */
+/* Eyebrow label — mono caps, ink at rest, accent ordinal (Lumen) */
 .v2-eyebrow {
   margin-bottom: 12px;
-  color: var(--primary);
+  color: var(--foreground);
+  opacity: 0.55;
   font-family: var(--theme-font-mono);
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+}
+.v2-eyebrow .v2-ord {
+  color: var(--primary);
+  opacity: 1;
+}
+.v2-eyebrow .v2-dot-mid {
+  color: var(--v2-line-strong);
+  opacity: 1;
 }
 
-/* Big lowercase page title — omarchy h1 */
+/* Big page title — Instrument Serif with accent pivot word */
 .v2-title {
   margin: 0;
-  color: var(--foreground);
-  font-size: clamp(26px, 4vw, 34px);
-  font-weight: 700;
+  color: oklch(96% 0.006 262);
+  font-family: var(--theme-font-display);
+  font-size: clamp(30px, 5vw, 44px);
+  font-weight: 400;
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1.05;
   text-wrap: balance;
-  text-transform: uppercase;
+  text-transform: none;
+}
+/* Pivot word — ember colour + underline that draws in once */
+.v2-shell .v2-title em {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--v2-ember);
+  position: relative;
+  white-space: nowrap;
+}
+.v2-shell .v2-title em::after {
+  content: '';
+  position: absolute;
+  left: 0.05em;
+  right: 0.05em;
+  bottom: 0.04em;
+  height: 1px;
+  background: var(--v2-ember);
+  transform-origin: left;
+  animation: v2-pivot-underline 320ms cubic-bezier(0.22, 0.61, 0.36, 1) 900ms
+    backwards;
+}
+@keyframes v2-pivot-underline {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v2-shell .v2-title em::after {
+    animation: none;
+  }
 }
 
 /* Mono meta line — tabular numbers, pipe separators handled in markup */
@@ -233,30 +283,32 @@ html:has(.v2-shell):root body {
   content: '|';
 }
 
-/* Square-action button — joined hairline chrome buttons */
+/* Square-action button — Geist sentence-case pill (Lumen buttons) */
 .v2-btn {
   display: inline-flex;
-  height: 32px;
-  padding: 0 13px;
+  height: 36px;
+  padding: 0 16px;
   border: 1px solid var(--border);
+  border-radius: 999px;
   background: transparent;
   align-items: center;
   gap: 7px;
-  color: var(--muted-foreground);
-  font-family: var(--theme-font-mono);
-  font-size: 11px;
+  color: var(--foreground);
+  font-family: var(--theme-font-body);
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  text-transform: none;
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.15s ease, color 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease, transform 0.15s ease;
 }
 .v2-btn:hover:not(:disabled),
 .v2-btn[aria-expanded='true'] {
   background: var(--card);
   color: var(--foreground);
+  transform: translateY(-1px);
 }
 .v2-btn:disabled {
   opacity: 0.45;
@@ -281,6 +333,7 @@ html:has(.v2-shell):root body {
 .v2-kbd {
   padding: 3px 7px;
   border: 1px solid var(--v2-line-strong);
+  border-radius: 6px;
   background: var(--v2-code-bg);
   color: var(--foreground);
   font-family: var(--theme-font-mono);
@@ -363,6 +416,7 @@ html:has(.v2-shell):root body {
 /* Hairline panel — command-panel / toolbar container */
 .v2-panel {
   border: 1px solid var(--border);
+  border-radius: var(--radius);
   background: var(--card);
 }
 
@@ -395,7 +449,8 @@ html:has(.v2-shell):root body {
   width: 100%;
   min-height: 40px;
   padding: 0 36px 0 14px;
-  border: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   background: var(--v2-code-bg);
   appearance: none;
   -webkit-appearance: none;
@@ -403,7 +458,8 @@ html:has(.v2-shell):root body {
   color: var(--foreground);
   font-family: var(--theme-font-mono);
   font-size: 13px;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .v2-search::placeholder {
   color: var(--v2-faint);
@@ -444,8 +500,9 @@ html:has(.v2-shell):root body {
 .v2-chip {
   display: inline-flex;
   min-height: 26px;
-  padding: 3px 10px;
+  padding: 3px 11px;
   border: 1px solid var(--border);
+  border-radius: 999px;
   background: transparent;
   align-items: center;
   gap: 7px;
@@ -462,6 +519,7 @@ html:has(.v2-shell):root body {
 .v2-chip:hover {
   background: var(--popover);
   color: var(--foreground);
+  border-color: var(--v2-line-strong);
 }
 .v2-chip[aria-pressed='true'] {
   border-color: var(--v2-line-strong);
@@ -484,8 +542,9 @@ html:has(.v2-shell):root body {
   align-items: center;
   gap: 8px;
   min-height: 30px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border: 1px solid var(--border);
+  border-radius: 8px;
   background: var(--v2-code-bg);
   color: var(--foreground);
   font-family: var(--theme-font-mono);
@@ -495,7 +554,7 @@ html:has(.v2-shell):root body {
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease, box-shadow 0.15s ease;
 }
 .v2-select-trigger:hover {
   background: var(--card);
@@ -504,19 +563,21 @@ html:has(.v2-shell):root body {
 .v2-select-trigger[aria-expanded='true'] {
   border-color: var(--primary);
   color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), 0 0 20px -6px var(--v2-glow);
 }
 .v2-select-trigger:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--ring);
 }
 
-/* V2Select menu panel — anchored flush under the trigger, square hairline */
+/* V2Select menu panel — anchored flush under the trigger, soft card */
 .v2-select-menu {
   min-width: 100%;
-  padding: 4px;
+  padding: 5px;
   border: 1px solid var(--border);
+  border-radius: 10px;
   background: var(--popover);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-lg);
 }
 
 /* V2Select menu rows — mono list inside the popover, checkmark on active */
@@ -528,6 +589,7 @@ html:has(.v2-shell):root body {
   gap: 10px;
   padding: 7px 11px;
   border: 0;
+  border-radius: 6px;
   background: transparent;
   color: var(--foreground);
   font-family: var(--theme-font-mono);
@@ -552,6 +614,20 @@ html:has(.v2-shell):root body {
   color: var(--primary);
 }
 
+/* Registry rows as Lumen cards — hairline on paper, inner emission on hover */
+#v2-registry-grid [role='button'] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#v2-registry-grid [role='button']:hover {
+  background: var(--card);
+  border-color: var(--v2-line-strong);
+  box-shadow: inset 0 0 46px -22px var(--v2-glow);
+  transform: translateY(-1px);
+}
+
 /* Load-more — full-width hairline strip button */
 .v2-loadmore {
   display: flex;
@@ -559,6 +635,7 @@ html:has(.v2-shell):root body {
   min-height: 44px;
   padding: 0 16px;
   border: 1px solid var(--border);
+  border-radius: var(--radius);
   background: transparent;
   align-items: center;
   justify-content: space-between;
@@ -634,29 +711,16 @@ html:has(.v2-shell):root body {
 }
 
 /* ---------------------------------------------------------------------------
-   FORM CHROME — make reused classic primitives speak the registry dialect.
+   FORM CHROME — make reused classic primitives speak the Lumen dialect.
    Scope: element rules under .v2-shell; portal-bound overlays (Radix
    dialogs mount on <body>, OUTSIDE the shell) are covered by the
-   html:has(.v2-shell):root prefix below — tokens already inherit there,
-   these rules add the square/hairline structure.
+   html:has(.v2-shell):root prefix below — tokens already inherit there.
    --------------------------------------------------------------------------- */
 
-/* Scrub inherited "character": no lift-press, no hard shadows, no rounding */
-.v2-shell button,
-.v2-shell a {
-  transform: none !important;
-}
-.v2-shell button:hover,
-.v2-shell button:active,
-.v2-shell button:focus-visible,
-.v2-shell a:hover {
-  transform: none !important;
-}
 .v2-shell [data-slot='card'] {
-  border-radius: 0;
+  border-radius: var(--radius);
   border-color: var(--border);
   background: var(--card);
-  box-shadow: none !important;
 }
 
 /* Labels — mono micro-caps eyebrow vocabulary */
@@ -673,12 +737,12 @@ html:has(.v2-shell):root body {
   color: var(--primary);
 }
 
-/* Text entry — hairline box, transparent body, inset accent focus ring */
+/* Text entry — recessed well, soft corners, brass focus ring + glow */
 .v2-shell input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
 .v2-shell textarea,
 .v2-shell select {
-  border-radius: 0;
-  background: transparent;
+  border-radius: 8px;
+  background: var(--v2-code-bg);
   border-color: var(--input);
   color: var(--foreground);
 }
@@ -694,25 +758,25 @@ html:has(.v2-shell):root body {
 .v2-shell select:focus-visible {
   outline: none;
   border-color: var(--primary);
-  box-shadow: inset 0 0 0 1px var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), 0 0 22px -8px var(--v2-glow);
 }
 
-/* Buttons — square-action vocabulary (mono caps, flat, hairline) */
+/* Buttons — Geist sentence-case pills (Lumen) */
 .v2-shell [data-slot='button'] {
-  font-family: var(--theme-font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  border-radius: 0;
+  font-family: var(--theme-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  text-transform: none;
+  border-radius: 999px;
   box-shadow: none;
   transition: background-color 0.15s ease, color 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease, transform 0.15s ease;
 }
 .v2-shell [data-slot='button']:hover,
 .v2-shell [data-slot='button']:active {
   box-shadow: none;
-  transform: none;
+  transform: translateY(-1px);
   scale: 1;
 }
 /* Focus keeps a visible cue (ring utilities are shadow-based) */
@@ -743,20 +807,10 @@ html:has(.v2-shell):root body {
 }
 
 /* Portal-bound overlays while v2 is mounted (Radix/custom dialogs mount
-   on <body>, OUTSIDE .v2-shell — element rules above can't reach them).
-   The photo-upload dialog content carries .rounded-xl (= 4px here); make
-   it square + full-strength hairline like every other v2 surface. */
+   on <body>, OUTSIDE .v2-shell — element rules above can't reach them). */
 html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
-  border-radius: 0;
+  border-radius: 10px;
   border-color: var(--border);
-}
-
-/* Blanket square scrub — v2 is an all-square design. Any stray Tailwind
-   rounding that sneaks in from reused classic components (rounded-md /
-   rounded-full / rounded-[6px]) collapses to 0 while inside the shell.
-   MapLibre internals are exempt from the selector by class prefix. */
-.v2-shell [class*='rounded-']:not([class*='maplibre']) {
-  border-radius: 0 !important;
 }
 
 /* ---------------------------------------------------------------------------
@@ -810,10 +864,12 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
    --------------------------------------------------------------------------- */
 .v2-search-wrap:hover .v2-search {
   background: var(--card);
+  border-color: var(--v2-line-strong);
 }
 .v2-search-wrap:focus-within .v2-search {
   background: var(--card);
-  box-shadow: inset 0 -2px 0 0 var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), 0 0 26px -8px var(--v2-glow);
 }
 
 /* Attention panel — accent side-bar + accent head label */
