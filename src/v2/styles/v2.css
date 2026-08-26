@@ -94,53 +94,64 @@ html:has(.v2-shell):root {
 }
 
 /* ---------------------------------------------------------------------------
-   TOKENS — LIGHT. Omarchy paper variant (#f8f8f6 + brick #c6371c).
+   TOKENS — LIGHT. Lumen "Morning Foundry": warm brass paper. Accent is
+   darkened to hold AA contrast on the light surface.
+   Toggled by [data-mode='light'] on the .v2-shell root element only.
+   --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   TOKENS — LIGHT. Lumen "Morning Foundry": warm brass paper. Accent is
+   darkened to hold AA contrast on the light surface.
    Toggled by [data-mode='light'] on the .v2-shell root element only.
    --------------------------------------------------------------------------- */
 html:has(.v2-shell[data-mode='light']):root {
-  --background: #f8f8f6;
-  --foreground: #19191b;
-  --card: #ffffff;
-  --card-foreground: #19191b;
-  --popover: #ffffff;
-  --popover-foreground: #19191b;
+  --background: oklch(96.5% 0.008 85);
+  --foreground: oklch(25% 0.02 265);
+  --card: oklch(99% 0.003 95);
+  --card-foreground: oklch(20% 0.018 265);
+  --popover: oklch(99% 0.003 95);
+  --popover-foreground: oklch(20% 0.018 265);
 
-  --primary: #c6371c;
-  --primary-foreground: #ffffff;
+  --primary: oklch(56% 0.16 50);
+  --primary-foreground: oklch(98% 0.005 90);
 
-  --secondary: #efefec;
-  --secondary-foreground: #4a4a50;
-  --muted: #efefec;
-  --muted-foreground: #65656a;
-  --accent: #c6371c;
-  --accent-foreground: #ffffff;
+  --secondary: oklch(93% 0.01 85);
+  --secondary-foreground: oklch(40% 0.015 265);
+  --muted: oklch(93% 0.01 85);
+  --muted-foreground: oklch(46% 0.014 265);
+  --accent: oklch(56% 0.16 50);
+  --accent-foreground: oklch(98% 0.005 90);
 
-  --destructive: #c23434;
-  --destructive-foreground: #ffffff;
-  --success: #65751e;
-  --success-foreground: #ffffff;
-  --warning: #9a6700;
-  --warning-foreground: #ffffff;
-  --info: #315d85;
-  --info-foreground: #ffffff;
+  --destructive: oklch(52% 0.19 25);
+  --destructive-foreground: oklch(98% 0.005 90);
+  --success: oklch(50% 0.12 145);
+  --success-foreground: oklch(98% 0.005 90);
+  --warning: oklch(55% 0.13 70);
+  --warning-foreground: oklch(98% 0.005 90);
+  --info: oklch(48% 0.1 245);
+  --info-foreground: oklch(98% 0.005 90);
 
-  --border: #cdcdca;
-  --input: #cdcdca;
-  --ring: #c6371c;
+  --border: oklch(87% 0.01 85);
+  --input: oklch(87% 0.01 85);
+  --ring: oklch(56% 0.16 50);
 
-  --sidebar: #f1f1ef;
-  --sidebar-foreground: #65656a;
-  --sidebar-accent: #e4e4e1;
-  --sidebar-accent-foreground: #19191b;
-  --sidebar-border: #cdcdca;
-  --sidebar-ring: #c6371c;
+  --sidebar: oklch(94.5% 0.008 85);
+  --sidebar-foreground: oklch(46% 0.014 265);
+  --sidebar-accent: oklch(93% 0.01 85);
+  --sidebar-accent-foreground: oklch(20% 0.018 265);
+  --sidebar-border: oklch(87% 0.01 85);
+  --sidebar-ring: oklch(56% 0.16 50);
 
-  --pin-color: #c6371c;
+  --pin-color: oklch(56% 0.16 50);
 
-  --v2-line-soft: #dededb;
-  --v2-line-strong: #b9b9b6;
-  --v2-faint: #6d6d74;
-  --v2-code-bg: #ffffff;
+  /* V2-only extensions in their light register */
+  --v2-line-soft: oklch(90% 0.008 85);
+  --v2-line-strong: oklch(76% 0.012 80);
+  --v2-faint: oklch(52% 0.014 265);
+  --v2-code-bg: oklch(94% 0.009 85);
+  --v2-stable: oklch(45% 0.11 145);
+  --v2-caution: oklch(55% 0.14 75);
+  --v2-ember: oklch(52% 0.17 25);
+  --v2-glow: oklch(60% 0.15 50 / 0.22);
 }
 
 /* ---------------------------------------------------------------------------
@@ -225,7 +236,7 @@ html:has(.v2-shell):root body {
 /* Big page title — Instrument Serif with accent pivot word */
 .v2-title {
   margin: 0;
-  color: oklch(96% 0.006 262);
+  color: var(--card-foreground);
   font-family: var(--theme-font-display);
   font-size: clamp(30px, 5vw, 44px);
   font-weight: 400;
@@ -879,4 +890,24 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
 }
 .v2-panel-attention header h2 {
   color: var(--primary);
+}
+
+/* Destructive panel — the whole block claims the destructive colour:
+   tinted border, red side-bar, red label AND body text, faint ember wash */
+.v2-panel-destructive {
+  border-color: color-mix(in srgb, var(--destructive) 55%, var(--border));
+  box-shadow:
+    inset 3px 0 0 0 var(--destructive),
+    inset 0 0 64px -34px
+      color-mix(in srgb, var(--destructive) 30%, transparent);
+}
+.v2-panel-destructive header {
+  border-color: color-mix(in srgb, var(--destructive) 35%, var(--border));
+}
+.v2-panel-destructive header h2 {
+  color: var(--destructive);
+  opacity: 1;
+}
+.v2-panel-destructive > div:last-child {
+  color: var(--destructive);
 }

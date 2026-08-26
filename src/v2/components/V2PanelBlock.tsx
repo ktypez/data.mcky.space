@@ -5,8 +5,9 @@ interface V2PanelBlockProps {
   label: string
   /** Optional right-side action in the head strip (e.g. a copy button). */
   action?: ReactNode
-  /** 'attention' adds an accent side-bar + accent head label. */
-  variant?: 'default' | 'attention'
+  /** 'attention' adds an accent side-bar + accent head label.
+   *  'destructive' tints the WHOLE panel in the destructive colour. */
+  variant?: 'default' | 'attention' | 'destructive'
   children: ReactNode
 }
 
@@ -20,8 +21,14 @@ export default function V2PanelBlock({
   variant = 'default',
   children,
 }: V2PanelBlockProps) {
+  const variantClass =
+    variant === 'attention'
+      ? ' v2-panel-attention'
+      : variant === 'destructive'
+        ? ' v2-panel-destructive'
+        : ''
   return (
-    <section className={`v2-panel${variant === 'attention' ? ' v2-panel-attention' : ''}`}>
+    <section className={`v2-panel${variantClass}`}>
       <header className="flex h-[37px] items-center justify-between border-b border-border pr-1.5 pl-3.5">
         <h2 className="font-mono text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
           {label}
