@@ -424,8 +424,11 @@ html:has(.v2-shell):root body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Hairline panel — command-panel / toolbar container */
+/* Hairline panel — command-panel / toolbar container.
+   overflow hidden clips children (photos, maps, wells) to the radius so
+   square corners never poke out as specks at the panel's round corners */
 .v2-panel {
+  overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
@@ -729,6 +732,7 @@ html:has(.v2-shell):root body {
    --------------------------------------------------------------------------- */
 
 .v2-shell [data-slot='card'] {
+  overflow: hidden;
   border-radius: var(--radius);
   border-color: var(--border);
   background: var(--card);
