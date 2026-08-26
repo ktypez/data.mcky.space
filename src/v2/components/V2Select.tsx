@@ -29,6 +29,7 @@ export default function V2Select<T extends string>({
 }: V2SelectProps<T>) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const { fadeScaleIn, spring } = useMotion()
 
   // Outside press / Escape → close. pointerdown fires before any other
@@ -39,7 +40,10 @@ export default function V2Select<T extends string>({
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false)
     }
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape') {
+        setOpen(false)
+        triggerRef.current?.focus()
+      }
     }
     document.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('keydown', onKeyDown)
@@ -54,6 +58,7 @@ export default function V2Select<T extends string>({
   return (
     <div ref={rootRef} className="relative">
       <button
+        ref={triggerRef}
         type="button"
         className="v2-select-trigger"
         aria-label={ariaLabel}

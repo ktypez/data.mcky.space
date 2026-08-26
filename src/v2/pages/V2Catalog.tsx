@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MagnifyingGlass, ArrowRight, ArrowClockwise } from '@phosphor-icons/react'
 import { FilterKey } from '@/types'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
 import { useFilteredClients, DISPLAY_STEP } from '@/hooks/useFilteredClients'
-import V2Toolbar, { type V2SortKey } from '@/v2/components/V2Toolbar'
+import V2Toolbar, { type V2SortKey, SORT_OPTIONS } from '@/v2/components/V2Toolbar'
 import V2FilterBar from '@/v2/components/V2FilterBar'
 import RegistryGrid from '@/v2/components/RegistryGrid'
 import V2RayCanvas from '@/v2/components/V2RayCanvas'
@@ -14,9 +14,15 @@ function sortName(c: { name: string[]; shopName: string[] }): string {
   return (c.name[0] || c.shopName[0] || '').trim()
 }
 
+// Read once at mount — seeds local + store state from ?q=&filter=&sort=
+const initialParams = new URLSearchParams(window.location.search)
+
 export default function V2Catalog() {
   const navigate = useNavigate()
-  const [sort, setSort] = useState<V2SortKey>('updated')
+  const [sort, setSort] = useState<V2SortKey>(() => {
+    const p = initialParams.get('sort')
+    return SORT_OPTIONS.some((o) => o.value === p) ? (p as V2SortKey) : 'updated'
+  })
 
   const clients = useClientStore((s) => s.clients)
   const loading = useClientStore((s) => s.loading)
@@ -26,6 +32,34 @@ export default function V2Catalog() {
   const setSearch = useFilterStore((s) => s.setSearch)
   const filter = useFilterStore((s) => s.filter)
   const setFilter = useFilterStore((s) => s.setFilter)
+
+  // Deep-link seed: hydrate the shared filter store once on first mount
+  useEffect(() => {
+    const q = initialParams.get('q')
+    if (q) setSearch(q)
+    const f = initialParams.get('filter')
+    if (f && Object.values(FilterKey).includes(f as FilterKey)) {
+      setFilter(f as FilterKey)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Reflect state in the URL (replaceState, debounced for typing)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const params = new URLSearchParams()
+      if (search.trim()) params.set('q', search.trim())
+      if (filter !== FilterKey.All) params.set('filter', filter)
+      if (sort !== 'updated') params.set('sort', sort)
+      const qs = params.toString()
+      window.history.replaceState(
+        null,
+        '',
+        qs ? `${window.location.pathname}?${qs}` : window.location.pathname
+      )
+    }, 250)
+    return () => clearTimeout(t)
+  }, [search, filter, sort])
 
   // Shared engine with the classic list — debounce, counts, filter, windowing
   const { counts, filtered, displayed, hasMore, displayLimit } = useFilteredClients()

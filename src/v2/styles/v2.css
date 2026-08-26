@@ -18,6 +18,8 @@
    TOKENS — DARK (default). Omarchy palette.
    --------------------------------------------------------------------------- */
 html:has(.v2-shell):root {
+  color-scheme: dark;
+
   /* Core — Night Foundry: cool-violet paper, molten-brass accent (Lumen) */
   --background: oklch(13% 0.014 265);
   --foreground: oklch(82% 0.01 262);
@@ -104,6 +106,8 @@ html:has(.v2-shell):root {
    Toggled by [data-mode='light'] on the .v2-shell root element only.
    --------------------------------------------------------------------------- */
 html:has(.v2-shell[data-mode='light']):root {
+  color-scheme: light;
+
   --background: oklch(96.5% 0.008 85);
   --foreground: oklch(25% 0.02 265);
   --card: oklch(99% 0.003 95);
@@ -424,6 +428,15 @@ html:has(.v2-shell):root body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Touch hygiene — kill double-tap zoom delay + OS tap flash on all
+   v2 interactives (highlight removed intentionally; states carry feedback) */
+.v2-shell button,
+.v2-shell [role='button'],
+.v2-shell a {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Hairline panel — command-panel / toolbar container.
    overflow hidden clips children (photos, maps, wells) to the radius so
    square corners never poke out as specks at the panel's round corners */
@@ -582,6 +595,17 @@ html:has(.v2-shell):root body {
 .v2-select-trigger:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--ring);
+}
+
+/* Keyboard focus — one visible brass double-ring across every custom
+   control that lacks a built-in focus treatment */
+.v2-btn:focus-visible,
+.v2-chip:focus-visible,
+.v2-loadmore:focus-visible,
+.v2-search-clear:focus-visible,
+.v2-select-option:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
 }
 
 /* V2Select menu panel — anchored flush under the trigger, soft card */

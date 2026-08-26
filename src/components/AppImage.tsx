@@ -1,10 +1,8 @@
-interface AppImageProps {
+interface AppImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string
   alt: string
-  className?: string
-  onClick?: (e: React.MouseEvent) => void
 }
 
-export default function AppImage({ src, alt, className, onClick }: AppImageProps) {
-  return <img src={src} alt={alt} className={className} onClick={onClick} loading="lazy" />
+export default function AppImage({ src, alt, ...rest }: AppImageProps) {
+  return <img src={src} alt={alt} loading="lazy" decoding="async" {...rest} />
 }

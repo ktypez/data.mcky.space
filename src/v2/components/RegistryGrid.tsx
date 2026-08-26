@@ -25,6 +25,8 @@ function Thumb({ client }: { client: Client }) {
       <AppImage
         src={src}
         alt=""
+        width={46}
+        height={46}
         className="h-[46px] w-[46px] border border-border object-cover"
       />
     )
@@ -100,18 +102,34 @@ function RegistryRow({ client }: { client: Client }) {
   // ClientNames → OverflowLine renders <div>s internally, which <button>
   // can't legally contain. So the row surface is a div[role=button].
   const open = () => navigate(`/v2/c/${client.id}`)
+  const recordUrl = `/v2/c/${client.id}`
+  // Modifier clicks open in a new tab (Cmd/Ctrl+click guideline) since a
+  // div[role=button] has no native anchor behaviour to lean on.
+  const openInNewTab = () => window.open(recordUrl, '_blank', 'noopener')
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       open()
     }
   }
+  const onClick = (e: React.MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey) {
+      e.preventDefault()
+      openInNewTab()
+    } else {
+      open()
+    }
+  }
+  const onAuxClick = (e: React.MouseEvent) => {
+    if (e.button === 1) openInNewTab()
+  }
 
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={open}
+      onClick={onClick}
+      onAuxClick={onAuxClick}
       onKeyDown={onKeyDown}
       className="group relative grid min-h-[104px] w-full cursor-pointer grid-cols-[46px_minmax(0,1fr)] items-start gap-3.5 bg-background p-5 text-left transition-colors hover:bg-card xl:grid-cols-[46px_minmax(0,1fr)_150px]"
       aria-label={`Open record: ${client.name[0] || client.shopName[0] || client.id}`}

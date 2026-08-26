@@ -41,6 +41,7 @@ export default function V2Toolbar({ search, onSearchChange }: V2ToolbarProps) {
         id="v2-search-input"
         ref={inputRef}
         type="search"
+        name="q"
         className="v2-search"
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
@@ -57,9 +58,6 @@ export default function V2Toolbar({ search, onSearchChange }: V2ToolbarProps) {
         maxLength={160}
         autoComplete="off"
         spellCheck={false}
-        role="combobox"
-        aria-expanded="false"
-        aria-controls="v2-registry-grid"
         aria-label="Search clients"
       />
       {search && (
