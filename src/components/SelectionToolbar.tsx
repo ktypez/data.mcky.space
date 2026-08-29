@@ -13,6 +13,7 @@ interface Counts {
   withImages: number
   noImages: number
   recent: number
+  penpay: number
 }
 
 interface Props {

@@ -148,7 +148,7 @@ export default function ClientDetail({
     onClick={() => setShowMapConfirm(true)}
     className="flex-1 aspect-square md:aspect-[2/1] rounded-[10px] overflow-hidden relative flex flex-col cursor-pointer"
    >
-  <MapPreview lat={client.lat} lng={client.lng} />
+  <MapPreview lat={client.lat!} lng={client.lng!} />
   <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[14px] font-medium bg-foreground/80 text-white pointer-events-none">
  <ArrowSquareOut className="w-3 h-3" />
  เปิดแผนที่

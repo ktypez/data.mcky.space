@@ -28,7 +28,7 @@ const inputVariants = cva(
   }
 )
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement>, VariantProps<typeof inputVariants> {}
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, VariantProps<typeof inputVariants> {}
 
 function Input({ className, variant, size, ...props }: InputProps) {
   return <input className={cn(inputVariants({ variant, size, className }))} {...props} />

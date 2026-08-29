@@ -12,7 +12,6 @@ interface VerticalBarProps {
 export function VerticalBar({ containerRef }: VerticalBarProps) {
   const [thumbH, setThumbH] = useState(0)
   const [thumbTop, setThumbTop] = useState(0)
-  const [trackH, setTrackH] = useState(0)
   const [opacity, setOpacity] = useState(0)
   const hideTimer = useRef<number>(0)
 
@@ -29,7 +28,6 @@ export function VerticalBar({ containerRef }: VerticalBarProps) {
     const maxTop = clientHeight - h
     const scrollRatio = scrollTop / (scrollHeight - clientHeight)
     setThumbH(h)
-    setTrackH(clientHeight)
     setThumbTop(offsetTop + scrollRatio * maxTop)
     setOpacity(1)
     clearTimeout(hideTimer.current)

@@ -2,10 +2,17 @@ import { describe, it, expect } from 'vitest'
 import { applyCounts, applyFilter } from './filter'
 import { FilterKey, type Client } from '@/types'
 
-function mk(over: Partial<Client> & { id: string; name: string | string[] }): Client {
+function mk(
+  over: Omit<Partial<Client>, 'name' | 'shopName'> & {
+    id: string
+    name: string | string[]
+    shopName?: string | string[]
+  },
+): Client {
+  const { name, shopName, ...rest } = over
   return {
-    name: Array.isArray(over.name) ? over.name : [over.name],
-    shopName: over.shopName ? (Array.isArray(over.shopName) ? over.shopName : [over.shopName]) : [],
+    name: Array.isArray(name) ? name : [name],
+    shopName: shopName ? (Array.isArray(shopName) ? shopName : [shopName]) : [],
     address: '',
     lat: null,
     lng: null,
@@ -14,8 +21,8 @@ function mk(over: Partial<Client> & { id: string; name: string | string[] }): Cl
     notes: null,
     createdAt: 0,
     updatedAt: 0,
-    ...over,
-  } as Client
+    ...rest,
+  }
 }
 
 const cutoff = 1_700_000_000_000

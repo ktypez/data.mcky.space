@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { MapPin, Crosshair, MagnifyingGlass } from '@phosphor-icons/react'
 import MapPicker from '@/components/MapPickerDynamic'
 import { Input } from '@/components/ui/input'

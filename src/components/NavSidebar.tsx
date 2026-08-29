@@ -4,7 +4,6 @@ import { useUIStore } from '@/stores/ui-store'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import ThemePresetPicker from '@/components/ThemePresetPicker'
 import ThemeModePicker from '@/components/ThemeModePicker'
-import { useTheme } from '@/lib/theme-context'
 import { getTheme, isDarkOnlyTheme, isLightOnlyTheme } from '@/lib/design/themes'
 
 const NAV_ITEMS = [
@@ -12,10 +11,8 @@ const NAV_ITEMS = [
 ] as const
 
 function SidebarLink({
-  path,
   label,
   icon: Icon,
-  exact,
   active,
   onClick,
 }: {
@@ -52,13 +49,11 @@ export default function NavSidebar() {
   const navigate = useNavigate()
   const { isAdmin, isSignedIn, setLoginOpen } = useAuthStore()
   const resetView = useUIStore((s) => s.resetView)
-  const { resolvedTheme } = useTheme()
   const themeId = useUIStore((s) => s.theme)
 
   const pathname = location.pathname
 
   // Route detection — same as NavDropdown
-  const isHome = pathname === '/' || pathname.startsWith('/c/')
   const isTrash = pathname === '/trash' || pathname.startsWith('/trash/')
 
   const isDarkOnly = isDarkOnlyTheme(getTheme(themeId))

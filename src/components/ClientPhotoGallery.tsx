@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSwipe } from '@/hooks/useSwipe'
 import AppImage from '@/components/AppImage'
 

@@ -12,7 +12,7 @@ export function AuthSync() {
     const email = user?.primaryEmailAddress?.emailAddress ?? null
     const admin = isAdminEmail(email)
     useAuthStore.getState().setAdmin(admin)
-    useAuthStore.getState().setSignedIn(isSignedIn)
+    useAuthStore.getState().setSignedIn(!!isSignedIn)
     useAuthStore.getState().setChecking(false)
     // Stash the token-minting fn so apiFetch can attach the Bearer header
     // on write calls (Clerk exposes getToken only inside a provider/hook).

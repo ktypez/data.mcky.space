@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useClientStore } from '@/stores/client-store'
-import { useAuthStore } from '@/stores/auth-store'
 import { addClient, updateClient } from '@/lib/storage'
 import type { Client } from '@/types'
 import InlineAddEditView from '@/components/InlineAddEditView'
@@ -12,7 +11,6 @@ export default function AddEditPage() {
   const { id } = useParams<{ id: string }>()
   const { clients, initialize } = useClientStore()
   const cliStore = useClientStore()
-  const { isAdmin } = useAuthStore()
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [saveError, setSaveError] = useState<string | null>(null)

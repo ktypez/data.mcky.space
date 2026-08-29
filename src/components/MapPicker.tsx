@@ -102,7 +102,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
         return
       }
 
-      map.on('click', (e) => {
+      map.on('click', (e: any) => {
         const { lng: mlng, lat: mlat } = e.lngLat
         onChangeRef.current(mlat, mlng)
         map.flyTo({ center: [mlng, mlat], zoom: Math.max(map.getZoom(), PIN_ZOOM), duration: 600 })

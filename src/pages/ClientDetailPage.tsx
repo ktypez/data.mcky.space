@@ -55,7 +55,7 @@ export default function ClientDetailPage() {
   }, [loadData])
 
   const handleDelete = useCallback(
-    (deletedId: string) => {
+    () => {
       navigate('/')
     },
     [navigate],

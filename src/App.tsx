@@ -2,7 +2,6 @@ import { lazy, Suspense, useCallback, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { useAuthStore } from './stores/auth-store'
-import { useClientStore } from './stores/client-store'
 import { useFilterStore } from './stores/filter-store'
 import { useUIStore } from './stores/ui-store'
 import { useAuth } from '@clerk/clerk-react'
@@ -42,7 +41,7 @@ function RouteHeader() {
   const navigate = useNavigate()
   const pathname = location.pathname
 
-  const { isAdmin, isSignedIn, setLoginOpen } = useAuthStore()
+  const { isAdmin } = useAuthStore()
   const { search, setSearch } = useFilterStore()
   const viewState = useUIStore((s) => s.viewState)
 

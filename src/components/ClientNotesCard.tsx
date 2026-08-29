@@ -2,7 +2,7 @@ import { ChatDots } from '@phosphor-icons/react'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface ClientNotesCardProps {
-  notes: string
+  notes: string | null
 }
 
 export default function ClientNotesCard({ notes }: ClientNotesCardProps) {

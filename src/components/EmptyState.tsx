@@ -1,4 +1,4 @@
-import { MagnifyingGlass, ImageIcon, Circle, Clock } from '@phosphor-icons/react'
+import { MagnifyingGlass, ImageIcon, Circle, Clock, CurrencyDollar } from '@phosphor-icons/react'
 import { FilterKey } from '@/types'
 import { motion } from 'motion/react'
 import { staggerContainer, staggerItem } from '@/lib/motion'
@@ -16,6 +16,7 @@ const filterIcons: Record<FilterKey, React.ReactNode> = {
  [FilterKey.WithImages]: <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-40" />,
  [FilterKey.NoImages]: <Circle className="w-8 h-8 mx-auto mb-2 opacity-40" />,
  [FilterKey.Recent]: <Clock className="w-8 h-8 mx-auto mb-2 opacity-40" />,
+ [FilterKey.Penpay]: <CurrencyDollar className="w-8 h-8 mx-auto mb-2 opacity-40" />,
 }
 
 const filterLabels: Record<FilterKey, string> = {
@@ -23,6 +24,7 @@ const filterLabels: Record<FilterKey, string> = {
  [FilterKey.WithImages]: 'ลูกค้าที่มีรูป',
  [FilterKey.NoImages]: 'ลูกค้าที่ไม่มีรูป',
  [FilterKey.Recent]: 'ลูกค้าที่สร้างใน 7 วัน',
+ [FilterKey.Penpay]: 'ลูกค้าเพนเพย์',
 }
 
 export default function EmptyState({

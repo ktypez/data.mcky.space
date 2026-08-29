@@ -14,7 +14,7 @@ interface PageLayoutProps {
  */
 export default function PageLayout({ header, children }: PageLayoutProps) {
   const frameRef = useRef<HTMLDivElement>(null)
-  const [scrolled, setScrolled] = useState(false)
+  const [, setScrolled] = useState(false)
 
   useEffect(() => {
     let frame: HTMLElement | null = null

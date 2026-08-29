@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from './dialog'
 import { Button } from './button'
 import { cn } from '@/lib/utils'

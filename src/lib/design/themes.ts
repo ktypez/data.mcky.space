@@ -989,7 +989,7 @@ const portal: Theme = {
     '--sidebar-border': '#26292f',
     '--sidebar-ring': '#d6ff3f',
     '--radius': '0.875rem',
-    '  --pin-color': '#d6ff3f',
+    '--pin-color': '#d6ff3f',
   },
 }
 
@@ -1206,4 +1206,4 @@ export function isDualModeTheme(t: Theme): boolean {
 }
 
 /** ids ที่ backend อนุญาต — ต้องตรงกับ registry นี้ (mirror ใน functions/lib/theme-ids.ts) */
-const THEME_IDS: string[] = themes.map((t) => t.id)
+// THEME_IDS removed — backend still mirrors functions/lib/theme-ids.ts

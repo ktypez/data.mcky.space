@@ -42,7 +42,6 @@ export default function AddClientForm({
   existingClients,
   variant = 'sheet',
   uploading,
-  uploadProgress,
   error,
 }: Props) {
   const [name, setName] = useState<string[]>(() => toArray(editClient?.name))
@@ -167,9 +166,7 @@ export default function AddClientForm({
     <>
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        side="right"
         className="p-0 gap-0 overflow-hidden bg-card border-l border-border"
-        showCloseButton={false}
       >
         <SheetHeader className="flex flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-border">
           <SheetTitle className="text-base font-bold text-foreground">
