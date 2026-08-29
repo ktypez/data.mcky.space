@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import V2Sidebar from './components/V2Sidebar'
 import V2Topbar from './components/V2Topbar'
 import V2MobileNav from './components/V2MobileNav'
@@ -7,6 +7,7 @@ import V2Catalog from './pages/V2Catalog'
 import V2Record from './pages/V2Record'
 import V2Editor from './pages/V2Editor'
 import V2Trash from './pages/V2Trash'
+import { requestSearchFocus } from './components/V2Toolbar'
 import { useClientStore } from '@/stores/client-store'
 import './styles/v2.css'
 
@@ -33,6 +34,7 @@ function readInitialMode(): V2Mode {
 export default function V2App() {
   const [mode, setMode] = useState<V2Mode>(readInitialMode)
   const location = useLocation()
+  const navigate = useNavigate()
 
   // Boot the shared client store (idempotent — no-op if classic UI already
   // loaded it). Makes direct URLs like /v2/c/<id> work on hard refresh.
@@ -54,6 +56,9 @@ export default function V2App() {
   }, [location.pathname])
 
   // Ctrl/Cmd+K or "/" (outside form fields) → focus catalog search.
+  // Works from any v2 page: the catalog is navigated to first when needed,
+  // and requestSearchFocus carries a one-shot intent the toolbar consumes
+  // on mount (see V2Toolbar).
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
@@ -65,15 +70,17 @@ export default function V2App() {
           target.isContentEditable)
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
-        window.dispatchEvent(new CustomEvent('v2:focus-search'))
+        if (location.pathname !== '/v2') navigate('/v2')
+        requestSearchFocus()
       } else if (e.key === '/' && !inField && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault()
-        window.dispatchEvent(new CustomEvent('v2:focus-search'))
+        if (location.pathname !== '/v2') navigate('/v2')
+        requestSearchFocus()
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+  }, [location.pathname, navigate])
 
   const toggleMode = () => setMode((m) => (m === 'dark' ? 'light' : 'dark'))
 

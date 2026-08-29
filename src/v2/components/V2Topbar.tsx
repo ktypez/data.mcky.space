@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { MagnifyingGlass, Sun, Moon, House } from '@phosphor-icons/react'
+import { requestSearchFocus } from './V2Toolbar'
 
 interface V2TopbarProps {
   mode: 'dark' | 'light'
@@ -44,7 +45,10 @@ export default function V2Topbar({ mode, onToggleMode }: V2TopbarProps) {
         <button
           type="button"
           className="v2-btn h-full border-0 border-l border-border"
-          onClick={() => window.dispatchEvent(new CustomEvent('v2:focus-search'))}
+          onClick={() => {
+            if (location.pathname !== '/v2') navigate('/v2')
+            requestSearchFocus()
+          }}
           aria-label="Search clients (Ctrl K)"
         >
           <MagnifyingGlass className="h-3.5 w-3.5" aria-hidden="true" />

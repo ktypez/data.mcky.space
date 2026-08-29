@@ -23,15 +23,31 @@ interface V2ToolbarProps {
  * - Ctrl/Cmd+K anywhere dispatches `v2:focus-search` → focuses this input
  * - Escape clears the query, or blurs when already empty
  */
+
+// One-shot focus intent that survives remounts: the shortcut may fire while
+// this toolbar is NOT mounted (record/editor/trash pages). The intent is
+// remembered here, consumed on the next mount, and cleared whenever the
+// live event listener handles it.
+let pendingFocusSearch = false
+
+/** Focus the catalog search — safe from anywhere in the v2 shell. */
+export function requestSearchFocus() {
+  pendingFocusSearch = true
+  window.dispatchEvent(new CustomEvent('v2:focus-search'))
+}
+
 export default function V2Toolbar({ search, onSearchChange }: V2ToolbarProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const onFocusRequest = () => {
+      pendingFocusSearch = false
       inputRef.current?.focus()
       inputRef.current?.select()
     }
     window.addEventListener('v2:focus-search', onFocusRequest)
+    // A shortcut fired while we were unmounted → focus now.
+    if (pendingFocusSearch) onFocusRequest()
     return () => window.removeEventListener('v2:focus-search', onFocusRequest)
   }, [])
 
