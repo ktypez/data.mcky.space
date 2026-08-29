@@ -13,9 +13,9 @@ import { deleteClient } from '@/lib/storage'
 import ClientNames from '@/components/ClientNames'
 import AppImage from '@/components/AppImage'
 import MapPreviewDynamic from '@/components/MapPreviewDynamic'
-import Lightbox from '@/components/Lightbox'
 import V2PanelBlock from '@/v2/components/V2PanelBlock'
 import V2Confirm from '@/v2/components/V2Confirm'
+import V2Lightbox from '@/v2/components/V2Lightbox'
 import { copyToClipboard, formatDate, formatDateTime, getMapsUrl, hasValidCoords } from '@/lib/utils'
 import { clientTextWithMaps } from '@/lib/clientText'
 
@@ -131,14 +131,16 @@ export default function V2Record() {
       )}
 
       <p className="v2-eyebrow">Record · {client.id.slice(0, 8)}</p>
-      <h1 className="v2-title">
+      {/* ClientNames renders <div>s, which can't legally nest in <h1> —
+          the heading role is expressed via aria instead. */}
+      <div role="heading" aria-level={1} className="v2-title">
         <ClientNames
           client={client}
           variant="detail"
           titleClassName="text-foreground"
           subClassName="mt-2 font-mono text-sm font-normal tracking-normal text-muted-foreground"
         />
-      </h1>
+      </div>
       <p className="v2-meta mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span>created {formatDate(client.createdAt)}</span>
         {client.updatedAt > client.createdAt && (
@@ -234,7 +236,7 @@ export default function V2Record() {
       </div>
 
       {lightboxIdx !== null && (
-        <Lightbox
+        <V2Lightbox
           images={client.images}
           index={lightboxIdx}
           onClose={() => setLightboxIdx(null)}

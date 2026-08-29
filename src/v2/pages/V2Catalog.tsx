@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MagnifyingGlass, ArrowRight, ArrowClockwise } from '@phosphor-icons/react'
 import { FilterKey } from '@/types'
@@ -81,9 +81,28 @@ export default function V2Catalog() {
   const globalEmpty = clients.length === 0 && !loading && !error
   const noResults = !globalEmpty && !loading && filtered.length === 0
 
+  const loadMoreRef = useRef<HTMLButtonElement>(null)
+  // Viewport Y of the load-more button at click time. Rows append BELOW it,
+  // so the layout effect below scrolls the button back to this exact spot.
+  const loadMoreAnchorRef = useRef<number | null>(null)
+
   const loadMore = () => {
+    const btn = loadMoreRef.current
+    if (btn) loadMoreAnchorRef.current = btn.getBoundingClientRect().top
     useClientStore.getState().setDisplayLimit(displayLimit + DISPLAY_STEP)
   }
+
+  // Keep the button pinned in the viewport after its own click grows the
+  // grid — without this, each "load more" pushes the button further down
+  // and the user has to scroll after every single click.
+  useLayoutEffect(() => {
+    const btn = loadMoreRef.current
+    const anchor = loadMoreAnchorRef.current
+    loadMoreAnchorRef.current = null
+    if (!btn || anchor === null) return
+    const delta = btn.getBoundingClientRect().top - anchor
+    if (Math.abs(delta) > 1) window.scrollBy({ top: delta })
+  }, [displayLimit])
 
   const resetAll = () => {
     setSearch('')
@@ -110,7 +129,7 @@ export default function V2Catalog() {
                 <span>
                   {isFiltering ? `${filtered.length} / ${counts.total}` : counts.total} records
                 </span>
-                <span>{hasMore ? `showing ${sorted.length}` : `${sorted.length} shown`}</span>
+                {hasMore && <span>showing {sorted.length}</span>}
                 {filter !== FilterKey.All && <span>filtered</span>}
               </>
             )}
@@ -140,7 +159,7 @@ export default function V2Catalog() {
 
           {/* Load more */}
           {hasMore && (
-            <button type="button" className="v2-loadmore mt-px" onClick={loadMore}>
+            <button ref={loadMoreRef} type="button" className="v2-loadmore mt-px" onClick={loadMore}>
               <span>load more</span>
               <span className="text-muted-foreground/70 tabular-nums">
                 {filtered.length - displayLimit} remaining

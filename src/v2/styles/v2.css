@@ -171,6 +171,9 @@ html:has(.v2-shell):root {
 html:has(.v2-shell):root body {
   background: var(--background);
   color: var(--foreground);
+  /* Match the shell's 0.2s crossfade so the overscroll surface (painted on
+     body, not .v2-shell) doesn't flash the old mode on toggle. */
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 /* Webkit: re-show scrollbars inside the v2 subtree only. The global
    stylesheet sets `*::-webkit-scrollbar { display:none !important }` —
