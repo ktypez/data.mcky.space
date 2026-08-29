@@ -939,3 +939,81 @@ html:has(.v2-shell):root div.fixed > div[class*='rounded-xl'] {
 .v2-panel-destructive > div:last-child {
   color: var(--destructive);
 }
+
+/* ---------------------------------------------------------------------------
+   CONFIRM DIALOG — V2Confirm portals to <body> (outside .v2-shell), so
+   these rules ride the html:has(.v2-shell) prefix per the isolation
+   contract. Tokens (--card, --border, …) already resolve from :root there.
+   --------------------------------------------------------------------------- */
+html:has(.v2-shell):root .v2-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+html:has(.v2-shell):root .v2-confirm {
+  width: min(100%, 380px);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: var(--shadow-lg);
+}
+html:has(.v2-shell):root .v2-confirm[data-destructive] {
+  border-color: color-mix(in srgb, var(--destructive) 55%, var(--border));
+  box-shadow:
+    inset 3px 0 0 0 var(--destructive),
+    var(--shadow-lg);
+}
+html:has(.v2-shell):root .v2-confirm-body {
+  padding: 18px 18px 14px;
+}
+html:has(.v2-shell):root .v2-confirm-title {
+  margin: 0;
+  color: var(--card-foreground);
+  font-family: var(--theme-font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+html:has(.v2-shell):root .v2-confirm-text {
+  margin: 8px 0 0;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.5;
+}
+html:has(.v2-shell):root .v2-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 18px 18px;
+  border-top: 1px solid var(--border);
+}
+html:has(.v2-shell):root .v2-confirm-actions .v2-btn {
+  flex: 1;
+  justify-content: center;
+}
+/* Destructive eyebrow — the "danger" micro-label */
+html:has(.v2-shell):root .v2-eyebrow-destructive {
+  color: var(--destructive);
+  opacity: 1;
+}
+/* Destructive pill button (record-page delete, confirm dialogs) —
+   matches both in-shell uses and the portal-bound dialog, so it rides
+   the html:has prefix like the other dialog rules. */
+html:has(.v2-shell):root .v2-btn-destructive {
+  border-color: var(--destructive);
+  color: var(--destructive);
+}
+html:has(.v2-shell):root .v2-btn-destructive:hover:not(:disabled),
+html:has(.v2-shell):root .v2-btn-destructive[aria-expanded='true'] {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+}

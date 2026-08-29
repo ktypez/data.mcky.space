@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useClientStore } from '@/stores/client-store'
 import { apiFetch } from '@/lib/api'
 import ClientNames from '@/components/ClientNames'
+import V2Confirm from '@/v2/components/V2Confirm'
 import { formatDateTime } from '@/lib/utils'
 
 interface TrashItem {
@@ -26,6 +27,8 @@ export default function V2Trash() {
   const [items, setItems] = useState<TrashItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [forceTarget, setForceTarget] = useState<TrashItem | null>(null)
+  const [forceBusy, setForceBusy] = useState(false)
   const refreshClients = useClientStore((s) => s.refresh)
 
   const fetchTrash = useCallback(async () => {
@@ -72,7 +75,7 @@ export default function V2Trash() {
   }
 
   const handleForceDelete = async (id: string) => {
-    if (!confirm('ลบถาวร? ไม่สามารถกู้คืนได้')) return
+    setForceBusy(true)
     setError(null)
     try {
       const res = await apiFetch('/api/clients/trash?action=force-delete', {
@@ -87,6 +90,9 @@ export default function V2Trash() {
       }
     } catch {
       setError('ลบไม่สำเร็จ')
+    } finally {
+      setForceBusy(false)
+      setForceTarget(null)
     }
   }
 
@@ -140,7 +146,7 @@ export default function V2Trash() {
                   <ArrowCounterClockwise className="h-3.5 w-3.5" aria-hidden="true" />
                   <span className="hidden sm:inline">restore</span>
                 </button>
-                <button type="button" className="v2-btn" onClick={() => void handleForceDelete(item.id)} aria-label={`Delete forever: ${item.name[0] || item.shopName[0] || item.id}`}>
+                <button type="button" className="v2-btn" onClick={() => setForceTarget(item)} aria-label={`Delete forever: ${item.name[0] || item.shopName[0] || item.id}`}>
                   <Trash className="h-3.5 w-3.5" aria-hidden="true" />
                   <span className="hidden md:inline">delete</span>
                 </button>
@@ -158,6 +164,22 @@ export default function V2Trash() {
           </p>
         </div>
       )}
+      <V2Confirm
+        open={forceTarget !== null}
+        destructive
+        title="delete forever?"
+        body={
+          forceTarget
+            ? `“${forceTarget.name[0] || forceTarget.shopName[0] || forceTarget.id.slice(0, 8)}” จะหาย — ไม่สามารถกู้คืนได้อีก`
+            : undefined
+        }
+        confirmLabel={forceBusy ? 'deleting…' : 'delete forever'}
+        busy={forceBusy}
+        onConfirm={() => {
+          if (forceTarget) void handleForceDelete(forceTarget.id)
+        }}
+        onClose={() => setForceTarget(null)}
+      />
     </div>
   )
 }

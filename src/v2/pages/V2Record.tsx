@@ -5,13 +5,17 @@ import {
   ArrowSquareOut,
   PencilSimple,
   Copy,
+  Trash,
 } from '@phosphor-icons/react'
 import { useClientStore } from '@/stores/client-store'
+import { useAuthStore } from '@/stores/auth-store'
+import { deleteClient } from '@/lib/storage'
 import ClientNames from '@/components/ClientNames'
 import AppImage from '@/components/AppImage'
 import MapPreviewDynamic from '@/components/MapPreviewDynamic'
 import Lightbox from '@/components/Lightbox'
 import V2PanelBlock from '@/v2/components/V2PanelBlock'
+import V2Confirm from '@/v2/components/V2Confirm'
 import { copyToClipboard, formatDate, formatDateTime, getMapsUrl, hasValidCoords } from '@/lib/utils'
 import { clientTextWithMaps } from '@/lib/clientText'
 
@@ -21,7 +25,11 @@ export default function V2Record() {
   const clients = useClientStore((s) => s.clients)
   const loading = useClientStore((s) => s.loading)
   const initialized = useClientStore((s) => s.initialized)
+  const { isAdmin } = useAuthStore()
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const client = useMemo(() => clients.find((c) => c.id === id), [clients, id])
   const coords = client && hasValidCoords(client.lat, client.lng)
@@ -58,6 +66,25 @@ export default function V2Record() {
 
   const copyAll = () => void copyToClipboard(clientTextWithMaps(client, getMapsUrl))
 
+  const handleDelete = async () => {
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      // Soft delete — the server stamps deletedAt, so the record lands in
+      // trash and stays restorable (same endpoint the classic page uses).
+      await deleteClient(client.id)
+      useClientStore.getState().removeClient(client.id)
+      setConfirmDelete(false)
+      navigate('/v2')
+    } catch {
+      setDeleting(false)
+      setConfirmDelete(false)
+      setDeleteError('ลบไม่สำเร็จ — ลองใหม่ได้อีกครัง้')
+    }
+  }
+
+  const displayName = (client.name[0] || client.shopName[0] || client.id.slice(0, 8))
+
   return (
     <Shell>
       {/* Header */}
@@ -79,8 +106,29 @@ export default function V2Record() {
             <PencilSimple className="h-3.5 w-3.5" aria-hidden="true" />
             edit
           </button>
+          {isAdmin && (
+            <button
+              type="button"
+              className="v2-btn v2-btn-destructive"
+              onClick={() => setConfirmDelete(true)}
+              aria-label={`Delete record: ${displayName}`}
+            >
+              <Trash className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="hidden sm:inline">delete</span>
+            </button>
+          )}
         </div>
       </div>
+
+      {deleteError && (
+        <p
+          className="mb-4 border px-3.5 py-2.5 font-mono text-[12px]"
+          style={{ borderColor: 'var(--destructive)', color: 'var(--destructive)' }}
+          role="alert"
+        >
+          {deleteError}
+        </p>
+      )}
 
       <p className="v2-eyebrow">Record · {client.id.slice(0, 8)}</p>
       <h1 className="v2-title">
@@ -193,6 +241,17 @@ export default function V2Record() {
           onIndexChange={setLightboxIdx}
         />
       )}
+
+      <V2Confirm
+        open={confirmDelete}
+        destructive
+        title="delete record?"
+        body={`“${displayName}” จะถูกลบเขา้ถังขยะ — กู้คืนได้อีกจาก trash`}
+        confirmLabel={deleting ? 'deleting…' : 'delete'}
+        busy={deleting}
+        onConfirm={() => void handleDelete()}
+        onClose={() => setConfirmDelete(false)}
+      />
     </Shell>
   )
 }
