@@ -23,16 +23,16 @@ function renderAt(path: string): string {
 
 describe('V2App routing — full-pathname matching', () => {
   it('renders the catalog at /v2', () => {
-    expect(renderAt('/v2')).toContain('client index')
+    expect(renderAt('/v2')).toContain('v2-catalog-title')
   })
 
   it('renders trailing-slash /v2/ as the catalog too', () => {
-    expect(renderAt('/v2/')).toContain('client index')
+    expect(renderAt('/v2/')).toContain('v2-catalog-title')
   })
 
   it('renders the editor shell at /v2/add', () => {
     expect(renderAt('/v2/add')).toContain('new record')
-    expect(renderAt('/v2/add')).not.toContain('client index')
+    expect(renderAt('/v2/add')).not.toContain('v2-catalog-title')
   })
 
   it('renders the editor shell at /v2/edit/:id (empty store → new-record shell)', () => {

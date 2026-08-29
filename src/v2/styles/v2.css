@@ -644,6 +644,14 @@ html:has(.v2-shell):root body {
   background: var(--popover);
   color: var(--primary);
 }
+/* Keyboard highlight — mirrors the hover cue while ArrowUp/Down move the
+   active option (combobox pattern, focus stays on the trigger). */
+.v2-select-option.is-focus {
+  color: var(--primary);
+}
+.v2-select-option.is-focus .v2-select-hint {
+  color: var(--primary);
+}
 .v2-select-option.is-active {
   color: var(--primary);
 }

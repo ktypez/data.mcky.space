@@ -15,7 +15,10 @@ function sortName(c: { name: string[]; shopName: string[] }): string {
 }
 
 // Read once at mount — seeds local + store state from ?q=&filter=&sort=
-const initialParams = new URLSearchParams(window.location.search)
+// (SSR-safe: under node/SSR there is no window — empty params there)
+const initialParams = new URLSearchParams(
+  typeof window !== 'undefined' ? window.location.search : '',
+)
 
 export default function V2Catalog() {
   const navigate = useNavigate()

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { CaretDown, Check } from '@phosphor-icons/react'
 import { useMotion } from '@/lib/motion'
@@ -20,6 +20,12 @@ interface V2SelectProps<T extends string> {
 /**
  * V2Select — anchored dropdown, no modal backdrop. Menu opens flush under
  * the trigger; closes on outside press, Escape, or selection.
+ *
+ * Keyboard (combobox pattern): focus stays on the trigger,
+ * aria-activedescendant carries the highlight.
+ * - closed: Enter / Space / ArrowDown opens
+ * - open: ArrowUp/Down + Home/End move the highlight, Enter/Space selects,
+ *   Escape closes (document listener), Tab closes and moves on
  */
 export default function V2Select<T extends string>({
   ariaLabel,
@@ -28,9 +34,19 @@ export default function V2Select<T extends string>({
   onChange,
 }: V2SelectProps<T>) {
   const [open, setOpen] = useState(false)
+  const [activeIdx, setActiveIdx] = useState(0)
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const optionIdPrefix = useId()
   const { fadeScaleIn, spring } = useMotion()
+
+  const current = options.find((o) => o.value === value) ?? options[0]
+
+  const openMenu = () => {
+    const idx = options.findIndex((o) => o.value === value)
+    setActiveIdx(idx >= 0 ? idx : 0)
+    setOpen(true)
+  }
 
   // Outside press / Escape → close. pointerdown fires before any other
   // click handling, so toggling the trigger from open state stays clean.
@@ -53,7 +69,38 @@ export default function V2Select<T extends string>({
     }
   }, [open])
 
-  const current = options.find((o) => o.value === value) ?? options[0]
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (!open) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        openMenu()
+      }
+      return
+    }
+    const n = options.length
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveIdx((i) => (i + 1) % n)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveIdx((i) => (i - 1 + n) % n)
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      setActiveIdx(0)
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      setActiveIdx(Math.max(0, n - 1))
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      const option = options[activeIdx]
+      if (option) {
+        onChange(option.value)
+        setOpen(false)
+      }
+    } else if (e.key === 'Tab') {
+      setOpen(false)
+    }
+  }
 
   return (
     <div ref={rootRef} className="relative">
@@ -64,7 +111,8 @@ export default function V2Select<T extends string>({
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => (open ? setOpen(false) : openMenu())}
+        onKeyDown={onKeyDown}
       >
         <span>{current?.label}</span>
         <CaretDown className="h-3 w-3 shrink-0" aria-hidden="true" />
@@ -75,6 +123,7 @@ export default function V2Select<T extends string>({
           <motion.div
             role="listbox"
             aria-label={ariaLabel}
+            aria-activedescendant={`${optionIdPrefix}-${activeIdx}`}
             className="v2-select-menu absolute left-0 top-full z-50 mt-1"
             variants={fadeScaleIn}
             initial="hidden"
@@ -82,15 +131,20 @@ export default function V2Select<T extends string>({
             exit="hidden"
             transition={spring}
           >
-            {options.map((option) => {
+            {options.map((option, i) => {
               const isActive = option.value === value
               return (
                 <button
                   key={option.value}
+                  id={`${optionIdPrefix}-${i}`}
                   type="button"
                   role="option"
                   aria-selected={isActive}
-                  className={`v2-select-option${isActive ? ' is-active' : ''}`}
+                  tabIndex={-1}
+                  className={`v2-select-option${isActive ? ' is-active' : ''}${
+                    i === activeIdx ? ' is-focus' : ''
+                  }`}
+                  onMouseEnter={() => setActiveIdx(i)}
                   onClick={() => {
                     onChange(option.value)
                     setOpen(false)

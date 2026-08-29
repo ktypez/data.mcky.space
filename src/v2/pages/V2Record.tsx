@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
   ArrowSquareOut,
   PencilSimple,
   Copy,
+  Check,
+  LinkSimple,
   Trash,
 } from '@phosphor-icons/react'
 import { useClientStore } from '@/stores/client-store'
@@ -16,7 +18,7 @@ import MapPreviewDynamic from '@/components/MapPreviewDynamic'
 import V2PanelBlock from '@/v2/components/V2PanelBlock'
 import V2Confirm from '@/v2/components/V2Confirm'
 import V2Lightbox from '@/v2/components/V2Lightbox'
-import { copyToClipboard, formatDate, formatDateTime, getMapsUrl, hasValidCoords } from '@/lib/utils'
+import { copyToClipboard, formatDate, formatDateTime, getMapsUrl, hasValidCoords, COPIED_FLASH_MS } from '@/lib/utils'
 import { clientTextWithMaps } from '@/lib/clientText'
 
 export default function V2Record() {
@@ -30,6 +32,23 @@ export default function V2Record() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [copiedLink, setCopiedLink] = useState(false)
+  const linkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(
+    () => () => {
+      if (linkTimerRef.current) clearTimeout(linkTimerRef.current)
+    },
+    [],
+  )
+
+  const copyLink = async () => {
+    const ok = await copyToClipboard(window.location.href)
+    if (!ok) return
+    setCopiedLink(true)
+    if (linkTimerRef.current) clearTimeout(linkTimerRef.current)
+    linkTimerRef.current = setTimeout(() => setCopiedLink(false), COPIED_FLASH_MS)
+  }
 
   const client = useMemo(() => clients.find((c) => c.id === id), [clients, id])
   const coords = client && hasValidCoords(client.lat, client.lng)
@@ -94,6 +113,19 @@ export default function V2Record() {
           registry
         </button>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="v2-btn"
+            onClick={() => void copyLink()}
+            aria-label={copiedLink ? 'Link copied' : 'Copy record link'}
+            title="Copy link"
+          >
+            {copiedLink ? (
+              <Check weight="bold" className="h-3.5 w-3.5" style={{ color: 'var(--v2-stable)' }} aria-hidden="true" />
+            ) : (
+              <LinkSimple className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+          </button>
           <button type="button" className="v2-btn" onClick={copyAll}>
             <Copy className="h-3.5 w-3.5" aria-hidden="true" />
             <span className="hidden sm:inline">copy all</span>
