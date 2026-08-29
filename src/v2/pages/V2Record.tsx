@@ -113,19 +113,23 @@ export default function V2Record() {
           registry
         </button>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="v2-btn"
-            onClick={() => void copyLink()}
-            aria-label={copiedLink ? 'Link copied' : 'Copy record link'}
-            title="Copy link"
-          >
-            {copiedLink ? (
-              <Check weight="bold" className="h-3.5 w-3.5" style={{ color: 'var(--v2-stable)' }} aria-hidden="true" />
-            ) : (
-              <LinkSimple className="h-3.5 w-3.5" aria-hidden="true" />
-            )}
-          </button>
+          {/* Wrapper (not a display utility on the button): v2.css is
+              unlayered, so it would outrank Tailwind's .hidden. */}
+          <div className="hidden sm:block">
+            <button
+              type="button"
+              className="v2-btn"
+              onClick={() => void copyLink()}
+              aria-label={copiedLink ? 'Link copied' : 'Copy record link'}
+              title="Copy link"
+            >
+              {copiedLink ? (
+                <Check weight="bold" className="h-3.5 w-3.5" style={{ color: 'var(--v2-stable)' }} aria-hidden="true" />
+              ) : (
+                <LinkSimple className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+            </button>
+          </div>
           <button type="button" className="v2-btn" onClick={copyAll}>
             <Copy className="h-3.5 w-3.5" aria-hidden="true" />
             <span className="hidden sm:inline">copy all</span>

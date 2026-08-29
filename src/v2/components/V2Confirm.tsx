@@ -46,6 +46,9 @@ export default function V2Confirm({
   useEffect(() => {
     if (!open) return
     cancelRef.current?.focus()
+    // Lock page scroll behind the dialog (same as V2Lightbox), restore on close.
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
@@ -64,7 +67,10 @@ export default function V2Confirm({
       }
     }
     document.addEventListener('keydown', onKeyDown, true)
-    return () => document.removeEventListener('keydown', onKeyDown, true)
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.removeEventListener('keydown', onKeyDown, true)
+    }
   }, [open, onClose])
 
   if (typeof document === 'undefined') return null
