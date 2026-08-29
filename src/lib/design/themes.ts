@@ -993,96 +993,6 @@ const portal: Theme = {
   },
 }
 
-// mono — monochrome architectural (no accent, 0px radius, sharp edges)
-const MONO_FONTS = {
-  display: "'Inter', system-ui, -apple-system, sans-serif",
-  body: "'Inter', system-ui, -apple-system, sans-serif",
-  mono: "'JetBrains Mono', ui-monospace, monospace",
-}
-const MONO_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap'
-
-const mono: Theme = {
-  id: 'mono',
-  label: 'MONO',
-  description: 'Monochrome architectural — no accent, 0px radius, sharp edges, high contrast',
-  character: 'mono',
-  modes: ['light', 'dark'],
-  fonts: MONO_FONTS,
-  fontUrl: MONO_FONT_URL,
-  staticCss: '/themes/mono.css',
-  light: {
-    '--background': '#ffffff',
-    '--foreground': '#000000',
-    '--card': '#ffffff',
-    '--card-foreground': '#000000',
-    '--popover': '#ffffff',
-    '--popover-foreground': '#000000',
-    '--primary': '#000000',
-    '--primary-foreground': '#ffffff',
-    '--secondary': '#f5f5f5',
-    '--secondary-foreground': '#000000',
-    '--muted': '#f5f5f5',
-    '--muted-foreground': '#555555',
-    '--accent': '#000000',
-    '--accent-foreground': '#ffffff',
-    '--destructive': '#000000',
-    '--destructive-foreground': '#ffffff',
-    '--success': '#000000',
-    '--success-foreground': '#ffffff',
-    '--warning': '#555555',
-    '--warning-foreground': '#ffffff',
-    '--info': '#555555',
-    '--info-foreground': '#ffffff',
-    '--border': '#000000',
-    '--input': '#000000',
-    '--ring': '#000000',
-    '--sidebar': '#ffffff',
-    '--sidebar-foreground': '#000000',
-    '--sidebar-accent': '#f5f5f5',
-    '--sidebar-accent-foreground': '#000000',
-    '--sidebar-border': '#000000',
-    '--sidebar-ring': '#000000',
-    '--radius': '0px',
-    '--pin-color': '#000000',
-  },
-  dark: {
-    '--background': '#000000',
-    '--foreground': '#ffffff',
-    '--card': '#000000',
-    '--card-foreground': '#ffffff',
-    '--popover': '#000000',
-    '--popover-foreground': '#ffffff',
-    '--primary': '#ffffff',
-    '--primary-foreground': '#000000',
-    '--secondary': '#1a1a1a',
-    '--secondary-foreground': '#ffffff',
-    '--muted': '#1a1a1a',
-    '--muted-foreground': '#aaaaaa',
-    '--accent': '#ffffff',
-    '--accent-foreground': '#000000',
-    '--destructive': '#ffffff',
-    '--destructive-foreground': '#000000',
-    '--success': '#ffffff',
-    '--success-foreground': '#000000',
-    '--warning': '#aaaaaa',
-    '--warning-foreground': '#000000',
-    '--info': '#aaaaaa',
-    '--info-foreground': '#000000',
-    '--border': '#ffffff',
-    '--input': '#ffffff',
-    '--ring': '#ffffff',
-    '--sidebar': '#000000',
-    '--sidebar-foreground': '#ffffff',
-    '--sidebar-accent': '#1a1a1a',
-    '--sidebar-accent-foreground': '#ffffff',
-    '--sidebar-border': '#ffffff',
-    '--sidebar-ring': '#ffffff',
-    '--radius': '0px',
-    '--pin-color': '#ffffff',
-  },
-}
-
 // blueprint — architectural/technical drawing: pale blueprint paper + steel blue, IBM Plex (dual mode)
 const BLUEPRINT_FONTS = {
   display: "'IBM Plex Serif', 'Noto Serif Thai', Georgia, serif",
@@ -1263,7 +1173,7 @@ const noir: Theme = {
   },
 }
 
-const characterThemes: Theme[] = [portal, mono, glitchpage, crt, claude, rack, noc, min, brut, mcky, blueprint, noir]
+const characterThemes: Theme[] = [portal, glitchpage, crt, claude, rack, noc, min, brut, mcky, blueprint, noir]
 
 export const themes: Theme[] = [...baseThemes, ...characterThemes]
 
