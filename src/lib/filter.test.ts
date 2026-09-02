@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { applyCounts, applyFilter } from './filter'
+import { applyCounts, applyFilter, sortByCreatedDesc } from './filter'
 import { FilterKey, type Client } from '@/types/index'
 
 function mk(
@@ -148,5 +148,26 @@ describe('applyFilter', () => {
 
   it('returns an empty array when nothing matches', () => {
     expect(applyFilter(clients, 'zzz-nothing-here', FilterKey.All, cutoff)).toEqual([])
+  })
+})
+
+describe('sortByCreatedDesc', () => {
+  it('orders newest createdAt first, ignoring updatedAt', () => {
+    const list = [
+      mk({ id: 'old-but-edited', name: 'X', createdAt: 100, updatedAt: 999 }),
+      mk({ id: 'newest', name: 'Y', createdAt: 300, updatedAt: 300 }),
+      mk({ id: 'middle', name: 'Z', createdAt: 200, updatedAt: 200 }),
+    ]
+    expect(sortByCreatedDesc(list).map((c) => c.id)).toEqual(['newest', 'middle', 'old-but-edited'])
+  })
+
+  it('does not mutate the input array', () => {
+    const list = [
+      mk({ id: 'a', name: 'A', createdAt: 1 }),
+      mk({ id: 'b', name: 'B', createdAt: 2 }),
+    ]
+    const before = list.map((c) => c.id)
+    sortByCreatedDesc(list)
+    expect(list.map((c) => c.id)).toEqual(before)
   })
 })

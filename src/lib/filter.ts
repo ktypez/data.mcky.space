@@ -31,6 +31,14 @@ export function applyCounts(
 }
 
 /**
+ * Newest-created first. Ignores `updatedAt` on purpose: an old entry that
+ * gets a typo fix should not jump to the top of the list. Pure + tested.
+ */
+export function sortByCreatedDesc(clients: Client[]): Client[] {
+  return [...clients].sort((a, b) => b.createdAt - a.createdAt)
+}
+
+/**
  * Apply a search query and a filter key to the client list.
  * Pure — does not depend on React, stores, or time. Safe to unit test.
  *

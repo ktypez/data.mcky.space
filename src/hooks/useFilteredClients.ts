@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
 import { useDebounce } from './useDebounce'
-import { applyCounts, applyFilter } from '@/lib/filter'
+import { applyCounts, applyFilter, sortByCreatedDesc } from '@/lib/filter'
 
 /** How many rows to show per "load more" step. */
 export const DISPLAY_STEP = 20
@@ -16,7 +16,8 @@ export const DISPLAY_STEP = 20
  * Also resets the display limit when search/filter change so the user
  * doesn't end up on row 380 of a stale query.
  */
-export function useFilteredClients() {
+export function useFilteredClients(options?: { newestCreatedFirst?: boolean }) {
+  const newestCreatedFirst = options?.newestCreatedFirst ?? false
   const clients = useClientStore((s) => s.clients)
   const displayLimit = useClientStore((s) => s.displayLimit)
   const { search, filter, recentCutoff } = useFilterStore()
@@ -29,8 +30,13 @@ export function useFilteredClients() {
   )
 
   const filtered = useMemo(
-    () => applyFilter(clients, query, filter, recentCutoff),
-    [clients, query, filter, recentCutoff],
+    () => {
+      const result = applyFilter(clients, query, filter, recentCutoff)
+      // V3 wants newest-created first regardless of edits. Re-sort a copy —
+      // the store keeps updatedAt order for the classic UI.
+      return newestCreatedFirst ? sortByCreatedDesc(result) : result
+    },
+    [clients, query, filter, recentCutoff, newestCreatedFirst],
   )
 
   const displayed = useMemo(

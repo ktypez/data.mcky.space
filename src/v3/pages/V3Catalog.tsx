@@ -39,7 +39,7 @@ export default function V3Catalog() {
   const setSearch = useFilterStore(s=>s.setSearch)
   const filter = useFilterStore(s=>s.filter)
   const setFilter = useFilterStore(s=>s.setFilter)
-  const { filtered, displayed, hasMore, displayLimit, counts } = useFilteredClients()
+  const { filtered, displayed, hasMore, displayLimit, counts } = useFilteredClients({ newestCreatedFirst: true })
   const [focused, setFocused] = useState(0)
   const sorted = useMemo(()=> displayed, [displayed])
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
