@@ -5,8 +5,8 @@ import { useFilteredClients, DISPLAY_STEP } from '@/hooks/useFilteredClients'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
 import { useAuthStore } from '@/stores/auth-store'
-import { FilterKey } from '@/types'
-import type { Client } from '@/types'
+import { FilterKey } from '@/types/index'
+import type { Client } from '@/types/index'
 import ClientNames from '@/components/ClientNames'
 import AppImage from '@/components/AppImage'
 import { copyToClipboard, getMapsUrl, COPIED_FLASH_MS } from '@/lib/utils'
@@ -109,6 +109,9 @@ export default function V3Catalog() {
             )}
             <span className="min-w-0 flex-1">
               <ClientNames client={c} variant="list" titleClassName={`text-sm leading-tight truncate ${i===focused?'text-background':'text-foreground'}`} subClassName={`text-xs truncate ${i===focused?'text-background/60':'opacity-60'}`} />
+              {c.notes && (
+                <span className={`block text-[11px] leading-tight truncate ${i===focused?'text-background/50':'opacity-40'}`}>{c.notes}</span>
+              )}
             </span>
             <RowCopy client={c} focused={i===focused} />
           </div>
