@@ -3,6 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2025-06-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Route traffic from data.mcky.space/api/* to this Worker
+routes = [
+  { pattern = "data.mcky.space/api/*", zone_name = "mcky.space" }
+]
+
 # D1 Database binding (same as Pages)
 [[d1_databases]]
 binding = "DB"
