@@ -111,8 +111,8 @@ export default function V3Catalog() {
               <ClientNames client={c} variant="list" titleClassName={`text-sm leading-tight truncate ${i===focused?'text-background':'text-foreground'}`} subClassName={`text-xs truncate ${i===focused?'text-background/60':'opacity-60'}`} />
             </span>
             {c.notes && (
-              <span className={`flex shrink-0 ${i===focused?'text-background/70':'text-muted-foreground/70'}`} title={c.notes} aria-label="มีโน้ต">
-                <NotePencil size={13} weight="fill" className={i===focused?'':'opacity-60'} />
+              <span className="flex shrink-0 text-red-500" title={c.notes} aria-label="มีโน้ต">
+                <NotePencil size={14} weight="fill" />
               </span>
             )}
             <RowCopy client={c} focused={i===focused} />
