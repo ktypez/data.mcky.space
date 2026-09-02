@@ -1,4 +1,4 @@
-import type { Client } from '@/types'
+import type { Client } from '@/types/index'
 import { coerceStringArray } from '@/lib/clientNames'
 
 /**

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { applyCounts, applyFilter } from './filter'
-import { FilterKey, type Client } from '@/types'
+import { FilterKey, type Client } from '@/types/index'
 
 function mk(
   over: Omit<Partial<Client>, 'name' | 'shopName'> & {

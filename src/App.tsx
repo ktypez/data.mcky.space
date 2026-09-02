@@ -3,19 +3,19 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import { AnimatePresence, motion } from 'motion/react'
 import { useAuthStore } from './stores/auth-store'
 import { useFilterStore } from './stores/filter-store'
-import { useUIStore } from './stores/ui-store'
+import { useUIStore } from './old/stores/ui-store'
 import { useAuth } from '@clerk/clerk-react'
 import { useMotion } from './lib/motion'
 import { AuthSync } from './components/AuthSync'
-import PageLayout from './components/PageLayout'
-import PageHeader from './components/PageHeader'
+import PageLayout from './old/components/PageLayout'
+import PageHeader from './old/components/PageHeader'
 
-const Clients = lazy(() => import('./pages/Clients').then((m) => ({ default: m.PageClient })))
-const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'))
-const TrashPage = lazy(() => import('./pages/TrashPage'))
-const AddEditPage = lazy(() => import('./pages/AddEditPage'))
+const Clients = lazy(() => import('./old/pages/Clients').then((m) => ({ default: m.PageClient })))
+const ClientDetailPage = lazy(() => import('./old/pages/ClientDetailPage'))
+const TrashPage = lazy(() => import('./old/pages/TrashPage'))
+const AddEditPage = lazy(() => import('./old/pages/AddEditPage'))
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })))
-const NavSidebar = lazy(() => import('./components/NavSidebar'))
+const NavSidebar = lazy(() => import('./old/components/NavSidebar'))
 // V3 — main at / (locked hybrid Catalog F + Detail A + Add D + Trash E)
 const V3App = lazy(() => import('./v3/V3App'))
 const DetailLab = lazy(() => import('./__design_lab/detail/lab/DetailLabApp'))

@@ -2,7 +2,7 @@
 import { memo } from 'react'
 import { hasValidCoords } from '@/lib/utils'
 import { clientMatchesQuery, clientTitle } from '@/lib/clientNames'
-import type { Client } from '@/types'
+import type { Client } from '@/types/index'
 
 interface Props {
   clients: Client[]

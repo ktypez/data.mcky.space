@@ -1,4 +1,4 @@
-import { FilterKey, type Client } from '@/types'
+import { FilterKey, type Client } from '@/types/index'
 import { clientMatchesQuery } from '@/lib/clientNames'
 
 /**

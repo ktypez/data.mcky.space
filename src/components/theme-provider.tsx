@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { ThemeProvider as CustomThemeProvider, useTheme } from '@/lib/theme-context'
-import { useUIStore } from '@/stores/ui-store'
+import { useUIStore } from '@/old/stores/ui-store'
 import { getTheme, isDarkOnlyTheme, isLightOnlyTheme } from '@/lib/design/themes'
 
 const CSS_LINK_ID = 'theme-static-css'

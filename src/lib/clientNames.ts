@@ -1,4 +1,4 @@
-import type { Client } from '@/types'
+import type { Client } from '@/types/index'
 
 /**
  * Multi-name display helpers.

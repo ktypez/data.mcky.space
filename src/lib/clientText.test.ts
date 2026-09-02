@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { clientText, clientTextWithMaps } from './clientText'
-import type { Client } from '@/types'
+import type { Client } from '@/types/index'
 
 const base: Client = {
   id: 'abc123',

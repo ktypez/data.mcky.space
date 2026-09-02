@@ -1,4 +1,4 @@
-import type { Client } from '@/types'
+import type { Client } from '@/types/index'
 import { getAllClients, putClient, putClients, deleteClient as deleteClientFromDb } from '@/lib/offline-db'
 import { apiFetch, clerkToken } from '@/lib/api'
 import { normalizeClients } from '@/lib/clientNames'

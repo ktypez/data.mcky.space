@@ -26,13 +26,13 @@ class RoutePrefetcher {
       // โหลดหน้า component
       switch (route) {
         case '/old':
-          await import('@/pages/Clients')
+          await import('@/old/pages/Clients')
           break
         case '/old/add':
-          await import('@/pages/AddEditPage')
+          await import('@/old/pages/AddEditPage')
           break
         case '/old/trash':
-          await import('@/pages/TrashPage')
+          await import('@/old/pages/TrashPage')
           break
       }
       this.cache.add(route)

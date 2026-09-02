@@ -1,0 +1,112 @@
+
+import { MagnifyingGlass, Plus, X, ArrowLeft } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import ThemePresetPicker from '@/old/components/ThemePresetPicker'
+import ThemeModePicker from '@/old/components/ThemeModePicker'
+import NavDropdown from '@/old/components/NavDropdown'
+import { AnimatePresence, motion } from 'motion/react'
+import { springSmall } from '@/lib/motion'
+
+interface PageHeaderProps {
+  variant: 'list' | 'detail' | 'add-edit'
+  title?: string
+  showBack?: boolean
+  onBack?: () => void
+  search?: string
+  onSearchChange?: (v: string) => void
+  onSearchClear?: () => void
+  onSearchKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  searchDropdown?: React.ReactNode
+  showAddButton?: boolean
+  onAdd?: () => void
+  scrolled?: boolean
+}
+
+export default function PageHeader({
+  variant,
+  title,
+  showBack,
+  onBack,
+  search,
+  onSearchChange,
+  onSearchClear,
+  onSearchKeyDown,
+  searchDropdown,
+  showAddButton,
+  onAdd,
+  scrolled,
+}: PageHeaderProps) {
+  return (
+    <header className="page-header h-14 bg-card flex items-center gap-3 px-4 z-30 border border-border rounded-[var(--frame-radius)] transition-[background-color,box-shadow,backdrop-filter] duration-200 data-[scrolled=true]:shadow-md data-[scrolled=true]:backdrop-blur-md" data-scrolled={scrolled || undefined}>
+      <NavDropdown />
+
+      {showBack && onBack && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onBack}
+          aria-label="ย้อนกลับ"
+        >
+          <ArrowLeft className="w-4 h-4 text-primary" />
+        </Button>
+      )}
+
+      {variant === 'list' ? (
+        <div className="relative flex-1">
+          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <input
+            aria-label="ค้นหาลูกค้า"
+            placeholder="ค้นหา ชื่อ / ร้าน / ที่อยู่…"
+            value={search ?? ''}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            onKeyDown={onSearchKeyDown}
+            className="h-9 w-full pl-9 pr-9 text-[16px] font-sans rounded-lg bg-muted border border-border text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/30 transition-all duration-200 placeholder:text-muted-foreground"
+          />
+          <AnimatePresence>
+            {search && (
+              <motion.div
+                key="search-clear"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={springSmall}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2"
+              >
+                <Button
+                  variant="destructive"
+                  size="icon-sm"
+                  onClick={onSearchClear}
+                  aria-label="ล้างการค้นหา"
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {searchDropdown}
+        </div>
+      ) : (
+        <div className="flex-1">
+          <span className="text-[15px] font-medium text-foreground truncate block">
+            {title}
+          </span>
+        </div>
+      )}
+
+      <div className="flex items-center gap-1.5 shrink-0">
+        {showAddButton && onAdd && (
+          <Button
+            variant="default"
+            size="icon"
+            onClick={onAdd}
+            aria-label="เพิ่มลูกค้าใหม่"
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
+        )}
+        <ThemePresetPicker />
+        <ThemeModePicker />
+      </div>
+    </header>
+  )
+}

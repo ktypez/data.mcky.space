@@ -1,6 +1,6 @@
 
 import { create } from 'zustand'
-import type { Client } from '@/types'
+import type { Client } from '@/types/index'
 import { fetchClients } from '@/lib/storage'
 import { getAllClients, purgeExpiredClients } from '@/lib/offline-db'
 import { normalizeClients } from '@/lib/clientNames'

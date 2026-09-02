@@ -1,6 +1,6 @@
 
 import { create } from 'zustand'
-import { FilterKey, type ViewMode } from '@/types'
+import { FilterKey, type ViewMode } from '@/types/index'
 
 interface FilterState {
   search: string

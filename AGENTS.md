@@ -45,13 +45,13 @@ Use `recall` to retrieve context, `remember` to save new info.
 - git auto-deploy is OFF — manual `npm run deploy` required
 - branch: `main`
 
-## UI Versions (v1 classic / v2 registry)
-- `src/v2/**` — parallel "registry" redesign UI. Self-contained: pages, components,
-  styles (`v2.css` token scope under `.v2-shell`), tests. Entry: early-return branch
-  in `src/App.tsx` for `/v2*`; classic routes below it stay untouched.
-- Everything outside `src/v2/` = classic v1 UI.
-- v2 light/dark is private to the shell (localStorage `ezzylist-v2-mode`) — never
-  touches the global theme engine, `themes.ts`, or the boot script.
+## UI Versions (V3 = default, classic = /old)
+- **V3 is the main design** — `src/v3/**` (V3App shell, pages Catalog / Record /
+  Editor / Trash, styles scoped in `src/v3/styles/v3.css`), served at `/`.
+- Legacy "classic" UI was moved for real to `src/old/**` (pages, components, hooks,
+  lib, stores) and is routed under `/old/*` from `src/App.tsx`. Shared code
+  (ClientNames, form fields, map, photo, stores, lib) stays top-level in `src/`.
+- Old v2 "registry" experiment was deleted; do not reintroduce `src/v2`.
 - Deploying from a git worktree auto-detects a non-production branch → PREVIEW deploy
   (custom domain won't update!). Always pass `--branch main`:
   `npm run wrangler -- pages deploy ./dist --project-name data-mcky-space --branch main`

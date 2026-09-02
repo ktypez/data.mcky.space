@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { haversineKm } from './geo-client'
+import { haversineKm } from '../old/lib/geo-client'
 
 // Reference distances computed independently and cross-checked with
 // https://www.movable-type.co.uk/scripts/latlong.html (within 0.5 km).
