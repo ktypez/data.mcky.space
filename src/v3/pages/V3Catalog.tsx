@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useLayoutEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MagnifyingGlass, Copy, Check, Plus, X } from '@phosphor-icons/react'
+import { MagnifyingGlass, Copy, Check, Plus, X, NotePencil } from '@phosphor-icons/react'
 import { useFilteredClients, DISPLAY_STEP } from '@/hooks/useFilteredClients'
 import { useClientStore } from '@/stores/client-store'
 import { useFilterStore } from '@/stores/filter-store'
@@ -109,10 +109,12 @@ export default function V3Catalog() {
             )}
             <span className="min-w-0 flex-1">
               <ClientNames client={c} variant="list" titleClassName={`text-sm leading-tight truncate ${i===focused?'text-background':'text-foreground'}`} subClassName={`text-xs truncate ${i===focused?'text-background/60':'opacity-60'}`} />
-              {c.notes && (
-                <span className={`block text-[11px] leading-tight truncate ${i===focused?'text-background/50':'opacity-40'}`}>{c.notes}</span>
-              )}
             </span>
+            {c.notes && (
+              <span className={`flex shrink-0 ${i===focused?'text-background/70':'text-muted-foreground/70'}`} title={c.notes} aria-label="มีโน้ต">
+                <NotePencil size={13} weight="fill" className={i===focused?'':'opacity-60'} />
+              </span>
+            )}
             <RowCopy client={c} focused={i===focused} />
           </div>
         ))}
