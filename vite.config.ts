@@ -18,10 +18,6 @@ export default defineConfig({
       clsx: path.resolve(__dirname, 'node_modules/clsx'),
       'tailwind-merge': path.resolve(__dirname, 'node_modules/tailwind-merge'),
       'maplibre-gl': path.resolve(__dirname, 'node_modules/maplibre-gl'),
-      // react-router@7.x imports Node-only modules into the browser bundle.
-      // pnpm's strict layout hides deep copies and root hoists may be wrong
-      // versions. Aliasing package folders caused EMFILE (ulimit 1024), so we
-      // point at tiny local ESM shims (the API react-router uses is small).
       cookie: path.resolve(__dirname, 'src/shims/cookie.js'),
       'set-cookie-parser': path.resolve(__dirname, 'src/shims/set-cookie-parser.js'),
     },
@@ -41,5 +37,23 @@ export default defineConfig({
       'clsx',
       'tailwind-merge',
     ],
+  },
+  build: {
+    chunkSizeWarningLimit: 500, // KB
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+            return 'vendor'
+          }
+          if (id.includes('node_modules/@phosphor-icons') || id.includes('node_modules/class-variance-authority') || id.includes('node_modules/clsx') || id.includes('node_modules/tailwind-merge')) {
+            return 'ui'
+          }
+          if (id.includes('node_modules/zustand')) {
+            return 'stores'
+          }
+        }
+      }
+    }
   },
 })

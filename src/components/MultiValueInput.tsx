@@ -10,6 +10,7 @@ interface MultiValueInputProps {
   addLabel?: string
   variant?: 'default' | 'error'
   autoFocus?: boolean
+  inlineAdd?: boolean
 }
 
 /**
@@ -24,6 +25,7 @@ export default function MultiValueInput({
   addLabel = 'เพิ่ม',
   variant = 'default',
   autoFocus,
+  inlineAdd,
 }: MultiValueInputProps) {
   const update = (i: number, v: string) => {
     const next = [...values]
@@ -35,6 +37,7 @@ export default function MultiValueInput({
   }
   const add = () => onChange([...values, ''])
 
+  const showInline = inlineAdd && values.length >= 1
   return (
     <div className="space-y-1.5">
       {values.map((v, i) => (
@@ -47,8 +50,11 @@ export default function MultiValueInput({
             variant={variant}
             placeholder={placeholder}
             autoFocus={autoFocus && i === 0}
+            autoComplete="off"
+            spellCheck={false}
+            name={i === 0 ? placeholder : `${placeholder}-${i}`}
           />
-          {values.length > 1 && (
+          {values.length > 1 ? (
             <Button
               type="button"
               variant="ghost"
@@ -59,19 +65,50 @@ export default function MultiValueInput({
             >
               <X className="w-4 h-4" />
             </Button>
+          ) : showInline && i === 0 ? (
+            <Button
+              type="button"
+              onClick={add}
+              aria-label={addLabel}
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background hover:opacity-90"
+            >
+              <Plus className="h-4 w-4" weight="bold" />
+            </Button>
+          ) : null}
+          {showInline && values.length > 1 && i === values.length - 1 && (
+            <Button
+              type="button"
+              onClick={add}
+              aria-label={addLabel}
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background hover:opacity-90"
+            >
+              <Plus className="h-4 w-4" weight="bold" />
+            </Button>
           )}
         </div>
       ))}
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="w-full border-dashed"
-        onClick={add}
-      >
-        <Plus className="w-3.5 h-3.5" />
-        {addLabel}
-      </Button>
+      {!inlineAdd && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full border-dashed"
+          onClick={add}
+        >
+          <Plus className="w-3.5 h-3.5" />
+          {addLabel}
+        </Button>
+      )}
+      {inlineAdd && values.length === 0 && (
+        <Button
+          type="button"
+          onClick={add}
+          aria-label={addLabel}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background hover:opacity-90"
+        >
+          <Plus className="h-4 w-4" weight="bold" />
+        </Button>
+      )}
     </div>
   )
 }

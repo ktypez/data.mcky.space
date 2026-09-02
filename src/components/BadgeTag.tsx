@@ -12,10 +12,16 @@ interface BadgePreset {
 
 const BADGE_PRESETS: Record<string, BadgePreset> = {
   penpay: {
-    label: 'จ่ายภายในวัน',
-    bg: 'bg-destructive/10',
-    text: 'text-destructive',
-    border: 'border-destructive/20',
+    label: 'จ่ายในวัน',
+    bg: 'bg-amber-100',
+    text: 'text-amber-800',
+    border: 'border-amber-200',
+  },
+  credit: {
+    label: 'บัตรเครดิต',
+    bg: 'bg-blue-100',
+    text: 'text-blue-800',
+    border: 'border-blue-200',
   },
 }
 

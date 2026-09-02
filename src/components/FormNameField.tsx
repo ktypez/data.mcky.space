@@ -9,6 +9,7 @@ interface FormNameFieldProps {
   onChange: (values: string[]) => void
   dupResult: DuplicateResult
   autoFocus?: boolean
+  inlineAdd?: boolean
 }
 
 export default function FormNameField({
@@ -16,6 +17,7 @@ export default function FormNameField({
   onChange,
   dupResult,
   autoFocus,
+  inlineAdd,
 }: FormNameFieldProps) {
   const hasConflict = !!(dupResult.exact || dupResult.similar.length > 0)
 
@@ -30,6 +32,7 @@ export default function FormNameField({
         addLabel="เพิ่มชื่อ"
         variant={hasConflict ? 'error' : 'default'}
         autoFocus={autoFocus}
+        inlineAdd={inlineAdd}
       />
       {hasConflict && (
         <div className="flex items-start gap-2 py-2 px-3 rounded-[6px] bg-destructive/10 border border-destructive/40 text-[13px] text-destructive">

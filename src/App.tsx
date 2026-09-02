@@ -16,8 +16,9 @@ const TrashPage = lazy(() => import('./pages/TrashPage'))
 const AddEditPage = lazy(() => import('./pages/AddEditPage'))
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })))
 const NavSidebar = lazy(() => import('./components/NavSidebar'))
-// V2 "registry" redesign — parallel UI, zero shared layout with the classic shell
-const V2App = lazy(() => import('./v2/V2App'))
+// V3 — main at / (locked hybrid Catalog F + Detail A + Add D + Trash E)
+const V3App = lazy(() => import('./v3/V3App'))
+const DetailLab = lazy(() => import('./__design_lab/detail/lab/DetailLabApp'))
 
 
 function PageTransition({ children }: { children: React.ReactNode }) {
@@ -46,14 +47,14 @@ function RouteHeader() {
   const viewState = useUIStore((s) => s.viewState)
 
   const showDetail = viewState.view === 'detail'
-  const isList = pathname === '/'
-  const isTrash = pathname === '/trash'
-  const isAddEdit = pathname === '/add' || pathname.startsWith('/edit')
-  const isDetailRoute = pathname.startsWith('/c/')
+  const isList = pathname === '/old' || pathname === '/old/'
+  const isTrash = pathname === '/old/trash'
+  const isAddEdit = pathname === '/old/add' || pathname.startsWith('/old/edit')
+  const isDetailRoute = pathname.startsWith('/old/c/')
 
   const handleSearchChange = useCallback((v: string) => setSearch(v), [setSearch])
   const handleSearchClear = useCallback(() => setSearch(''), [setSearch])
-  const navToAdd = useCallback(() => navigate('/add'), [navigate])
+  const navToAdd = useCallback(() => navigate('/old/add'), [navigate])
 
   // Detail view (inside Clients page via viewState)
   if (showDetail || isDetailRoute) {
@@ -64,7 +65,7 @@ function RouteHeader() {
         showBack
         onBack={() => {
           useUIStore.getState().closeView()
-          if (isDetailRoute) navigate('/')
+          if (isDetailRoute) navigate('/old')
         }}
       />
     )
@@ -91,7 +92,7 @@ function RouteHeader() {
         variant="add-edit"
         title="ถังขยะ"
         showBack
-        onBack={() => navigate('/')}
+        onBack={() => navigate('/old')}
       />
     )
   }
@@ -101,9 +102,9 @@ function RouteHeader() {
     return (
       <PageHeader
         variant="add-edit"
-        title={pathname.startsWith('/edit') ? 'แก้ไขลูกค้า' : 'เพิ่มลูกค้า'}
+        title={pathname.startsWith('/old/edit') ? 'แก้ไขลูกค้า' : 'เพิ่มลูกค้า'}
         showBack
-        onBack={() => navigate('/')}
+        onBack={() => navigate('/old')}
       />
     )
   }
@@ -151,35 +152,50 @@ function App() {
     return <Login />
   }
 
-  // /v2 — parallel redesign. Renders instead of the classic chrome entirely
-  // (own sidebar/topbar/theme scope); classic routes below stay untouched.
-  if (location.pathname.startsWith('/v2')) {
+  // Detail Lab — 5 detail variations
+  if (location.pathname.startsWith('/__design_lab/detail')) {
     return (
       <Suspense fallback={null}>
-        <AuthSync />
-        <V2App />
+        <DetailLab />
       </Suspense>
     )
   }
 
+  // Classic → /old (moved from /)
+  if (location.pathname.startsWith('/old')) {
+    return (
+      <Suspense fallback={null}>
+        <AuthSync />
+        <NavSidebar />
+        <PageLayout header={<RouteHeader />}>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/old" element={<PageTransition><Clients /></PageTransition>} />
+              <Route path="/old/trash" element={<PageTransition><TrashPage /></PageTransition>} />
+              <Route path="/old/add" element={<PageTransition><AddEditPage /></PageTransition>} />
+              <Route path="/old/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
+              <Route path="/old/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
+              <Route path="/old/maps" element={<Navigate to="/old" replace />} />
+              <Route path="*" element={<Navigate to="/old" replace />} />
+            </Routes>
+          </AnimatePresence>
+        </PageLayout>
+      </Suspense>
+    )
+  }
+
+  // /v3 alias → redirect to main /
+  if (location.pathname.startsWith('/v3')) {
+    const to = location.pathname.replace(/^\/v3/, '') || '/'
+    return <Navigate to={to + location.search} replace />
+  }
+
+  // V3 — now main at /
   return (
     <Suspense fallback={null}>
       <AuthSync />
-      <NavSidebar />
-      <PageLayout header={<RouteHeader />}>
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<PageTransition><Clients /></PageTransition>} />
-            <Route path="/trash" element={<PageTransition><TrashPage /></PageTransition>} />
-            <Route path="/add" element={<PageTransition><AddEditPage /></PageTransition>} />
-            <Route path="/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
-            <Route path="/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
-            <Route path="/maps" element={<Navigate to="/" replace />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AnimatePresence>
-      </PageLayout>
+      <V3App />
     </Suspense>
   )
 }

@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import { useUIStore } from '@/stores/ui-store'
-import { ArrowLeft, Trash, SignOut, LockKey, Check, Stack } from '@phosphor-icons/react'
+import { ArrowLeft, Trash, SignOut, LockKey, Check } from '@phosphor-icons/react'
 import { PopoverMenu } from '@/components/ui/popover-menu'
 
 /**
@@ -23,11 +23,10 @@ export default function NavDropdown() {
   const pathname = location.pathname
 
   // Route detection:
-  //   - '/' and '/c/:id' (client detail, comes back to list) → หน้าแรก
-  //   - '/trash*' → ถังขยะ
-  //   - '/add', '/edit/:id', '/login' → no highlight (flow screens)
-  const isHome = pathname === '/' || pathname.startsWith('/c/')
-  const isTrash = pathname === '/trash' || pathname.startsWith('/trash/')
+  //   - '/old' and '/old/c/:id' → หน้าแรก
+  //   - '/old/trash*' → ถังขยะ
+  const isHome = pathname === '/old' || pathname === '/old/' || pathname.startsWith('/old/c/')
+  const isTrash = pathname === '/old/trash' || pathname.startsWith('/old/trash/')
 
   const itemClass = (active: boolean, danger = false) =>
     [
@@ -58,7 +57,7 @@ export default function NavDropdown() {
   return (
     <PopoverMenu open={open} onOpenChange={setOpen} trigger={trigger}>
       <button
-        onClick={() => { close(); resetView(); navigate('/') }}
+        onClick={() => { close(); resetView(); navigate('/old') }}
         className={itemClass(isHome)}
         aria-current={isHome ? 'page' : undefined}
       >
@@ -67,20 +66,11 @@ export default function NavDropdown() {
         {isHome && <Check className="w-4 h-4 shrink-0" weight="bold" />}
       </button>
 
-      <button
-        onClick={() => { close(); navigate('/v2') }}
-        className={itemClass(false)}
-      >
-        <Stack className="w-4 h-4 text-muted-foreground shrink-0" />
-        <span className="text-[15px] font-medium flex-1">V2 Registry</span>
-        <span aria-hidden="true" className="text-xs text-muted-foreground">↗</span>
-      </button>
-
       {isAdmin && (
         <>
           <div className="my-1 mx-2 h-px bg-border" />
           <button
-            onClick={() => { close(); navigate('/trash') }}
+            onClick={() => { close(); navigate('/old/trash') }}
             className={itemClass(isTrash)}
             aria-current={isTrash ? 'page' : undefined}
           >

@@ -14,17 +14,20 @@ export function applyCounts(
   noImages: number
   recent: number
   penpay: number
+  credit: number
 } {
   const total = clients.length
   let withImages = 0
   let recent = 0
   let penpay = 0
+  let credit = 0
   for (const c of clients) {
     if (c.images.length > 0) withImages++
     if (c.createdAt > recentCutoff) recent++
     if (c.badge === 'penpay') penpay++
+    if (c.badge === 'credit') credit++
   }
-  return { total, withImages, noImages: total - withImages, recent, penpay }
+  return { total, withImages, noImages: total - withImages, recent, penpay, credit }
 }
 
 /**
@@ -59,6 +62,8 @@ export function applyFilter(
       return result.filter((c) => c.createdAt > recentCutoff)
     case FilterKey.Penpay:
       return result.filter((c) => c.badge === 'penpay')
+    case FilterKey.Credit:
+      return result.filter((c) => c.badge === 'credit')
     case FilterKey.All:
     default:
       return result

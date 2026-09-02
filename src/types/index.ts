@@ -18,6 +18,7 @@ export enum FilterKey {
   NoImages = 'no-images',
   Recent = 'recent',
   Penpay = 'penpay',
+  Credit = 'credit',
 }
 
 export type ViewMode = 'table' | 'cards'

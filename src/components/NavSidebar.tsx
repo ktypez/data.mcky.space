@@ -7,7 +7,7 @@ import ThemeModePicker from '@/components/ThemeModePicker'
 import { getTheme, isDarkOnlyTheme, isLightOnlyTheme } from '@/lib/design/themes'
 
 const NAV_ITEMS = [
-  { path: '/', label: 'หน้าแรก', icon: House, exact: true },
+  { path: '/old', label: 'หน้าแรก', icon: House, exact: true },
 ] as const
 
 function SidebarLink({
@@ -54,7 +54,7 @@ export default function NavSidebar() {
   const pathname = location.pathname
 
   // Route detection — same as NavDropdown
-  const isTrash = pathname === '/trash' || pathname.startsWith('/trash/')
+  const isTrash = pathname === '/old/trash' || pathname.startsWith('/old/trash/')
 
   const isDarkOnly = isDarkOnlyTheme(getTheme(themeId))
   const isLightOnly = isLightOnlyTheme(getTheme(themeId))
@@ -80,7 +80,7 @@ export default function NavSidebar() {
             exact={item.exact}
             active={item.exact ? pathname === item.path : pathname.startsWith(item.path)}
             onClick={() => {
-              if (item.path === '/') resetView()
+              if (item.path === '/old') resetView()
               navigate(item.path)
             }}
           />
@@ -88,25 +88,18 @@ export default function NavSidebar() {
 
         {isAdmin && (
           <SidebarLink
-            path="/trash"
+            path="/old/trash"
             label="ถังขยะ"
             icon={Trash}
             exact={false}
             active={isTrash}
-            onClick={() => navigate('/trash')}
+            onClick={() => navigate('/old/trash')}
           />
         )}
       </nav>
 
       {/* Bottom controls */}
       <div className="px-3 py-3 border-t border-border space-y-2">
-        <button
-          onClick={() => navigate('/v2')}
-          className="flex w-full items-center gap-1.5 text-left text-[12px] font-medium text-muted-foreground transition-colors hover:text-primary"
-          title="Registry redesign (beta)"
-        >
-          registry v2 <span aria-hidden="true">↗</span>
-        </button>
         <div className="flex items-center gap-1.5">
           <ThemePresetPicker />
           {!hideModePicker && <ThemeModePicker />}

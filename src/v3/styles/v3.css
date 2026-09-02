@@ -1,0 +1,145 @@
+/* v3 — locked from Design Lab Variant F (Command + C pill) — avatar uses image */
+html:has(.v3-shell):root {
+  color-scheme: light;
+  --background: oklch(98% 0.005 95);
+  --foreground: oklch(18% 0.015 260);
+  --card: oklch(100% 0 0);
+  --card-foreground: oklch(18% 0.015 260);
+  --popover: oklch(100% 0 0);
+  --popover-foreground: oklch(18% 0.015 260);
+  --primary: oklch(18% 0.015 260);
+  --primary-foreground: oklch(98% 0.005 95);
+  --secondary: oklch(94% 0.01 95);
+  --secondary-foreground: oklch(30% 0.015 260);
+  --muted: oklch(94% 0.01 95);
+  --muted-foreground: oklch(52% 0.02 260);
+  --accent: oklch(18% 0.015 260);
+  --accent-foreground: oklch(98% 0.005 95);
+  --destructive: oklch(55% 0.18 25);
+  --destructive-foreground: oklch(98% 0 0);
+  --border: oklch(88% 0.01 85);
+  --input: oklch(88% 0.01 85);
+  --ring: oklch(18% 0.015 260);
+  --radius: 16px;
+}
+/* Dark — softer white, less harsh */
+html:has(.v3-shell[data-mode='dark']):root {
+  color-scheme: dark;
+  --background: oklch(16% 0.01 260);
+  --foreground: oklch(88% 0.005 95);
+  --card: oklch(20% 0.015 260);
+  --card-foreground: oklch(88% 0.005 95);
+  --popover: oklch(20% 0.015 260);
+  --popover-foreground: oklch(88% 0.005 95);
+  --primary: oklch(88% 0.005 95);
+  --primary-foreground: oklch(16% 0.01 260);
+  --secondary: oklch(24% 0.015 260);
+  --secondary-foreground: oklch(82% 0.01 260);
+  --muted: oklch(24% 0.015 260);
+  --muted-foreground: oklch(62% 0.01 260);
+  --accent: oklch(88% 0.005 95);
+  --accent-foreground: oklch(16% 0.01 260);
+  --destructive: oklch(62% 0.18 25);
+  --destructive-foreground: oklch(16% 0.01 260);
+  --border: oklch(28% 0.015 260);
+  --input: oklch(28% 0.015 260);
+  --ring: oklch(88% 0.005 95);
+}
+/* Auto — follow system */
+@media (prefers-color-scheme: dark) {
+  html:has(.v3-shell[data-mode='auto']):root {
+    color-scheme: dark;
+    --background: oklch(16% 0.01 260);
+    --foreground: oklch(88% 0.005 95);
+    --card: oklch(20% 0.015 260);
+    --card-foreground: oklch(88% 0.005 95);
+    --popover: oklch(20% 0.015 260);
+    --popover-foreground: oklch(88% 0.005 95);
+    --primary: oklch(88% 0.005 95);
+    --primary-foreground: oklch(16% 0.01 260);
+    --secondary: oklch(24% 0.015 260);
+    --secondary-foreground: oklch(82% 0.01 260);
+    --muted: oklch(24% 0.015 260);
+    --muted-foreground: oklch(62% 0.01 260);
+    --accent: oklch(88% 0.005 95);
+    --accent-foreground: oklch(16% 0.01 260);
+    --destructive: oklch(62% 0.18 25);
+    --destructive-foreground: oklch(16% 0.01 260);
+    --border: oklch(28% 0.015 260);
+    --input: oklch(28% 0.015 260);
+    --ring: oklch(88% 0.005 95);
+  }
+}
+html:has(.v3-shell):root body {
+  background: var(--background);
+  color: var(--foreground);
+}
+.v3-shell {
+  min-height: 100dvh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', 'Noto Sans Thai', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.v3-shell ::selection { background: var(--primary); color: var(--primary-foreground); }
+.v3-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.v3-pill[data-active='true'] { background: var(--primary); color: var(--primary-foreground); }
+.v3-pill[data-active='false'] { background: color-mix(in srgb, var(--muted) 80%, transparent); color: var(--muted-foreground); }
+.v3-pill[data-active='false']:hover { background: var(--muted); color: var(--foreground); }
+
+/* Typography — balance headings, pretty body (no orphan widows) */
+.v3-shell h1,
+.v3-shell h2,
+.v3-shell h3,
+.v3-shell h4,
+.v3-shell [role='heading'] {
+  text-wrap: balance;
+}
+.v3-shell p,
+.v3-shell blockquote {
+  text-wrap: pretty;
+}
+
+/* Nested border: inner cards inside rounded-2xl parent get slightly smaller radius */
+.v3-shell .rounded-2xl > .rounded-xl {
+  border-radius: calc(var(--radius) - 4px);
+}
+
+/* Press feedback — scale near 0.96 */
+.v3-shell button,
+.v3-shell [type="button"],
+.v3-shell [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.08s ease;
+}
+.v3-shell button:active,
+.v3-shell [type="button"]:active,
+.v3-shell [role="button"]:active {
+  transform: scale(0.96);
+}
+
+/* Input = body (14px) — iOS needs 16px, so bump on mobile only */
+.v3-shell input,
+.v3-shell textarea,
+.v3-shell select {
+  font-size: 14px;
+}
+@media (max-width: 767px) {
+  .v3-shell input,
+  .v3-shell textarea,
+  .v3-shell select {
+    font-size: 16px !important;
+  }
+}

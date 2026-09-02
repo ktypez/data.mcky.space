@@ -44,6 +44,7 @@ describe('applyCounts', () => {
       noImages: 2,
       recent: 1,
       penpay: 1,
+      credit: 0,
     })
   })
 
@@ -54,6 +55,7 @@ describe('applyCounts', () => {
       noImages: 0,
       recent: 0,
       penpay: 0,
+      credit: 0,
     })
   })
 

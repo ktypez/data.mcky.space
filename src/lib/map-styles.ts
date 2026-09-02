@@ -3,5 +3,12 @@ const DARK_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.
 
 export function getMapStyle(): string {
   if (typeof document === 'undefined') return LIGHT_STYLE
-  return document.documentElement.classList.contains('dark') ? DARK_STYLE : LIGHT_STYLE
+  if (document.documentElement.classList.contains('dark')) return DARK_STYLE
+  const shell = document.querySelector('.v3-shell') as HTMLElement | null
+  if (shell) {
+    const mode = shell.getAttribute('data-mode')
+    if (mode === 'dark') return DARK_STYLE
+    if (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) return DARK_STYLE
+  }
+  return LIGHT_STYLE
 }
