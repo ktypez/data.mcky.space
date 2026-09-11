@@ -102,6 +102,31 @@ export async function putClients(clients: Record<string, unknown>[]): Promise<vo
   })
 }
 
+/**
+ * Write clients to IDB only if they don't already exist.
+ * Preserves existing full records — won't overwrite with lightweight data.
+ * Used after the lightweight list fetch to seed IDB for cold starts.
+ * Single getAllKeys + batched puts (was one getKey per client = N round-trips).
+ */
+export async function putClientsIfAbsent(clients: Record<string, unknown>[]): Promise<number> {
+  const db = await getDb()
+  const tx = db.transaction('clients', 'readwrite')
+  const store = tx.objectStore('clients')
+  const existingKeys = new Set(await promisifyRequest(store.getAllKeys()))
+  let added = 0
+  for (const c of clients) {
+    if (!existingKeys.has(c.id as IDBValidKey)) {
+      store.put(c)
+      added++
+    }
+  }
+  await new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+  return added
+}
+
 export async function deleteClient(id: string): Promise<void> {
   const db = await getDb()
   const tx = db.transaction('clients', 'readwrite')

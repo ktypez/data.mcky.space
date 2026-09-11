@@ -3,13 +3,10 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { thTH } from '@clerk/localizations'
-import { ThemeProvider } from '@/components/theme-provider'
 import ErrorScreen from '@/components/ErrorScreen'
 import App from './App'
 import './index.css'
 
-// Publishable key is public (safe to embed); the secret key lives only in
-// the Cloudflare Pages functions runtime.
 const CLERK_PUBLISHABLE_KEY =
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ??
   'pk_live_Y2xlcmsubWNreS5zcGFjZSQ'
@@ -23,28 +20,43 @@ createRoot(document.getElementById('root')!).render(
       signInUrl="/login"
       signUpUrl="/login"
     >
-      <ThemeProvider>
-        <BrowserRouter>
-          <ErrorScreen>
-            <App />
-          </ErrorScreen>
-        </BrowserRouter>
-      </ThemeProvider>
+      <BrowserRouter>
+        <ErrorScreen>
+          <App />
+        </ErrorScreen>
+      </BrowserRouter>
     </ClerkProvider>
   </StrictMode>,
 )
 
-// Service worker registration.
-// On load, first drop any previously-installed SW (an older self-healing
-// version could get stuck in a refresh loop). Then register the current one.
+// PWA — register SW with cache busting to force update from old cached version.
+// On first load after deploy, the new SW installs + skipWaiting + claim takes
+// over immediately. User never sees a prompt — it just works.
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .getRegistrations()
-      .then((regs) => Promise.all(regs.map((r) => r.unregister())))
-      .catch(() => {})
-      .finally(() => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {})
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register(
+        `/sw.js?v=${__SW_VERSION__}`,
+        { scope: '/' },
+      )
+
+      // If an older SW is waiting, tell it to skip → activates new one
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' })
+      }
+
+      // Listen for new SW installing — when it's ready, tell it to skip
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing
+        if (!sw) return
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+            sw.postMessage({ type: 'SKIP_WAITING' })
+          }
+        })
       })
+    } catch {
+      // SW registration failed — app still works, just no offline/install
+    }
   })
 }

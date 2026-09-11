@@ -81,6 +81,51 @@ export async function compressImage(file: File, maxSizeMB = 0.5): Promise<File> 
   return file
 }
 
+/**
+ * Tiny JPEG data URL (default 96px) for list thumbnails. Generated
+ * client-side next to the full upload so the catalog never downloads
+ * 0.5MB files into 32px circles. Returns null when undecodable.
+ */
+export async function makeThumbDataUrl(source: File | string, size = 96): Promise<string | null> {
+  try {
+    let bitmap: ImageBitmap | null = null
+    if (typeof source === 'string') {
+      const res = await fetch(source)
+      const blob = await res.blob()
+      try {
+        bitmap = await createImageBitmap(blob)
+      } catch {
+        bitmap = null
+      }
+    } else {
+      try {
+        bitmap = await createImageBitmap(source)
+      } catch {
+        bitmap = await decodeViaImageElement(source)
+      }
+    }
+    if (!bitmap) return null
+    const r = Math.min(size / bitmap.width, size / bitmap.height, 1)
+    const w = Math.max(1, Math.round(bitmap.width * r))
+    const h = Math.max(1, Math.round(bitmap.height * r))
+    const canvas = document.createElement('canvas')
+    canvas.width = w
+    canvas.height = h
+    canvas.getContext('2d')!.drawImage(bitmap, 0, 0, w, h)
+    bitmap.close()
+    const blob = await canvasToBlob(canvas, 'image/jpeg', 0.6)
+    if (!blob) return null
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+  } catch {
+    return null
+  }
+}
+
 function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob | null> {
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b), type, quality))
 }

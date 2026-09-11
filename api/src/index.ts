@@ -6,9 +6,24 @@ import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core
 import { desc, eq, sql, like, and, or, lt } from 'drizzle-orm'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// CORS — frontend runs on data.mcky.space, API on data-api.fall3n.workers.dev
+// ----------------------------------------------------------------------------
+
+const ALLOWED_ORIGIN = 'https://data.mcky.space'
+
+function withCors(response: Response): Response {
+  const headers = new Headers(response.headers)
+  headers.set('Access-Control-Allow-Origin', ALLOWED_ORIGIN)
+  headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-clerk-check, x-admin-token')
+  headers.set('Access-Control-Max-Age', '86400')
+  return new Response(response.body, { status: response.status, headers })
+}
+
+// ----------------------------------------------------------------------------
 // Schema (identical to functions/lib/schema.ts)
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 const clientsTable = sqliteTable('clients', {
   id: text('id').primaryKey(),
@@ -43,30 +58,27 @@ const auditLogTable = sqliteTable('audit_log', {
   createdAtIdx: index('audit_log_created_at_idx').on(table.createdAt),
 }))
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // DB helper
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-function createDb() {
+// DB handle is cached per isolate — drizzle() construction + a stray
+// PRAGMA round-trip on every request was pure overhead (D1 needs neither).
+let _db: ReturnType<typeof createDbFresh> | null = null
+function createDbFresh() {
   const d1 = (env as any).DB as D1Database
-  d1.prepare('PRAGMA foreign_keys = ON').run()
   return drizzle(d1, { schema: { clients: clientsTable, settings: settingsTable, auditLog: auditLogTable } })
 }
+function createDb() {
+  if (!_db) _db = createDbFresh()
+  return _db
+}
 
-// ---------------------------------------------------------------------------
-// Auth (Clerk only — legacy HMAC removed)
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// Auth (Clerk only — any valid session is admin, no email allowlist)
+// ----------------------------------------------------------------------------
 
 const CLERK_ISSUER = 'https://clerk.mcky.space'
-const CLERK_API_BASE = 'https://api.clerk.com/v1'
-const ADMIN_EMAILS = new Set([
-  'bankkh@gmail.com',
-  'daily@mcky.space',
-  'mcky@ezzy.com',
-  'mcky@mcky.space',
-  'papapun2707@gmail.com',
-  'pitchy@ezzy.com',
-])
 
 let _jwks: ReturnType<typeof createRemoteJWKSet> | null = null
 function jwks() {
@@ -74,48 +86,29 @@ function jwks() {
   return _jwks
 }
 
-const emailCache = new Map<string, { email: string; at: number }>()
-const EMAIL_CACHE_TTL = 10 * 60 * 1000
-
-async function resolveUserEmail(sub: string): Promise<string | null> {
-  const hit = emailCache.get(sub)
-  if (hit && Date.now() - hit.at < EMAIL_CACHE_TTL) return hit.email
-  const secret = (env as any).CLERK_SECRET_KEY
-  if (!secret) return null
-  try {
-    const res = await fetch(`${CLERK_API_BASE}/users/${encodeURIComponent(sub)}`, {
-      headers: { Authorization: `Bearer ${secret}` },
-    })
-    if (!res.ok) return null
-    const user = (await res.json()) as any
-    const emails = user.email_addresses ?? []
-    const primary = emails.find((e: any) => e.id === user.primary_email_address_id) ?? emails[0]
-    const email = primary?.email_address?.trim().toLowerCase() ?? null
-    if (email) emailCache.set(sub, { email, at: Date.now() })
-    return email
-  } catch { return null }
-}
-
 async function isAdminReq(request: Request): Promise<boolean> {
   const auth = request.headers.get('authorization') || ''
   const m = auth.match(/^Bearer\s+([\w-]+\.[\w-]+\.[\w-]+)$/i)
   if (!m) return false
+  const token = m[1]
+  // Positive verifications are cached 60s per isolate so rapid write bursts
+  // (save → upload photos → update) don't re-fetch the JWKS each time.
+  const now = Date.now()
+  const hit = verifiedTokens.get(token)
+  if (hit && hit > now) return true
   try {
-    const { payload } = await jwtVerify(m[1], jwks(), { issuer: CLERK_ISSUER })
-    const sub = typeof payload.sub === 'string' ? payload.sub : ''
-    if (!sub) return false
-    const secret = (env as any).CLERK_SECRET_KEY
-    if (secret) {
-      const email = await resolveUserEmail(sub)
-      return !!email && ADMIN_EMAILS.has(email)
-    }
-    return false
+    const { payload } = await jwtVerify(token, jwks(), { issuer: CLERK_ISSUER })
+    if (typeof payload.sub !== 'string' || payload.sub === '') return false
+    verifiedTokens.set(token, now + 60_000)
+    if (verifiedTokens.size > 1000) verifiedTokens.delete(verifiedTokens.keys().next().value!)
+    return true
   } catch { return false }
 }
+const verifiedTokens = new Map<string, number>()
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Geo helpers (L2 fix: round to ~11m)
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 function roundCoord(n: number | null | undefined): number | null {
   if (n == null || typeof n !== 'number' || !Number.isFinite(n)) return null
@@ -130,9 +123,9 @@ function roundLatLngList<T extends { lat?: number | null; lng?: number | null }>
   return rows.map(roundLatLng)
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Name helpers
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 function coerceStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
@@ -166,9 +159,9 @@ function normalizeClientList<T extends Record<string, unknown>>(rows: T[]): Arra
   return rows.map(normalizeClient)
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Audit log
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 function getClientIp(request: Request): string {
   return (
@@ -178,11 +171,13 @@ function getClientIp(request: Request): string {
   )
 }
 
+// Best-effort and never awaited on the hot path — call sites use
+// `void logAudit(...)` so mutations don't wait for the audit insert.
 async function logAudit(request: Request | null, entry: { action: string; target?: string | null; payload?: Record<string, unknown> }) {
   try {
     const db = createDb()
     await db.insert(auditLogTable).values({
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+      id: crypto.randomUUID(),
       action: entry.action,
       target: entry.target ?? null,
       payload: entry.payload ?? null,
@@ -206,20 +201,74 @@ async function purgeOldAuditLog(): Promise<number> {
   } catch { return 0 }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Theme ids
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 const THEME_IDS = new Set(['bubblegum', 'slate', 'glitchpage', 'crt', 'claude', 'rack', 'noc', 'min', 'brut', 'mcky', 'blueprint', 'noir', 'portal'])
 function isThemeId(value: string): boolean {
   return THEME_IDS.has(value)
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// Thumbs + edge cache helpers
+// ----------------------------------------------------------------------------
+
+// R2 thumbnails live at clients/{id}/t/{base}.jpg next to the full image at
+// clients/{id}/{base}.{ext}. Pure naming convention — no D1 migration, and
+// old photos without a thumb just derive a URL that 404s (UI falls back).
+function thumbUrl(full: string | null | undefined): string | null {
+  if (!full || !full.startsWith('http')) return null
+  const m = full.match(/^(https?:\/\/[^/]+\/clients\/[^/]+\/)([^/?#]+)\.\w+([?#].*)?$/)
+  if (!m) return null
+  return `${m[1]}t/${m[2]}.jpg${m[3] ?? ''}`
+}
+
+// Edge-cache a public JSON response for 60s via caches.default. The
+// previous `Cache-Control: max-age` header alone cached nothing — Workers
+// don't cache without the Cache API. Mutations don't invalidate (TTL is
+// short); explicit refresh uses the uncached /api/clients endpoint.
+async function cachedJson(request: Request, build: () => Promise<unknown>): Promise<Response> {
+  const cache = caches.default
+  const key = new Request(request.url, { method: 'GET' })
+  const hit = await cache.match(key)
+  if (hit) return hit
+  const res = new Response(JSON.stringify(await build()), {
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },
+  })
+  try { await cache.put(key, res.clone()) } catch { /* cache full / unsupported — serve anyway */ }
+  return res
+}
+
+// ----------------------------------------------------------------------------
 // Elysia app
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 export default new Elysia({ adapter: CloudflareAdapter })
+  // Handle ALL requests — CORS preflight + add CORS to responses
+  .onRequest((ctx) => {
+    if (ctx.request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-clerk-check, x-admin-token',
+          'Access-Control-Max-Age': '86400',
+        },
+      })
+    }
+  })
+  // Add CORS headers to every response
+  .onAfterHandle((ctx) => {
+    const response = ctx.response as Response | undefined
+    if (response && response instanceof Response) {
+      const headers = new Headers(response.headers)
+      headers.set('Access-Control-Allow-Origin', ALLOWED_ORIGIN)
+      return new Response(response.body, { status: response.status, headers })
+    }
+  })
+
   // --- ping ---
   .get('/api/ping', () => Response.json({ ok: true }))
 
@@ -241,7 +290,7 @@ export default new Elysia({ adapter: CloudflareAdapter })
   .post('/api/auth', async () => Response.json({ error: 'Deprecated — use Clerk sign-in' }, { status: 410 }))
   .delete('/api/auth', async () => Response.json({ error: 'Deprecated — use Clerk sign-out' }, { status: 410 }))
 
-  // --- clients list ---
+  // --- clients list (full data) ---
   .get('/api/clients', async (ctx) => {
     const db = createDb()
     const url = new URL(ctx.request.url)
@@ -249,13 +298,50 @@ export default new Elysia({ adapter: CloudflareAdapter })
 
     if (limit === 'all') {
       const rows = await db.select().from(clientsTable).orderBy(desc(clientsTable.updatedAt))
-      return Response.json(roundLatLngList(normalizeClientList(rows)))
+      return new Response(JSON.stringify(roundLatLngList(normalizeClientList(rows))), {
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' },
+      })
     }
 
     const numLimit = limit ? parseInt(limit, 10) : undefined
     const query = db.select().from(clientsTable).orderBy(desc(clientsTable.updatedAt))
     const rows = numLimit ? await query.limit(numLimit) : await query
-    return Response.json(roundLatLngList(normalizeClientList(rows)))
+    return new Response(JSON.stringify(roundLatLngList(normalizeClientList(rows))), {
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' },
+    })
+  })
+
+  // --- clients list (lightweight, for catalog) ---
+  .get('/api/clients/list', async (ctx) => {
+    return cachedJson(ctx.request, async () => {
+      const db = createDb()
+      const rows = await db
+        .select({
+          id: clientsTable.id,
+          name: clientsTable.name,
+          shopName: clientsTable.shopName,
+          images: clientsTable.images,
+          badge: clientsTable.badge,
+          updatedAt: clientsTable.updatedAt,
+          createdAt: clientsTable.createdAt,
+        })
+        .from(clientsTable)
+        .orderBy(desc(clientsTable.updatedAt))
+
+      return rows.map((r) => {
+        const image = Array.isArray(r.images) && r.images.length > 0 ? r.images[0] : null
+        return {
+          id: r.id,
+          name: r.name,
+          shopName: r.shopName,
+          image,
+          thumb: thumbUrl(image),
+          badge: r.badge,
+          updatedAt: r.updatedAt,
+          createdAt: r.createdAt,
+        }
+      })
+    })
   })
 
   // --- clients create ---
@@ -283,32 +369,36 @@ export default new Elysia({ adapter: CloudflareAdapter })
       updatedAt: now,
     })
 
-    await logAudit(ctx.request, { action: 'client.create', target: id, payload: { name: String(data.name ?? '') } })
+    void logAudit(ctx.request, { action: 'client.create', target: id, payload: { name: String(data.name ?? '') } })
     return Response.json({ ok: true, id }, { status: 201 })
   })
 
-  // --- clients count ---
-  .get('/api/clients/count', async () => {
-    const db = createDb()
-    const result = await db.select({ count: sql<number>`count(*)` }).from(clientsTable)
-    return Response.json({ count: result[0]?.count ?? 0 })
+  // --- clients count (edge-cached 60s — count rarely changes) ---
+  .get('/api/clients/count', async (ctx) => {
+    return cachedJson(ctx.request, async () => {
+      const db = createDb()
+      const result = await db.select({ count: sql<number>`count(*)` }).from(clientsTable)
+      return { count: result[0]?.count ?? 0 }
+    })
   })
 
-  // --- clients search ---
+  // --- clients search (edge-cached 60s per query) ---
   .get('/api/clients/search', async (ctx) => {
     const url = new URL(ctx.request.url)
     const q = url.searchParams.get('q')
     if (!q || !q.trim()) return Response.json([])
 
-    const keywords = q.trim().split(/\s+/).filter(Boolean)
-    const conditions = keywords.map((kw) => {
-      const pattern = `%${kw}%`
-      return or(like(clientsTable.name, pattern), like(clientsTable.shopName, pattern))
-    })
+    return cachedJson(ctx.request, async () => {
+      const keywords = q.trim().split(/\s+/).filter(Boolean)
+      const conditions = keywords.map((kw) => {
+        const pattern = `%${kw}%`
+        return or(like(clientsTable.name, pattern), like(clientsTable.shopName, pattern))
+      })
 
-    const db = createDb()
-    const rows = await db.select().from(clientsTable).where(and(...conditions)).limit(10)
-    return Response.json(roundLatLngList(rows))
+      const db = createDb()
+      const rows = await db.select().from(clientsTable).where(and(...conditions)).limit(10)
+      return roundLatLngList(rows)
+    })
   })
 
   // --- trash list ---
@@ -364,7 +454,7 @@ export default new Elysia({ adapter: CloudflareAdapter })
       void deletedAt
       await db.insert(clientsTable).values(clientRow as any)
       await db.delete(settingsTable).where(eq(settingsTable.key, `trash:v1:${body.id}`))
-      await logAudit(ctx.request, { action: 'client.restore', target: body.id })
+      void logAudit(ctx.request, { action: 'client.restore', target: body.id })
       return Response.json({ ok: true })
     }
 
@@ -380,7 +470,7 @@ export default new Elysia({ adapter: CloudflareAdapter })
         }
       } catch {}
       await db.delete(settingsTable).where(eq(settingsTable.key, `trash:v1:${body.id}`))
-      await logAudit(ctx.request, { action: 'client.force_delete', target: body.id })
+      void logAudit(ctx.request, { action: 'client.force_delete', target: body.id })
       return Response.json({ ok: true })
     }
 
@@ -420,7 +510,7 @@ export default new Elysia({ adapter: CloudflareAdapter })
       updatedAt: Date.now(),
     }).where(eq(clientsTable.id, params.id))
 
-    await logAudit(ctx.request, { action: 'client.update', target: params.id })
+    void logAudit(ctx.request, { action: 'client.update', target: params.id })
     return Response.json({ ok: true })
   })
   .delete('/api/clients/:id', async (ctx) => {
@@ -438,7 +528,7 @@ export default new Elysia({ adapter: CloudflareAdapter })
     await db.insert(settingsTable).values({ key: `trash:v1:${params.id}`, value: clientData }).onConflictDoNothing()
     await db.delete(clientsTable).where(eq(clientsTable.id, params.id))
 
-    await logAudit(ctx.request, { action: 'client.delete', target: params.id })
+    void logAudit(ctx.request, { action: 'client.delete', target: params.id })
     return Response.json({ ok: true })
   })
 
@@ -471,7 +561,7 @@ export default new Elysia({ adapter: CloudflareAdapter })
       .values({ key: 'theme', value: theme })
       .onConflictDoUpdate({ target: settingsTable.key, set: { value: theme } })
 
-    await logAudit(ctx.request, { action: 'profile.theme.update', payload: { theme } })
+    void logAudit(ctx.request, { action: 'profile.theme.update', payload: { theme } })
     return Response.json({ ok: true, theme })
   })
 
@@ -487,9 +577,13 @@ export default new Elysia({ adapter: CloudflareAdapter })
       return Response.json({ error: 'Invalid request' }, { status: 400 }) 
     }
 
-    const { clientId, images, deletedImages } = body as Record<string, unknown>
+    const { clientId, images, deletedImages, thumbs } = body as Record<string, unknown>
 
     if (typeof clientId !== 'string' || !Array.isArray(images)) {
+      return Response.json({ error: 'Invalid request' }, { status: 400 })
+    }
+    // `thumbs` is entry-aligned with `images` (null for non-base64 entries).
+    if (thumbs !== undefined && (!Array.isArray(thumbs) || thumbs.length !== (images as unknown[]).length)) {
       return Response.json({ error: 'Invalid request' }, { status: 400 })
     }
 
@@ -505,25 +599,60 @@ export default new Elysia({ adapter: CloudflareAdapter })
       return Response.json({ error: 'Client not found' }, { status: 404 })
     }
 
+    // Strip a full R2 URL down to its object key, and map it to the
+    // derived thumb key (clients/{id}/t/{base}.jpg). Returns null for
+    // non-R2 URLs.
+    const r2Prefix = `${(env as any).R2_PUBLIC_URL}/` as string
+    function thumbKeyFor(fullUrl: string): string | null {
+      if (!fullUrl.startsWith(r2Prefix)) return null
+      const m = fullUrl.slice(r2Prefix.length).match(/^(clients\/[^/]+\/)([^/]+)\.\w+$/)
+      if (!m) return null
+      return `${m[1]}t/${m[2]}.jpg`
+    }
+
     if (Array.isArray(deletedImages) && deletedImages.length > 0) {
       await Promise.all(
         (deletedImages as string[])
           .filter((u) => u.startsWith('http') && !u.startsWith('data:'))
-          .map((u) => (env as any).BUCKET.delete(u.replace(`${(env as any).R2_PUBLIC_URL}/`, '')))
+          .flatMap((u) => {
+            const ops: Promise<unknown>[] = [
+              (env as any).BUCKET.delete(u.replace(r2Prefix, '')),
+            ]
+            const tk = thumbKeyFor(u)
+            if (tk) ops.push((env as any).BUCKET.delete(tk).catch(() => {}))
+            return ops
+          })
       )
     }
 
+    // Photo objects are content-addressed by timestamp (unique per upload),
+    // so immutable year-long caching is safe and makes repeat list views free.
+    const IMMUTABLE = 'public, max-age=31536000, immutable'
     let newUrls: string[]
     try {
       newUrls = await Promise.all(
-        (images as string[]).map(async (img): Promise<string> => {
+        (images as string[]).map(async (img, i): Promise<string> => {
           if (!img.startsWith('data:image')) return img
           const match = img.match(/^data:(image\/\w+);base64,(.+)$/)
           if (!match) throw new Error('Invalid base64 format')
           const ext = match[1].split('/')[1] === 'jpeg' ? 'jpg' : match[1].split('/')[1]
           const binary = Uint8Array.from(atob(match[2]), (c) => c.charCodeAt(0))
-          const key = `clients/${clientId}/${Date.now()}.${ext}`
-          await (env as any).BUCKET.put(key, binary, { httpMetadata: { contentType: match[1] } })
+          const base = Date.now()
+          const key = `clients/${clientId}/${base}.${ext}`
+          await (env as any).BUCKET.put(key, binary, { httpMetadata: { contentType: match[1], cacheControl: IMMUTABLE } })
+          // Thumbnail (optional, best-effort): tiny JPEG next to the full.
+          const thumb = Array.isArray(thumbs) ? (thumbs as unknown[])[i] : null
+          if (typeof thumb === 'string' && thumb.startsWith('data:image') && thumb.length <= 100_000) {
+            const tm = thumb.match(/^data:(image\/\w+);base64,(.+)$/)
+            if (tm) {
+              try {
+                const tbin = Uint8Array.from(atob(tm[2]), (c) => c.charCodeAt(0))
+                await (env as any).BUCKET.put(`clients/${clientId}/t/${base}.jpg`, tbin, {
+                  httpMetadata: { contentType: 'image/jpeg', cacheControl: IMMUTABLE },
+                })
+              } catch { /* thumb is enhancement-only */ }
+            }
+          }
           return `${(env as any).R2_PUBLIC_URL}/${key}`
         })
       )
@@ -552,15 +681,18 @@ const TRASH_TTL_DAYS = 30
 async function purgeExpiredTrash(db: ReturnType<typeof createDb>): Promise<number> {
   const cutoff = Date.now() - TRASH_TTL_DAYS * 86_400_000
   const rows = await db.select().from(settingsTable).where(sql`${settingsTable.key} LIKE ${'trash:v1:' + '%'}`)
-  let purged = 0
+  const expired: string[] = []
   for (const row of rows) {
     try {
       const data = JSON.parse(row.value) as { deletedAt?: number }
-      if (data.deletedAt && data.deletedAt < cutoff) {
-        await db.delete(settingsTable).where(eq(settingsTable.key, row.key))
-        purged++
-      }
-    } catch {}
+      if (data.deletedAt && data.deletedAt < cutoff) expired.push(row.key)
+    } catch {
+      // Corrupted trash payloads are unreadable — purge them too rather than
+      // letting them pile up forever.
+      expired.push(row.key)
+    }
   }
-  return purged
+  if (expired.length === 0) return 0
+  await db.delete(settingsTable).where(sql`${settingsTable.key} IN (${expired})`)
+  return expired.length
 }

@@ -6,10 +6,28 @@ export interface Client {
   lat: number | null
   lng: number | null
   images: string[]
+  /** List-view thumb for images[0]; set only from /api/clients/list. */
+  thumb?: string | null
   badge: string | null
   notes: string | null
   createdAt: number
   updatedAt: number
+}
+
+/**
+ * Lightweight client record — only the fields the catalog needs.
+ * Returned by the /api/clients/list endpoint.
+ */
+export interface ClientListItem {
+  id: string
+  name: string[]
+  shopName: string[]
+  image: string | null
+  /** Derived R2 thumb (clients/{id}/t/{base}.jpg). Null for old photos. */
+  thumb: string | null
+  badge: string | null
+  updatedAt: number
+  createdAt: number
 }
 
 export enum FilterKey {

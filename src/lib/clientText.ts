@@ -3,9 +3,7 @@ import { coerceStringArray } from '@/lib/clientNames'
 
 /**
  * Format a client for clipboard sharing.
- *
- * Each name gets its own `👤` line and each shop name its own `🏠` line,
- * so multi-name clients copy every value. Address keeps the `📍` prefix.
+ * Name, shop name, address — the essentials for dropping into a chat.
  */
 export function clientText(client: Client): string {
   const parts: string[] = []

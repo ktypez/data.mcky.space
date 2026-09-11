@@ -4,6 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 export default defineConfig({
+  define: {
+    __SW_VERSION__: JSON.stringify(Date.now().toString(36)),
+  },
   plugins: [
     react({ include: '**/*.{jsx,tsx}' }),
     tailwindcss(),
@@ -43,6 +46,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes('node_modules/maplibre-gl')) {
+            return 'map'
+          }
           if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
             return 'vendor'
           }
@@ -51,6 +57,9 @@ export default defineConfig({
           }
           if (id.includes('node_modules/zustand')) {
             return 'stores'
+          }
+          if (id.includes('node_modules/motion') || id.includes('node_modules/@motion')) {
+            return 'motion'
           }
         }
       }

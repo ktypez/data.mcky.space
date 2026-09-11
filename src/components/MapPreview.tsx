@@ -1,9 +1,17 @@
 
 import { useEffect, useRef, useCallback } from 'react'
-import maplibregl from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
 import { getMapStyle } from '@/lib/map-styles'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
+
+// maplibre-gl is dynamically imported (shared `map` chunk) so pages without
+// a map never download it — mirrors MapPicker's approach. The static import
+// below would drag the whole 1MB library into this lazy chunk eagerly.
+type GL = typeof import('maplibre-gl')
+
+async function loadGL(): Promise<GL> {
+  const [mod] = await Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')])
+  return (mod.default ?? mod) as GL
+}
 
 export interface MapPreviewProps {
   lat: number
@@ -12,8 +20,9 @@ export interface MapPreviewProps {
 
 export default function MapPreview({ lat, lng }: MapPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<maplibregl.Map | null>(null)
-  const markerRef = useRef<maplibregl.Marker | null>(null)
+  const mapRef = useRef<any>(null)
+  const markerRef = useRef<any>(null)
+  const glRef = useRef<GL | null>(null)
   const latRef = useRef(lat)
   const lngRef = useRef(lng)
 
@@ -22,34 +31,51 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
 
-    const el = document.createElement('div')
-    el.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
+    let cancelled = false
+    async function tryInit() {
+      if (cancelled) return
+      let GL: GL
+      try {
+        GL = await loadGL()
+      } catch (err) {
+        console.error('[MapPreview] maplibre-gl import failed')
+        return
+      }
+      if (cancelled || !GL?.Map) return
+      glRef.current = GL
 
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: getMapStyle(),
-      center: [lngRef.current, latRef.current],
-      zoom: 15,
-      attributionControl: false,
-      dragRotate: false,
-      touchPitch: false,
-      interactive: false,
-    })
+      const el = document.createElement('div')
+      el.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
 
-    function addMarker(lngLat: [number, number]) {
-      if (markerRef.current) markerRef.current.remove()
-      markerRef.current = new maplibregl.Marker({ element: el.cloneNode(true) as HTMLElement })
-        .setLngLat(lngLat)
-        .addTo(map)
+      const map = new GL.Map({
+        container: containerRef.current!,
+        style: getMapStyle(),
+        center: [lngRef.current, latRef.current],
+        zoom: 15,
+        attributionControl: false,
+        dragRotate: false,
+        touchPitch: false,
+        interactive: false,
+      })
+
+      function addMarker(lngLat: [number, number]) {
+        if (markerRef.current) markerRef.current.remove()
+        markerRef.current = new GL.Marker({ element: el.cloneNode(true) as HTMLElement })
+          .setLngLat(lngLat)
+          .addTo(map)
+      }
+      addMarker([lngRef.current, latRef.current])
+
+      map.on('style.load', () => map.resize())
+
+      mapRef.current = map
     }
-    addMarker([lngRef.current, latRef.current])
 
-    map.on('style.load', () => map.resize())
-
-    mapRef.current = map
+    void tryInit()
 
     return () => {
-      map.remove()
+      cancelled = true
+      mapRef.current?.remove()
       mapRef.current = null
     }
   }, [])
@@ -63,8 +89,8 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
         const c = map.getCenter()
         if (markerRef.current) markerRef.current.remove()
         const el = document.createElement('div')
-    el.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
-        markerRef.current = new maplibregl.Marker({ element: el }).setLngLat([c.lng, c.lat]).addTo(map)
+        el.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
+        markerRef.current = new (glRef.current!).Marker({ element: el }).setLngLat([c.lng, c.lat]).addTo(map)
         map.resize()
       })
     }, []),
@@ -77,7 +103,7 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
     const el = document.createElement('div')
     el.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
     if (markerRef.current) markerRef.current.remove()
-    markerRef.current = new maplibregl.Marker({ element: el })
+    markerRef.current = new (glRef.current!).Marker({ element: el })
       .setLngLat([lng, lat])
       .addTo(mapRef.current)
   }, [lat, lng])

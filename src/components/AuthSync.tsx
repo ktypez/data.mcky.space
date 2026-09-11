@@ -1,16 +1,14 @@
 import { useEffect } from 'react'
-import { useUser, useAuth, useClerk } from '@clerk/clerk-react'
+import { useAuth, useClerk } from '@clerk/clerk-react'
 import { useAuthStore } from '@/stores/auth-store'
-import { isAdminEmail } from '@/lib/clerk-config'
 
 export function AuthSync() {
   const { isLoaded, isSignedIn, getToken } = useAuth()
-  const { user } = useUser()
   const clerk = useClerk()
 
   useEffect(() => {
-    const email = user?.primaryEmailAddress?.emailAddress ?? null
-    const admin = isAdminEmail(email)
+    // Any signed-in user is admin — no email allowlist.
+    const admin = !!isSignedIn
     useAuthStore.getState().setAdmin(admin)
     useAuthStore.getState().setSignedIn(!!isSignedIn)
     useAuthStore.getState().setChecking(false)
@@ -37,7 +35,7 @@ export function AuthSync() {
         }
       },
     )
-  }, [isLoaded, isSignedIn, user, getToken, clerk])
+  }, [isLoaded, isSignedIn, getToken, clerk])
 
   return null
 }

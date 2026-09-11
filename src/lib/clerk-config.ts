@@ -3,22 +3,13 @@
 // side loads); the secret key lives in Cloudflare Pages secrets and only
 // used by the functions runtime.
 //
-// Admin email list — users with these emails are considered admins for write
-// access. This replaces the legacy is_admin column that was part of the
-// Supabase truck migration (data.mcky.space has no such column; it uses a
-// single shared admin password before this migration).
+// Admin model: any signed-in Clerk user is admin.
+// The old hardcoded ADMIN_EMAILS allowlist was removed — access is granted
+// purely by a valid Clerk session JWT (verified against the JWKS issuer).
+// NOTE: control who can write by restricting sign-ups in the Clerk dashboard
+// (invite-only). Anyone who can create an account can write.
 //
-// This list is checked against the JWT `sub` claim of the Clerk session
-// token so no extra Clerk instance API round-trip is needed.
-const ADMIN_EMAILS = new Set<string>([
-  'bankkh@gmail.com',
-  'daily@mcky.space',
-  'mcky@ezzy.com',
-  'mcky@mcky.space',
-  'papapun2707@gmail.com',
-  'pitchy@ezzy.com',
-])
-
+// Kept as a deprecated shim so old imports don't break.
 export function isAdminEmail(email: string | null | undefined): boolean {
-  return !!email && ADMIN_EMAILS.has(email.trim().toLowerCase())
+  return !!email
 }

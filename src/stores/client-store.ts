@@ -1,9 +1,10 @@
 
 import { create } from 'zustand'
 import type { Client } from '@/types/index'
-import { fetchClients } from '@/lib/storage'
-import { getAllClients, purgeExpiredClients } from '@/lib/offline-db'
+import { fetchClients, fetchClientList } from '@/lib/storage'
+import { getAllClients, putClientsIfAbsent, purgeExpiredClients } from '@/lib/offline-db'
 import { normalizeClients } from '@/lib/clientNames'
+import { listItemToClient } from '@/lib/list-item'
 
 interface ClientState {
   clients: Client[]
@@ -93,47 +94,55 @@ export const useClientStore = create<ClientState>((set, get) => ({
     // can't stomp clients that were added/edited while the fetch was in
     // flight — the fetch result is merged below with "newer wins" semantics.
     set({ initialized: true, loading: true, error: null })
+
+    // Phase 1: Show IDB cache immediately — this is the "revalidate" part
+    // of stale-while-revalidate. The user sees data instantly.
     try {
-      const data = await fetchClients()
-      set((s) => {
-        // Merge: server data is the baseline, but any client mutated into
-        // the store during flight (added via AddEditPage) is kept, and the
-        // newer copy wins when both exist. Keeps the list newest-first.
-        const byId = new Map<string, Client>()
-        for (const c of data) byId.set(c.id, c)
-        for (const c of s.clients) {
-          const existing = byId.get(c.id)
-          if (!existing || c.updatedAt > existing.updatedAt) byId.set(c.id, c)
-        }
-        const merged = [...byId.values()].sort((a, b) => b.updatedAt - a.updatedAt)
-        return { clients: merged, loading: false }
-      })
-    } catch {
-      try {
-        const idb = await getAllClients()
-        if (idb.length > 0) {
-          const sorted = normalizeClients(idb).sort(
-            (a, b) => b.updatedAt - a.updatedAt,
-          )
-          set({ clients: sorted, loading: false, initialized: true })
-          return
-        }
-      } catch (idbErr) {
-        console.error('IDB fallback failed:', idbErr)
+      const idb = await getAllClients()
+      if (idb.length > 0) {
+        const sorted = normalizeClients(idb).sort(
+          (a, b) => b.updatedAt - a.updatedAt,
+        )
+        set({ clients: sorted, loading: false })
       }
-      set({ error: 'Failed to load clients', loading: false, initialized: true })
-      return
+    } catch {
+      // IDB failed — continue to network fetch below
     }
-    // M4 fix: after a successful refresh, opportunistically purge expired
-    // IDB entries. Cheap, runs once per app init, prevents unbounded growth.
-    purgeExpiredClients().catch(() => {
-      // non-fatal
-    })
+
+    // Phase 2: Fetch fresh data from network in background ("stale" part).
+    // Do NOT await — let it run in the background so the UI renders
+    // immediately. When the network data arrives, replace the store.
+    fetchClientList()
+      .then((items) => {
+        const fresh = items.map(listItemToClient)
+        set((s) => {
+          const byId = new Map<string, Client>()
+          for (const c of fresh) byId.set(c.id, c)
+          for (const c of s.clients) {
+            const existing = byId.get(c.id)
+            if (!existing || c.updatedAt > existing.updatedAt) byId.set(c.id, c)
+          }
+          const merged = [...byId.values()].sort((a, b) => b.updatedAt - a.updatedAt)
+          return { clients: merged }
+        })
+        // Seed IDB with new clients (skip existing — preserves full data)
+        putClientsIfAbsent(fresh.map(c => c as unknown as Record<string, unknown>))
+          .catch(() => { /* non-fatal */ })
+      })
+      .catch(() => {
+        // Network failed — keep showing IDB data (already rendered above).
+        // If IDB was empty, the user sees an empty list with a subtle
+        // "refresh to retry" option via pull-to-refresh.
+      })
+      .finally(() => {
+        purgeExpiredClients().catch(() => { /* non-fatal */ })
+      })
   },
 
   refresh: async () => {
     set({ refreshing: true, error: null })
     try {
+      // Use full fetch on pull-to-refresh — writes complete data to IDB
       const data = await fetchClients()
       set({ clients: data, refreshing: false })
       return data

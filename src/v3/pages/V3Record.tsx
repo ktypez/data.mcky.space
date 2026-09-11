@@ -1,35 +1,75 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, PencilSimple, Copy, Check, LinkSimple, Trash } from '@phosphor-icons/react'
 import { useClientStore } from '@/stores/client-store'
 import { useAuthStore } from '@/stores/auth-store'
-import { deleteClient } from '@/lib/storage'
+import { deleteClient, fetchClientById } from '@/lib/storage'
+import type { Client } from '@/types/index'
 import ClientNames from '@/components/ClientNames'
 import AppImage from '@/components/AppImage'
 import MapPreviewDynamic from '@/components/MapPreviewDynamic'
 import { copyToClipboard, formatDate, formatDateTime, getMapsUrl, hasValidCoords, COPIED_FLASH_MS } from '@/lib/utils'
 import { clientTextWithMaps } from '@/lib/clientText'
 
-// Detail = C · Dense + map + photo — locked from Lab C
+// Detail = C | Dense + map + photo — lazy-loads full data if store only has lightweight list item
 export default function V3Record(){
   const { id='' } = useParams()
   const navigate = useNavigate()
-  const clients = useClientStore(s=>s.clients)
-  const loading = useClientStore(s=>s.loading)
-  const initialized = useClientStore(s=>s.initialized)
   const { isAdmin } = useAuthStore()
+  const [client, setClient] = useState<Client | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [err, setErr] = useState<string|null>(null)
   const [lightboxIdx, setLightboxIdx] = useState<number|null>(null)
   const [confirm, setConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [err, setErr] = useState<string|null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
   const tRef = useRef<ReturnType<typeof setTimeout>|null>(null)
   useEffect(()=>()=>{ if(tRef.current) clearTimeout(tRef.current)},[])
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      setLoading(true)
+      setErr(null)
+      // Try store first — may already have lightweight item
+      const storeClient = useClientStore.getState().clients.find(c=>c.id===id)
+      if (storeClient && storeClient.address) {
+        if (!cancelled) { setClient(storeClient); setLoading(false) }
+        return
+      }
+      // Lightweight or missing — fetch full record
+      try {
+        const full = await fetchClientById(id)
+        if (cancelled) return
+        if (full) {
+          setClient(full)
+          // Also update store so back-navigation is instant
+          useClientStore.getState().updateClient(full.id, full)
+        } else {
+          // Fallback to lightweight store item if API 404
+          if (storeClient) setClient(storeClient)
+          else setErr('ไม่พบข้อมูล')
+        }
+      } catch {
+        if (!cancelled) {
+          if (storeClient) setClient(storeClient)
+          else setErr('โหลดข้อมูลไม่สำเร็จ')
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [id])
+
   const copyLink = async()=>{ const ok=await copyToClipboard(window.location.href); if(!ok) return; setCopiedLink(true); if(tRef.current) clearTimeout(tRef.current); tRef.current=setTimeout(()=>setCopiedLink(false), COPIED_FLASH_MS)}
-  const client = useMemo(()=>clients.find(c=>c.id===id),[clients,id])
   const coords = client && hasValidCoords(client.lat, client.lng) ? {lat: client.lat as number, lng: client.lng as number}: null
+  if(loading){
+    return <Shell><p className="font-mono text-sm opacity-60">loading...</p></Shell>
+  }
   if(!client){
-    if(!initialized||loading) return <Shell><p className="font-mono text-sm opacity-60">loading…</p></Shell>
+    if(err) return <Shell><div className="flex min-h-[240px] flex-col items-center justify-center rounded-2xl border border-dashed border-border p-6 text-center"><p className="font-mono text-xs text-destructive">{err}</p><button type="button" onClick={()=>navigate('/')} className="mt-6 rounded-full border border-border px-4 py-2 text-sm hover:bg-card">back</button></div></Shell>
     return <Shell><div className="flex min-h-[240px] flex-col items-center justify-center rounded-2xl border border-dashed border-border p-6 text-center"><p className="font-mono text-xs uppercase text-destructive">404</p><h1 className="mt-2 font-semibold">record not found</h1><button type="button" onClick={()=>navigate('/')} className="mt-6 rounded-full border border-border px-4 py-2 text-sm hover:bg-card">back</button></div></Shell>
   }
   const copyAll = ()=> void copyToClipboard(clientTextWithMaps(client, getMapsUrl))
@@ -53,8 +93,6 @@ export default function V3Record(){
         </div>
       </div>
       {err && <p role="alert" className="mt-4 rounded-xl border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{err}</p>}
-
-      {/* Header — no avatar, just names */}
       <div className="mt-8 min-w-0">
         <div role="heading" aria-level={1}>
           <ClientNames client={client} variant="detail" titleClassName="text-lg font-semibold leading-tight break-words whitespace-normal [overflow-wrap:anywhere]" subClassName="mt-1 text-sm opacity-60 break-words whitespace-normal [overflow-wrap:anywhere]" />
@@ -64,8 +102,6 @@ export default function V3Record(){
           <button type="button" onClick={copyAll} className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white px-3 py-1 font-mono text-xs text-black hover:bg-black/5"><Copy className="h-3 w-3"/> copy</button>
         </div>
       </div>
-
-      {/* Dense table — C style (no id/name/shop/photos count) */}
       <div className="mt-6 overflow-hidden rounded-xl border border-border bg-card">
         <table className="w-full border-collapse font-mono text-xs">
           <tbody>
@@ -78,16 +114,12 @@ export default function V3Record(){
           </tbody>
         </table>
       </div>
-
-      {/* Notes — quote card standalone */}
       {client.notes && (
         <div className="mt-4 rounded-xl border border-border bg-card p-5">
           <p className="font-mono text-xs uppercase tracking-wide opacity-40">Notes</p>
-          <blockquote className="mt-2 border-l-2 border-foreground/20 pl-4 text-[15px] leading-7 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">“{client.notes}”</blockquote>
+          <blockquote className="mt-2 border-l-2 border-foreground/20 pl-4 text-[15px] leading-7 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">"{client.notes}"</blockquote>
         </div>
       )}
-
-      {/* Map — no title */}
       {coords && (
         <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
           <div className="h-56 overflow-hidden"><MapPreviewDynamic lat={coords.lat} lng={coords.lng}/></div>
@@ -97,8 +129,6 @@ export default function V3Record(){
           </div>
         </div>
       )}
-
-      {/* Photos — no title, single 1:1 */}
       {client.images.length>0 && (
         <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
           {client.images.length===1 ? (
@@ -116,11 +146,9 @@ export default function V3Record(){
           )}
         </div>
       )}
-
       <p className="mt-4 font-mono text-[10px] uppercase opacity-30">record {client.id} · created {formatDateTime(client.createdAt)}</p>
-
       {lightboxIdx!==null && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 overscroll-contain" onClick={()=>setLightboxIdx(null)} role="dialog" aria-modal="true"><img src={client.images[lightboxIdx]} alt="" className="max-h-[90vh] max-w-[90vw] object-contain"/><button type="button" onClick={()=>setLightboxIdx(null)} className="absolute right-4 top-4 rounded-full bg-white px-3 py-1 text-sm text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">close</button></div>}
-      {confirm && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"><div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl"><h2 className="font-semibold">delete record?</h2><p className="mt-2 text-sm opacity-70">“{displayName}” จะเข้าถังขยะ</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={()=>setConfirm(false)} className="rounded-full border border-border px-4 py-2 text-sm">cancel</button><button type="button" disabled={deleting} onClick={()=>void doDelete()} className="rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground disabled:opacity-60">{deleting?'deleting…':'delete'}</button></div></div></div>}
+      {confirm && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"><div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl"><h2 className="font-semibold">delete record?</h2><p className="mt-2 text-sm opacity-70">"{displayName}" จะเข้าถังขยะ</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={()=>setConfirm(false)} className="rounded-full border border-border px-4 py-2 text-sm">cancel</button><button type="button" disabled={deleting} onClick={()=>void doDelete()} className="rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground disabled:opacity-60">{deleting?'deleting…':'delete'}</button></div></div></div>}
     </Shell>
   )
 }

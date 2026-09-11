@@ -21,6 +21,8 @@ export async function clerkToken(): Promise<string | null> {
  * password based flow used). If there is no session yet, the header is simply
  * omitted.
  */
+const WORKER_BASE = 'https://data-api.fall3n.workers.dev'
+
 export async function apiFetch(
   url: string,
   options: RequestInit = {},
@@ -30,7 +32,8 @@ export async function apiFetch(
     ...options.headers as Record<string, string>,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
-  return fetch(url, { ...options, headers })
+  const fullUrl = url.startsWith('http') ? url : `${WORKER_BASE}${url}`
+  return fetch(fullUrl, { ...options, headers })
 }
 
 /** Fetch the admin's saved theme from the server profile. Null on failure. */

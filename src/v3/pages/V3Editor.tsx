@@ -37,6 +37,7 @@ export default function V3Editor(){
   const [lat, setLat] = useState<number|null>(()=> editClient?.lat ?? null)
   const [lng, setLng] = useState<number|null>(()=> editClient?.lng ?? null)
   const [images, setImages] = useState<string[]>(()=> editClient?.images ?? [])
+  const [thumbs, setThumbs] = useState<Record<string, string | null>>({})
   const [badge, setBadge] = useState<string|null>(()=> editClient?.badge ?? null)
   const [notes, setNotes] = useState<string>(()=> editClient?.notes ?? '')
   const [debouncedName, setDebouncedName] = useState(()=> name.join('\u0000'))
@@ -94,8 +95,8 @@ export default function V3Editor(){
     try{
       setUploading(true); setProgress(0); setError(null)
       let saved: Client
-      if(existing){ const updated: Client={...data, createdAt: existing.createdAt, updatedAt: Date.now()}; saved=await updateClient(updated, setProgress); store.updateClient(saved.id, saved)}
-      else{ const nc: Client={...data, createdAt: Date.now(), updatedAt: Date.now()}; saved=await addClient(nc, setProgress); store.addClient(saved)}
+      if(existing){ const updated: Client={...data, createdAt: existing.createdAt, updatedAt: Date.now()}; saved=await updateClient(updated, setProgress, thumbs); store.updateClient(saved.id, saved)}
+      else{ const nc: Client={...data, createdAt: Date.now(), updatedAt: Date.now()}; saved=await addClient(nc, setProgress, thumbs); store.addClient(saved)}
       navigate(`/c/${saved.id}`)
     }catch(err){ setError(err instanceof Error? err.message: 'บันทึกไม่สำเร็จ'); store.refresh().catch(()=>undefined)} finally{ setUploading(false); setProgress(0)}
   }
@@ -144,7 +145,7 @@ export default function V3Editor(){
           )}
           {tab===2 && (
             <div className="space-y-4">
-              <PhotoSection images={images} onImagesChange={setImages} uploading={uploading} />
+              <PhotoSection images={images} onImagesChange={setImages} uploading={uploading} thumbs={thumbs} onThumbsChange={setThumbs} />
             </div>
           )}
 

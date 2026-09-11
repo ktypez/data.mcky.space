@@ -1,186 +1,33 @@
-import { lazy, Suspense, useCallback, useEffect } from 'react'
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { AnimatePresence, motion } from 'motion/react'
+import { lazy, Suspense } from 'react'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from './stores/auth-store'
-import { useFilterStore } from './stores/filter-store'
-import { useUIStore } from './old/stores/ui-store'
 import { useAuth } from '@clerk/clerk-react'
-import { useMotion } from './lib/motion'
 import { AuthSync } from './components/AuthSync'
-import PageLayout from './old/components/PageLayout'
-import PageHeader from './old/components/PageHeader'
+import { Loading } from './components/Loading'
 
-const Clients = lazy(() => import('./old/pages/Clients').then((m) => ({ default: m.PageClient })))
-const ClientDetailPage = lazy(() => import('./old/pages/ClientDetailPage'))
-const TrashPage = lazy(() => import('./old/pages/TrashPage'))
-const AddEditPage = lazy(() => import('./old/pages/AddEditPage'))
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })))
-const NavSidebar = lazy(() => import('./old/components/NavSidebar'))
-// V3 — main at / (locked hybrid Catalog F + Detail A + Add D + Trash E)
 const V3App = lazy(() => import('./v3/V3App'))
 const DetailLab = lazy(() => import('./__design_lab/detail/lab/DetailLabApp'))
-
-
-function PageTransition({ children }: { children: React.ReactNode }) {
-  const { slideUp, spring } = useMotion()
-  return (
-    <motion.div
-      variants={slideUp}
-      initial="hidden"
-      animate="visible"
-      exit="hidden"
-      transition={spring}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-/** Route-aware header props — reads from stores directly. */
-function RouteHeader() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const pathname = location.pathname
-
-  const { isAdmin } = useAuthStore()
-  const { search, setSearch } = useFilterStore()
-  const viewState = useUIStore((s) => s.viewState)
-
-  const showDetail = viewState.view === 'detail'
-  const isList = pathname === '/old' || pathname === '/old/'
-  const isTrash = pathname === '/old/trash'
-  const isAddEdit = pathname === '/old/add' || pathname.startsWith('/old/edit')
-  const isDetailRoute = pathname.startsWith('/old/c/')
-
-  const handleSearchChange = useCallback((v: string) => setSearch(v), [setSearch])
-  const handleSearchClear = useCallback(() => setSearch(''), [setSearch])
-  const navToAdd = useCallback(() => navigate('/old/add'), [navigate])
-
-  // Detail view (inside Clients page via viewState)
-  if (showDetail || isDetailRoute) {
-    return (
-      <PageHeader
-        variant="detail"
-        title="Detail"
-        showBack
-        onBack={() => {
-          useUIStore.getState().closeView()
-          if (isDetailRoute) navigate('/old')
-        }}
-      />
-    )
-  }
-
-  // List view
-  if (isList) {
-    return (
-      <PageHeader
-        variant="list"
-        search={search}
-        onSearchChange={handleSearchChange}
-        onSearchClear={handleSearchClear}
-        showAddButton={isAdmin}
-        onAdd={navToAdd}
-      />
-    )
-  }
-
-  // Trash view
-  if (isTrash) {
-    return (
-      <PageHeader
-        variant="add-edit"
-        title="ถังขยะ"
-        showBack
-        onBack={() => navigate('/old')}
-      />
-    )
-  }
-
-  // Add/Edit view
-  if (isAddEdit) {
-    return (
-      <PageHeader
-        variant="add-edit"
-        title={pathname.startsWith('/old/edit') ? 'แก้ไขลูกค้า' : 'เพิ่มลูกค้า'}
-        showBack
-        onBack={() => navigate('/old')}
-      />
-    )
-  }
-
-  // Default
-  return <PageHeader variant="list" />
-}
 
 function App() {
   const { isLoaded, isSignedIn } = useAuth()
   const location = useLocation()
 
-  useEffect(() => {
-    const onSwMessage = (e: MessageEvent) => {
-      if (e.data && e.data.type === 'ASSET_STALE') {
-        window.location.reload()
-      }
-    }
-    navigator.serviceWorker?.addEventListener('message', onSwMessage)
-    return () =>
-      navigator.serviceWorker?.removeEventListener('message', onSwMessage)
-  }, [])
-
   const { loginOpen } = useAuthStore()
   const wantsLogin = location.pathname === '/login' || loginOpen
 
-  if (!isLoaded) {
-    return (
-      <div
-        style={{
-          minHeight: '100dvh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 500,
-          color: 'var(--muted)',
-        }}
-      >
-        กำลังโหลด...
-      </div>
-    )
-  }
-
-  if (wantsLogin && !isSignedIn) {
+  // Don't block first paint on Clerk: render the guest shell immediately and
+  // let AuthSync flip admin state when the session resolves. Only the login
+  // decision waits for isLoaded (to avoid flashing the login page).
+  if (wantsLogin && isLoaded && !isSignedIn) {
     return <Login />
   }
 
   // Detail Lab — 5 detail variations
   if (location.pathname.startsWith('/__design_lab/detail')) {
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={<Loading />}>
         <DetailLab />
-      </Suspense>
-    )
-  }
-
-  // Classic → /old (moved from /)
-  if (location.pathname.startsWith('/old')) {
-    return (
-      <Suspense fallback={null}>
-        <AuthSync />
-        <NavSidebar />
-        <PageLayout header={<RouteHeader />}>
-          <AnimatePresence mode="wait">
-            <Routes location={location} key={location.pathname}>
-              <Route path="/login" element={<Login />} />
-              <Route path="/old" element={<PageTransition><Clients /></PageTransition>} />
-              <Route path="/old/trash" element={<PageTransition><TrashPage /></PageTransition>} />
-              <Route path="/old/add" element={<PageTransition><AddEditPage /></PageTransition>} />
-              <Route path="/old/edit/:id" element={<PageTransition><AddEditPage /></PageTransition>} />
-              <Route path="/old/c/:id" element={<PageTransition><ClientDetailPage /></PageTransition>} />
-              <Route path="/old/maps" element={<Navigate to="/old" replace />} />
-              <Route path="*" element={<Navigate to="/old" replace />} />
-            </Routes>
-          </AnimatePresence>
-        </PageLayout>
       </Suspense>
     )
   }
@@ -191,9 +38,9 @@ function App() {
     return <Navigate to={to + location.search} replace />
   }
 
-  // V3 — now main at /
+  // V3 — main at /
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<Loading />}>
       <AuthSync />
       <V3App />
     </Suspense>

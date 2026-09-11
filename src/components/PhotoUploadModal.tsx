@@ -3,7 +3,7 @@ import { useState, useCallback, type DragEvent } from 'react'
 import { Upload, X, Camera, Spinner, Check } from '@phosphor-icons/react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { compressImage } from '@/lib/compressImage'
+import { compressImage, makeThumbDataUrl } from '@/lib/compressImage'
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -32,7 +32,7 @@ function isHeic(f: File): boolean {
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onCompressed: (dataUrl: string) => void
+  onCompressed: (dataUrl: string, thumbDataUrl: string | null) => void
 }
 
 export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: Props) {
@@ -40,6 +40,7 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
   const [compressedSize, setCompressedSize] = useState(0)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [dataUrl, setDataUrl] = useState<string | null>(null)
+  const [thumbUrl, setThumbUrl] = useState<string | null>(null)
   const [compressing, setCompressing] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
@@ -51,6 +52,7 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
     if (previewUrl) URL.revokeObjectURL(previewUrl)
     setPreviewUrl(null)
     setDataUrl(null)
+    setThumbUrl(null)
     setCompressing(false)
     setDone(false)
     setError('')
@@ -98,6 +100,8 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
       setCompressedSize(compressed.size)
       setPreviewUrl(URL.createObjectURL(compressed))
       setDataUrl(url)
+      // Thumbnail sidecar for the list view (best-effort, may be null).
+      setThumbUrl(await makeThumbDataUrl(compressed))
     } catch {
       // M6 fix: if compression fails (e.g. unsupported format like SVG/GIF,
       // or a buggy bitmap decode), we used to silently send the raw file.
@@ -111,6 +115,7 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
       setCompressedSize(f.size)
       setPreviewUrl(URL.createObjectURL(f))
       setDataUrl(url)
+      setThumbUrl(await makeThumbDataUrl(f))
       if (f.size > 2 * 1024 * 1024) {
         setError('ไม่สามารถบีบอัดรูปได้ — ส่งไฟล์ต้นฉบับ (อาจใช้ bandwidth เยอะ)')
       }
@@ -129,8 +134,8 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
   const handleConfirm = useCallback(() => {
     if (!dataUrl) return
     setDone(true)
-    onCompressed(dataUrl)
-  }, [dataUrl, onCompressed])
+    onCompressed(dataUrl, thumbUrl)
+  }, [dataUrl, thumbUrl, onCompressed])
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>

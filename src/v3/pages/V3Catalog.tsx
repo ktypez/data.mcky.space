@@ -9,16 +9,30 @@ import { FilterKey } from '@/types/index'
 import type { Client } from '@/types/index'
 import ClientNames from '@/components/ClientNames'
 import AppImage from '@/components/AppImage'
+import NameAvatar from '@/components/NameAvatar'
 import { copyToClipboard, getMapsUrl, COPIED_FLASH_MS } from '@/lib/utils'
 import { clientTextWithMaps } from '@/lib/clientText'
+import { fetchClientById } from '@/lib/storage'
 
 function RowCopy({ client, focused }: { client: Client; focused: boolean }){
   const [copied, setCopied] = useState(false)
+  const [loading, setLoading] = useState(false)
   const tRef = useRef<ReturnType<typeof setTimeout>|null>(null)
   useEffect(()=>()=>{ if(tRef.current) clearTimeout(tRef.current)},[])
   const onCopy = async(e: React.MouseEvent)=>{
     e.stopPropagation()
-    const ok = await copyToClipboard(clientTextWithMaps(client, getMapsUrl))
+    // If store only has lightweight data, fetch full record first
+    let full = client
+    if (!client.address && !client.notes) {
+      setLoading(true)
+      const fetched = await fetchClientById(client.id)
+      setLoading(false)
+      if (fetched) {
+        full = fetched
+        useClientStore.getState().updateClient(full.id, full)
+      }
+    }
+    const ok = await copyToClipboard(clientTextWithMaps(full, getMapsUrl))
     if(!ok) return
     setCopied(true)
     if(tRef.current) clearTimeout(tRef.current)
@@ -27,7 +41,7 @@ function RowCopy({ client, focused }: { client: Client; focused: boolean }){
   const onKeyDown = (e: React.KeyboardEvent)=>{ if(e.key==='Enter' || e.key===' ') e.stopPropagation() }
   return (
     <button type="button" onClick={onCopy} onKeyDown={onKeyDown} aria-label={copied? 'Copied' : `Copy ${client.shopName[0]||client.name[0]||client.id}`} className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs transition-colors ${copied ? 'border-emerald-500 bg-emerald-500 text-white' : focused ? 'border-background/20 bg-background text-foreground hover:bg-background' : 'border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground'}`}>
-      {copied ? <Check weight="bold" className="h-3.5 w-3.5"/> : <Copy className="h-3.5 w-3.5"/>}
+      {loading ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent"/> : copied ? <Check weight="bold" className="h-3.5 w-3.5"/> : <Copy className="h-3.5 w-3.5"/>}
     </button>
   )
 }
@@ -103,9 +117,16 @@ export default function V3Catalog() {
         {sorted.map((c, i)=>(
           <div key={c.id} role="button" tabIndex={0} onClick={()=>navigate(`/c/${c.id}`)} onMouseEnter={()=>setFocused(i)} onKeyDown={e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); navigate(`/c/${c.id}`)}}} className={`flex w-full items-center gap-3 px-4 py-3 text-left cursor-pointer ${i===focused?'bg-foreground text-background':'hover:bg-muted/50'} ${i!==sorted.length-1?'border-b border-border':''}`}>
             {c.images[0] ? (
-              <AppImage src={c.images[0]} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-full object-cover border border-black/10" />
+              <AppImage
+                src={c.thumb ?? c.images[0]}
+                fallbackSrc={c.thumb ? c.images[0] : undefined}
+                alt=""
+                width={32}
+                height={32}
+                className="h-8 w-8 shrink-0 rounded-full object-cover border border-black/10"
+              />
             ) : (
-              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-mono ${i===focused?'bg-background text-foreground':'bg-muted text-muted-foreground'}`}>{(c.shopName[0]||c.name[0]||'·').trim().charAt(0).toUpperCase()}</span>
+              <NameAvatar className={i===focused?'ring-2 ring-background':''}/>
             )}
             <span className="min-w-0 flex-1">
               <ClientNames client={c} variant="list" titleClassName={`text-sm leading-tight truncate ${i===focused?'text-background':'text-foreground'}`} subClassName={`text-xs truncate ${i===focused?'text-background/60':'opacity-60'}`} />

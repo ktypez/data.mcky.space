@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { useUser, useAuth } from '@clerk/clerk-react'
-import { isAdminEmail } from '@/lib/clerk-config'
 
 interface AuthState {
   // open the Clerk-powered login modal (or page) from anywhere.
@@ -49,12 +48,12 @@ export async function logout() {
 }
 
 // Call this from components to check Clerk's current auth state.
-// It always reflects the latest session status (loaded, signed-in, admin).
+// Admin model: any signed-in user is admin (no email allowlist).
 export function useAdminAuth() {
   const { isLoaded, isSignedIn } = useAuth()
   const { user } = useUser()
   const email = user?.primaryEmailAddress?.emailAddress ?? null
-  const isAdmin = isAdminEmail(email)
+  const isAdmin = !!isSignedIn
 
   return {
     isLoaded,

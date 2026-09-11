@@ -1,13 +1,18 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useLocation, NavLink } from 'react-router-dom'
-import { House, Plus, Trash, Sun, Moon, Monitor, LockKey, SignOut } from '@phosphor-icons/react'
+import { House, Plus, Trash, Sun, Moon, Monitor, LockKey, SignOut, DownloadSimple, X } from '@phosphor-icons/react'
 import { useClientStore } from '@/stores/client-store'
 import { useAuthStore, logout } from '@/stores/auth-store'
-import V3Catalog from './pages/V3Catalog'
-import V3Record from './pages/V3Record'
-import V3Editor from './pages/V3Editor'
-import V3Trash from './pages/V3Trash'
+import { usePwaInstall } from './hooks/usePwaInstall'
 import './styles/v3.css'
+
+// Per-route code splitting — the catalog (default landing) must not pay for
+// the editor, trash, record detail, or the 1MB map chunk.
+const V3Catalog = lazy(() => import('./pages/V3Catalog'))
+const V3Record = lazy(() => import('./pages/V3Record'))
+const V3Editor = lazy(() => import('./pages/V3Editor'))
+const V3Trash = lazy(() => import('./pages/V3Trash'))
+const V3NotFound = lazy(() => import('./pages/V3NotFound'))
 
 type V3Mode = 'auto'|'light'|'dark'
 const MODE_KEY = 'ezzylist-v3-mode'
@@ -22,6 +27,8 @@ export default function V3App(){
   const location = useLocation()
   const { isAdmin, isSignedIn, setLoginOpen } = useAuthStore()
   const [mode, setMode] = useState<V3Mode>(readMode)
+  const [showIOSHint, setShowIOSHint] = useState(false)
+  const { canInstall, isIOS, install } = usePwaInstall()
   useEffect(()=>{ void useClientStore.getState().initialize()},[])
   useEffect(()=>{ try{ localStorage.setItem(MODE_KEY, mode)}catch{} },[mode])
   useEffect(()=>{ window.scrollTo(0,0)},[location.pathname])
@@ -55,6 +62,7 @@ export default function V3App(){
         </div>
       </header>
       <main className="min-h-[calc(100dvh-56px)]">
+        <Suspense fallback={null}>
         <Routes>
           <Route path="/" element={<V3Catalog/>} />
           <Route path="/add" element={<V3Editor/>} />
@@ -67,13 +75,36 @@ export default function V3App(){
           <Route path="/v3/edit/:id" element={<Navigate to="/edit/:id" replace/>} />
           <Route path="/v3/trash" element={<Navigate to="/trash" replace/>} />
           <Route path="/v3/c/:id" element={<Navigate to="/c/:id" replace/>} />
-          <Route path="*" element={<Navigate to="/" replace/>} />
+          <Route path="*" element={<V3NotFound/>} />
         </Routes>
+        </Suspense>
       </main>
-      <footer className="border-t border-border px-6 py-3 flex items-center justify-center gap-3 font-mono text-[10px] uppercase opacity-60">
+      <footer className="border-t border-border px-6 py-3 flex items-center justify-center gap-3 font-mono text-[10px] uppercase opacity-60 relative">
+        {canInstall && (
+          <button
+            onClick={() => isIOS ? setShowIOSHint(true) : install()}
+            className="flex items-center gap-1 hover:opacity-100 transition-opacity"
+          >
+            <DownloadSimple className="h-3 w-3" />
+            <span>Install</span>
+          </button>
+        )}
         <span>V3</span>
-        <span className="opacity-40">·</span>
-        <NavLink to="/old" className="hover:opacity-80 hover:underline">Old →</NavLink>
+        {showIOSHint && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowIOSHint(false)}>
+            <div className="bg-card border border-border rounded-lg p-5 max-w-xs mx-4 shadow-lg" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-xs uppercase opacity-60">Install EzzyList</span>
+                <button onClick={() => setShowIOSHint(false)} className="opacity-60 hover:opacity-100"><X className="h-4 w-4" /></button>
+              </div>
+              <ol className="space-y-2 text-sm list-decimal list-inside">
+                <li>Tap the <strong>Share</strong> button (box with arrow) in Safari</li>
+                <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+                <li>Tap <strong>Add</strong> to confirm</li>
+              </ol>
+            </div>
+          </div>
+        )}
       </footer>
     </div>
   )

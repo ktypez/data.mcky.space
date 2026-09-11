@@ -12,7 +12,7 @@ Use `recall` to retrieve context, `remember` to save new info.
 - Tailwind CSS 4 + Zustand
 - Cloudflare D1 (SQLite) + R2 storage
 - MapLibre GL JS (lazy-loaded)
-- Deploy: Cloudflare Pages (manual wrangler deploy)
+- Deploy: Cloudflare Pages (wrangler deploy + _routes.json static-asset routing)
 
 ## Package Manager
 - **npm เท่านั้น** — เครื่องนี้ไม่มี pnpm อย่าใช้ `pnpm ...` ให้ใช้ `npm run ...` แทน
@@ -21,11 +21,11 @@ Use `recall` to retrieve context, `remember` to save new info.
 ## Commands
 - dev: `npm run dev`
 - build: `npm run build` (vite only — เร็ว, ไม่ตรวจ types)
-- build:full: `npm run build:full` (tsc + vite — ตรวจครบก่อน release)
+- build:full: `npm run typecheck && npm run build` (tsc + vite — ตรวจครบก่อน release)
 - typecheck: `npm run typecheck` (`tsc --noEmit`)
 - test: `npm test` (watch) / `npm run test:run` (run once — 70 tests)
 - health: `node scripts/health-check.mjs` (ต้องมี playwright chromium; ไม่มี → fallback curl smoke test)
-- deploy: `npm run deploy` (alias for `npm run wrangler -- pages deploy ./dist --project-name data-mcky-space`)
+- deploy: `npm run deploy` (build vite + upload to Cloudflare Pages with --branch main)
 - wrangler any: `npm run wrangler <subcmd>` (auto-unsets `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` to force OAuth)
 
 ## Auth

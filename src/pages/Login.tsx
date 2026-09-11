@@ -5,13 +5,13 @@ import { useAdminAuth } from '@/stores/auth-store'
 export function Login() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isLoaded, isSignedIn, isAdmin } = useAdminAuth()
+  const { isLoaded, isSignedIn } = useAdminAuth()
 
   const target = new URLSearchParams(location.search).get('redirect') || '/'
 
   useEffect(() => {
-    if (isLoaded && isSignedIn && isAdmin) navigate(target, { replace: true })
-  }, [isLoaded, isSignedIn, isAdmin, navigate, target])
+    if (isLoaded && isSignedIn) navigate(target, { replace: true })
+  }, [isLoaded, isSignedIn, navigate, target])
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {

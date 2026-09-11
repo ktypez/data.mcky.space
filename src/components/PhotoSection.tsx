@@ -9,12 +9,26 @@ interface PhotoSectionProps {
   images: string[]
   onImagesChange: (images: string[]) => void
   uploading?: boolean
+  /** Sidecar: full data URL → thumb data URL, for newly added photos. */
+  thumbs?: Record<string, string | null>
+  onThumbsChange?: (thumbs: Record<string, string | null>) => void
 }
 
 const MAX_IMAGES = 2
 
-export default function PhotoSection({ images, onImagesChange, uploading }: PhotoSectionProps) {
+export default function PhotoSection({ images, onImagesChange, uploading, thumbs, onThumbsChange }: PhotoSectionProps) {
   const [photoModalOpen, setPhotoModalOpen] = useState(false)
+
+  const handleRemove = (i: number) => {
+    const removed = images[i]
+    onImagesChange(images.filter((_, j) => j !== i))
+    // Drop the thumb sidecar so a re-added identical photo can't reuse it.
+    if (removed && thumbs && onThumbsChange && removed in thumbs) {
+      const next = { ...thumbs }
+      delete next[removed]
+      onThumbsChange(next)
+    }
+  }
 
   return (
     <div className="space-y-1">
@@ -31,7 +45,7 @@ export default function PhotoSection({ images, onImagesChange, uploading }: Phot
               variant="default"
               size="icon-xs"
               className="absolute top-0.5 right-0.5 rounded-full"
-              onClick={() => onImagesChange(images.filter((_, j) => j !== i))}
+              onClick={() => handleRemove(i)}
               disabled={uploading}
               aria-label="ลบรูปภาพ"
             >
@@ -54,7 +68,10 @@ export default function PhotoSection({ images, onImagesChange, uploading }: Phot
       <PhotoUploadModal
         open={photoModalOpen}
         onOpenChange={setPhotoModalOpen}
-        onCompressed={(dataUrl) => onImagesChange([...images, dataUrl])}
+        onCompressed={(dataUrl, thumbDataUrl) => {
+          onImagesChange([...images, dataUrl])
+          if (onThumbsChange) onThumbsChange({ ...(thumbs ?? {}), [dataUrl]: thumbDataUrl })
+        }}
       />
     </div>
   )

@@ -1,6 +1,5 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react'
-import 'maplibre-gl/dist/maplibre-gl.css'
 import { OpenLocationCode } from 'open-location-code'
 import { pinHtml } from '@/lib/pin'
 import { getMapStyle } from '@/lib/map-styles'
@@ -11,22 +10,11 @@ import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 // All inputs (size, selected, color) are controlled constants — never user-derived.
 // If pinHtml ever accepts user strings, sanitize them first.
 
-// maplibre-gl is loaded globally by a CDN <script> in index.html. Read it
-// dynamically (not a frozen module-scope const) so a slow/blocked first CDN
-// that is resolved later by the jsDelivr fallback still works.
-function loadGL(): any {
-  return (window as any).maplibregl
-}
-
-// Mirror InlineMap fallback — covers MapPreview/detail page as well.
-if (!loadGL() && typeof document !== 'undefined') {
-  setTimeout(() => {
-    if (loadGL()) return
-    const s = document.createElement('script')
-    s.src = 'https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js'
-    s.onerror = () => console.error('[MapPicker] CDN fallback failed')
-    document.head.appendChild(s)
-  }, 1200)
+// maplibre-gl is dynamically imported from the npm bundle (shared `map`
+// chunk) so pages without a map never download it. No more CDN <script>.
+async function loadGL(): Promise<any> {
+  const [mod] = await Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')])
+  return mod.default ?? mod
 }
 
 let olcInstance: OpenLocationCode | null = null
@@ -53,6 +41,7 @@ type Props = MapPickerProps
 export default function MapPicker({ lat, lng, onChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
+  const glRef = useRef<any>(null)
   const markerRef = useRef<any>(null)
   const [mapFailed, setMapFailed] = useState(false)
   const initializedRef = useRef(false)
@@ -68,22 +57,23 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
 
     const container = containerRef.current
     let cancelled = false
-    let retries = 0
-    const MAX_WAIT_MS = 10000
 
-    // Poll for the CDN-loaded library (mirrors InlineMap) so a slow or
-    // fallback-loaded CDN doesn't leave the picker permanently failed.
-    function tryInit() {
+    // The npm bundle import is local and fast — no polling needed. On
+    // failure show the fallback tile instead of retrying forever.
+    async function tryInit() {
       if (cancelled) return
-      const GL = loadGL()
-      if (!GL || !GL.Map) {
-        retries += 1
-        if (retries * 200 >= MAX_WAIT_MS) {
-          console.error('[MapPicker] maplibre-gl never became available on window')
+      let GL: any
+      try {
+        GL = await loadGL()
+      } catch (err) {
+        if (!cancelled) {
+          console.error('[MapPicker] maplibre-gl import failed')
           setMapFailed(true)
-          return
         }
-        setTimeout(tryInit, 200)
+        return
+      }
+      if (cancelled || !GL?.Map) {
+        if (!cancelled) setMapFailed(true)
         return
       }
 
@@ -122,9 +112,10 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
       }
 
       mapRef.current = map
+      glRef.current = GL
     }
 
-    tryInit()
+    void tryInit()
 
     return () => {
       cancelled = true
@@ -144,7 +135,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
           markerRef.current.remove()
           const el = document.createElement('div')
           el.innerHTML = pinHtml(28, true, getPinColor())
-          markerRef.current = new (loadGL()).Marker({ element: el }).setLngLat(pos).addTo(map)
+          markerRef.current = new (glRef.current).Marker({ element: el }).setLngLat(pos).addTo(map)
         }
       })
     }, []),
@@ -153,7 +144,8 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
   // Update marker and fly when lat/lng change externally
   useEffect(() => {
     const map = mapRef.current
-    if (!map || lat == null || lng == null) return
+    const GL = glRef.current
+    if (!map || !GL || lat == null || lng == null) return
 
     if (!initializedRef.current) {
       initializedRef.current = true
@@ -163,7 +155,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
       if (!markerRef.current) {
         const el = document.createElement('div')
         el.innerHTML = pinHtml(28, true, getPinColor())
-        markerRef.current = new (loadGL()).Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
+        markerRef.current = new GL.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
       }
       return
     }
@@ -173,7 +165,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
     } else {
       const el = document.createElement('div')
       el.innerHTML = pinHtml(28, true, getPinColor())
-      markerRef.current = new (loadGL()).Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
+      markerRef.current = new GL.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
     }
 
     map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), PIN_ZOOM), duration: 600 })
