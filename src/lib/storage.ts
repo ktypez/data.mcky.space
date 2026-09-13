@@ -1,7 +1,8 @@
 import type { Client, ClientListItem } from '@/types/index'
 import { getAllClients, putClient, putClients, deleteClient as deleteClientFromDb } from '@/lib/offline-db'
-import { apiFetch, clerkToken } from '@/lib/api'
-import { normalizeClients, normalizeClient } from '@/lib/clientNames'
+import { clerkToken } from '@/lib/api'
+import { treatyClient, treatyHeaders } from '@/lib/treaty'
+import { normalizeClients, normalizeClient, coerceStringArray } from '@/lib/clientNames'
 
 const WORKER_BASE = 'https://data-api.fall3n.workers.dev'
 export const PHOTO_UPLOAD_ERROR = 'อัปโหลดรูปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'
@@ -22,6 +23,13 @@ function normalizeFromIdb(rows: Record<string, unknown>[]): Client[] {
 /** True if the string is a base64-embedded image data URL (too large for D1). */
 function isBase64Image(s: string): boolean {
   return s.startsWith('data:image')
+}
+
+/** Strip the optional `thumb` (list-only field) before a create/update body. */
+function toWriteBody(client: Client, images: string[]): Record<string, unknown> {
+  const { thumb: _thumb, ...rest } = client
+  void _thumb
+  return { ...rest, images }
 }
 
 /**
@@ -50,6 +58,8 @@ async function uploadBase64Images(
   return { ok: false }
 }
 
+// Kept on XHR (not Treaty): the uploader needs `xhr.upload.onprogress`,
+// which fetch cannot report. Sends the same Clerk Bearer + legacy fallback.
 function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => void): Promise<T | null> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
@@ -85,9 +95,9 @@ function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => voi
 
 export async function fetchClients(): Promise<Client[]> {
   try {
-    const res = await apiFetch('/api/clients')
-    if (!res.ok) throw new Error('Failed to fetch clients')
-    const fresh = (await res.json()) as Client[]
+    const { data, error } = await treatyClient.api.clients.get()
+    if (error || !data) throw new Error('Failed to fetch clients')
+    const fresh = normalizeClients(data as unknown as Record<string, unknown>[])
     await putClients(fresh.map(toRaw))
     return fresh
   } catch {
@@ -110,11 +120,22 @@ let listCache: { at: number; data: ClientListItem[] } | null = null
 const LIST_CACHE_TTL = 60_000
 export async function fetchClientList(): Promise<ClientListItem[]> {
   if (listCache && Date.now() - listCache.at < LIST_CACHE_TTL) return listCache.data
-  const res = await apiFetch('/api/clients/list')
-  if (!res.ok) throw new Error('Failed to fetch client list')
-  const data = (await res.json()) as ClientListItem[]
-  listCache = { at: Date.now(), data }
-  return data
+  const { data, error } = await treatyClient.api.clients.list.get()
+  if (error || !data) throw new Error('Failed to fetch client list')
+  // The endpoint returns raw (string) name/shopName — coerce to string[] so
+  // ClientListItem's type is honest for every consumer.
+  const list: ClientListItem[] = data.map((r) => ({
+    id: r.id,
+    name: coerceStringArray(r.name),
+    shopName: coerceStringArray(r.shopName),
+    image: r.image,
+    thumb: r.thumb,
+    badge: r.badge,
+    updatedAt: r.updatedAt,
+    createdAt: r.createdAt,
+  }))
+  listCache = { at: Date.now(), data: list }
+  return list
 }
 
 /**
@@ -123,10 +144,9 @@ export async function fetchClientList(): Promise<ClientListItem[]> {
  */
 export async function fetchClientById(id: string): Promise<Client | null> {
   try {
-    const res = await apiFetch(`/api/clients/${id}?raw=true`)
-    if (!res.ok) return null
-    const data = (await res.json()) as Record<string, unknown>
-    return normalizeClient(data) as Client
+    const { data, error } = await treatyClient.api.clients({ id }).get({ query: { raw: 'true' } })
+    if (error || !data) return null
+    return normalizeClient(data as unknown as Record<string, unknown>)
   } catch {
     return null
   }
@@ -137,13 +157,11 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
   const base64Images = client.images.filter(isBase64Image)
   const cleanImages = client.images.filter((s) => !isBase64Image(s))
 
-  const res = await apiFetch('/api/clients', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...client, images: cleanImages }),
+  const { data, error } = await treatyClient.api.clients.post(toWriteBody(client, cleanImages), {
+    headers: await treatyHeaders(),
   })
-  if (!res.ok) throw new Error('Failed to add client')
-  const { id } = (await res.json()) as { id: string }
+  if (error || !data) throw new Error('Failed to add client')
+  const { id } = data
 
   // Upload photos to R2 now that we have a real clientId
   let finalImages = cleanImages
@@ -158,7 +176,7 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
       // entry can't be saved without its photos, and let the caller
       // surface the error instead of failing silently.
       try {
-        await apiFetch(`/api/clients/${id}`, { method: 'DELETE' })
+        await treatyClient.api.clients({ id }).delete({ headers: await treatyHeaders() })
       } catch {
         // best-effort rollback
       }
@@ -183,9 +201,9 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
     // Fetch current state from API so we know what to delete from R2
     let prevR2Urls: string[] = []
     try {
-      const prevRes = await apiFetch(`/api/clients/${client.id}`)
-      if (prevRes.ok) {
-        const existing = (await prevRes.json()) as Client
+      const { data, error } = await treatyClient.api.clients({ id: client.id }).get({ headers: await treatyHeaders() })
+      if (!error && data) {
+        const existing = data as unknown as Client
         prevR2Urls = (existing.images || []).filter((s) => !isBase64Image(s))
       }
     } catch {
@@ -211,28 +229,17 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
   const saved = { ...client, images: finalImages }
 
   // Update D1 — payload is now small (only R2 URLs, no base64)
-  const res = await apiFetch(`/api/clients/${client.id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...client, images: finalImages }),
+  const { error } = await treatyClient.api.clients({ id: client.id }).put(toWriteBody(client, finalImages), {
+    headers: await treatyHeaders(),
   })
-  if (!res.ok) throw new Error('Failed to update client')
-  try {
-    const data = (await res.json()) as Partial<Client> | { ok: boolean }
-    if (data && typeof data === 'object' && 'id' in data && (data as Client).id) {
-      await putClient(toRaw(data as Client))
-      return data as Client
-    }
-  } catch {
-    // ignore non-JSON / { ok: true } responses — fall back to input client
-  }
+  if (error) throw new Error('Failed to update client')
   await putClient(toRaw(saved))
   return saved
 }
 
 export async function deleteClient(id: string): Promise<void> {
-  const res = await apiFetch(`/api/clients/${id}`, { method: 'DELETE' })
-  if (!res.ok) throw new Error('Failed to delete client')
+  const { error } = await treatyClient.api.clients({ id }).delete({ headers: await treatyHeaders() })
+  if (error) throw new Error('Failed to delete client')
   // Only remove from IDB after the server confirms the delete so a failed
   // API call can't leave the local cache out of sync.
   await deleteClientFromDb(id)

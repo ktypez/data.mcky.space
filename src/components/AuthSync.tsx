@@ -12,7 +12,7 @@ export function AuthSync() {
     useAuthStore.getState().setAdmin(admin)
     useAuthStore.getState().setSignedIn(!!isSignedIn)
     useAuthStore.getState().setChecking(false)
-    // Stash the token-minting fn so apiFetch can attach the Bearer header
+    // Stash the token-minting fn so the treaty client can attach the Bearer header
     // on write calls (Clerk exposes getToken only inside a provider/hook).
     useAuthStore.getState().setTokenGetter(
       async () => {

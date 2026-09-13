@@ -9,11 +9,9 @@ const WORKER_BASE = 'https://data-api.fall3n.workers.dev'
 // (erased at build), so the server runtime is untouched.
 export const treatyClient = treaty<App>(WORKER_BASE)
 
-// Auth mirrors apiFetch: Clerk Bearer when a session exists, omitted for
-// guests. Pass per call — inline headers win over config defaults:
-//   const { data, error } = await treatyClient.api.clients.list.get({
-//     headers: await treatyHeaders(),
-//   })
+// Auth mirrors the old apiFetch: Clerk Bearer when a session exists, omitted
+// for guests. Pass per call on admin routes — inline headers win over config:
+//   await treatyClient.api.clients.list.get({ headers: await treatyHeaders() })
 export async function treatyHeaders(): Promise<Record<string, string>> {
   try {
     const token = await clerkToken()

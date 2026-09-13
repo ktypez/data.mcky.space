@@ -13,7 +13,7 @@ interface AuthState {
   setChecking: (checking: boolean) => void
   // Fresh Clerk session token obtainer — populated by AuthSync from the
   // `useAuth()` hook (the only place the token minting function lives).
-  // apiFetch uses it to attach `Authorization: Bearer <JWT>`.
+  // The treaty client uses it to attach `Authorization: Bearer <JWT>`.
   getToken: (() => Promise<string | null>) | null
   setTokenGetter: (fn: (() => Promise<string | null>) | null) => void
   // Sign-out function stashed from Clerk (useClerk().signOut) by AuthSync.
