@@ -17,6 +17,8 @@ Use `recall` to retrieve context, `remember` to save new info.
 ## Package Manager
 - **npm เท่านั้น** — เครื่องนี้ไม่มี pnpm อย่าใช้ `pnpm ...` ให้ใช้ `npm run ...` แทน
 - Lockfile ที่ใช้คือ `package-lock.json` (`pnpm-lock.yaml` / `pnpm-workspace.yaml` เป็นของเหลือจากตอน dev บน Android Termux proot — อย่าใช้เป็นหลัก, ลบทิ้งได้ถ้าต้องการ)
+- **npm workspaces**: `api/` เป็น workspace ของ root (`"workspaces": ["api"]`) lockfile เดียวที่ root — `api/package-lock.json` ถูกลบแล้ว อย่าสร้างใหม่
+- ติดตั้งจาก root เสมอ: `npm install` (ห้าม `npm install` ค้างใน `api/` สร้าง nested `node_modules` — elysia ต้องมีก๊อปปี้เดียวที่ root ไม่งั้น Treaty typecheck แตก)
 
 ## Commands
 - dev: `npm run dev`
