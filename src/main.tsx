@@ -5,7 +5,26 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import { thTH } from '@clerk/localizations'
 import ErrorScreen from '@/components/ErrorScreen'
 import App from './App'
+import { enterDemoMode, isDemoMode } from '@/lib/demo'
+import { useAuthStore } from './stores/auth-store'
 import './index.css'
+
+// /demo → session flag + URL rewrite to / BEFORE the router initializes, so
+// every absolute navigate() in the app keeps working and refresh stays in demo.
+if (window.location.pathname === '/demo' || window.location.pathname.startsWith('/demo/')) {
+  enterDemoMode()
+}
+// Demo = fake admin session, seeded BEFORE first render: route guards
+// (V3Trash, V3Editor) read isAdmin on their very first pass, so setting it
+// in a useEffect would bounce the user back to /.
+if (isDemoMode()) {
+  const s = useAuthStore.getState()
+  s.setAdmin(true)
+  s.setSignedIn(true)
+  s.setChecking(false)
+  s.setTokenGetter(async () => null)
+  s.setSignOut(async () => {})
+}
 
 const CLERK_PUBLISHABLE_KEY =
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ??

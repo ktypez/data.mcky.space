@@ -3,6 +3,7 @@ import { getAllClients, putClient, putClients, deleteClient as deleteClientFromD
 import { clerkToken } from '@/lib/api'
 import { treatyClient, treatyHeaders } from '@/lib/treaty'
 import { normalizeClients, normalizeClient, coerceStringArray } from '@/lib/clientNames'
+import { isDemoMode, demoFetchClients, demoFetchClientList, demoFetchClientById, demoAddClient, demoUpdateClient, demoDeleteClient } from '@/lib/demo'
 
 const WORKER_BASE = 'https://data-api.fall3n.workers.dev'
 export const PHOTO_UPLOAD_ERROR = 'อัปโหลดรูปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'
@@ -94,6 +95,7 @@ function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => voi
 }
 
 export async function fetchClients(): Promise<Client[]> {
+  if (isDemoMode()) return demoFetchClients()
   try {
     const { data, error } = await treatyClient.api.clients.get()
     if (error || !data) throw new Error('Failed to fetch clients')
@@ -119,6 +121,7 @@ export async function fetchClients(): Promise<Client[]> {
 let listCache: { at: number; data: ClientListItem[] } | null = null
 const LIST_CACHE_TTL = 60_000
 export async function fetchClientList(): Promise<ClientListItem[]> {
+  if (isDemoMode()) return demoFetchClientList()
   if (listCache && Date.now() - listCache.at < LIST_CACHE_TTL) return listCache.data
   const { data, error } = await treatyClient.api.clients.list.get()
   if (error || !data) throw new Error('Failed to fetch client list')
@@ -143,6 +146,7 @@ export async function fetchClientList(): Promise<ClientListItem[]> {
  * store only has lightweight list data.
  */
 export async function fetchClientById(id: string): Promise<Client | null> {
+  if (isDemoMode()) return demoFetchClientById(id)
   try {
     const { data, error } = await treatyClient.api.clients({ id }).get({ query: { raw: 'true' } })
     if (error || !data) return null
@@ -153,6 +157,7 @@ export async function fetchClientById(id: string): Promise<Client | null> {
 }
 
 export async function addClient(client: Client, onProgress?: (pct: number) => void, photoThumbs?: Record<string, string | null>): Promise<Client> {
+  if (isDemoMode()) return demoAddClient(client)
   // Strip base64 images (too large for the POST body / D1), upload to R2
   const base64Images = client.images.filter(isBase64Image)
   const cleanImages = client.images.filter((s) => !isBase64Image(s))
@@ -190,6 +195,7 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
 }
 
 export async function updateClient(client: Client, onProgress?: (pct: number) => void, photoThumbs?: Record<string, string | null>): Promise<Client> {
+  if (isDemoMode()) return demoUpdateClient(client)
   const base64Images = client.images.filter(isBase64Image)
   const cleanImages = client.images.filter((s) => !isBase64Image(s))
 
@@ -238,6 +244,7 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
 }
 
 export async function deleteClient(id: string): Promise<void> {
+  if (isDemoMode()) return demoDeleteClient(id)
   const { error } = await treatyClient.api.clients({ id }).delete({ headers: await treatyHeaders() })
   if (error) throw new Error('Failed to delete client')
   // Only remove from IDB after the server confirms the delete so a failed

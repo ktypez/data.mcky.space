@@ -1,9 +1,10 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useLocation, NavLink } from 'react-router-dom'
-import { House, Plus, Trash, Sun, Moon, Monitor, LockKey, SignOut, DownloadSimple, X } from '@phosphor-icons/react'
+import { House, Plus, Trash, Sun, Moon, Monitor, LockKey, SignOut, DownloadSimple, X, DoorOpen } from '@phosphor-icons/react'
 import { useClientStore } from '@/stores/client-store'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import { usePwaInstall } from './hooks/usePwaInstall'
+import { isDemoMode, exitDemoMode } from '@/lib/demo'
 import './styles/v3.css'
 
 // Per-route code splitting — the catalog (default landing) must not pay for
@@ -49,7 +50,11 @@ export default function V3App(){
                 </button>
               ))}
             </div>
-            {isSignedIn ? (
+            {isDemoMode() ? (
+              <button onClick={()=>exitDemoMode()} aria-label="ออกจาก demo" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground">
+                <DoorOpen className="h-4 w-4" />
+              </button>
+            ) : isSignedIn ? (
               <button onClick={()=>void logout()} aria-label="ออกจากระบบ" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground">
                 <SignOut className="h-4 w-4" />
               </button>

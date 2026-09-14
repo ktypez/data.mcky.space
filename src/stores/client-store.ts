@@ -5,6 +5,7 @@ import { fetchClients, fetchClientList } from '@/lib/storage'
 import { getAllClients, putClientsIfAbsent, purgeExpiredClients } from '@/lib/offline-db'
 import { normalizeClients } from '@/lib/clientNames'
 import { listItemToClient } from '@/lib/list-item'
+import { isDemoMode } from '@/lib/demo'
 
 interface ClientState {
   clients: Client[]
@@ -94,6 +95,19 @@ export const useClientStore = create<ClientState>((set, get) => ({
     // can't stomp clients that were added/edited while the fetch was in
     // flight — the fetch result is merged below with "newer wins" semantics.
     set({ initialized: true, loading: true, error: null })
+
+    // Demo mode: skip IDB entirely so mock data never mixes with the real
+    // offline cache, and skip the network phase (fetchClientList is already
+    // the mock under isDemoMode, but there's no cache to seed or purge).
+    if (isDemoMode()) {
+      try {
+        const demo = await fetchClientList()
+        set({ clients: demo.map(listItemToClient), loading: false })
+      } catch {
+        set({ loading: false })
+      }
+      return
+    }
 
     // Phase 1: Show IDB cache immediately — this is the "revalidate" part
     // of stale-while-revalidate. The user sees data instantly.

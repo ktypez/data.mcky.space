@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth-store'
 import { useClientStore } from '@/stores/client-store'
 import { treatyClient, treatyHeaders } from '@/lib/treaty'
+import { isDemoMode, demoFetchTrash, demoRestoreClient, demoForceDeleteClient } from '@/lib/demo'
 import ClientNames from '@/components/ClientNames'
 import AppImage from '@/components/AppImage'
 import { formatDateTime } from '@/lib/utils'
@@ -18,12 +19,12 @@ export default function V3Trash(){
   const [busy,setBusy]=useState(false)
   const [focused,setFocused]=useState(0)
   const refresh=useClientStore(s=>s.refresh)
-  const fetchTrash=useCallback(async()=>{ setLoading(true); setError(null); try{ const { data, error }=await treatyClient.api.clients.trash.get({ headers: await treatyHeaders() }); if(!error && data) setItems(data as unknown as TrashItem[]); else setError('โหลดถังขยะไม่สำเร็จ')}catch{ setError('โหลดถังขยะไม่สำเร็จ')} finally{ setLoading(false)}},[])
+  const fetchTrash=useCallback(async()=>{ setLoading(true); setError(null); try{ if(isDemoMode()){ setItems(demoFetchTrash()) } else { const { data, error }=await treatyClient.api.clients.trash.get({ headers: await treatyHeaders() }); if(!error && data) setItems(data as unknown as TrashItem[]); else setError('โหลดถังขยะไม่สำเร็จ')} }catch{ setError('โหลดถังขยะไม่สำเร็จ')} finally{ setLoading(false)}},[])
   useEffect(()=>{ if(isAdmin) void fetchTrash()},[isAdmin, fetchTrash])
   useEffect(()=>{ setFocused(0)},[items.length])
   if(!isAdmin) return <Navigate to="/" replace/>
-  const restore=async(id:string)=>{ setError(null); try{ const { error }=await treatyClient.api.clients.trash.post({ id }, { query:{ action:'restore' }, headers: await treatyHeaders() }); if(!error){ setItems(p=>p.filter(c=>c.id!==id)); void refresh().catch(()=>undefined)} else setError('กู้คืนไม่สำเร็จ')}catch{ setError('กู้คืนไม่สำเร็จ')}}
-  const forceDelete=async(id:string)=>{ setBusy(true); setError(null); try{ const { error }=await treatyClient.api.clients.trash.post({ id }, { query:{ action:'force-delete' }, headers: await treatyHeaders() }); if(!error) setItems(p=>p.filter(c=>c.id!==id)); else setError('ลบไม่สำเร็จ')}catch{ setError('ลบไม่สำเร็จ')} finally{ setBusy(false); setConfirm(null)}}
+  const restore=async(id:string)=>{ setError(null); try{ if(isDemoMode()){ demoRestoreClient(id); setItems(p=>p.filter(c=>c.id!==id)); void refresh().catch(()=>undefined) } else { const { error }=await treatyClient.api.clients.trash.post({ id }, { query:{ action:'restore' }, headers: await treatyHeaders() }); if(!error){ setItems(p=>p.filter(c=>c.id!==id)); void refresh().catch(()=>undefined)} else setError('กู้คืนไม่สำเร็จ')} }catch{ setError('กู้คืนไม่สำเร็จ')}}
+  const forceDelete=async(id:string)=>{ setBusy(true); setError(null); try{ if(isDemoMode()){ demoForceDeleteClient(id); setItems(p=>p.filter(c=>c.id!==id)) } else { const { error }=await treatyClient.api.clients.trash.post({ id }, { query:{ action:'force-delete' }, headers: await treatyHeaders() }); if(!error) setItems(p=>p.filter(c=>c.id!==id)); else setError('ลบไม่สำเร็จ')} }catch{ setError('ลบไม่สำเร็จ')} finally{ setBusy(false); setConfirm(null)}}
   const onKeyDown = (e: React.KeyboardEvent)=>{
     if(e.key==='ArrowDown'){ e.preventDefault(); setFocused(f=> Math.min(f+1, items.length-1))}
     else if(e.key==='ArrowUp'){ e.preventDefault(); setFocused(f=> Math.max(f-1, 0))}
