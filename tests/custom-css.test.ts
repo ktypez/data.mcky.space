@@ -12,6 +12,7 @@ import {
   CSS_KEY,
   CSS_ON_KEY,
 } from '../src/v3/lib/custom-css'
+import { CSS_PRESETS } from '../src/v3/lib/css-presets'
 
 /** Normalize whitespace inside braces for tolerant comparisons. */
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim()
@@ -173,5 +174,41 @@ describe('applyCustomCss', () => {
     clearCustomCss()
     applyCustomCss()
     expect(document.getElementById('v3-custom-css')).toBeNull()
+  })
+})
+
+/* ------------------------------------------------------------------ */
+/* Baked-in tweakcn presets (generated file)                           */
+/* ------------------------------------------------------------------ */
+describe('CSS_PRESETS', () => {
+  it('has presets with unique ids and labels', () => {
+    expect(CSS_PRESETS.length).toBeGreaterThan(10)
+    const ids = new Set(CSS_PRESETS.map((p) => p.id))
+    expect(ids.size).toBe(CSS_PRESETS.length)
+    for (const p of CSS_PRESETS) expect(p.label.length).toBeGreaterThan(0)
+  })
+
+  it('every preset parses as CSS and survives the v3 scope transform', () => {
+    for (const p of CSS_PRESETS) {
+      expect(looksLikeCss(p.css), p.id).toBe(true)
+      const out = norm(transformCustomCss(p.css))
+      expect(out, p.id).toContain('html:has(.v3-shell):root')
+      expect(out, p.id).toContain("html:has(.v3-shell[data-mode='dark']):root")
+      expect(out, p.id).toContain('@media (prefers-color-scheme: dark)')
+      expect(out, p.id).toContain('--background')
+      expect(out, p.id).toContain('--primary')
+      expect(out, p.id).not.toContain('--font-sans') // fonts stay ours
+    }
+  })
+
+  it('preset css round-trips through storage + inject', () => {
+    const p = CSS_PRESETS[0]
+    localStorage.clear()
+    document.getElementById('v3-custom-css')?.remove()
+    setCustomCss(p.css)
+    setCustomCssOn(true)
+    applyCustomCss()
+    const el = document.getElementById('v3-custom-css') as HTMLStyleElement
+    expect(el.textContent).toContain('html:has(.v3-shell):root')
   })
 })
