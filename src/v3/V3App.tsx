@@ -10,7 +10,6 @@ import './styles/v3.css'
 // Per-route code splitting — the catalog (default landing) must not pay for
 // the editor, trash, record detail, or the 1MB map chunk.
 const V3Catalog = lazy(() => import('./pages/V3Catalog'))
-const V3New = lazy(() => import('./pages/V3New'))
 const V3Record = lazy(() => import('./pages/V3Record'))
 const V3Editor = lazy(() => import('./pages/V3Editor'))
 const V3Trash = lazy(() => import('./pages/V3Trash'))
@@ -71,7 +70,6 @@ export default function V3App(){
         <Suspense fallback={null}>
         <Routes>
           <Route path="/" element={<V3Catalog/>} />
-          <Route path="/new" element={<V3New/>} />
           <Route path="/add" element={<V3Editor/>} />
           <Route path="/edit/:id" element={<V3Editor/>} />
           <Route path="/trash" element={<V3Trash/>} />
@@ -82,7 +80,6 @@ export default function V3App(){
           <Route path="/v3/edit/:id" element={<Navigate to="/edit/:id" replace/>} />
           <Route path="/v3/trash" element={<Navigate to="/trash" replace/>} />
           <Route path="/v3/c/:id" element={<Navigate to="/c/:id" replace/>} />
-          <Route path="/v3/new" element={<Navigate to="/new" replace/>} />
           <Route path="*" element={<V3NotFound/>} />
         </Routes>
         </Suspense>
