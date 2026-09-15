@@ -40,15 +40,15 @@ export default function V3App(){
     <div className="v3-shell" data-mode={mode}>
       <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-2 px-6 py-3">
-          <NavLink to="/" aria-label="Home" className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background hover:opacity-90">
+          <NavLink to="/" aria-label="Home" className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90">
             <House weight="fill" className="h-4 w-4" />
           </NavLink>
           <div className="flex items-center gap-1 ml-auto">
-            {isAdmin && <NavLink to="/add" aria-label="Add" className={({isActive})=>`flex h-8 w-8 items-center justify-center rounded-full ${isActive?'bg-foreground text-background':'hover:bg-muted text-muted-foreground hover:text-foreground'}`}><Plus weight="bold" className="h-4 w-4" /></NavLink>}
-            {isAdmin && <NavLink to="/trash" aria-label="Trash" className={({isActive})=>`flex h-8 w-8 items-center justify-center rounded-full ${isActive?'bg-foreground text-background':'hover:bg-muted text-muted-foreground hover:text-foreground'}`}><Trash className="h-4 w-4" /></NavLink>}
+            {isAdmin && <NavLink to="/add" aria-label="Add" className={({isActive})=>`flex h-8 w-8 items-center justify-center rounded-full ${isActive?'bg-primary text-primary-foreground':'hover:bg-muted text-muted-foreground hover:text-foreground'}`}><Plus weight="bold" className="h-4 w-4" /></NavLink>}
+            {isAdmin && <NavLink to="/trash" aria-label="Trash" className={({isActive})=>`flex h-8 w-8 items-center justify-center rounded-full ${isActive?'bg-primary text-primary-foreground':'hover:bg-muted text-muted-foreground hover:text-foreground'}`}><Trash className="h-4 w-4" /></NavLink>}
             <div className="ml-2 flex items-center rounded-full border border-border p-0.5">
               {(['auto','light','dark'] as const).map(m=>(
-                <button key={m} onClick={()=>setMode(m)} aria-label={m} className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${mode===m?'bg-foreground text-background':'text-muted-foreground hover:text-foreground'}`}>
+                <button key={m} onClick={()=>setMode(m)} aria-label={m} className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${mode===m?'bg-primary text-primary-foreground':'text-muted-foreground hover:text-foreground'}`}>
                   {m==='auto' ? <Monitor className="h-3.5 w-3.5"/> : m==='light' ? <Sun className="h-3.5 w-3.5"/> : <Moon className="h-3.5 w-3.5"/>}
                 </button>
               ))}

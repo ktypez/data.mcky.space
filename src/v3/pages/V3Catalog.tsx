@@ -86,14 +86,14 @@ export default function V3Catalog() {
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-40" />
           <input autoFocus value={search} onChange={e=>{setSearch(e.target.value); setFocused(0)}} onKeyDown={onKeyDown} placeholder="Type a name, shop, or id…  (⌘K)" name="q" autoComplete="off" spellCheck={false} className="h-12 w-full rounded-2xl border border-border bg-card pl-10 pr-10 text-sm shadow-sm outline-none focus:border-foreground/20 focus:ring-4 focus:ring-foreground/5" />
           {search ? (
-            <button type="button" onClick={()=>{setSearch(''); setFocused(0)}} className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-foreground hover:text-background" aria-label="Clear search">
+            <button type="button" onClick={()=>{setSearch(''); setFocused(0)}} className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground" aria-label="Clear search">
               <X className="h-3.5 w-3.5" weight="bold" />
             </button>
           ) : (
-            <span className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-foreground px-2.5 py-1 font-mono text-[10px] text-background md:block">⌘K</span>
+            <span className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-primary px-2.5 py-1 font-mono text-[10px] text-primary-foreground md:block">⌘K</span>
           )}
         </div>
-        {isAdmin && <button onClick={()=>navigate('/add')} className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background shadow-sm hover:opacity-90" aria-label="เพิ่ม">
+        {isAdmin && <button onClick={()=>navigate('/add')} className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm hover:opacity-90" aria-label="เพิ่ม">
           <Plus className="h-5 w-5" weight="bold" />
         </button>}
       </div>
@@ -115,7 +115,7 @@ export default function V3Catalog() {
       <p className="mt-2 text-center font-mono text-xs opacity-30">{filtered.length} / {counts.total} · {filter!==FilterKey.All?`filtered: ${(():string=>{ const m:Record<string,string>={[FilterKey.Penpay]:'จ่ายในวัน',[FilterKey.Credit]:'บัตรเครดิต',[FilterKey.WithImages]:'มีรูป',[FilterKey.NoImages]:'ไม่มีรูป',[FilterKey.Recent]:'ล่าสุด'}; return m[filter]??filter})()}`:'all'}</p>
       <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm [content-visibility:auto] [contain-intrinsic-size:1000px]">
         {sorted.map((c, i)=>(
-          <div key={c.id} role="button" tabIndex={0} onClick={()=>navigate(`/c/${c.id}`)} onMouseEnter={()=>setFocused(i)} onKeyDown={e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); navigate(`/c/${c.id}`)}}} className={`flex w-full items-center gap-3 px-4 py-3 text-left cursor-pointer ${i===focused?'bg-foreground text-background':'hover:bg-muted/50'} ${i!==sorted.length-1?'border-b border-border':''}`}>
+          <div key={c.id} role="button" tabIndex={0} onClick={()=>navigate(`/c/${c.id}`)} onMouseEnter={()=>setFocused(i)} onKeyDown={e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); navigate(`/c/${c.id}`)}}} className={`flex w-full items-center gap-3 px-4 py-3 text-left cursor-pointer ${i===focused?'bg-primary text-primary-foreground':'hover:bg-muted/50'} ${i!==sorted.length-1?'border-b border-border':''}`}>
             {c.images[0] ? (
               <AppImage
                 src={c.thumb ?? c.images[0]}
@@ -129,7 +129,7 @@ export default function V3Catalog() {
               <NameAvatar className={i===focused?'ring-2 ring-background':''}/>
             )}
             <span className="min-w-0 flex-1">
-              <ClientNames client={c} variant="list" titleClassName={`text-sm leading-tight truncate ${i===focused?'text-background':'text-foreground'}`} subClassName={`text-xs truncate ${i===focused?'text-background/60':'opacity-60'}`} />
+              <ClientNames client={c} variant="list" titleClassName={`text-sm leading-tight truncate ${i===focused?'text-primary-foreground':'text-foreground'}`} subClassName={`text-xs truncate ${i===focused?'text-primary-foreground/60':'opacity-60'}`} />
             </span>
             {c.notes && (
               <span className="flex shrink-0 text-red-500" title={c.notes} aria-label="มีโน้ต">

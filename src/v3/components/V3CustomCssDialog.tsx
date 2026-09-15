@@ -197,7 +197,7 @@ function V3CustomCssDialog({
               className={cn(
                 'px-3 py-1 text-sm rounded-lg transition-colors',
                 tab === id
-                  ? 'bg-foreground text-background'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
@@ -284,7 +284,7 @@ function V3CustomCssDialog({
             </button>
             <button
               onClick={() => close(true)}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-foreground text-background hover:opacity-90 transition-opacity"
+              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
             >
               {tab === 'presets' ? 'Keep' : 'Save'}
             </button>
