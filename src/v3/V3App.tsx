@@ -4,6 +4,8 @@ import { House, Plus, Trash, Sun, Moon, Monitor, LockKey, SignOut, DownloadSimpl
 import { useClientStore } from '@/stores/client-store'
 import { useAuthStore, logout } from '@/stores/auth-store'
 import { usePwaInstall } from './hooks/usePwaInstall'
+import { V3CustomCssButton } from './components/V3CustomCssDialog'
+import { applyCustomCss } from './lib/custom-css'
 import { isDemoMode, exitDemoMode } from '@/lib/demo'
 import './styles/v3.css'
 
@@ -31,6 +33,7 @@ export default function V3App(){
   const [showIOSHint, setShowIOSHint] = useState(false)
   const { canInstall, isIOS, install } = usePwaInstall()
   useEffect(()=>{ void useClientStore.getState().initialize()},[])
+  useEffect(()=>{ applyCustomCss() },[])
   useEffect(()=>{ try{ localStorage.setItem(MODE_KEY, mode)}catch{} },[mode])
   useEffect(()=>{ window.scrollTo(0,0)},[location.pathname])
   return (
@@ -50,6 +53,7 @@ export default function V3App(){
                 </button>
               ))}
             </div>
+            <V3CustomCssButton />
             {isDemoMode() ? (
               <button onClick={()=>exitDemoMode()} aria-label="ออกจาก demo" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground">
                 <DoorOpen className="h-4 w-4" />
