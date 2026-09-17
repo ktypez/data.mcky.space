@@ -42,13 +42,40 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      # Deliberately NOT android-actions/setup-android: it requests the
+      # "tools" package, which was removed from Google's SDK repository, and
+      # the action fails before any of our steps run. The runner image already
+      # ships a working sdkmanager, so drive it directly.
+      - name: Locate Android SDK
+        working-directory: .
+        run: |
+          if [ -z "${ANDROID_HOME:-}" ]; then
+            if [ -d "$HOME/Android/Sdk" ]; then
+              echo "ANDROID_HOME=$HOME/Android/Sdk" >> "$GITHUB_ENV"
+              echo "ANDROID_SDK_ROOT=$HOME/Android/Sdk" >> "$GITHUB_ENV"
+            else
+              echo "::error::no Android SDK found on this runner"
+              exit 1
+            fi
+          else
+            echo "ANDROID_HOME=$ANDROID_HOME"
+            echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+          fi
 
       - name: Accept licenses and install platform + build-tools
         working-directory: .
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
+          SDK="${ANDROID_HOME:-$HOME/Android/Sdk}"
+          CMDLINE=$(ls -d "$SDK"/cmdline-tools/*/bin 2>/dev/null | sort -V | tail -1)
+          if [ -z "$CMDLINE" ]; then
+            echo "::error::sdkmanager not found under $SDK/cmdline-tools"
+            exit 1
+          fi
+          echo "$CMDLINE" >> "$GITHUB_PATH"
+          export PATH="$CMDLINE:$PATH"
+          echo "sdkmanager: $(command -v sdkmanager)"
+
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
           # Platform matching compileSdk in app/build.gradle.
           sdkmanager --install "platforms;android-36" >/dev/null
@@ -66,9 +93,8 @@ jobs:
             sdkmanager --install "$NEWEST" >/dev/null
           fi
 
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "build-tools: $(ls "$ANDROID_HOME/build-tools")"
-          echo "platforms:   $(ls "$ANDROID_HOME/platforms")"
+          echo "build-tools: $(ls "$SDK/build-tools")"
+          echo "platforms:   $(ls "$SDK/platforms")"
 
       - name: Decode release keystore
         env:
@@ -91,7 +117,8 @@ jobs:
 
       - name: Verify the APK is signed with the published certificate
         run: |
-          BUILD_TOOLS="$(ls -d "$ANDROID_HOME/build-tools"/* | sort -V | tail -1)"
+          SDK="${ANDROID_HOME:-$HOME/Android/Sdk}"
+          BUILD_TOOLS="$(ls -d "$SDK/build-tools"/* | sort -V | tail -1)"
           echo "apksigner from: $BUILD_TOOLS"
           APK="app/build/outputs/apk/release/app-release.apk"
           if [ ! -f "$APK" ]; then
