@@ -52,7 +52,8 @@ export default function ClientNames({
   )
 }
 
-/** Shows every value, wrapping only at separators — each field is nowrap. */
+/** Shows every value, wrapping between fields — long single-field names
+ *  wrap at word boundaries via overflow-wrap:anywhere (never mid-word). */
 function WrapBetweenFields({
   values,
   className = '',
@@ -66,9 +67,11 @@ function WrapBetweenFields({
       {values.map((v, i) => (
         <span key={i}>
           {i > 0 && ' / '}
-          {/* Field is nowrap; the " / " separator sits in the wrapping context,
-              so breaks happen between fields, never mid-field. */}
-          <span className="whitespace-nowrap">{v}</span>
+          {/* Field allows word-wrap so a single very long shop name or
+              person name breaks at word/anywhere boundaries instead of
+              overflowing. The outer className owns the text styles;
+              these spans only control wrapping behavior. */}
+          <span className="whitespace-normal break-words [overflow-wrap:anywhere]">{v}</span>
         </span>
       ))}
     </div>

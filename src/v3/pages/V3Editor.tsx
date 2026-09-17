@@ -115,7 +115,7 @@ export default function V3Editor(){
         <div className="overflow-hidden rounded-2xl border border-border bg-card p-1">
           <div className="flex gap-1">
             {steps.map((s,i)=>(
-              <button key={s} type="button" onClick={()=>setTab(i)} className={`flex-1 rounded-xl px-3 py-2 text-xs font-medium ${i===tab?'bg-foreground text-background':'hover:bg-muted'}`}>{s}</button>
+              <button key={s} type="button" onClick={()=>setTab(i)} className={`flex-1 rounded-xl px-3 py-2 text-xs font-medium ${i===tab?'bg-primary text-primary-foreground':'hover:bg-muted'}`}>{s}</button>
             ))}
           </div>
         </div>

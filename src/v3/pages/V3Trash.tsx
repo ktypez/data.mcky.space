@@ -38,11 +38,11 @@ export default function V3Trash(){
       {error && <p role="alert" className="mt-4 rounded-xl border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</p>}
       <div tabIndex={0} onKeyDown={onKeyDown} className="mt-6 overflow-hidden rounded-2xl border border-border bg-card shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
         {items.map((c,i)=>(
-          <div key={c.id} role="button" tabIndex={-1} onMouseEnter={()=>setFocused(i)} onClick={()=>void restore(c.id)} className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left ${i===focused?'bg-foreground text-background':'hover:bg-muted/50'} border-b border-border last:border-0`}>
+          <div key={c.id} role="button" tabIndex={-1} onMouseEnter={()=>setFocused(i)} onClick={()=>void restore(c.id)} className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left ${i===focused?'bg-primary text-primary-foreground':'hover:bg-muted/50'} border-b border-border last:border-0`}>
             {c.images[0]? <AppImage src={c.images[0]} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-cover border border-black/10"/> : <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-mono ${i===focused?'bg-background text-foreground':'bg-muted text-muted-foreground'}`}>{(c.shopName[0]||c.name[0]||'·').trim().charAt(0).toUpperCase()}</span>}
             <span className="min-w-0 flex-1">
-              <ClientNames client={c as any} variant="list" titleClassName={`text-sm truncate ${i===focused?'text-background':'text-foreground'}`} subClassName={`text-xs truncate ${i===focused?'text-background/60':'opacity-60'}`} />
-              <span className={`font-mono text-[10px] ${i===focused?'text-background/50':'opacity-30'}`}>deleted {formatDateTime(c.deletedAt)}</span>
+              <ClientNames client={c as any} variant="list" titleClassName={`text-sm truncate ${i===focused?'text-primary-foreground':'text-foreground'}`} subClassName={`text-xs truncate ${i===focused?'text-primary-foreground/60':'opacity-60'}`} />
+              <span className={`font-mono text-[10px] ${i===focused?'text-primary-foreground/50':'opacity-30'}`}>deleted {formatDateTime(c.deletedAt)}</span>
             </span>
             <span className="flex shrink-0 gap-1">
               <button onClick={(e)=>{e.stopPropagation(); void restore(c.id)}} className={`rounded-full px-3 py-1 text-xs ${i===focused?'bg-background text-foreground':'border border-border bg-card'}`}>Restore</button>

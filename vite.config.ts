@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 export default defineConfig({
@@ -10,6 +11,21 @@ export default defineConfig({
   plugins: [
     react({ include: '**/*.{jsx,tsx}' }),
     tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      // Public manifest is the single source of truth.
+
+      includeAssets: ['favicon.svg', 'icon-192.png', 'icon-512.png'],
+      manifest: false,
+      injectRegister: null,
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Only known app navigations receive the shell; never API/auth/assets.
+        navigateFallbackAllowlist: [/^\/$/, /^\/(?:add|trash|demo)\/?$/, /^\/(?:c|edit)\/[^/]+\/?$/],
+        importScripts: ['sw-cleanup.js'],
+        runtimeCaching: [],
+      },
+    }),
   ],
   resolve: {
     alias: {
@@ -61,8 +77,8 @@ export default defineConfig({
           if (id.includes('node_modules/motion') || id.includes('node_modules/@motion')) {
             return 'motion'
           }
-        }
-      }
-    }
+        },
+      },
+    },
   },
 })

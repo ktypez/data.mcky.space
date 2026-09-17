@@ -1,0 +1,12 @@
+# Android / Gradle build output
+.gradle/
+build/
+local.properties
+
+# Signing material must never be committed
+*.keystore
+*.jks
+credentials.env
+
+# Bubblewrap local config
+.bubblewrap/

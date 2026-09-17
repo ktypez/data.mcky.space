@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EzzyList maskable icon — opaque full-bleed square, no rounded corners and
+     no transparency. All meaningful artwork sits inside the central circle of
+     radius 40% (205px) so Android adaptive masks cannot clip it. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b1b29"/>
+      <stop offset="1" stop-color="#121220"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c8cff"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- Glyph scaled to ~72% and centred; every edge stays inside r=205 -->
+  <g transform="translate(256 256) scale(0.72) translate(-256 -256)">
+    <rect x="146" y="140" width="220" height="238" rx="38"
+          fill="none" stroke="url(#ink)" stroke-width="24"/>
+    <rect x="190" y="200" width="132" height="24" rx="12" fill="#a5b4fc"/>
+    <rect x="190" y="250" width="92" height="24" rx="12" fill="#8b5cf6"/>
+    <rect x="190" y="300" width="112" height="24" rx="12" fill="#8b5cf6"/>
+    <path d="M336 288a42 42 0 1 1 84 0c0 30-42 72-42 72s-42-42-42-72z" fill="#6366f1"/>
+    <circle cx="378" cy="288" r="15" fill="#121220"/>
+  </g>
+</svg>
