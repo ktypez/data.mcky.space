@@ -5,6 +5,7 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import { thTH } from '@clerk/localizations'
 import ErrorScreen from '@/components/ErrorScreen'
 import App from './App'
+import { UpdatePrompt } from './components/UpdatePrompt'
 import { enterDemoMode, isDemoMode } from '@/lib/demo'
 import { useAuthStore } from './stores/auth-store'
 import './index.css'
@@ -32,6 +33,7 @@ const CLERK_PUBLISHABLE_KEY =
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    {import.meta.env.PROD && <UpdatePrompt />}
     <ClerkProvider
       publishableKey={CLERK_PUBLISHABLE_KEY}
       localization={thTH}
@@ -48,34 +50,4 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// PWA — a single registration at a stable URL; revalidate the worker on update.
-// On first load after deploy, the new SW installs + skipWaiting + claim takes
-// over immediately. User never sees a prompt — it just works.
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try {
-      const reg = await navigator.serviceWorker.register(
-        '/sw.js',
-        { scope: '/', updateViaCache: 'none' },
-      )
-
-      // If an older SW is waiting, tell it to skip → activates new one
-      if (reg.waiting) {
-        reg.waiting.postMessage({ type: 'SKIP_WAITING' })
-      }
-
-      // Listen for new SW installing — when it's ready, tell it to skip
-      reg.addEventListener('updatefound', () => {
-        const sw = reg.installing
-        if (!sw) return
-        sw.addEventListener('statechange', () => {
-          if (sw.state === 'installed' && navigator.serviceWorker.controller) {
-            sw.postMessage({ type: 'SKIP_WAITING' })
-          }
-        })
-      })
-    } catch {
-      // SW registration failed — app still works, just no offline/install
-    }
-  })
-}
+// UpdatePrompt owns the only SW registration and user-approved activation.

@@ -5,16 +5,15 @@ import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 export default defineConfig({
-  define: {
-    __SW_VERSION__: JSON.stringify(Date.now().toString(36)),
-  },
   plugins: [
     react({ include: '**/*.{jsx,tsx}' }),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // Prompt flow: a new SW installs and WAITS; the UI shows an
+      // "update available" banner and only applies it on user action.
+      // Prevents mid-session asset swaps under a live form.
+      registerType: 'prompt',
       // Public manifest is the single source of truth.
-
       includeAssets: ['favicon.svg', 'icon-192.png', 'icon-512.png'],
       manifest: false,
       injectRegister: null,
@@ -24,6 +23,10 @@ export default defineConfig({
         navigateFallbackAllowlist: [/^\/$/, /^\/(?:add|trash|demo)\/?$/, /^\/(?:c|edit)\/[^/]+\/?$/],
         importScripts: ['sw-cleanup.js'],
         runtimeCaching: [],
+        // Evict precaches from superseded SW versions on activation.
+        cleanupOutdatedCaches: true,
+        skipWaiting: false,
+        clientsClaim: true,
       },
     }),
   ],
