@@ -1,20 +1,21 @@
-
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { OpenLocationCode } from 'open-location-code'
 import { pinHtml } from '@/lib/pin'
-import { getMapStyle } from '@/lib/map-styles'
+import { getMapFlavor, tileUrl, TILE_ATTRIBUTION, type MapFlavor } from '@/lib/map-styles'
 import { cssVarToHex, DEFAULT_MAP_CENTER } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
-// SECURITY: pinHtml() outputs raw HTML into DOM via innerHTML.
+// SECURITY: pinHtml() outputs raw HTML into DOM via innerHTML (Leaflet divIcon).
 // All inputs (size, selected, color) are controlled constants — never user-derived.
 // If pinHtml ever accepts user strings, sanitize them first.
 
-// maplibre-gl is dynamically imported from the npm bundle (shared `map`
-// chunk) so pages without a map never download it. No more CDN <script>.
-async function loadGL(): Promise<any> {
-  const [mod] = await Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')])
-  return mod.default ?? mod
+// Leaflet is dynamically imported (shared `leaflet` chunk) so pages without
+// a map never download it.
+type LL = typeof import('leaflet')
+
+async function loadLeaflet(): Promise<LL> {
+  const [mod] = await Promise.all([import('leaflet'), import('leaflet/dist/leaflet.css')])
+  return (mod.default ?? mod) as LL
 }
 
 let olcInstance: OpenLocationCode | null = null
@@ -40,9 +41,10 @@ type Props = MapPickerProps
 
 export default function MapPicker({ lat, lng, onChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<any>(null)
-  const glRef = useRef<any>(null)
-  const markerRef = useRef<any>(null)
+  const mapRef = useRef<InstanceType<LL['Map']> | null>(null)
+  const layerRef = useRef<InstanceType<LL['TileLayer']> | null>(null)
+  const markerRef = useRef<InstanceType<LL['Marker']> | null>(null)
+  const libRef = useRef<LL | null>(null)
   const [mapFailed, setMapFailed] = useState(false)
   const initializedRef = useRef(false)
   const onChangeRef = useRef(onChange)
@@ -52,67 +54,80 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
   useEffect(() => { onChangeRef.current = onChange })
   useEffect(() => { latRef.current = lat; lngRef.current = lng }, [lat, lng])
 
+  const placeMarker = useCallback((mlat: number, mlng: number) => {
+    const L = libRef.current
+    const map = mapRef.current
+    if (!L || !map) return
+    markerRef.current?.remove()
+    const el = document.createElement('div')
+    el.innerHTML = pinHtml(28, true, getPinColor())
+    markerRef.current = L.marker([mlat, mlng], {
+      icon: L.divIcon({ html: el, className: '', iconSize: [28, 28], iconAnchor: [14, 25] }),
+    }).addTo(map)
+  }, [])
+
+  const setFlavor = useCallback((flavor: MapFlavor) => {
+    const L = libRef.current
+    const map = mapRef.current
+    if (!L || !map) return
+    layerRef.current?.remove()
+    layerRef.current = L.tileLayer(tileUrl(flavor), { maxZoom: 19, attribution: TILE_ATTRIBUTION }).addTo(map)
+  }, [])
+
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
 
     const container = containerRef.current
     let cancelled = false
 
-    // The npm bundle import is local and fast — no polling needed. On
-    // failure show the fallback tile instead of retrying forever.
     async function tryInit() {
       if (cancelled) return
-      let GL: any
+      let L: LL
       try {
-        GL = await loadGL()
+        L = await loadLeaflet()
       } catch (err) {
         if (!cancelled) {
-          console.error('[MapPicker] maplibre-gl import failed')
+          console.error('[MapPicker] leaflet import failed')
           setMapFailed(true)
         }
         return
       }
-      if (cancelled || !GL?.Map) {
+      if (cancelled || !L?.map) {
         if (!cancelled) setMapFailed(true)
         return
       }
+      libRef.current = L
 
-      let map: any
+      let map: InstanceType<LL['Map']>
       try {
-        map = new GL.Map({
-          container,
-          style: getMapStyle(),
-          center: lngRef.current != null && latRef.current != null ? [lngRef.current, latRef.current] : DEFAULT_MAP_CENTER,
-          zoom: latRef.current != null ? PIN_ZOOM : DEFAULT_ZOOM,
-          attributionControl: false,
-        })
+        const hasPos = lngRef.current != null && latRef.current != null
+        map = L.map(container, { attributionControl: false }).setView(
+          hasPos ? [latRef.current as number, lngRef.current as number] : [DEFAULT_MAP_CENTER[1], DEFAULT_MAP_CENTER[0]],
+          hasPos ? PIN_ZOOM : DEFAULT_ZOOM,
+        )
+        layerRef.current = L.tileLayer(tileUrl(getMapFlavor()), { maxZoom: 19, attribution: TILE_ATTRIBUTION }).addTo(map)
       } catch (err) {
         console.error('MapPicker init failed')
         setMapFailed(true)
         return
       }
 
-      map.on('click', (e: any) => {
-        const { lng: mlng, lat: mlat } = e.lngLat
+      map.on('click', (e: { latlng: InstanceType<LL['LatLng']> }) => {
+        const { lat: mlat, lng: mlng } = e.latlng
         onChangeRef.current(mlat, mlng)
-        map.flyTo({ center: [mlng, mlat], zoom: Math.max(map.getZoom(), PIN_ZOOM), duration: 600 })
-
-        if (markerRef.current) markerRef.current.remove()
-        const el = document.createElement('div')
-        el.innerHTML = pinHtml(28, true, getPinColor())
-        markerRef.current = new GL.Marker({ element: el }).setLngLat([mlng, mlat]).addTo(map)
+        map.flyTo([mlat, mlng], Math.max(map.getZoom(), PIN_ZOOM), { duration: 0.6 })
+        placeMarker(mlat, mlng)
       })
 
       // Add initial marker if position provided
       if (latRef.current != null && lngRef.current != null) {
         initializedRef.current = true
-        const el = document.createElement('div')
-        el.innerHTML = pinHtml(28, true, getPinColor())
-        markerRef.current = new GL.Marker({ element: el }).setLngLat([lngRef.current, latRef.current]).addTo(map)
+        placeMarker(latRef.current, lngRef.current)
       }
 
       mapRef.current = map
-      glRef.current = GL
+      // Fix sizing when the editor animates open.
+      setTimeout(() => { if (!cancelled) map.invalidateSize() }, 100)
     }
 
     void tryInit()
@@ -121,55 +136,35 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
       cancelled = true
       mapRef.current?.remove()
       mapRef.current = null
+      layerRef.current = null
+      markerRef.current = null
     }
-  }, [])
+  }, [placeMarker])
 
-  useMapDarkMode(
-    useCallback((newStyle) => {
-      const map = mapRef.current
-      if (!map) return
-      map.setStyle(newStyle)
-      map.once('style.load', () => {
-        if (markerRef.current) {
-          const pos = markerRef.current.getLngLat()
-          markerRef.current.remove()
-          const el = document.createElement('div')
-          el.innerHTML = pinHtml(28, true, getPinColor())
-          markerRef.current = new (glRef.current).Marker({ element: el }).setLngLat(pos).addTo(map)
-        }
-      })
-    }, []),
-  )
+  useMapDarkMode(useCallback((flavor: MapFlavor) => setFlavor(flavor), [setFlavor]))
 
   // Update marker and fly when lat/lng change externally
   useEffect(() => {
     const map = mapRef.current
-    const GL = glRef.current
-    if (!map || !GL || lat == null || lng == null) return
+    if (!map || lat == null || lng == null) return
 
     if (!initializedRef.current) {
       initializedRef.current = true
       if (lat !== DEFAULT_MAP_CENTER[1] || lng !== DEFAULT_MAP_CENTER[0]) {
-        map.flyTo({ center: [lng, lat], zoom: PIN_ZOOM, duration: 600 })
+        map.flyTo([lat, lng], PIN_ZOOM, { duration: 0.6 })
       }
-      if (!markerRef.current) {
-        const el = document.createElement('div')
-        el.innerHTML = pinHtml(28, true, getPinColor())
-        markerRef.current = new GL.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
-      }
+      if (!markerRef.current) placeMarker(lat, lng)
       return
     }
 
     if (markerRef.current) {
-      markerRef.current.setLngLat([lng, lat])
+      markerRef.current.setLatLng([lat, lng])
     } else {
-      const el = document.createElement('div')
-      el.innerHTML = pinHtml(28, true, getPinColor())
-      markerRef.current = new GL.Marker({ element: el }).setLngLat([lng, lat]).addTo(map)
+      placeMarker(lat, lng)
     }
 
-    map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), PIN_ZOOM), duration: 600 })
-  }, [lat, lng])
+    map.flyTo([lat, lng], Math.max(map.getZoom(), PIN_ZOOM), { duration: 0.6 })
+  }, [lat, lng, placeMarker])
 
   if (mapFailed) {
     return (
@@ -181,7 +176,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
 
   return (
     <div className="w-full h-48 rounded-xl overflow-hidden border border-border relative">
-      <div ref={containerRef} className="w-full h-full" />
+      <div ref={containerRef} className="w-full h-full z-0" />
       {lat != null && lng != null && (
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-md bg-background/80 backdrop-blur-sm text-[13px] font-mono text-foreground whitespace-nowrap pointer-events-none flex items-center gap-1.5">
           <span className="text-foreground/90">
