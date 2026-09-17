@@ -112,6 +112,19 @@ export async function fetchClientList(): Promise<ClientListItem[]> {
   return normalizeList(recordRead(await dataCache.get<ClientListItem[]>(`${WORKER_BASE}/api/clients/list`)))
 }
 
+/** Silent stale read for instant paint — returns a cached full record without
+    touching global read state or the network. Null when never cached here. */
+export async function peekClientById(id: string): Promise<Client | null> {
+  if (isDemoMode()) return demoFetchClientById(id)
+  try {
+    const result = await dataCache.peek<Record<string, unknown>>(`${WORKER_BASE}/api/clients/${encodeURIComponent(id)}?raw=true`)
+    if (!result) return null
+    return normalizeClient(result.data)
+  } catch {
+    return null
+  }
+}
+
 /** Missing offline detail remains unavailable, never fabricated from catalog fields. */
 export async function fetchClientById(id: string): Promise<Client | null> {
   if (isDemoMode()) return demoFetchClientById(id)

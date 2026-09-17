@@ -344,6 +344,46 @@ async function maybeDailyMaintenance(db: ReturnType<typeof createDb>): Promise<v
 }
 
 // ----------------------------------------------------------------------------
+// Catalog revision counter — backs the `rev-N` ETags in data-cache.ts so a
+// revalidation costs one indexed settings-row read instead of a full D1 scan.
+// -1 when unreadable (callers then skip ETag handling, never fake it).
+// ----------------------------------------------------------------------------
+
+const REV_KEY = 'meta:v1:clients_rev'
+
+async function getClientsRev(db: ReturnType<typeof createDb>): Promise<number> {
+  try {
+    const [row] = await db.select().from(settingsTable).where(eq(settingsTable.key, REV_KEY))
+    const rev = Number(row?.value)
+    return Number.isSafeInteger(rev) && rev >= 0 ? rev : -1
+  } catch {
+    return -1
+  }
+}
+
+async function bumpClientsRev(db: ReturnType<typeof createDb>): Promise<void> {
+  try {
+    await db
+      .insert(settingsTable)
+      .values({ key: REV_KEY, value: '1' })
+      .onConflictDoUpdate({
+        target: settingsTable.key,
+        set: { value: sql`CAST(${settingsTable.value} AS INTEGER) + 1` },
+      })
+  } catch (error) {
+    console.warn('clients rev bump failed:', error instanceof Error ? error.message : String(error))
+    throw error
+  }
+}
+
+function isClientsRead(request: Request): boolean {
+  if (request.method !== 'GET') return false
+  const path = new URL(request.url).pathname
+  return path === '/api/clients' || path === '/api/clients/list' ||
+    /^\/api\/clients\/(?!trash$|count$|search$)[^/]+$/.test(path)
+}
+
+// ----------------------------------------------------------------------------
 // Elysia app
 // ----------------------------------------------------------------------------
 
@@ -360,7 +400,12 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   // 401 from `admin`) to `undefined` instead of a Response, and workerd
   // throws `Promise did not resolve to 'Response'` (see
   // tests/admin-gate-map-response.test.ts).
-  .mapResponse(async ({ request, response, set }) => clientDataResponse(request, response, set.status))
+  .mapResponse(async ({ request, response, set }) => {
+    // Revision lookup runs only for participating reads — never on admin
+    // routes, so a D1 hiccup here can't turn a 401 into anything else.
+    const rev = isClientsRead(request) ? await getClientsRev(createDb()) : null
+    return clientDataResponse(request, response, set.status, set, rev)
+  })
   // P3: machine-readable spec for agents/tools at /docs (+ Scalar UI).
   // Schemas come free from the Treaty t.* models above.
   .use(openapi({ path: '/docs' }))
@@ -472,6 +517,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     })
 
     void logAudit(request, { action: 'client.create', target: id, payload: { name: String(data.name ?? '') } })
+    await bumpClientsRev(db)
     set.status = 201
     return { ok: true, id }
   }, {
@@ -553,6 +599,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
       await db.insert(clientsTable).values(clientRow as any)
       await db.delete(settingsTable).where(eq(settingsTable.key, `trash:v1:${id}`))
       void logAudit(request, { action: 'client.restore', target: id })
+      await bumpClientsRev(db)
       return { ok: true }
     }
 
@@ -613,6 +660,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     }).where(eq(clientsTable.id, params.id))
 
     void logAudit(request, { action: 'client.update', target: params.id })
+    await bumpClientsRev(db)
     return { ok: true }
   }, {
     admin: true,
@@ -630,6 +678,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     await db.delete(clientsTable).where(eq(clientsTable.id, params.id))
 
     void logAudit(request, { action: 'client.delete', target: params.id })
+    await bumpClientsRev(db)
     return { ok: true }
   }, {
     admin: true,
@@ -777,6 +826,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     const merged = [...kept, ...newUrls]
 
     await db.update(clientsTable).set({ images: merged, updatedAt: Date.now() }).where(eq(clientsTable.id, clientId))
+    await bumpClientsRev(db)
     return { images: merged }
   }, {
     // No body schema on purpose (see handler comment): manual parse keeps

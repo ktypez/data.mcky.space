@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, PencilSimple, Copy, Check, LinkSimple, Trash } from '@phosphor-icons/react'
 import { useClientStore } from '@/stores/client-store'
 import { useAuthStore } from '@/stores/auth-store'
-import { deleteClient, fetchClientById } from '@/lib/storage'
+import { deleteClient, fetchClientById, peekClientById } from '@/lib/storage'
 import type { Client } from '@/types/index'
 import ClientNames from '@/components/ClientNames'
 import AppImage from '@/components/AppImage'
@@ -37,6 +37,21 @@ export default function V3Record(){
         if (!cancelled) { setClient(storeClient); setLoading(false) }
         return
       }
+      // Stale snapshot paints instantly when we've seen this record before;
+      // the network revalidation below then corrects it silently.
+      let paintedStale = false
+      try {
+        const stale = await peekClientById(id)
+        if (cancelled) return
+        if (stale) {
+          paintedStale = true
+          setClient(stale)
+          setLoading(false)
+          useClientStore.getState().updateClient(stale.id, stale)
+        }
+      } catch {
+        // Revalidation below is authoritative — ignore peek failures.
+      }
       // Lightweight or missing — fetch full record
       try {
         const full = await fetchClientById(id)
@@ -45,13 +60,17 @@ export default function V3Record(){
           setClient(full)
           // Also update store so back-navigation is instant
           useClientStore.getState().updateClient(full.id, full)
-        } else {
+        } else if (!paintedStale) {
           // Fallback to lightweight store item if API 404
           if (storeClient) setClient(storeClient)
           else setErr('ไม่พบข้อมูล')
+        } else if (navigator.onLine) {
+          // Stale was painted but the server no longer has this record.
+          setClient(null)
+          setErr('ไม่พบข้อมูล')
         }
       } catch {
-        if (!cancelled) {
+        if (!cancelled && !paintedStale) {
           if (storeClient) setClient(storeClient)
           else setErr('โหลดข้อมูลไม่สำเร็จ')
         }
