@@ -1,17 +1,17 @@
 import { useEffect, useRef } from 'react'
-import { getMapFlavor, type MapFlavor } from '@/lib/map-styles'
+import { getMapStyle } from '@/lib/map-styles'
 
 export function useMapDarkMode(
-  onFlavorChange: (flavor: MapFlavor) => void,
+  onStyleChange: (style: string) => void,
 ) {
-  const currentRef = useRef<MapFlavor>(getMapFlavor())
+  const currentStyleRef = useRef(getMapStyle())
 
   useEffect(() => {
     const check = () => {
-      const next = getMapFlavor()
-      if (currentRef.current !== next) {
-        currentRef.current = next
-        onFlavorChange(next)
+      const newStyle = getMapStyle()
+      if (currentStyleRef.current !== newStyle) {
+        currentStyleRef.current = newStyle
+        onStyleChange(newStyle)
       }
     }
     const observer = new MutationObserver(check)
@@ -24,5 +24,5 @@ export function useMapDarkMode(
       observer.disconnect()
       mql.removeEventListener('change', check)
     }
-  }, [onFlavorChange])
+  }, [onStyleChange])
 }

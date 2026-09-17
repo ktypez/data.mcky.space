@@ -1,27 +1,14 @@
-// Leaflet raster tiles (Esri, no API key). Flavor follows the app theme.
+const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json'
+const DARK_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 
-export type MapFlavor = 'light' | 'dark'
-
-export const TILE_ATTRIBUTION = 'Powered by Esri'
-
-function flavorUrl(flavor: MapFlavor): string {
-  const service = flavor === 'dark' ? 'Canvas/World_Dark_Gray_Base' : 'World_Street_Map'
-  // NOTE: Esri tile order is {z}/{y}/{x}.
-  return `https://server.arcgisonline.com/ArcGIS/rest/services/${service}/MapServer/tile/{z}/{y}/{x}`
-}
-
-export function tileUrl(flavor: MapFlavor): string {
-  return flavorUrl(flavor)
-}
-
-export function getMapFlavor(): MapFlavor {
-  if (typeof document === 'undefined') return 'light'
-  if (document.documentElement.classList.contains('dark')) return 'dark'
+export function getMapStyle(): string {
+  if (typeof document === 'undefined') return LIGHT_STYLE
+  if (document.documentElement.classList.contains('dark')) return DARK_STYLE
   const shell = document.querySelector('.v3-shell') as HTMLElement | null
   if (shell) {
     const mode = shell.getAttribute('data-mode')
-    if (mode === 'dark') return 'dark'
-    if (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark'
+    if (mode === 'dark') return DARK_STYLE
+    if (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) return DARK_STYLE
   }
-  return 'light'
+  return LIGHT_STYLE
 }
