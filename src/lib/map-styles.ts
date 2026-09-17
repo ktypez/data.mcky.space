@@ -1,5 +1,6 @@
-const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json'
-const DARK_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+// OpenFreeMap — free keyless vector tiles (no watermark, no signup).
+const LIGHT_STYLE = 'https://tiles.openfreemap.org/styles/bright'
+const DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark'
 
 export function getMapStyle(): string {
   if (typeof document === 'undefined') return LIGHT_STYLE
