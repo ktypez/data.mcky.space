@@ -148,7 +148,7 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
       // entry can't be saved without its photos, and let the caller
       // surface the error instead of failing silently.
       try {
-        await treatyClient.api.clients({ id }).delete({ headers: await treatyHeaders() })
+        await treatyClient.api.clients({ id }).delete(undefined, { headers: await treatyHeaders() })
       } catch {
         // best-effort rollback
       }
@@ -212,7 +212,7 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
 
 export async function deleteClient(id: string): Promise<void> {
   if (isDemoMode()) return demoDeleteClient(id)
-  const { error } = await treatyClient.api.clients({ id }).delete({ headers: await treatyHeaders() })
+  const { error } = await treatyClient.api.clients({ id }).delete(undefined, { headers: await treatyHeaders() })
   if (error) throw new Error('Failed to delete client')
   // Only remove from IDB after the server confirms the delete so a failed
   // API call can't leave the local cache out of sync.
