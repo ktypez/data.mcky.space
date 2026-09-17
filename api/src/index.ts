@@ -7,7 +7,7 @@ import { drizzle } from 'drizzle-orm/d1'
 import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core'
 import { desc, eq, sql, like, and, or, lt } from 'drizzle-orm'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
-import { clientDataResponse, clientCorsHeaders } from './data-cache'
+import { clientDataResponse, clientCorsHeaders, etagMatches, revEtag } from './data-cache'
 
 // ----------------------------------------------------------------------------
 // CORS — frontend runs on data.mcky.space, API on data-api.fall3n.workers.dev
@@ -400,9 +400,26 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   // 401 from `admin`) to `undefined` instead of a Response, and workerd
   // throws `Promise did not resolve to 'Response'` (see
   // tests/admin-gate-map-response.test.ts).
+  // Short-circuit revalidation BEFORE handlers run: a matching validator
+  // answers 304 from one indexed settings-row read, without the full D1 scan
+  // the handler would do. (mapResponse alone can't save that work — it runs
+  // after the handler.)
+  .onBeforeHandle(async ({ request }) => {
+    if (!isClientsRead(request) || !request.headers.get('If-None-Match')) return
+    const rev = await getClientsRev(createDb())
+    if (rev < 0) return
+    const etag = revEtag(rev)
+    if (etagMatches(request, etag)) {
+      return new Response(null, {
+        status: 304,
+        headers: { ETag: etag, 'Cache-Control': 'public, no-cache, must-revalidate' },
+      })
+    }
+  })
   .mapResponse(async ({ request, response, set }) => {
-    // Revision lookup runs only for participating reads — never on admin
+    // Revision lookup runs only for participating 200 reads — never on admin
     // routes, so a D1 hiccup here can't turn a 401 into anything else.
+    if (set.status !== undefined && set.status !== 200) return
     const rev = isClientsRead(request) ? await getClientsRev(createDb()) : null
     return clientDataResponse(request, response, set.status, set, rev)
   })

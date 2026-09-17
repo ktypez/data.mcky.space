@@ -13,7 +13,11 @@ export const clientCorsHeaders = {
 // the contract is unit-testable from the frontend workspace.
 // ----------------------------------------------------------------------------
 
-function etagMatches(request: Request, etag: string): boolean {
+export function revEtag(rev: number): string {
+  return `"rev-${rev}"`
+}
+
+export function etagMatches(request: Request, etag: string): boolean {
   return request.headers.get('If-None-Match')?.split(',').some(tag => {
     const value = tag.trim().replace(/^W\//, '')
     return value === '*' || value === etag
@@ -35,7 +39,7 @@ export async function clientDataResponse(
   // A null/negative rev means the counter was unreadable — skip ETag handling
   // entirely rather than serving a made-up validator.
   if (rev == null || rev < 0) return
-  const etag = `"rev-${rev}"`
+  const etag = revEtag(rev)
   if (etagMatches(request, etag)) {
     return new Response(null, {
       status: 304,
