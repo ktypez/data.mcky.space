@@ -48,15 +48,15 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// PWA — register SW with cache busting to force update from old cached version.
+// PWA — a single registration at a stable URL; revalidate the worker on update.
 // On first load after deploy, the new SW installs + skipWaiting + claim takes
 // over immediately. User never sees a prompt — it just works.
-if ('serviceWorker' in navigator) {
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const reg = await navigator.serviceWorker.register(
-        `/sw.js?v=${__SW_VERSION__}`,
-        { scope: '/' },
+        '/sw.js',
+        { scope: '/', updateViaCache: 'none' },
       )
 
       // If an older SW is waiting, tell it to skip → activates new one

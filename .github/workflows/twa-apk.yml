@@ -1,0 +1,126 @@
+name: TWA APK
+
+# Builds the EzzyList Android package from twa-app/.
+#
+# Why CI: this lab host is aarch64/musl. Google's Android SDK build-tools and
+# Bubblewrap's JDK installer are x86_64/glibc only, so the APK cannot be
+# compiled locally. This runs on the same x86_64 Linux that Bubblewrap targets.
+#
+# The APK is signed with the project release key (repo secret). The last step
+# re-reads the certificate from the built APK and fails the job if it does not
+# match the fingerprint published in public/.well-known/assetlinks.json —
+# a mismatch would silently break TWA URL-bar hiding on real devices.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'twa-app/**'
+      - 'public/.well-known/assetlinks.json'
+      - '.github/workflows/twa-apk.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'twa-app/**'
+      - 'public/.well-known/assetlinks.json'
+      - '.github/workflows/twa-apk.yml'
+
+defaults:
+  run:
+    working-directory: twa-app
+
+jobs:
+  build-apk:
+    name: assembleRelease (signed)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept licenses and install platform + build-tools
+        working-directory: .
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+
+          # Platform matching compileSdk in app/build.gradle.
+          sdkmanager --install "platforms;android-36" >/dev/null
+
+          # Don't hardcode a build-tools version blindly: use the pinned one if
+          # this SDK repository has it, otherwise take the newest published.
+          if sdkmanager --list 2>/dev/null | grep -q "build-tools;36.1.0"; then
+            echo "using pinned build-tools 36.1.0"
+            sdkmanager --install "build-tools;36.1.0" >/dev/null
+          else
+            NEWEST=$(sdkmanager --list 2>/dev/null \
+              | sed -n 's/^ *\(build-tools;[0-9][^ |]*\).*/\1/p' \
+              | sort -V | tail -1)
+            echo "pinned 36.1.0 unavailable; installing ${NEWEST}"
+            sdkmanager --install "$NEWEST" >/dev/null
+          fi
+
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "build-tools: $(ls "$ANDROID_HOME/build-tools")"
+          echo "platforms:   $(ls "$ANDROID_HOME/platforms")"
+
+      - name: Decode release keystore
+        env:
+          KSTORE_B64: ${{ secrets.EZZYLIST_KSTORE_B64 }}
+        run: |
+          if [ -z "$KSTORE_B64" ]; then
+            echo "::error::secret EZZYLIST_KSTORE_B64 is unavailable — refusing to ship an unsigned (uninstallable) APK"
+            exit 1
+          fi
+          echo "$KSTORE_B64" | base64 -d > "$RUNNER_TEMP/ezzylist.keystore"
+          echo "KSTORE_PATH=$RUNNER_TEMP/ezzylist.keystore" >> "$GITHUB_ENV"
+          echo "decoded keystore bytes: $(wc -c < "$RUNNER_TEMP/ezzylist.keystore")"
+
+      - name: Build release APK
+        env:
+          KSTORE_PW: ${{ secrets.EZZYLIST_KSTORE_PW }}
+          KEY_ALIAS: ${{ secrets.EZZYLIST_KEY_ALIAS }}
+          KEY_PW: ${{ secrets.EZZYLIST_KEY_PW }}
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Verify the APK is signed with the published certificate
+        run: |
+          BUILD_TOOLS="$(ls -d "$ANDROID_HOME/build-tools"/* | sort -V | tail -1)"
+          echo "apksigner from: $BUILD_TOOLS"
+          APK="app/build/outputs/apk/release/app-release.apk"
+          if [ ! -f "$APK" ]; then
+            echo "::error::APK not found at $APK"
+            find app/build/outputs -type f 2>/dev/null || true
+            exit 1
+          fi
+          echo "APK bytes: $(wc -c < "$APK")"
+
+          echo "--- apksigner verify ---"
+          "$BUILD_TOOLS/apksigner" verify --print-certs --verbose "$APK" \
+            | grep -E "Verifies|Signer #1 certificate SHA-256 digest"
+
+          ACTUAL=$("$BUILD_TOOLS/apksigner" verify --print-certs "$APK" \
+            | grep "Signer #1 certificate SHA-256 digest" \
+            | awk '{print $NF}' | tr -d ':' | tr 'a-f' 'A-F')
+          PUBLISHED=$(python3 -c "import json;print(json.load(open('../public/.well-known/assetlinks.json'))[0]['target']['sha256_cert_fingerprints'][0].replace(':','').upper())")
+
+          echo "actual    : $ACTUAL"
+          echo "published : $PUBLISHED"
+          if [ "$ACTUAL" != "$PUBLISHED" ]; then
+            echo "::error::APK signing certificate does not match public/.well-known/assetlinks.json — TWA verification would fail on device"
+            exit 1
+          fi
+          echo "OK: APK certificate matches the published assetlinks fingerprint"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ezzylist-release-apk
+          path: twa-app/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
