@@ -7,7 +7,7 @@ import { deleteClient, fetchClientById } from '@/lib/storage'
 import type { Client } from '@/types/index'
 import ClientNames from '@/components/ClientNames'
 import AppImage from '@/components/AppImage'
-import StaticMapPreview from '@/components/StaticMapPreview'
+import MapPreviewDynamic from '@/components/MapPreviewDynamic'
 import { copyToClipboard, formatDate, formatDateTime, getMapsUrl, hasValidCoords, COPIED_FLASH_MS } from '@/lib/utils'
 import { clientTextWithMaps } from '@/lib/clientText'
 
@@ -122,7 +122,7 @@ export default function V3Record(){
       )}
       {coords && (
         <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
-          <div className="h-56 overflow-hidden"><StaticMapPreview lat={coords.lat} lng={coords.lng}/></div>
+          <div className="h-56 overflow-hidden"><MapPreviewDynamic lat={coords.lat} lng={coords.lng}/></div>
           <div className="flex items-center justify-between px-4 py-2">
             <span className="font-mono text-xs opacity-50">{coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}</span>
             <a href={getMapsUrl(coords.lat, coords.lng)} target="_blank" rel="noreferrer" className="font-mono text-xs underline opacity-60">open maps →</a>
