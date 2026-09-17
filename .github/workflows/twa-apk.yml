@@ -129,16 +129,43 @@ jobs:
           echo "APK bytes: $(wc -c < "$APK")"
 
           echo "--- apksigner verify ---"
-          "$BUILD_TOOLS/apksigner" verify --print-certs --verbose "$APK" \
-            | grep -E "Verifies|Signer #1 certificate SHA-256 digest"
+          "$BUILD_TOOLS/apksigner" verify --print-certs "$APK" > "$RUNNER_TEMP/certs.txt" 2>&1 \
+            || { cat "$RUNNER_TEMP/certs.txt"; echo "::error::apksigner verify failed — the APK signature is not valid"; exit 1; }
+          cat "$RUNNER_TEMP/certs.txt"
 
-          ACTUAL=$("$BUILD_TOOLS/apksigner" verify --print-certs "$APK" \
-            | grep "Signer #1 certificate SHA-256 digest" \
-            | awk '{print $NF}' | tr -d ':' | tr 'a-f' 'A-F')
           PUBLISHED=$(python3 -c "import json;print(json.load(open('../public/.well-known/assetlinks.json'))[0]['target']['sha256_cert_fingerprints'][0].replace(':','').upper())")
+
+          # Read the fingerprint from the certificate embedded in the APK
+          # itself rather than scraping apksigner's stdout: build-tools releases
+          # disagree on that output's labels. keytool's 'SHA256:' line is
+          # stable. Fall back to parsing apksigner output if there is no
+          # v1-signed cert entry to extract.
+          ACTUAL=""
+          rm -rf "$RUNNER_TEMP/apkx" && mkdir -p "$RUNNER_TEMP/apkx"
+          if unzip -q -o "$APK" 'META-INF/*' -d "$RUNNER_TEMP/apkx" 2>/dev/null; then
+            CERT=$(ls "$RUNNER_TEMP/apkx"/META-INF/*.RSA \
+                      "$RUNNER_TEMP/apkx"/META-INF/*.DSA \
+                      "$RUNNER_TEMP/apkx"/META-INF/*.EC 2>/dev/null | head -1)
+            if [ -n "$CERT" ]; then
+              echo "reading certificate: ${CERT##*/}"
+              ACTUAL=$(keytool -printcert -file "$CERT" 2>/dev/null \
+                | grep -iE '^[[:space:]]*SHA256:' \
+                | grep -oiE '([0-9a-f]{2}:){31}[0-9a-f]{2}' \
+                | head -1 | tr -d ':' | tr 'a-f' 'A-F')
+            fi
+          fi
+          if [ -z "$ACTUAL" ]; then
+            echo "no v1 cert entry in the APK; falling back to apksigner output"
+            ACTUAL=$(grep -oiE '([0-9a-f]{2}:){31}[0-9a-f]{2}|[0-9a-f]{64}' "$RUNNER_TEMP/certs.txt" \
+              | head -1 | tr -d ':' | tr 'a-f' 'A-F')
+          fi
 
           echo "actual    : $ACTUAL"
           echo "published : $PUBLISHED"
+          if [ -z "$ACTUAL" ]; then
+            echo "::error::could not read a SHA-256 fingerprint from the APK or apksigner output"
+            exit 1
+          fi
           if [ "$ACTUAL" != "$PUBLISHED" ]; then
             echo "::error::APK signing certificate does not match public/.well-known/assetlinks.json — TWA verification would fail on device"
             exit 1
