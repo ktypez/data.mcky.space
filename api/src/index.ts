@@ -7,6 +7,7 @@ import { drizzle } from 'drizzle-orm/d1'
 import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core'
 import { desc, eq, sql, like, and, or, lt } from 'drizzle-orm'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
+import { clientDataResponse, clientCorsHeaders } from './data-cache'
 
 // ----------------------------------------------------------------------------
 // CORS — frontend runs on data.mcky.space, API on data-api.fall3n.workers.dev
@@ -350,9 +351,11 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   .use(cors({
     origin: ALLOWED_ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-clerk-check', 'x-admin-token'],
+    ...clientCorsHeaders,
     maxAge: 86400,
   }))
+  // Runs after the typed handlers; their Eden response schemas stay intact.
+  .mapResponse(({ request, response, set }) => clientDataResponse(request, response, set.status))
   // P3: machine-readable spec for agents/tools at /docs (+ Scalar UI).
   // Schemas come free from the Treaty t.* models above.
   .use(openapi({ path: '/docs' }))
@@ -392,28 +395,25 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   .post('/api/auth', async () => Response.json({ error: 'Deprecated — use Clerk sign-in' }, { status: 410 }))
   .delete('/api/auth', async () => Response.json({ error: 'Deprecated — use Clerk sign-out' }, { status: 410 }))
 
-  // --- clients list (full data, edge-cached 60s like list/count/search) ---
-  .get('/api/clients', async ({ request, set, query }) => {
-    return cachedData(request, set, async () => {
+  // --- full clients: read D1 for every revalidation (no obsolete edge cache) ---
+  .get('/api/clients', async ({ query }) => {
       const db = createDb()
       const limit = query.limit
       if (limit === 'all') {
-        const rows = await db.select().from(clientsTable).orderBy(desc(clientsTable.updatedAt))
+        const rows = await db.select().from(clientsTable).orderBy(desc(clientsTable.updatedAt), clientsTable.id)
         return roundLatLngList(normalizeClientList(rows))
       }
       const numLimit = limit ? parseInt(limit, 10) : undefined
-      const q = db.select().from(clientsTable).orderBy(desc(clientsTable.updatedAt))
+      const q = db.select().from(clientsTable).orderBy(desc(clientsTable.updatedAt), clientsTable.id)
       const rows = numLimit ? await q.limit(numLimit) : await q
       return roundLatLngList(normalizeClientList(rows))
-    })
   }, {
     query: t.Object({ limit: t.Optional(t.String()) }),
     response: t.Array(ClientShape),
   })
 
   // --- clients list (lightweight, for catalog) ---
-  .get('/api/clients/list', async ({ request, set }) => {
-    return cachedData(request, set, async () => {
+  .get('/api/clients/list', async () => {
       const db = createDb()
       const rows = await db
         .select({
@@ -426,7 +426,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
           createdAt: clientsTable.createdAt,
         })
         .from(clientsTable)
-        .orderBy(desc(clientsTable.updatedAt))
+        .orderBy(desc(clientsTable.updatedAt), clientsTable.id)
 
       return rows.map((r) => {
         const image = Array.isArray(r.images) && r.images.length > 0 ? r.images[0] : null
@@ -441,7 +441,6 @@ const app = new Elysia({ adapter: CloudflareAdapter })
           createdAt: r.createdAt,
         }
       })
-    })
   }, {
     response: t.Array(ClientListItemShape),
   })

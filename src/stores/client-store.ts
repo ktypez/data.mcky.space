@@ -1,9 +1,7 @@
 
 import { create } from 'zustand'
 import type { Client } from '@/types/index'
-import { fetchClients, fetchClientList } from '@/lib/storage'
-import { getAllClients, putClientsIfAbsent, purgeExpiredClients } from '@/lib/offline-db'
-import { normalizeClients } from '@/lib/clientNames'
+import { fetchClients, fetchClientList, peekClientList, getDataReadState, subscribeDataReadState } from '@/lib/storage'
 import { listItemToClient } from '@/lib/list-item'
 import { isDemoMode } from '@/lib/demo'
 
@@ -18,6 +16,8 @@ interface ClientState {
   loading: boolean
   error: string | null
   initialized: boolean
+  offline: boolean
+  lastChecked: number
   setClients: (clients: Client[]) => void
   setTotalCount: (count: number) => void
   setDisplayLimit: (limit: number) => void
@@ -38,6 +38,9 @@ interface ClientState {
   refresh: () => Promise<Client[]>
 }
 
+let mutation = 0
+let request = 0
+
 export const useClientStore = create<ClientState>((set, get) => ({
   clients: [],
   totalCount: 0,
@@ -49,8 +52,10 @@ export const useClientStore = create<ClientState>((set, get) => ({
   loading: true,
   error: null,
   initialized: false,
+  offline: false,
+  lastChecked: 0,
 
-  setClients: (clients) => set({ clients }),
+  setClients: (clients) => { mutation++; set({ clients, totalCount: clients.length }) },
   setTotalCount: (totalCount) => set({ totalCount }),
   setDisplayLimit: (displayLimit) => set({ displayLimit }),
   incrementDisplayLimit: (step) =>
@@ -77,108 +82,70 @@ export const useClientStore = create<ClientState>((set, get) => ({
   setError: (error) => set({ error }),
   updateClient: (id, updates) =>
     set((s) => {
+      mutation++
       const next = s.clients.map((c) => (c.id === id ? { ...c, ...updates } : c))
       // Server sorts by updatedAt DESC — mirror that in the store so an
       // edited client surfaces at the top immediately, no refresh needed.
       return { clients: next.sort((a, b) => b.updatedAt - a.updatedAt) }
     }),
-  addClient: (client) =>
-    set((s) => ({ clients: [client, ...s.clients] })),
-  removeClient: (id) =>
-    set((s) => ({
-      clients: s.clients.filter((c) => c.id !== id),
-    })),
+  addClient: (client) => {
+    mutation++
+    set((s) => { const clients = [client, ...s.clients.filter(c => c.id !== client.id)]; return { clients, totalCount: clients.length } })
+  },
+  removeClient: (id) => {
+    mutation++
+    set((s) => {
+      const clients = s.clients.filter(c => c.id !== id)
+      const selectedIds = new Set(s.selectedIds)
+      selectedIds.delete(id)
+      return { clients, totalCount: clients.length, selectedIds }
+    })
+  },
 
   initialize: async () => {
     if (get().initialized) return
-    // Claim `initialized` BEFORE the fetch (not after) so a slow first load
-    // can't stomp clients that were added/edited while the fetch was in
-    // flight — the fetch result is merged below with "newer wins" semantics.
+    const started = mutation
+    const sequence = ++request
+    const current = () => started === mutation && sequence === request
     set({ initialized: true, loading: true, error: null })
-
-    // Demo mode: skip IDB entirely so mock data never mixes with the real
-    // offline cache, and skip the network phase (fetchClientList is already
-    // the mock under isDemoMode, but there's no cache to seed or purge).
-    if (isDemoMode()) {
-      try {
-        const demo = await fetchClientList()
-        set({ clients: demo.map(listItemToClient), loading: false })
-      } catch {
-        set({ loading: false })
-      }
-      return
-    }
-
-    // Phase 1: Show IDB cache immediately — this is the "revalidate" part
-    // of stale-while-revalidate. The user sees data instantly.
     try {
-      const idb = await getAllClients()
-      if (idb.length > 0) {
-        const sorted = normalizeClients(idb).sort(
-          (a, b) => b.updatedAt - a.updatedAt,
-        )
-        set({ clients: sorted, loading: false })
+      if (!isDemoMode()) {
+        const cached = await peekClientList().catch(() => undefined)
+        if (cached && current()) set({ clients: cached.map(listItemToClient), totalCount: cached.length, loading: false, ...getDataReadState() })
+      }
+      const items = await fetchClientList()
+      if (current()) {
+        // A successful catalog snapshot is authoritative, including empty.
+        // Do not merge absent IDs back in or retain stale full fields.
+        const clients = items.map(listItemToClient)
+        const ids = new Set(clients.map(c => c.id))
+        set({ clients, totalCount: clients.length, selectedIds: new Set([...get().selectedIds].filter(id => ids.has(id))), ...getDataReadState() })
       }
     } catch {
-      // IDB failed — continue to network fetch below
+      if (current()) set({ error: 'Failed to load clients' })
+    } finally {
+      if (sequence === request) set({ loading: false })
     }
-
-    // Phase 2: Fetch fresh data from network in background ("stale" part).
-    // Do NOT await — let it run in the background so the UI renders
-    // immediately. When the network data arrives, replace the store.
-    fetchClientList()
-      .then((items) => {
-        const fresh = items.map(listItemToClient)
-        set((s) => {
-          const byId = new Map<string, Client>()
-          for (const c of fresh) byId.set(c.id, c)
-          for (const c of s.clients) {
-            const existing = byId.get(c.id)
-            if (!existing || c.updatedAt > existing.updatedAt) byId.set(c.id, c)
-          }
-          const merged = [...byId.values()].sort((a, b) => b.updatedAt - a.updatedAt)
-          return { clients: merged }
-        })
-        // Seed IDB with new clients (skip existing — preserves full data)
-        putClientsIfAbsent(fresh.map(c => c as unknown as Record<string, unknown>))
-          .catch(() => { /* non-fatal */ })
-      })
-      .catch(() => {
-        // Network failed — keep showing IDB data (already rendered above).
-        // If IDB was empty, the user sees an empty list with a subtle
-        // "refresh to retry" option via pull-to-refresh.
-      })
-      .finally(() => {
-        purgeExpiredClients().catch(() => { /* non-fatal */ })
-      })
   },
 
   refresh: async () => {
+    const started = mutation
+    const sequence = ++request
     set({ refreshing: true, error: null })
     try {
-      // Use full fetch on pull-to-refresh — writes complete data to IDB
       const data = await fetchClients()
-      set({ clients: data, refreshing: false })
-      return data
-    } catch (e) {
-      // M2 fix: fall back to IndexedDB cache when the network is down,
-      // matching the behavior of `initialize()`. Without this, the
-      // pull-to-refresh gesture would just throw and leave the user
-      // with a stale empty list.
-      try {
-        const idb = await getAllClients()
-        if (idb.length > 0) {
-          const sorted = normalizeClients(idb).sort(
-            (a, b) => b.updatedAt - a.updatedAt,
-          )
-          set({ clients: sorted, refreshing: false })
-          return sorted
-        }
-      } catch {
-        // IDB also failed — propagate the original error
+      if (started === mutation && sequence === request) {
+        const ids = new Set(data.map(c => c.id))
+        set({ clients: data, totalCount: data.length, selectedIds: new Set([...get().selectedIds].filter(id => ids.has(id))), ...getDataReadState() })
       }
-      set({ error: 'Failed to refresh clients', refreshing: false })
-      throw e
+      return get().clients
+    } catch (error) {
+      if (started === mutation && sequence === request) set({ error: 'Failed to refresh clients' })
+      throw error
+    } finally {
+      if (sequence === request) set({ refreshing: false, loading: false })
     }
   },
 }))
+
+subscribeDataReadState(() => useClientStore.setState(getDataReadState()))

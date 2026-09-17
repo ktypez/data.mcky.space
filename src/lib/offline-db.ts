@@ -1,5 +1,8 @@
+import type { CachedResponse, ResponseStorage } from './data-cache'
+
 const DB_NAME = 'ezzydata-offline'
-const DB_VERSION = 2
+const DB_VERSION = 3
+const RESPONSE_STORE = 'public-responses'
 const CACHE_TTL = 30 * 24 * 60 * 60 * 1000
 
 let dbPromise: Promise<IDBDatabase> | null = null
@@ -10,12 +13,20 @@ function getDb(): Promise<IDBDatabase> {
       const req = indexedDB.open(DB_NAME, DB_VERSION)
       req.onupgradeneeded = () => {
         const db = req.result
+        if (!db.objectStoreNames.contains(RESPONSE_STORE)) db.createObjectStore(RESPONSE_STORE, { keyPath: 'url' })
+        // Old clients mixed partial and full records; never migrate them as
+        // verified response snapshots. Keep the legacy store API for callers.
+        if (db.objectStoreNames.contains('clients')) req.transaction!.objectStore('clients').clear()
         if (!db.objectStoreNames.contains('clients')) {
           const store = db.createObjectStore('clients', { keyPath: 'id' })
           store.createIndex('updatedAt', 'updatedAt', { unique: false })
         }
       }
-      req.onsuccess = () => resolve(req.result)
+      req.onsuccess = () => {
+        req.result.onversionchange = () => { req.result.close(); dbPromise = null }
+        resolve(req.result)
+      }
+      req.onblocked = () => { dbPromise = null; reject(new Error('Offline database upgrade blocked')) }
       req.onerror = () => {
         dbPromise = null
         reject(req.error)
@@ -52,6 +63,39 @@ export async function purgeExpiredClients(): Promise<number> {
     tx.onerror = () => reject(tx.error)
   })
   return purged
+}
+
+/** Exact serialized response and its ETag are committed in one IDB record. */
+export const responseStorage: ResponseStorage = {
+  async get(url) {
+    const db = await getDb()
+    return promisifyRequest(db.transaction(RESPONSE_STORE).objectStore(RESPONSE_STORE).get(url)) as Promise<CachedResponse | undefined>
+  },
+  async put(entry) {
+    const db = await getDb()
+    const tx = db.transaction(RESPONSE_STORE, 'readwrite')
+    const done = transactionDone(tx)
+    tx.objectStore(RESPONSE_STORE).put(entry)
+    await done
+  },
+  async remove(url) {
+    const db = await getDb()
+    const tx = db.transaction(RESPONSE_STORE, 'readwrite')
+    const done = transactionDone(tx)
+    tx.objectStore(RESPONSE_STORE).delete(url)
+    await done
+  },
+  async keys() {
+    const db = await getDb()
+    return (await promisifyRequest(db.transaction(RESPONSE_STORE).objectStore(RESPONSE_STORE).getAllKeys())).map(String)
+  },
+}
+
+function transactionDone(tx: IDBTransaction): Promise<void> {
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onerror = tx.onabort = () => reject(tx.error ?? new Error('Offline transaction aborted'))
+  })
 }
 
 function promisifyRequest<T>(req: IDBRequest<T>): Promise<T> {

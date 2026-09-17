@@ -1,5 +1,6 @@
 import type { Client, ClientListItem } from '@/types/index'
-import { getAllClients, putClient, putClients, deleteClient as deleteClientFromDb } from '@/lib/offline-db'
+import { responseStorage } from '@/lib/offline-db'
+import { createDataCache, type DataResult } from '@/lib/data-cache'
 import { clerkToken } from '@/lib/api'
 import { treatyClient, treatyHeaders } from '@/lib/treaty'
 import { normalizeClients, normalizeClient, coerceStringArray } from '@/lib/clientNames'
@@ -8,17 +9,22 @@ import { isDemoMode, demoFetchClients, demoFetchClientList, demoFetchClientById,
 const WORKER_BASE = 'https://data-api.fall3n.workers.dev'
 export const PHOTO_UPLOAD_ERROR = 'อัปโหลดรูปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'
 
-function toRaw(c: Client): Record<string, unknown> {
-  return c as unknown as Record<string, unknown>
+const dataCache = createDataCache(responseStorage)
+let readState = { offline: false, lastChecked: 0 }
+const listeners = new Set<() => void>()
+export const getDataReadState = () => readState
+export const subscribeDataReadState = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener) } }
+function recordRead<T>(result: DataResult<T>): T {
+  readState = { offline: result.offline, lastChecked: result.lastChecked }
+  listeners.forEach(listener => listener())
+  return result.data
 }
-
-/**
- * IDB caches can hold either the new array format or legacy plain-string
- * name/shopName (cached before the multi-name deploy). Normalize on read so
- * consumers always get `string[]`.
- */
-function normalizeFromIdb(rows: Record<string, unknown>[]): Client[] {
-  return normalizeClients(rows)
+export async function peekClientList(): Promise<ClientListItem[] | undefined> {
+  const result = await dataCache.peek<ClientListItem[]>(`${WORKER_BASE}/api/clients/list`)
+  if (result) return normalizeList(recordRead(result))
+}
+function normalizeList(data: ClientListItem[]): ClientListItem[] {
+  return data.map(row => ({ ...row, name: coerceStringArray(row.name), shopName: coerceStringArray(row.shopName) }))
 }
 
 /** True if the string is a base64-embedded image data URL (too large for D1). */
@@ -96,61 +102,22 @@ function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => voi
 
 export async function fetchClients(): Promise<Client[]> {
   if (isDemoMode()) return demoFetchClients()
-  try {
-    const { data, error } = await treatyClient.api.clients.get()
-    if (error || !data) throw new Error('Failed to fetch clients')
-    const fresh = normalizeClients(data as unknown as Record<string, unknown>[])
-    await putClients(fresh.map(toRaw))
-    return fresh
-  } catch {
-    const idb = await getAllClients()
-    if (idb.length > 0) return normalizeFromIdb(idb)
-    throw new Error('Failed to fetch clients')
-  }
+  const data = recordRead(await dataCache.get<Record<string, unknown>[]>(`${WORKER_BASE}/api/clients`))
+  return normalizeClients(data)
 }
 
-/**
- * Lightweight list endpoint — returns only the fields the catalog needs.
- * Significantly smaller payload than the full /api/clients endpoint.
- * Response is cached at the Cloudflare edge for 60 seconds.
- *
- * Client-side stale-while-revalidate: if a fresh copy was fetched within the
- * last 60s, its Promise is reused so rapid re-mounts (tab switches, store
- * resets) don't re-hit the network. After 60s the next call refetches.
- */
-let listCache: { at: number; data: ClientListItem[] } | null = null
-const LIST_CACHE_TTL = 60_000
+/** Revalidate every read; only an exact URL/body/ETag snapshot is reused. */
 export async function fetchClientList(): Promise<ClientListItem[]> {
   if (isDemoMode()) return demoFetchClientList()
-  if (listCache && Date.now() - listCache.at < LIST_CACHE_TTL) return listCache.data
-  const { data, error } = await treatyClient.api.clients.list.get()
-  if (error || !data) throw new Error('Failed to fetch client list')
-  // The endpoint returns raw (string) name/shopName — coerce to string[] so
-  // ClientListItem's type is honest for every consumer.
-  const list: ClientListItem[] = data.map((r) => ({
-    id: r.id,
-    name: coerceStringArray(r.name),
-    shopName: coerceStringArray(r.shopName),
-    image: r.image,
-    thumb: r.thumb,
-    badge: r.badge,
-    updatedAt: r.updatedAt,
-    createdAt: r.createdAt,
-  }))
-  listCache = { at: Date.now(), data: list }
-  return list
+  return normalizeList(recordRead(await dataCache.get<ClientListItem[]>(`${WORKER_BASE}/api/clients/list`)))
 }
 
-/**
- * Fetch a single client's full data. Used by the detail page when the
- * store only has lightweight list data.
- */
+/** Missing offline detail remains unavailable, never fabricated from catalog fields. */
 export async function fetchClientById(id: string): Promise<Client | null> {
   if (isDemoMode()) return demoFetchClientById(id)
   try {
-    const { data, error } = await treatyClient.api.clients({ id }).get({ query: { raw: 'true' } })
-    if (error || !data) return null
-    return normalizeClient(data as unknown as Record<string, unknown>)
+    const data = recordRead(await dataCache.get<Record<string, unknown>>(`${WORKER_BASE}/api/clients/${encodeURIComponent(id)}?raw=true`))
+    return normalizeClient(data)
   } catch {
     return null
   }
@@ -190,7 +157,7 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
   }
 
   const saved: Client = { ...client, id, images: finalImages }
-  await putClient(toRaw(saved))
+  await dataCache.invalidate()
   return saved
 }
 
@@ -239,7 +206,7 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
     headers: await treatyHeaders(),
   })
   if (error) throw new Error('Failed to update client')
-  await putClient(toRaw(saved))
+  await dataCache.invalidate()
   return saved
 }
 
@@ -249,5 +216,5 @@ export async function deleteClient(id: string): Promise<void> {
   if (error) throw new Error('Failed to delete client')
   // Only remove from IDB after the server confirms the delete so a failed
   // API call can't leave the local cache out of sync.
-  await deleteClientFromDb(id)
+  await dataCache.invalidate()
 }
