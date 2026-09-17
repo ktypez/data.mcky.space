@@ -167,10 +167,34 @@ function V3CustomCssDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && close(false)}>
-      <DialogContent>
-        <DialogTitle>Theme</DialogTitle>
-        <DialogDescription>
-          Pick a preset from{' '}
+      <DialogContent className="space-y-3">
+        <div className="flex items-baseline justify-between gap-2">
+          <DialogTitle className="text-base">Theme</DialogTitle>
+          {/* Tabs */}
+          <div className="flex items-center gap-1">
+            {(
+              [
+                ['presets', 'Presets'],
+                ['custom', 'Custom CSS'],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                className={cn(
+                  'px-2.5 py-1 text-xs rounded-lg transition-colors',
+                  tab === id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <DialogDescription className="text-xs">
+          Presets via{' '}
           <a
             href="https://tweakcn.com"
             target="_blank"
@@ -180,31 +204,8 @@ function V3CustomCssDialog({
           >
             tweakcn
           </a>{' '}
-          or paste your own CSS. Changes preview live — Cancel restores the old look.
+          or your own CSS. Previews live — Cancel restores.
         </DialogDescription>
-
-        {/* Tabs */}
-        <div className="flex items-center gap-1">
-          {(
-            [
-              ['presets', 'Presets'],
-              ['custom', 'Custom CSS'],
-            ] as const
-          ).map(([id, label]) => (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className={cn(
-                'px-3 py-1 text-sm rounded-lg transition-colors',
-                tab === id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
 
         {tab === 'presets' ? (
           presets === null ? (
@@ -213,7 +214,7 @@ function V3CustomCssDialog({
               <span className="text-sm">Loading presets…</span>
             </div>
           ) : (
-            <div className="max-h-[45vh] overflow-y-auto pr-1 grid grid-cols-2 gap-2">
+            <div className="max-h-[34vh] overflow-y-auto pr-1 grid grid-cols-3 gap-1.5">
               {presets.map((p) => {
                 const sw = presetSwatch(p.css)
                 const active = selectedPreset === p.id
@@ -221,24 +222,25 @@ function V3CustomCssDialog({
                   <button
                     key={p.id}
                     onClick={() => pickPreset(p)}
+                    title={p.label}
                     className={cn(
-                      'flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition-colors',
+                      'flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-left text-xs transition-colors',
                       active
                         ? 'border-foreground bg-muted'
                         : 'border-border hover:bg-muted/60',
                     )}
                   >
                     <span
-                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
+                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border"
                       style={{ background: sw.background, borderColor: sw.muted }}
                     >
                       <span
-                        className="h-3 w-3 rounded-full"
+                        className="h-2.5 w-2.5 rounded-full"
                         style={{ background: sw.primary }}
                       />
                     </span>
                     <span className="truncate">{p.label}</span>
-                    {active && <Check weight="bold" className="h-3.5 w-3.5 ml-auto shrink-0" />}
+                    {active && <Check weight="bold" className="h-3 w-3 ml-auto shrink-0" />}
                   </button>
                 )
               })}
@@ -252,7 +254,7 @@ function V3CustomCssDialog({
             placeholder={
               ":root {\n  --background: oklch(0.99 0.002 240);\n  --foreground: oklch(0.17 0.02 260);\n  ...\n}\n\n.dark {\n  ...\n}"
             }
-            className="w-full h-48 resize-y rounded-lg border border-border bg-muted/50 p-3 font-mono text-xs leading-relaxed text-foreground placeholder:text-muted-foreground/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="w-full h-32 resize-y rounded-lg border border-border bg-muted/50 p-3 font-mono text-xs leading-relaxed text-foreground placeholder:text-muted-foreground/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           />
         )}
 
@@ -275,16 +277,16 @@ function V3CustomCssDialog({
               </button>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <button
               onClick={() => close(false)}
-              className="px-3 py-1.5 text-sm rounded-lg hover:bg-muted transition-colors"
+              className="px-2.5 py-1 text-xs rounded-lg hover:bg-muted transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={() => close(true)}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+              className="px-2.5 py-1 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
             >
               {tab === 'presets' ? 'Keep' : 'Save'}
             </button>
