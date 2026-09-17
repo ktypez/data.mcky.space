@@ -28,14 +28,16 @@ function isDark(): boolean {
   return false
 }
 
-/** Zero-JS map preview: one CARTO raster tile with a CSS dot at the center
+/** Zero-JS map preview: one Esri raster tile with a CSS dot at the center
     (the tile is centered on the coords, matching the old GL preview).
+    Esri needs no API key (CARTO stamps keyless tiles with a watermark).
     Full maplibre stays only in the editor picker. */
 export default function StaticMapPreview({ lat, lng }: StaticMapPreviewProps) {
   const [failed, setFailed] = useState(false)
   const { x, y } = tileXY(lat, lng)
-  const flavor = isDark() ? 'dark_all' : 'voyager'
-  const src = `https://a.basemaps.cartocdn.com/rastertiles/${flavor}/${ZOOM}/${x}/${y}@2x.png`
+  // NOTE: Esri tile order is {z}/{y}/{x}.
+  const service = isDark() ? 'Canvas/World_Dark_Gray_Base' : 'World_Street_Map'
+  const src = `https://server.arcgisonline.com/ArcGIS/rest/services/${service}/MapServer/tile/${ZOOM}/${y}/${x}`
 
   if (failed) {
     return (
@@ -58,7 +60,7 @@ export default function StaticMapPreview({ lat, lng }: StaticMapPreviewProps) {
         className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary border-2 border-card shadow-sm"
       />
       <span className="absolute bottom-1 right-2 font-mono text-[9px] text-white/80 [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]">
-        © OpenStreetMap © CARTO
+        Powered by Esri
       </span>
     </div>
   )
