@@ -355,7 +355,12 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     maxAge: 86400,
   }))
   // Runs after the typed handlers; their Eden response schemas stay intact.
-  .mapResponse(({ request, response, set }) => clientDataResponse(request, response, set.status))
+  // NOTE: the callback must stay `async`. A sync wrapper returning the
+  // helper's Promise makes Elysia resolve early macro returns (e.g. the
+  // 401 from `admin`) to `undefined` instead of a Response, and workerd
+  // throws `Promise did not resolve to 'Response'` (see
+  // tests/admin-gate-map-response.test.ts).
+  .mapResponse(async ({ request, response, set }) => clientDataResponse(request, response, set.status))
   // P3: machine-readable spec for agents/tools at /docs (+ Scalar UI).
   // Schemas come free from the Treaty t.* models above.
   .use(openapi({ path: '/docs' }))
