@@ -1,1 +1,1 @@
-{"version":1,"include":["/*"],"exclude":["/assets/*","/themes/*","/favicon.ico","/favicon.svg","/icon-192.png","/icon-512.png","/manifest.json","/sw.js","/sw-cleanup.js","/workbox-*","/.well-known/*"]}
+{"version":1,"include":["/*"],"exclude":["/assets/*","/themes/*","/favicon.ico","/favicon.svg","/icon-192.png","/icon-512.png","/manifest.json","/sw.js","/sw-cleanup.js","/workbox-*"]}

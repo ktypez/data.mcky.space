@@ -30,9 +30,3 @@
 
 /sw.js
   Cache-Control: no-cache
-
-# Digital Asset Links — must be served as JSON and never cached, otherwise
-# Android's TWA verification keeps using a stale certificate fingerprint.
-/.well-known/assetlinks.json
-  Content-Type: application/json
-  Cache-Control: no-cache
