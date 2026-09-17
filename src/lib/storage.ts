@@ -146,7 +146,9 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
     headers: await treatyHeaders(),
   })
   if (error || !data) throw new Error('Failed to add client')
-  const { id } = data
+  // The app-level 304 short-circuit only answers GET reads, so a POST body
+  // here is always the JSON shape — the Response arm is a type-level artifact.
+  const { id } = data as { ok: boolean; id: string }
 
   // Upload photos to R2 now that we have a real clientId
   let finalImages = cleanImages

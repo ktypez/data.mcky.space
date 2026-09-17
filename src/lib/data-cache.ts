@@ -23,12 +23,16 @@ function isPublicUrl(url: string): boolean {
       /^\/api\/clients\/(?!trash$|count$|search$)[^/]+$/.test(parsed.pathname))
 }
 
+/** Reads fresher than this skip revalidation (kills remount double-fetch). */
+export const FRESH_MS = 30_000
+
 export function createDataCache(storage: ResponseStorage, fetcher: typeof fetch = (...args) => fetch(...args)) {
   const memory = new Map<string, CachedResponse>()
   let generation = 0
   let diskReadable = true
   let commits: Promise<unknown> = Promise.resolve()
   const requests = new Map<string, number>()
+  const inflight = new Map<string, Promise<unknown>>()
   function serialize<T>(work: () => Promise<T>): Promise<T> {
     const result = commits.then(work)
     commits = result.catch(() => {})
@@ -63,6 +67,9 @@ export function createDataCache(storage: ResponseStorage, fetcher: typeof fetch 
     },
     async get<T>(url: string): Promise<DataResult<T>> {
       if (!isPublicUrl(url)) throw new Error('Only public client reads can be cached')
+      const shared = inflight.get(url)
+      if (shared) return shared as Promise<DataResult<T>>
+      const work = (async (): Promise<DataResult<T>> => {
       const started = generation
       const sequence = (requests.get(url) ?? 0) + 1
       requests.set(url, sequence)
@@ -71,6 +78,9 @@ export function createDataCache(storage: ResponseStorage, fetcher: typeof fetch 
       }
       const cached = await read(url)
       assertCurrent()
+      if (cached && Date.now() - cached.checkedAt < FRESH_MS) {
+        return { data: JSON.parse(cached.body) as T, offline: false, lastChecked: cached.checkedAt }
+      }
       const request = (etag?: string) => fetcher(url, { credentials: 'omit', cache: 'no-store', headers: etag ? { 'If-None-Match': etag } : {} })
       let response: Response
       try {
@@ -116,6 +126,13 @@ export function createDataCache(storage: ResponseStorage, fetcher: typeof fetch 
         }
       })
       return { data, offline: false, lastChecked: checkedAt }
+      })()
+      inflight.set(url, work)
+      try {
+        return await work
+      } finally {
+        if (inflight.get(url) === work) inflight.delete(url)
+      }
     },
   }
 }

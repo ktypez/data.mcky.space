@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { getMapStyle } from '@/lib/map-styles'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
@@ -23,6 +23,7 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
   const mapRef = useRef<any>(null)
   const markerRef = useRef<any>(null)
   const glRef = useRef<GL | null>(null)
+  const [failed, setFailed] = useState(false)
   const latRef = useRef(lat)
   const lngRef = useRef(lng)
 
@@ -47,15 +48,31 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
       const el = document.createElement('div')
       el.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
 
-      const map = new GL.Map({
-        container: containerRef.current!,
-        style: getMapStyle(),
-        center: [lngRef.current, latRef.current],
-        zoom: 15,
-        attributionControl: false,
-        dragRotate: false,
-        touchPitch: false,
-        interactive: false,
+      let map: any
+      try {
+        map = new GL.Map({
+          container: containerRef.current!,
+          style: getMapStyle(),
+          center: [lngRef.current, latRef.current],
+          zoom: 15,
+          attributionControl: false,
+          dragRotate: false,
+          touchPitch: false,
+          interactive: false,
+        })
+      } catch (err) {
+        console.error('[MapPreview] map init failed (WebGL unavailable?)')
+        if (!cancelled) setFailed(true)
+        return
+      }
+      // Async init failures (e.g. no WebGL context) surface as an event, not
+      // a throw — fall back to coordinates instead of a blank box.
+      map.on('error', () => {
+        if (!cancelled) {
+          setFailed(true)
+          try { map.remove() } catch { /* already broken */ }
+          mapRef.current = null
+        }
       })
 
       function addMarker(lngLat: [number, number]) {
@@ -107,6 +124,14 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
       .setLngLat([lng, lat])
       .addTo(mapRef.current)
   }, [lat, lng])
+
+  if (failed) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-muted font-mono text-xs text-muted-foreground" style={{ minHeight: 160 }}>
+        {lat.toFixed(6)}, {lng.toFixed(6)}
+      </div>
+    )
+  }
 
   return (
     <div className="relative h-full w-full" style={{ minHeight: 160 }}>
