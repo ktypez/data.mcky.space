@@ -2,7 +2,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { OpenLocationCode } from 'open-location-code'
 import { pinHtml } from '@/lib/pin'
-import { getMapStyle } from '@/lib/map-styles'
+import { getRuntimeMapStyle } from '@/lib/offline-map-runtime'
 import { cssVarToHex, DEFAULT_MAP_CENTER } from '@/lib/utils'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
@@ -81,7 +81,7 @@ export default function MapPicker({ lat, lng, onChange }: Props) {
       try {
         map = new GL.Map({
           container,
-          style: getMapStyle(),
+          style: await getRuntimeMapStyle(GL) as any,
           center: lngRef.current != null && latRef.current != null ? [lngRef.current, latRef.current] : DEFAULT_MAP_CENTER,
           zoom: latRef.current != null ? PIN_ZOOM : DEFAULT_ZOOM,
           attributionControl: false,

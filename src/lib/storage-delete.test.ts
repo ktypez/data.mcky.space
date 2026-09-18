@@ -7,7 +7,6 @@ const { invalidateKeys, remove } = vi.hoisted(() => ({
 vi.mock('./offline-db', () => ({
   responseStorage: { get: async () => undefined, put: async () => {}, keys: invalidateKeys, remove },
 }))
-vi.mock('./demo', () => ({ isDemoMode: () => false }))
 vi.mock('./api', () => ({ clerkToken: async () => 'test-session-token' }))
 
 beforeEach(() => { vi.resetModules(); vi.clearAllMocks() })

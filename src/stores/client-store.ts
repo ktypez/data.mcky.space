@@ -3,7 +3,6 @@ import { create } from 'zustand'
 import type { Client } from '@/types/index'
 import { fetchClients, fetchClientList, peekClientList, getDataReadState, subscribeDataReadState } from '@/lib/storage'
 import { listItemToClient } from '@/lib/list-item'
-import { isDemoMode } from '@/lib/demo'
 
 interface ClientState {
   clients: Client[]
@@ -109,10 +108,8 @@ export const useClientStore = create<ClientState>((set, get) => ({
     const current = () => started === mutation && sequence === request
     set({ initialized: true, loading: true, error: null })
     try {
-      if (!isDemoMode()) {
-        const cached = await peekClientList().catch(() => undefined)
-        if (cached && current()) set({ clients: cached.map(listItemToClient), totalCount: cached.length, loading: false, ...getDataReadState() })
-      }
+      const cached = await peekClientList().catch(() => undefined)
+      if (cached && current()) set({ clients: cached.map(listItemToClient), totalCount: cached.length, loading: false, ...getDataReadState() })
       const items = await fetchClientList()
       if (current()) {
         // A successful catalog snapshot is authoritative, including empty.

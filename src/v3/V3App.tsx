@@ -1,12 +1,9 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { Routes, Route, Navigate, useLocation, NavLink } from 'react-router-dom'
-import { House, Plus, Trash, Sun, Moon, Monitor, LockKey, SignOut, DownloadSimple, X, DoorOpen } from '@phosphor-icons/react'
+import { Routes, Route, Navigate, useLocation, NavLink, useNavigate } from 'react-router-dom'
+import { House, Plus, Trash, MapTrifold, Gear } from '@phosphor-icons/react'
 import { useClientStore } from '@/stores/client-store'
-import { useAuthStore, logout } from '@/stores/auth-store'
-import { usePwaInstall } from './hooks/usePwaInstall'
-import { V3CustomCssButton } from './components/V3CustomCssDialog'
+import { useAuthStore } from '@/stores/auth-store'
 import { applyCustomCss } from './lib/custom-css'
-import { isDemoMode, exitDemoMode } from '@/lib/demo'
 import './styles/v3.css'
 
 // Per-route code splitting — the catalog (default landing) must not pay for
@@ -16,6 +13,8 @@ const V3Record = lazy(() => import('./pages/V3Record'))
 const V3Editor = lazy(() => import('./pages/V3Editor'))
 const V3Trash = lazy(() => import('./pages/V3Trash'))
 const V3NotFound = lazy(() => import('./pages/V3NotFound'))
+const V3OfflineMaps = lazy(() => import('./pages/V3OfflineMaps'))
+const V3Settings = lazy(() => import('./pages/V3Settings'))
 
 type V3Mode = 'auto'|'light'|'dark'
 const MODE_KEY = 'ezzylist-v3-mode'
@@ -28,57 +27,25 @@ function readMode(): V3Mode {
 }
 export default function V3App(){
   const location = useLocation()
-  const { isAdmin, isSignedIn, setLoginOpen } = useAuthStore()
+  const navigate = useNavigate()
+  const { isAdmin } = useAuthStore()
   const [mode, setMode] = useState<V3Mode>(readMode)
-  const [showIOSHint, setShowIOSHint] = useState(false)
-  const { canInstall, isIOS, install } = usePwaInstall()
   useEffect(()=>{ void useClientStore.getState().initialize()},[])
   useEffect(()=>{ applyCustomCss() },[])
   useEffect(()=>{ try{ localStorage.setItem(MODE_KEY, mode)}catch{} },[mode])
   useEffect(()=>{ window.scrollTo(0,0)},[location.pathname])
   return (
     <div className="v3-shell" data-mode={mode}>
-      <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur">
-        <div className="mx-auto flex max-w-xl items-center justify-between gap-2 px-6 py-3">
-          <NavLink to="/" aria-label="Home" className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90">
-            <House weight="fill" className="h-4 w-4" />
-          </NavLink>
-          <div className="flex items-center gap-1 ml-auto">
-            {isAdmin && <NavLink to="/add" aria-label="Add" className={({isActive})=>`flex h-8 w-8 items-center justify-center rounded-full ${isActive?'bg-primary text-primary-foreground':'hover:bg-muted text-muted-foreground hover:text-foreground'}`}><Plus weight="bold" className="h-4 w-4" /></NavLink>}
-            {isAdmin && <NavLink to="/trash" aria-label="Trash" className={({isActive})=>`flex h-8 w-8 items-center justify-center rounded-full ${isActive?'bg-primary text-primary-foreground':'hover:bg-muted text-muted-foreground hover:text-foreground'}`}><Trash className="h-4 w-4" /></NavLink>}
-            <div className="ml-2 flex items-center rounded-full border border-border p-0.5">
-              {(['auto','light','dark'] as const).map(m=>(
-                <button key={m} onClick={()=>setMode(m)} aria-label={m} className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${mode===m?'bg-primary text-primary-foreground':'text-muted-foreground hover:text-foreground'}`}>
-                  {m==='auto' ? <Monitor className="h-3.5 w-3.5"/> : m==='light' ? <Sun className="h-3.5 w-3.5"/> : <Moon className="h-3.5 w-3.5"/>}
-                </button>
-              ))}
-            </div>
-            <V3CustomCssButton />
-            {isDemoMode() ? (
-              <button onClick={()=>exitDemoMode()} aria-label="ออกจาก demo" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground">
-                <DoorOpen className="h-4 w-4" />
-              </button>
-            ) : isSignedIn ? (
-              <button onClick={()=>void logout()} aria-label="ออกจากระบบ" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground">
-                <SignOut className="h-4 w-4" />
-              </button>
-            ) : (
-              <button onClick={()=>setLoginOpen(true)} aria-label="เข้าระบบ" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground">
-                <LockKey className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-      <main className="min-h-[calc(100dvh-56px)]">
+      <main className="v3-main min-h-[calc(100dvh-80px)] pb-28">
         <Suspense fallback={null}>
         <Routes>
           <Route path="/" element={<V3Catalog/>} />
           <Route path="/add" element={<V3Editor/>} />
           <Route path="/edit/:id" element={<V3Editor/>} />
           <Route path="/trash" element={<V3Trash/>} />
+          <Route path="/maps" element={<V3OfflineMaps/>} />
+          <Route path="/settings" element={<V3Settings mode={mode} setMode={setMode}/> } />
           <Route path="/c/:id" element={<V3Record/>} />
-          {/* keep /v3 alias for backward compat */}
           <Route path="/v3" element={<Navigate to="/" replace/>} />
           <Route path="/v3/add" element={<Navigate to="/add" replace/>} />
           <Route path="/v3/edit/:id" element={<Navigate to="/edit/:id" replace/>} />
@@ -88,33 +55,18 @@ export default function V3App(){
         </Routes>
         </Suspense>
       </main>
-      <footer className="border-t border-border px-6 py-3 flex items-center justify-center gap-3 font-mono text-[10px] uppercase opacity-60 relative">
-        {canInstall && (
-          <button
-            onClick={() => isIOS ? setShowIOSHint(true) : install()}
-            className="flex items-center gap-1 hover:opacity-100 transition-opacity"
-          >
-            <DownloadSimple className="h-3 w-3" />
-            <span>Install</span>
-          </button>
-        )}
+      <footer className="border-t border-border px-6 py-3 flex items-center justify-center gap-3 font-mono text-[10px] uppercase opacity-60">
         <span>V3</span>
-        {showIOSHint && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowIOSHint(false)}>
-            <div className="bg-card border border-border rounded-lg p-5 max-w-xs mx-4 shadow-lg" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-mono text-xs uppercase opacity-60">Install EzzyList</span>
-                <button onClick={() => setShowIOSHint(false)} className="opacity-60 hover:opacity-100"><X className="h-4 w-4" /></button>
-              </div>
-              <ol className="space-y-2 text-sm list-decimal list-inside">
-                <li>Tap the <strong>Share</strong> button (box with arrow) in Safari</li>
-                <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
-                <li>Tap <strong>Add</strong> to confirm</li>
-              </ol>
-            </div>
-          </div>
-        )}
       </footer>
+      <nav className="v3-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 backdrop-blur" aria-label="หลัก">
+        <div className="mx-auto flex h-[4.5rem] max-w-xl items-center justify-around px-3 pb-[env(safe-area-inset-bottom)]">
+          <NavLink to="/" aria-label="หน้าหลัก" className={({isActive}) => `v3-nav-item ${isActive ? 'is-active' : ''}`}><House weight="fill" size={21}/><span>หน้าหลัก</span></NavLink>
+          {isAdmin ? <NavLink to="/trash" aria-label="ถังขยะ" className={({isActive}) => `v3-nav-item ${isActive ? 'is-active' : ''}`}><Trash size={21}/><span>ถังขยะ</span></NavLink> : <span className="v3-nav-spacer" />}
+          <NavLink to="/add" aria-label="เพิ่มรายการ" className="v3-add-button"><Plus weight="bold" size={25}/></NavLink>
+          <NavLink to="/maps" aria-label="แผนที่ออฟไลน์" className={({isActive}) => `v3-nav-item ${isActive ? 'is-active' : ''}`}><MapTrifold size={21}/><span>แผนที่</span></NavLink>
+          <button onClick={() => navigate('/settings')} aria-label="เมนูและการตั้งค่า" className={`v3-nav-item ${location.pathname === '/settings' ? 'is-active' : ''}`}><Gear size={21}/><span>เมนู</span></button>
+        </div>
+      </nav>
     </div>
   )
 }

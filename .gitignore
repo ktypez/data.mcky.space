@@ -3,6 +3,7 @@ dist/
 .env
 .env.local
 .wrangler/
+.cache/
 .design-lab/
 secrets.env
 *.key

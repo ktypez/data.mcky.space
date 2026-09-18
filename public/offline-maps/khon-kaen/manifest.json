@@ -1,0 +1,24 @@
+{
+  "id": "khon-kaen",
+  "version": "20260917-z14-v1",
+  "source": "Protomaps Basemap 20260917 / OpenStreetMap",
+  "license": "Open Database License (ODbL) 1.0; see attribution in style",
+  "bounds": [101.25, 15.75, 103.05, 17.15],
+  "minZoom": 6,
+  "maxZoom": 14,
+  "bytes": 17870892,
+  "sha256": "5c33441ecc2a20182fcc4583c2b2c5e25b9e6d88b807b741e0d70087a9bd3d9f",
+  "attribution": "Protomaps © OpenStreetMap",
+  "resources": {
+    "fonts/Noto Sans Regular/0-255.pbf": { "bytes": 76044, "sha256": "62c6d49b15fa836eb6aa45e259c7ca6762f44b011b09e47776efbe4a6db1b397" },
+    "fonts/Noto Sans Regular/3584-3839.pbf": { "bytes": 57363, "sha256": "6ddbd10873186e1bdd270232b64819587edc06e1d8432baa2a163ace2331bd61" },
+    "fonts/Noto Sans Medium/0-255.pbf": { "bytes": 77628, "sha256": "ba2f0118dd024e3041b158e5f9eb49bc0a658019f53f458e9f5c0b8efcd79b91" },
+    "fonts/Noto Sans Medium/3584-3839.pbf": { "bytes": 58660, "sha256": "b0369e98743aa59c5901b91914eac9280547a259307231308a2ab26c71b1fe60" },
+    "fonts/Noto Sans Italic/0-255.pbf": { "bytes": 79344, "sha256": "43edfca91c285ba1226f09d5e74d68e1473a088c517f02a5212ff6ccb10037dc" },
+    "fonts/Noto Sans Italic/3584-3839.pbf": { "bytes": 26, "sha256": "f51db9d3d183048920051fec82f199bf4aeacdab315a243223307d14ae6a13b2" },
+    "sprites/light.json": { "bytes": 3549, "sha256": "bfac76cf7ed5c2aa2992695904056a1c6b07785b7fd20e6c640cb44fd6244a2e" },
+    "sprites/light.png": { "bytes": 16174, "sha256": "b6a34640917bdc57d0bd080836db33376371a3312ebe7b849045268015de3481" },
+    "sprites/dark.json": { "bytes": 3549, "sha256": "bfac76cf7ed5c2aa2992695904056a1c6b07785b7fd20e6c640cb44fd6244a2e" },
+    "sprites/dark.png": { "bytes": 16054, "sha256": "8920f68e8f9f7a4188da43e62a81bbc426532579fff7b5f27aad09e130f4246e" }
+  }
+}

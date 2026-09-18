@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { getMapStyle } from '@/lib/map-styles'
+import { getRuntimeMapStyle } from '@/lib/offline-map-runtime'
 import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 
 // maplibre-gl is dynamically imported (shared `map` chunk) so pages without
@@ -52,7 +52,7 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
       try {
         map = new GL.Map({
           container: containerRef.current!,
-          style: getMapStyle(),
+          style: await getRuntimeMapStyle(GL) as any,
           center: [lngRef.current, latRef.current],
           zoom: 15,
           attributionControl: false,
@@ -65,14 +65,11 @@ export default function MapPreview({ lat, lng }: MapPreviewProps) {
         if (!cancelled) setFailed(true)
         return
       }
-      // Async init failures (e.g. no WebGL context) surface as an event, not
-      // a throw — fall back to coordinates instead of a blank box.
-      map.on('error', () => {
-        if (!cancelled) {
-          setFailed(true)
-          try { map.remove() } catch { /* already broken */ }
-          mapRef.current = null
-        }
+      // Resource/tile errors must not tear down the whole map. MapLibre emits
+      // these for individual glyph/sprite/tile requests; the coordinate
+      // fallback is reserved for a genuine map construction failure above.
+      map.on('error', (event: any) => {
+        console.warn('[MapPreview] map resource error', event?.error ?? event)
       })
 
       function addMarker(lngLat: [number, number]) {

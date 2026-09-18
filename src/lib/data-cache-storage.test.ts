@@ -9,7 +9,6 @@ vi.mock('./offline-db', () => ({
     keys: async () => [...disk.keys()],
   },
 }))
-vi.mock('./demo', () => ({ isDemoMode: () => false }))
 vi.mock('./treaty', () => ({ treatyClient: {}, treatyHeaders: async () => ({}) }))
 vi.mock('./api', () => ({ clerkToken: async () => null }))
 

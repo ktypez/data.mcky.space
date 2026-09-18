@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
+const projectRoot = import.meta.dirname
+
 export default defineConfig({
   plugins: [
     react({ include: '**/*.{jsx,tsx}' }),
@@ -32,16 +34,16 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(projectRoot, './src'),
       'class-variance-authority': path.resolve(
-        __dirname,
+        projectRoot,
         'node_modules/class-variance-authority',
       ),
-      clsx: path.resolve(__dirname, 'node_modules/clsx'),
-      'tailwind-merge': path.resolve(__dirname, 'node_modules/tailwind-merge'),
-      'maplibre-gl': path.resolve(__dirname, 'node_modules/maplibre-gl'),
-      cookie: path.resolve(__dirname, 'src/shims/cookie.js'),
-      'set-cookie-parser': path.resolve(__dirname, 'src/shims/set-cookie-parser.js'),
+      clsx: path.resolve(projectRoot, 'node_modules/clsx'),
+      'tailwind-merge': path.resolve(projectRoot, 'node_modules/tailwind-merge'),
+      'maplibre-gl': path.resolve(projectRoot, 'node_modules/maplibre-gl'),
+      cookie: path.resolve(projectRoot, 'src/shims/cookie.js'),
+      'set-cookie-parser': path.resolve(projectRoot, 'src/shims/set-cookie-parser.js'),
     },
     dedupe: [
       'react',

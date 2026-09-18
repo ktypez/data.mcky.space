@@ -4,7 +4,6 @@ import { createDataCache, type DataResult } from '@/lib/data-cache'
 import { clerkToken } from '@/lib/api'
 import { treatyClient, treatyHeaders } from '@/lib/treaty'
 import { normalizeClients, normalizeClient, coerceStringArray } from '@/lib/clientNames'
-import { isDemoMode, demoFetchClients, demoFetchClientList, demoFetchClientById, demoAddClient, demoUpdateClient, demoDeleteClient } from '@/lib/demo'
 
 const WORKER_BASE = 'https://data-api.fall3n.workers.dev'
 export const PHOTO_UPLOAD_ERROR = 'อัปโหลดรูปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'
@@ -101,21 +100,18 @@ function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => voi
 }
 
 export async function fetchClients(): Promise<Client[]> {
-  if (isDemoMode()) return demoFetchClients()
   const data = recordRead(await dataCache.get<Record<string, unknown>[]>(`${WORKER_BASE}/api/clients`))
   return normalizeClients(data)
 }
 
 /** Revalidate every read; only an exact URL/body/ETag snapshot is reused. */
 export async function fetchClientList(): Promise<ClientListItem[]> {
-  if (isDemoMode()) return demoFetchClientList()
   return normalizeList(recordRead(await dataCache.get<ClientListItem[]>(`${WORKER_BASE}/api/clients/list`)))
 }
 
 /** Silent stale read for instant paint — returns a cached full record without
     touching global read state or the network. Null when never cached here. */
 export async function peekClientById(id: string): Promise<Client | null> {
-  if (isDemoMode()) return demoFetchClientById(id)
   try {
     const result = await dataCache.peek<Record<string, unknown>>(`${WORKER_BASE}/api/clients/${encodeURIComponent(id)}?raw=true`)
     if (!result) return null
@@ -127,7 +123,6 @@ export async function peekClientById(id: string): Promise<Client | null> {
 
 /** Missing offline detail remains unavailable, never fabricated from catalog fields. */
 export async function fetchClientById(id: string): Promise<Client | null> {
-  if (isDemoMode()) return demoFetchClientById(id)
   try {
     const data = recordRead(await dataCache.get<Record<string, unknown>>(`${WORKER_BASE}/api/clients/${encodeURIComponent(id)}?raw=true`))
     return normalizeClient(data)
@@ -137,7 +132,6 @@ export async function fetchClientById(id: string): Promise<Client | null> {
 }
 
 export async function addClient(client: Client, onProgress?: (pct: number) => void, photoThumbs?: Record<string, string | null>): Promise<Client> {
-  if (isDemoMode()) return demoAddClient(client)
   // Strip base64 images (too large for the POST body / D1), upload to R2
   const base64Images = client.images.filter(isBase64Image)
   const cleanImages = client.images.filter((s) => !isBase64Image(s))
@@ -177,7 +171,6 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
 }
 
 export async function updateClient(client: Client, onProgress?: (pct: number) => void, photoThumbs?: Record<string, string | null>): Promise<Client> {
-  if (isDemoMode()) return demoUpdateClient(client)
   const base64Images = client.images.filter(isBase64Image)
   const cleanImages = client.images.filter((s) => !isBase64Image(s))
 
@@ -226,7 +219,6 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
 }
 
 export async function deleteClient(id: string): Promise<void> {
-  if (isDemoMode()) return demoDeleteClient(id)
   const { error } = await treatyClient.api.clients({ id }).delete(undefined, { headers: await treatyHeaders() })
   if (error) throw new Error('Failed to delete client')
   // Only remove from IDB after the server confirms the delete so a failed

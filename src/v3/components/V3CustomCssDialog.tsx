@@ -42,10 +42,11 @@ export function V3CustomCssButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        aria-label="Custom theme"
-        className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
+        aria-label="ปรับแต่งธีมด้วย CSS"
+        className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
       >
         <PaintBrush className="h-4 w-4" />
+        <span>ปรับแต่งสีและธีมด้วย CSS</span>
       </button>
       <V3CustomCssDialog open={open} onOpenChange={setOpen} />
     </>
