@@ -22,7 +22,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         // Only known app navigations receive the shell; never API/auth/assets.
-        navigateFallbackAllowlist: [/^\/$/, /^\/(?:add|trash|demo)\/?$/, /^\/(?:c|edit)\/[^/]+\/?$/],
+        navigateFallbackAllowlist: [/^\/$/, /^\/(?:add|trash|maps|settings)\/?$/, /^\/(?:c|edit)\/[^/]+\/?$/],
         importScripts: ['sw-cleanup.js'],
         runtimeCaching: [],
         // Evict precaches from superseded SW versions on activation.

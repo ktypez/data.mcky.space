@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { Routes, Route, Navigate, useLocation, NavLink, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, NavLink, useNavigate, useParams } from 'react-router-dom'
 import { House, Plus, Trash, MapTrifold, Gear } from '@phosphor-icons/react'
 import { useClientStore } from '@/stores/client-store'
 import { useAuthStore } from '@/stores/auth-store'
@@ -18,6 +18,16 @@ const V3Settings = lazy(() => import('./pages/V3Settings'))
 
 type V3Mode = 'auto'|'light'|'dark'
 const MODE_KEY = 'ezzylist-v3-mode'
+
+function LegacyEditRedirect() {
+  const { id } = useParams<{ id: string }>()
+  return <Navigate to={id ? `/edit/${encodeURIComponent(id)}` : '/'} replace />
+}
+
+function LegacyRecordRedirect() {
+  const { id } = useParams<{ id: string }>()
+  return <Navigate to={id ? `/c/${encodeURIComponent(id)}` : '/'} replace />
+}
 function readMode(): V3Mode {
   try{
     const v = localStorage.getItem(MODE_KEY)
@@ -48,9 +58,9 @@ export default function V3App(){
           <Route path="/c/:id" element={<V3Record/>} />
           <Route path="/v3" element={<Navigate to="/" replace/>} />
           <Route path="/v3/add" element={<Navigate to="/add" replace/>} />
-          <Route path="/v3/edit/:id" element={<Navigate to="/edit/:id" replace/>} />
+          <Route path="/v3/edit/:id" element={<LegacyEditRedirect/>} />
           <Route path="/v3/trash" element={<Navigate to="/trash" replace/>} />
-          <Route path="/v3/c/:id" element={<Navigate to="/c/:id" replace/>} />
+          <Route path="/v3/c/:id" element={<LegacyRecordRedirect/>} />
           <Route path="*" element={<V3NotFound/>} />
         </Routes>
         </Suspense>

@@ -1,6 +1,6 @@
 // Only these existing public reads participate; never auth/admin/search.
 export const clientCorsHeaders = {
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-clerk-check', 'x-admin-token', 'If-None-Match'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-clerk-check', 'If-None-Match'],
   exposeHeaders: ['ETag'],
 }
 

@@ -72,16 +72,11 @@ function xhrPost<T>(url: string, body: string, onProgress?: (pct: number) => voi
     const fullUrl = url.startsWith('http') ? url : `${WORKER_BASE}${url}`
     xhr.open('POST', fullUrl)
     xhr.setRequestHeader('Content-Type', 'application/json')
-    // Clerk migration fix: photo uploads used to send only the legacy HMAC
-    // token, which is never written to localStorage anymore — so every new
-    // admin session got a silent 401 and photos were dropped. Attach the
-    // Clerk session JWT as the primary auth, keep the legacy header as a
-    // transitional fallback for sessions that predate the migration.
+    // Attach only the short-lived Clerk session JWT. Do not read or send
+    // legacy bearer material from localStorage; XSS could exfiltrate it.
     void clerkToken()
       .then((clerk) => {
         if (clerk) xhr.setRequestHeader('Authorization', `Bearer ${clerk}`)
-        const legacy = localStorage.getItem('ezzylist_admin_token')
-        if (legacy) xhr.setRequestHeader('x-admin-token', legacy)
         xhr.send(body)
       })
       .catch(() => xhr.send(body))

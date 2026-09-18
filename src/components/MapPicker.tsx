@@ -14,7 +14,7 @@ import { useMapDarkMode } from '@/hooks/useMapDarkMode'
 // chunk) so pages without a map never download it. No more CDN <script>.
 async function loadGL(): Promise<any> {
   const [mod] = await Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')])
-  return mod.default ?? mod
+  return (mod as unknown as { default?: any }).default ?? mod
 }
 
 let olcInstance: OpenLocationCode | null = null

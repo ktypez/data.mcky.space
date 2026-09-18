@@ -10,7 +10,7 @@ type GL = typeof import('maplibre-gl')
 
 async function loadGL(): Promise<GL> {
   const [mod] = await Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')])
-  return (mod.default ?? mod) as GL
+  return ((mod as unknown as { default?: GL }).default ?? mod) as GL
 }
 
 export interface MapPreviewProps {
