@@ -1,7 +1,8 @@
 // Web Vitals reporting utility
-// Sends LCP, FID, CLS, INP, TTFB, andFCP to analytics endpoint
+// Sends LCP, CLS, INP, TTFB, FCP to analytics endpoint
+// Note: FID (First Input Delay) was deprecated in v5, replaced by INP
 
-import { onCLS, onFID, onLCP, onTTFB, onFCP, onINP } from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Helper to send data to analytics
 const sendToAnalytics = (data: {
@@ -22,11 +23,10 @@ const sendToAnalytics = (data: {
 
 export function getWebVitals() {
   onCLS(sendToAnalytics);
-  onFID(sendToAnalytics);
-  onLCP(sendToAnalytics);
-  onTTFB(sendToAnalytics);
   onFCP(sendToAnalytics);
   onINP(sendToAnalytics);
+  onLCP(sendToAnalytics);
+  onTTFB(sendToAnalytics);
   
   return null;
 }

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { webVitalsReport } from './vite-webvitals-plugin.mjs'
 import path from 'path'
 
 const projectRoot = import.meta.dirname
@@ -10,6 +11,7 @@ export default defineConfig({
   plugins: [
     react({ include: '**/*.{jsx,tsx}' }),
     tailwindcss(),
+    webVitalsReport(),
     VitePWA({
       // Prompt flow: a new SW installs and WAITS; the UI shows an
       // "update available" banner and only applies it on user action.
