@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>ล้างแคช + Service Worker — data.mcky.space</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #15151d; color: #eee; margin: 0; padding: 24px; }
+  main { max-width: 480px; margin: 8vh auto; }
+  #log { background: #000; border-radius: 12px; padding: 16px; font-family: monospace; font-size: 13px; line-height: 1.8; white-space: pre-wrap; min-height: 120px; }
+  button { display: block; width: 100%; margin-top: 16px; padding: 14px; font-size: 16px; border-radius: 12px; border: 0; background: #4f8cff; color: #fff; cursor: pointer; }
+  button:disabled { opacity: .5; }
+  a { color: #4f8cff; }
+</style>
+</head>
+<body>
+<main>
+  <h1>ล้างแคช + Service Worker</h1>
+  <p>หน้านี้จะ unregister Service Worker ทั้งหมด ลบ Cache ทั้งหมด แล้วพากลับหน้าหลัก</p>
+  <div id="log">กำลังล้าง…</div>
+  <button id="back" disabled>กลับหน้าหลัก</button>
+</main>
+<script>
+(function () {
+  var log = document.getElementById('log');
+  var back = document.getElementById('back');
+  function line(s) { log.textContent += '\n' + s; }
+  function done() {
+    back.disabled = false;
+    back.onclick = function () { location.replace('/'); };
+    line('\nเสร็จแล้ว — กดปุ่มกลับหน้าหลัก');
+    setTimeout(function () { location.replace('/'); }, 2500);
+  }
+  (async function () {
+    try {
+      if ('serviceWorker' in navigator) {
+        var regs = await navigator.serviceWorker.getRegistrations();
+        line('SW registrations: ' + regs.length);
+        await Promise.all(regs.map(function (r) { return r.unregister(); }));
+        line('unregistered ทุกตัวแล้ว');
+      } else {
+        line('ไม่มี serviceWorker API');
+      }
+      if ('caches' in window) {
+        var names = await caches.keys();
+        line('caches: ' + (names.length ? names.join(', ') : '(ว่าง)'));
+        await Promise.all(names.map(function (n) { return caches.delete(n); }));
+        line('ลบ cache เกลี้ยงแล้ว');
+      } else {
+        line('ไม่มี Cache API');
+      }
+    } catch (e) {
+      line('ERROR: ' + (e && e.message || e));
+    }
+    done();
+  })();
+})();
+</script>
+</body>
+</html>

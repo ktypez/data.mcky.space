@@ -1,17 +1,17 @@
 import { useEffect, useRef } from 'react'
-import { getMapStyle } from '@/lib/map-styles'
+import { isDarkMode } from '@/lib/map-styles'
 
 export function useMapDarkMode(
-  onStyleChange: (style: string) => void,
+  onStyleChange: (dark: boolean) => void,
 ) {
-  const currentStyleRef = useRef(getMapStyle())
+  const currentRef = useRef(isDarkMode())
 
   useEffect(() => {
     const check = () => {
-      const newStyle = getMapStyle()
-      if (currentStyleRef.current !== newStyle) {
-        currentStyleRef.current = newStyle
-        onStyleChange(newStyle)
+      const dark = isDarkMode()
+      if (currentRef.current !== dark) {
+        currentRef.current = dark
+        onStyleChange(dark)
       }
     }
     const observer = new MutationObserver(check)

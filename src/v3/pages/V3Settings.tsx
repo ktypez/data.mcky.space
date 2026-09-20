@@ -1,9 +1,9 @@
-import { ArrowLeft, DownloadSimple, LockKey, Monitor, Moon, Palette, SignOut, Sun } from '@phosphor-icons/react'
-import { NavLink } from 'react-router-dom'
+import { useState } from 'react'
+import { ArrowsClockwise, DownloadSimple, LockKey, Monitor, Moon, Palette, SignOut, Sun } from '@phosphor-icons/react'
 import { V3CustomCssButton } from '../components/V3CustomCssDialog'
 import { usePwaInstall } from '../hooks/usePwaInstall'
 import { useAuthStore, logout } from '@/stores/auth-store'
-
+import { manuallyUpdateApp, getRememberedRegistration } from '@/lib/pwa-update'
 type V3Mode = 'auto' | 'light' | 'dark'
 
 type Props = {
@@ -14,12 +14,19 @@ type Props = {
 export default function V3Settings({ mode, setMode }: Props) {
   const { isSignedIn, setLoginOpen } = useAuthStore()
   const { canInstall, isIOS, install } = usePwaInstall()
+  const [appUpdateState, setAppUpdateState] = useState<'idle' | 'checking' | 'latest' | 'error'>('idle')
+  const checkForAppUpdate = async () => {
+    setAppUpdateState('checking')
+    try {
+      const result = await manuallyUpdateApp(getRememberedRegistration())
+      setAppUpdateState(result === 'updated' ? 'checking' : 'latest')
+    } catch {
+      setAppUpdateState('error')
+    }
+  }
 
   return (
     <section className="mx-auto max-w-xl px-5 pb-8 pt-6 sm:px-6">
-      <NavLink to="/" className="mb-8 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
-        <ArrowLeft size={18} /> กลับหน้าหลัก
-      </NavLink>
       <div className="mb-7 flex items-start gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Palette size={26} weight="duotone" />
@@ -59,6 +66,7 @@ export default function V3Settings({ mode, setMode }: Props) {
           <h2 className="mb-2 text-sm font-semibold">แอปและบัญชี</h2>
           <div className="space-y-1">
             {canInstall && <button onClick={() => isIOS ? undefined : void install()} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><DownloadSimple size={18} /> ติดตั้งแอป{isIOS && <span className="ml-auto text-xs text-muted-foreground">ใช้เมนู Share ใน Safari</span>}</button>}
+            <button onClick={() => void checkForAppUpdate()} disabled={appUpdateState === 'checking'} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted disabled:opacity-60"><ArrowsClockwise size={18} className={appUpdateState === 'checking' ? 'animate-spin' : undefined} /> {appUpdateState === 'checking' ? 'กำลังตรวจหาอัปเดต…' : 'ตรวจหาอัปเดตแอป'}{appUpdateState === 'latest' && <span className="ml-auto text-xs text-muted-foreground">เป็นเวอร์ชันล่าสุด</span>}{appUpdateState === 'error' && <span className="ml-auto text-xs text-destructive">ตรวจสอบไม่สำเร็จ</span>}</button>
             {isSignedIn ? <button onClick={() => void logout()} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><SignOut size={18} /> ออกจากระบบ</button> : <button onClick={() => setLoginOpen(true)} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><LockKey size={18} /> เข้าสู่ระบบ</button>}
           </div>
         </section>

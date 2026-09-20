@@ -288,24 +288,16 @@
   }
 }
 
-.maplibregl-popup-content {
+/* Leaflet raster fallback (no-WebGL devices). */
+.leaflet-container {
+  background: var(--muted);
+  font-family: inherit;
+}
+.leaflet-control-zoom a {
   background: var(--card) !important;
-  color: var(--card-foreground) !important;
-  border-radius: var(--radius-lg) !important;
-  box-shadow: var(--shadow-lg) !important;
-  padding: 10px 12px !important;
-  font-family: var(--theme-font-body) !important;
-}
-.maplibregl-popup-tip {
-  border-top-color: var(--card) !important;
-}
-.maplibregl-popup-close-button {
-  color: var(--muted-foreground) !important;
-  font-size: 18px !important;
-  padding: 2px 6px !important;
-}
-.maplibregl-popup-close-button:hover {
   color: var(--foreground) !important;
+  border-color: var(--border) !important;
 }
+
 
 

@@ -1,4 +1,13 @@
-// Check only while the app is in use; background tabs must not poll.
+let currentRegistration: ServiceWorkerRegistration | undefined
+
+export function rememberRegistration(registration: ServiceWorkerRegistration): void {
+  currentRegistration = registration
+}
+
+export function getRememberedRegistration(): ServiceWorkerRegistration | undefined {
+  return currentRegistration
+}
+
 export function startUpdateChecks(registration: ServiceWorkerRegistration): () => void {
   let busy = false
   let stopped = false
@@ -28,4 +37,16 @@ export async function acceptUpdate(
   confirm: () => boolean,
 ): Promise<void> {
   if (confirm()) await apply(true)
+}
+
+export async function manuallyUpdateApp(
+  registration: ServiceWorkerRegistration | undefined,
+  reload: () => void = () => window.location.reload(),
+): Promise<'updated' | 'latest'> {
+  if (!registration) return 'latest'
+  await registration.update()
+  if (!registration.waiting) return 'latest'
+  registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+  reload()
+  return 'updated'
 }

@@ -13,7 +13,7 @@ function Placeholder() {
 const MapPreviewLazy = lazyLoad(() => import('./MapPreview'), <Placeholder />)
 
 /** Mount the GL preview only when it scrolls near the viewport, so opening
-    a record doesn't pull the 1MB maplibre chunk unless the user scrolls
+    a record doesn't pull the leaflet chunk unless the user scrolls
     down to the map. Layout is preserved by the same placeholder. */
 export default function MapPreviewDynamic(props: MapPreviewProps) {
   const ref = useRef<HTMLDivElement>(null)

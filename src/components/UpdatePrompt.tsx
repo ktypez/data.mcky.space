@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
-import { acceptUpdate, startUpdateChecks } from '@/lib/pwa-update'
+import { acceptUpdate, rememberRegistration, startUpdateChecks } from '@/lib/pwa-update'
 
 export function UpdatePrompt() {
   const [registration, setRegistration] = useState<ServiceWorkerRegistration>()
   const [error, setError] = useState(false)
   const [applying, setApplying] = useState(false)
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW({
-    onRegisteredSW(_url, reg) { setRegistration(reg) },
+    onRegisteredSW(_url, reg) { setRegistration(reg); if (reg) rememberRegistration(reg) },
     onRegisterError() { /* Online app remains usable if SW is unavailable. */ },
   })
   useEffect(() => registration ? startUpdateChecks(registration) : undefined, [registration])

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import { Trash } from '@phosphor-icons/react'
 import { useAuthStore } from '@/stores/auth-store'
 import { useClientStore } from '@/stores/client-store'
 import { treatyClient, treatyHeaders } from '@/lib/treaty'
@@ -31,11 +32,23 @@ export default function V3Trash(){
     else if((e.key==='Delete' || e.key==='Backspace') && items[focused]) setConfirm(items[focused])
   }
   return (
-    <div className="mx-auto w-full max-w-md px-6 pt-10 pb-28">
-      <h1 className="text-center text-xl font-semibold tracking-tight">Trash</h1>
-      <p className="mt-1 text-center font-mono text-xs opacity-40">{loading?'loading…': <>{items.length} items · ↑↓ to focus · Enter to restore</>}</p>
+    <section className="mx-auto max-w-xl px-5 pb-8 pt-6 sm:px-6">
+      <div className="mb-7 flex items-start gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+          <Trash size={26} weight="duotone" />
+        </div>
+        <div>
+          <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Admin · Recycle bin</p>
+          <h1 className="text-2xl font-semibold tracking-tight">ถังขยะ</h1>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">กู้คืนหรือลบรายการที่ไม่ต้องการอย่างถาวร</p>
+        </div>
+      </div>
+      <div className="mb-4 flex items-center justify-between rounded-2xl border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
+        <span>{loading ? 'กำลังโหลด…' : `${items.length} รายการ`}</span>
+        <span className="font-mono opacity-60">↑↓ เลือก · Enter กู้คืน</span>
+      </div>
       {error && <p role="alert" className="mt-4 rounded-xl border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</p>}
-      <div tabIndex={0} onKeyDown={onKeyDown} className="mt-6 overflow-hidden rounded-2xl border border-border bg-card shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+      <div tabIndex={0} onKeyDown={onKeyDown} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
         {items.map((c,i)=>(
           <div key={c.id} role="button" tabIndex={-1} onMouseEnter={()=>setFocused(i)} onClick={()=>void restore(c.id)} className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left ${i===focused?'bg-primary text-primary-foreground':'hover:bg-muted/50'} border-b border-border last:border-0`}>
             {c.images[0]? <AppImage src={c.images[0]} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-cover border border-black/10"/> : <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-mono ${i===focused?'bg-background text-foreground':'bg-muted text-muted-foreground'}`}>{(c.shopName[0]||c.name[0]||'·').trim().charAt(0).toUpperCase()}</span>}
@@ -52,6 +65,6 @@ export default function V3Trash(){
         {!loading && items.length===0 && !error && <div className="p-8 text-center text-sm opacity-50">trash empty</div>}
       </div>
       {confirm && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"><div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl"><h2 className="font-semibold">delete forever?</h2><p className="mt-2 text-sm opacity-60">“{confirm.name[0]||confirm.shopName[0]||confirm.id.slice(0,8)}” จะหายถาวร</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={()=>setConfirm(null)} className="rounded-full border border-border px-4 py-2 text-sm">cancel</button><button type="button" disabled={busy} onClick={()=>void forceDelete(confirm.id)} className="rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground disabled:opacity-60">{busy?'deleting…':'delete forever'}</button></div></div></div>}
-    </div>
+    </section>
   )
 }

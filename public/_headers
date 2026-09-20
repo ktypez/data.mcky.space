@@ -1,32 +1,6 @@
-# Cloudflare Pages headers — cache policy
-# Assets are content-hashed by Vite (hash in filename), so they can be cached
-# immutably for a year. index.html and sw.js must stay fresh (hash changes
-# every build; SW needs to revalidate to pick up new assets).
-
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
-
-/themes/*
-  Cache-Control: public, max-age=31536000, immutable
-
-/favicon.svg
-  Cache-Control: public, max-age=31536000, immutable
-
-/icon-192.png
-  Cache-Control: no-cache
-
-/icon-512.png
-  Cache-Control: no-cache
-
-/manifest.json
-  Content-Type: application/manifest+json
-  Cache-Control: no-cache
-
-/sw-cleanup.js
-  Cache-Control: no-cache
-
-/index.html
-  Cache-Control: public, max-age=0, must-revalidate
-
-/sw.js
-  Cache-Control: no-cache
+1|
+2|# Rate limiting headers (Cloudflare handles actual rate limiting)
+3|# Rate limiting is configured on Cloudflare dashboard
+# HSTS header (1 year max-age)
+*  
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload

@@ -41,14 +41,14 @@ export default defineConfig({
       ),
       clsx: path.resolve(projectRoot, 'node_modules/clsx'),
       'tailwind-merge': path.resolve(projectRoot, 'node_modules/tailwind-merge'),
-      'maplibre-gl': path.resolve(projectRoot, 'node_modules/maplibre-gl'),
+      leaflet: path.resolve(projectRoot, 'node_modules/leaflet'),
       cookie: path.resolve(projectRoot, 'src/shims/cookie.js'),
       'set-cookie-parser': path.resolve(projectRoot, 'src/shims/set-cookie-parser.js'),
     },
     dedupe: [
       'react',
       'react-dom',
-      'maplibre-gl',
+      'leaflet',
       'class-variance-authority',
       'clsx',
       'tailwind-merge',
@@ -56,7 +56,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: [
-      'maplibre-gl',
+      'leaflet',
       'class-variance-authority',
       'clsx',
       'tailwind-merge',
@@ -67,7 +67,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules/maplibre-gl')) {
+          if (id.includes('node_modules/leaflet')) {
             return 'map'
           }
           if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
