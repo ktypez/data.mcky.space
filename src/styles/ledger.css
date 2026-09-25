@@ -2,7 +2,7 @@
 html:has(.ledger-shell),
 body:has(.ledger-shell) {
   height: 100%;
-  overscroll-behavior-y: auto;
+  overscroll-behavior-y: none;
 }
 #root:has(.ledger-shell) {
   height: 100%;

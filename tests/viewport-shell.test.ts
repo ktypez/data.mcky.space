@@ -12,7 +12,8 @@ const settings = read('src/pages/Settings.tsx')
 describe('locked application viewport', () => {
   it('keeps page overscroll available while giving long pages an internal scroll area', () => {
     expect(shell).toContain('body:has(.ledger-shell)')
-    expect(shell).toContain('overscroll-behavior-y: auto')
+    expect(shell).toContain('overscroll-behavior-y: none')
+    expect(shell).not.toContain('overscroll-behavior-y: auto')
     expect(shell).toMatch(/body:has\(\.ledger-shell\)\s*\{[^}]*\}/s)
     expect(shell.match(/body:has\(\.ledger-shell\)\s*\{[^}]*\}/s)?.[0]).not.toContain('overflow: hidden')
     expect(shell).toContain('#root:has(.ledger-shell)')
