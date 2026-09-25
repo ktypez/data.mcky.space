@@ -32,24 +32,25 @@ export default function PhotoSection({ images, onImagesChange, uploading, thumbs
 
   return (
     <div className="space-y-1">
-      <Label>รูปร้านค้า</Label>
+      <Label id="photo-section-label">รูปร้านค้า</Label>
       <div className="flex flex-wrap gap-2">
         {images.map((src, i) => (
           <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
             {src.startsWith('data:image') || src.startsWith('http') ? (
-              <AppImage src={src} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+              <AppImage src={src} alt={`รูปที่ ${i + 1}`} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-card flex items-center justify-center text-xs text-muted-foreground">?</div>
             )}
             <Button
+              type="button"
               variant="default"
-              size="icon-xs"
-              className="absolute top-0.5 right-0.5 rounded-full"
+              size="icon"
+              className="absolute right-0.5 top-0.5 !h-11 !w-11 rounded-full"
               onClick={() => handleRemove(i)}
               disabled={uploading}
               aria-label="ลบรูปภาพ"
             >
-              <X className="w-3 h-3" />
+              <X className="w-3 h-3" aria-hidden />
             </Button>
           </div>
         ))}

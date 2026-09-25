@@ -1,0 +1,67 @@
+/* Custom palette: values are injected as --custom-* by src/lib/app-theme.ts. */
+[data-theme='custom'] {
+  --custom-background: #ffffff;
+  --custom-surface: #ffffff;
+  --custom-text: #111111;
+  --custom-primary: #2563eb;
+  --custom-primary-foreground: #ffffff;
+  --custom-border: #d1d5db;
+
+  --background: var(--custom-background);
+  --foreground: var(--custom-text);
+  --card: var(--custom-surface);
+  --card-foreground: var(--custom-text);
+  --popover: var(--custom-surface);
+  --popover-foreground: var(--custom-text);
+  --primary: var(--custom-primary);
+  --primary-foreground: var(--custom-primary-foreground);
+  --secondary: color-mix(in srgb, var(--custom-surface) 78%, var(--custom-background));
+  --secondary-foreground: var(--custom-text);
+  --muted: color-mix(in srgb, var(--custom-surface) 78%, var(--custom-background));
+  --muted-foreground: color-mix(in srgb, var(--custom-text) 72%, var(--custom-background));
+  --accent: var(--custom-primary);
+  --accent-foreground: var(--custom-primary-foreground);
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #15803d;
+  --success-foreground: #ffffff;
+  --warning: #a16207;
+  --warning-foreground: #ffffff;
+  --info: var(--custom-primary);
+  --info-foreground: var(--custom-primary-foreground);
+  --border: var(--custom-border);
+  --input: var(--custom-border);
+  --ring: var(--custom-primary);
+  --sidebar: var(--custom-surface);
+  --sidebar-foreground: var(--custom-text);
+  --sidebar-accent: color-mix(in srgb, var(--custom-primary) 14%, var(--custom-surface));
+  --sidebar-accent-foreground: var(--custom-text);
+  --sidebar-border: var(--custom-border);
+  --sidebar-ring: var(--custom-primary);
+  --radius: 0.5rem;
+  --pin-color: var(--custom-primary);
+
+  --theme-font-display: 'Inter', 'Sarabun', system-ui, sans-serif;
+  --theme-font-body: 'Inter', 'Sarabun', system-ui, sans-serif;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.dark[data-theme='custom'],
+[data-theme='custom'].dark {
+  --destructive: #f87171;
+  --destructive-foreground: #0f172a;
+  --success: #4ade80;
+  --success-foreground: #0f172a;
+  --warning: #fbbf24;
+  --warning-foreground: #0f172a;
+}
+
+[data-theme='custom'] body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+[data-theme='custom'] ::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}

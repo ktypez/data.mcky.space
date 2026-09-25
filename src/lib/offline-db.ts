@@ -1,6 +1,6 @@
 import type { CachedResponse, ResponseStorage } from './data-cache'
 
-const DB_NAME = 'ezzydata-offline'
+const DB_NAME = 'data-ledger-offline'
 const DB_VERSION = 3
 const RESPONSE_STORE = 'public-responses'
 const CACHE_TTL = 30 * 24 * 60 * 60 * 1000

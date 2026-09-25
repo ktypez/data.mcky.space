@@ -21,7 +21,7 @@ export function getTileUrl(dark = false): string {
 
 export function isDarkMode(): boolean {
   if (typeof document === 'undefined') return false
-  const shell = document.querySelector('.v3-shell') as HTMLElement | null
+  const shell = document.querySelector('.ledger-shell') as HTMLElement | null
   if (shell) {
     const mode = shell.getAttribute('data-mode')
     if (mode === 'dark') return true

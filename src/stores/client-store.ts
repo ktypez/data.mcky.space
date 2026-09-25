@@ -1,4 +1,3 @@
-
 import { create } from 'zustand'
 import type { Client } from '@/types/index'
 import { fetchClients, fetchClientList, peekClientList, getDataReadState, subscribeDataReadState } from '@/lib/storage'
@@ -7,7 +6,6 @@ import { listItemToClient } from '@/lib/list-item'
 interface ClientState {
   clients: Client[]
   totalCount: number
-  displayLimit: number
   selectedIds: Set<string>
   selectionMode: boolean
   refreshing: boolean
@@ -19,8 +17,6 @@ interface ClientState {
   lastChecked: number
   setClients: (clients: Client[]) => void
   setTotalCount: (count: number) => void
-  setDisplayLimit: (limit: number) => void
-  incrementDisplayLimit: (step: number) => void
   setSelectedIds: (ids: Set<string>) => void
   toggleSelect: (id: string) => void
   toggleSelectAll: (allIds: string[]) => void
@@ -31,6 +27,7 @@ interface ClientState {
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   updateClient: (id: string, updates: Partial<Client>) => void
+  upsertClient: (client: Client) => void
   addClient: (client: Client) => void
   removeClient: (id: string) => void
   initialize: () => Promise<void>
@@ -43,7 +40,6 @@ let request = 0
 export const useClientStore = create<ClientState>((set, get) => ({
   clients: [],
   totalCount: 0,
-  displayLimit: 20,
   selectedIds: new Set(),
   selectionMode: false,
   refreshing: false,
@@ -56,9 +52,6 @@ export const useClientStore = create<ClientState>((set, get) => ({
 
   setClients: (clients) => { mutation++; set({ clients, totalCount: clients.length }) },
   setTotalCount: (totalCount) => set({ totalCount }),
-  setDisplayLimit: (displayLimit) => set({ displayLimit }),
-  incrementDisplayLimit: (step) =>
-    set((s) => ({ displayLimit: s.displayLimit + step })),
   setSelectedIds: (selectedIds) => set({ selectedIds }),
   toggleSelect: (id) =>
     set((s) => {
@@ -87,6 +80,20 @@ export const useClientStore = create<ClientState>((set, get) => ({
       // edited client surfaces at the top immediately, no refresh needed.
       return { clients: next.sort((a, b) => b.updatedAt - a.updatedAt) }
     }),
+  upsertClient: (client) => {
+    mutation++
+    set((s) => {
+      const full = { ...client, thumb: client.thumb ?? null }
+      const exists = s.clients.some((c) => c.id === client.id)
+      const clients = exists
+        ? s.clients.map((c) => (c.id === client.id ? full : c))
+        : [full, ...s.clients]
+      return {
+        clients: clients.sort((a, b) => b.updatedAt - a.updatedAt),
+        totalCount: clients.length,
+      }
+    })
+  },
   addClient: (client) => {
     mutation++
     set((s) => { const clients = [client, ...s.clients.filter(c => c.id !== client.id)]; return { clients, totalCount: clients.length } })

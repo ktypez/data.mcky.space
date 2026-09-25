@@ -30,12 +30,12 @@ try {
   // Manifest document does not auto-register the app worker.
   await evaluate(`navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister())))`)
   // Seed only disposable caches in an isolated browser profile to test migration.
-  await evaluate(`Promise.all(['ezzy-v2','api-cache','r2-images','unrelated-test'].map(n=>caches.open(n)))`)
+  await evaluate(`Promise.all(['legacy-v2','api-cache','r2-images','unrelated-test'].map(n=>caches.open(n)))`)
   const sw = await evaluate(`(async()=>{await navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'});const r=await navigator.serviceWorker.ready;return r.active.scriptURL})()`)
   assert.equal(sw, BASE + '/sw.js')
   await evaluate(`new Promise((resolve,reject)=>{let n=0;const t=setInterval(async()=>{const keys=await caches.keys();if(!keys.includes('api-cache')&&navigator.serviceWorker.controller){clearInterval(t);resolve(true)}else if(++n>100){clearInterval(t);reject(Error('activation timeout'))}},100)})`)
   const keys = await evaluate('caches.keys()')
-  for (const k of ['ezzy-v2','api-cache','r2-images']) assert.ok(!keys.includes(k), k)
+  for (const k of ['legacy-v2','api-cache','r2-images']) assert.ok(!keys.includes(k), k)
   assert.ok(keys.includes('unrelated-test'))
   const manifest = await evaluate(`fetch('/manifest.json').then(r=>r.json())`)
   assert.equal(manifest.id, '/')

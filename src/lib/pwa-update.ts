@@ -1,5 +1,7 @@
 let currentRegistration: ServiceWorkerRegistration | undefined
 
+export type UpdateResult = 'updated' | 'latest'
+
 export function rememberRegistration(registration: ServiceWorkerRegistration): void {
   currentRegistration = registration
 }
@@ -42,7 +44,7 @@ export async function acceptUpdate(
 export async function manuallyUpdateApp(
   registration: ServiceWorkerRegistration | undefined,
   reload: () => void = () => window.location.reload(),
-): Promise<'updated' | 'latest'> {
+): Promise<UpdateResult> {
   if (!registration) return 'latest'
   await registration.update()
   if (!registration.waiting) return 'latest'

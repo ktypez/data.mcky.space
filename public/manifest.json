@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "EzzyList",
-  "short_name": "EzzyList",
-  "description": "จัดเก็บข้อมูลลูกค้า ร้านค้า ที่อยู่ พิกัด และรูปภาพ",
+  "name": "DATA Ledger",
+  "short_name": "DATA Ledger",
+  "description": "ระบบจัดเก็บข้อมูลลูกค้า ร้านค้า ที่อยู่ พิกัด และรูปภาพ",
   "lang": "th",
   "start_url": "/",
   "scope": "/",

@@ -37,11 +37,12 @@ const clients: Client[] = [
 ]
 
 describe('applyCounts', () => {
-  it('counts total, withImages, noImages, recent, penpay in a single pass', () => {
+  it('counts total, withImages, noImages, notes, recent, penpay in a single pass', () => {
     expect(applyCounts(clients, cutoff)).toEqual({
       total: 4,
       withImages: 2,
       noImages: 2,
+      notes: 0,
       recent: 1,
       penpay: 1,
       credit: 0,
@@ -53,6 +54,7 @@ describe('applyCounts', () => {
       total: 0,
       withImages: 0,
       noImages: 0,
+      notes: 0,
       recent: 0,
       penpay: 0,
       credit: 0,
@@ -123,6 +125,17 @@ describe('applyFilter', () => {
   it('NoImages returns clients with empty images array', () => {
     const out = applyFilter(clients, '', FilterKey.NoImages, cutoff)
     expect(out.map((c) => c.id).sort()).toEqual(['b', 'd'])
+  })
+
+  it('Notes returns clients with note text or a lightweight list indicator', () => {
+    const list = [
+      mk({ id: 'with-note', name: 'A', notes: 'ติดตามสัปดาห์หน้า' }),
+      mk({ id: 'list-note', name: 'B', notes: null, hasNotes: true }),
+      mk({ id: 'empty-note', name: 'C', notes: '   ', hasNotes: false }),
+      mk({ id: 'no-note', name: 'D' }),
+    ]
+    expect(applyFilter(list, '', FilterKey.Notes, cutoff).map((c) => c.id)).toEqual(['with-note', 'list-note'])
+    expect(applyCounts(list, cutoff).notes).toBe(2)
   })
 
   it('Recent uses the cutoff strictly (> not >=)', () => {

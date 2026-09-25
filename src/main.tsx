@@ -6,7 +6,10 @@ import { thTH } from '@clerk/localizations'
 import ErrorScreen from '@/components/ErrorScreen'
 import App from './App'
 import { UpdatePrompt } from './components/UpdatePrompt'
+import { startPwaInstallListener } from './lib/pwa-install'
 import './index.css'
+
+startPwaInstallListener()
 
 const CLERK_PUBLISHABLE_KEY =
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ??

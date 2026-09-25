@@ -79,7 +79,9 @@ export function formatDate(ts: number): string {
 
 /** Check whether lat/lng coordinates are present and not NaN. */
 export function hasValidCoords(lat: number | null | undefined, lng: number | null | undefined): boolean {
-  return lat != null && lng != null && !Number.isNaN(lat) && !Number.isNaN(lng)
+  return lat != null && lng != null &&
+    Number.isFinite(lat) && Number.isFinite(lng) &&
+    lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
 }
 
 /** Generate a short unique ID (client-side). */

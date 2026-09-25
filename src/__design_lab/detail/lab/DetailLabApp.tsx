@@ -46,7 +46,7 @@ export default function DetailLabApp(){
             {variants.map(v=> <NavLink key={v.id} to={`/__design_lab/detail/${v.id}`} className={({isActive})=>`rounded-full px-3 py-1 text-xs whitespace-nowrap ${isActive?'bg-black text-white':'hover:bg-black/5'}`}>{v.label.split('·')[0].trim()}</NavLink>)}
           </nav>
           <div className="ml-auto hidden gap-1 md:flex">
-            <NavLink to="/v3" className="rounded-full border border-black/10 px-3 py-1 text-xs">V3 →</NavLink>
+            <NavLink to="/" className="rounded-full border border-black/10 px-3 py-1 text-xs">DATA Ledger →</NavLink>
             <NavLink to="/__design_lab/pages" className="rounded-full border border-black/10 px-3 py-1 text-xs">Pages Lab →</NavLink>
           </div>
         </div>

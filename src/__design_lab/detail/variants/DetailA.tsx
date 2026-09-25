@@ -3,7 +3,7 @@ import AppImage from '@/components/AppImage'
 import ClientNames from '@/components/ClientNames'
 import { mockDetail } from '../mock'
 
-// A · Document — 72ch airy, divide-y (current v3 is this)
+// A · Document — 72ch airy, divide-y (current DATA Ledger layout)
 export default function DetailA(){
   const _real = useClientStore((s:any)=> s.clients.find((x:any)=> x.id==='mtdpwvfvsdcu') || s.clients[0])
   const c = (_real as any) || mockDetail

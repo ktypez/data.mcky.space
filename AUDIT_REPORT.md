@@ -97,7 +97,7 @@ Hooked into `clients/trash.ts` GET alongside `purgeExpiredTrash(db)`. Uses exist
 | -------- | ------------------------------------ | ---------------------------------------------- |
 | Source   | Cloudflare D1 (SQLite)               | `clients`, `suggestions`, `settings`, `audit_log` |
 | Storage  | Cloudflare R2 (public)               | `clients/<id>/<ts>.<ext>` photos               |
-| Cache    | IndexedDB (`ezzydata-offline` v2)    | `clients` TTL 30d + periodic purge             |
+| Cache    | IndexedDB (`data-ledger-offline` v2)    | `clients` TTL 30d + periodic purge             |
 
 **Lifecycle:** UI → `/api/*` → D1 + R2 → IDB cache
 **Soft delete:** `settings.trash:v1:<id>` (client) + `settings.trash:v1:<id>:suggestions` (parallel). 30-day TTL, lazy cleanup on read.

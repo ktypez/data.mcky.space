@@ -1,6 +1,6 @@
 import type { Client, ClientListItem } from '@/types/index'
 import { responseStorage } from '@/lib/offline-db'
-import { createDataCache, type DataResult } from '@/lib/data-cache'
+import { createDataCache, DataHttpError, type DataResult } from '@/lib/data-cache'
 import { clerkToken } from '@/lib/api'
 import { treatyClient, treatyHeaders } from '@/lib/treaty'
 import { normalizeClients, normalizeClient, coerceStringArray } from '@/lib/clientNames'
@@ -23,7 +23,12 @@ export async function peekClientList(): Promise<ClientListItem[] | undefined> {
   if (result) return normalizeList(recordRead(result))
 }
 function normalizeList(data: ClientListItem[]): ClientListItem[] {
-  return data.map(row => ({ ...row, name: coerceStringArray(row.name), shopName: coerceStringArray(row.shopName) }))
+  return data.map(row => ({
+    ...row,
+    name: coerceStringArray(row.name),
+    shopName: coerceStringArray(row.shopName),
+    hasNotes: Boolean(row.hasNotes),
+  }))
 }
 
 /** True if the string is a base64-embedded image data URL (too large for D1). */
@@ -99,6 +104,16 @@ export async function fetchClients(): Promise<Client[]> {
   return normalizeClients(data)
 }
 
+export async function fetchClientMap(): Promise<Client[]> {
+  try {
+    const data = recordRead(await dataCache.get<Record<string, unknown>[]>(`${WORKER_BASE}/api/clients/map`))
+    return normalizeClients(data).map(client => ({ ...client, notes: null }))
+  } catch (error) {
+    if (error instanceof DataHttpError && error.status === 404) return fetchClients()
+    throw error
+  }
+}
+
 /** Revalidate every read; only an exact URL/body/ETag snapshot is reused. */
 export async function fetchClientList(): Promise<ClientListItem[]> {
   return normalizeList(recordRead(await dataCache.get<ClientListItem[]>(`${WORKER_BASE}/api/clients/list`)))
@@ -116,14 +131,33 @@ export async function peekClientById(id: string): Promise<Client | null> {
   }
 }
 
-/** Missing offline detail remains unavailable, never fabricated from catalog fields. */
-export async function fetchClientById(id: string): Promise<Client | null> {
+export type ClientFetchResult =
+  | { status: 'found'; client: Client; offline: false }
+  | { status: 'offline'; client: Client | null }
+  | { status: 'not-found' }
+  | { status: 'error'; error: unknown }
+
+/** Fetch a detail record without collapsing HTTP and transport failures. */
+export async function fetchClientByIdResult(id: string): Promise<ClientFetchResult> {
   try {
-    const data = recordRead(await dataCache.get<Record<string, unknown>>(`${WORKER_BASE}/api/clients/${encodeURIComponent(id)}?raw=true`))
-    return normalizeClient(data)
-  } catch {
-    return null
+    const result = await dataCache.get<Record<string, unknown>>(`${WORKER_BASE}/api/clients/${encodeURIComponent(id)}?raw=true`)
+    const client = normalizeClient(recordRead(result))
+    return result.offline ? { status: 'offline', client } : { status: 'found', client, offline: false }
+  } catch (error) {
+    if (error instanceof DataHttpError && (error.status === 404 || error.status === 410)) {
+      return { status: 'not-found' }
+    }
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      return { status: 'offline', client: null }
+    }
+    return { status: 'error', error }
   }
+}
+
+/** Backwards-compatible detail read for callers that only need data-or-null. */
+export async function fetchClientById(id: string): Promise<Client | null> {
+  const result = await fetchClientByIdResult(id)
+  return result.status === 'found' || result.status === 'offline' ? result.client ?? null : null
 }
 
 export async function addClient(client: Client, onProgress?: (pct: number) => void, photoThumbs?: Record<string, string | null>): Promise<Client> {

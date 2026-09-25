@@ -100,7 +100,7 @@ export default function MapPicker({ lat, lng, onChange }: MapPickerProps) {
       )}
       <div className="absolute bottom-1 right-1 z-10 flex items-center gap-1">
         <span className={`rounded-md bg-black/70 px-2 py-1 font-mono text-[9px] leading-none text-white backdrop-blur ${attrOpen ? '' : 'hidden'}`}>{TILE_ATTRIBUTION}</span>
-        <button type="button" onClick={(e) => { e.stopPropagation(); setAttrOpen((v) => !v) }} aria-label={attrOpen ? 'ซ่อนเครดิต' : 'แสดงเครดิต'} className="flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-[10px] font-bold text-white backdrop-blur hover:bg-black/70">©</button>
+        <button type="button" onClick={(e) => { e.stopPropagation(); setAttrOpen((v) => !v) }} aria-label={attrOpen ? 'ซ่อนเครดิต' : 'แสดงเครดิต'} className="flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-[10px] font-bold text-white backdrop-blur hover:bg-black/70">©</button>
       </div>
     </div>
   )

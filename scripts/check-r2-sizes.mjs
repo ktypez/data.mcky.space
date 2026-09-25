@@ -2,7 +2,7 @@
 // check-r2-sizes.mjs — Check image sizes in Cloudflare R2 bucket
 //
 // Usage: node scripts/check-r2-sizes.mjs [bucket-name]
-// Default bucket: ezzylist
+// Existing Cloudflare R2 bucket; keep this aligned with api/wrangler.toml.
 
 import { readFileSync } from 'node:fs'
 import { homedir } from 'node:os'

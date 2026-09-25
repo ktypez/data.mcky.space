@@ -10,6 +10,8 @@ export interface Client {
   thumb?: string | null
   badge: string | null
   notes: string | null
+  /** Lightweight list rows expose only this indicator, never note contents. */
+  hasNotes?: boolean
   createdAt: number
   updatedAt: number
 }
@@ -26,6 +28,7 @@ export interface ClientListItem {
   /** Derived R2 thumb (clients/{id}/t/{base}.jpg). Null for old photos. */
   thumb: string | null
   badge: string | null
+  hasNotes: boolean
   updatedAt: number
   createdAt: number
 }
@@ -34,6 +37,7 @@ export enum FilterKey {
   All = 'all',
   WithImages = 'with-images',
   NoImages = 'no-images',
+  Notes = 'notes',
   Recent = 'recent',
   Penpay = 'penpay',
   Credit = 'credit',

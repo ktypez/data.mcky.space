@@ -182,7 +182,7 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
         ) : compressing ? (
           <div className="flex flex-col items-center gap-3 py-8">
             <Spinner className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">กำลังบีบอัดรูป...</p>
+            <p className="text-sm text-muted-foreground">กำลังบีบอัดรูป…</p>
           </div>
         ) : done ? (
           <div className="space-y-3">
@@ -192,12 +192,12 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
               </div>
               <p className="text-sm text-muted-foreground">เพิ่มรูปสำเร็จ!</p>
             </div>
-            <Button className="w-full" onClick={handleClose}>ตกลง</Button>
+            <Button type="button" className="w-full" onClick={handleClose}>ตกลง</Button>
           </div>
         ) : (
           <div className="space-y-3">
             {previewUrl && (
-              <img src={previewUrl} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
+              <img src={previewUrl} alt="ตัวอย่างรูปที่อัปโหลด" className="w-full h-48 object-cover rounded-lg" />
             )}
             <div className="flex items-center gap-3 rounded-lg border border-border p-3">
               <div className="flex-1 min-w-0">
@@ -209,7 +209,7 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
                   )}
                 </p>
               </div>
-              <Button variant="ghost" size="icon-xs" onClick={reset}>
+              <Button type="button" variant="ghost" size="icon-xs" onClick={reset}>
                 <X className="w-3.5 h-3.5" />
               </Button>
             </div>
@@ -217,8 +217,8 @@ export default function PhotoUploadModal({ open, onOpenChange, onCompressed }: P
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
             <div className="flex gap-2">
-              <Button variant="secondary" className="flex-1" onClick={handleClose}>ยกเลิก</Button>
-              <Button className="flex-1" onClick={handleConfirm}>เพิ่มรูป</Button>
+              <Button type="button" variant="secondary" className="flex-1" onClick={handleClose}>ยกเลิก</Button>
+              <Button type="button" className="flex-1" onClick={handleConfirm}>เพิ่มรูป</Button>
             </div>
           </div>
         )}

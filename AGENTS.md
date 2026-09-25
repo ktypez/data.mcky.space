@@ -1,17 +1,15 @@
 # data.mcky.space
 
-## KB
-Project context is stored in Second Brain (brain.mcky.space via secondbrain MCP).
-Use `recall` to retrieve context, `remember` to save new info.
-- `recall query="data.mcky.space project"` — tech stack, architecture
-- `recall query="data.mcky.space agent"` — personality, triggers, commands
-- Tags: `data.mcky.space`, `project`
+## Memory
+Project context is stored in the shared agentmemory service under the stable project slug `data`.
+- Use `memory_recall` before non-trivial work and `memory_file_history` before editing established files.
+- Save durable outcomes with `memory_save`, always setting `project: "data"`.
 
 ## Stack
 - Vite 8 + React 19 + TypeScript
 - Tailwind CSS 4 + Zustand
 - Cloudflare D1 (SQLite) + R2 storage
-- MapLibre GL JS (lazy-loaded)
+- MapLibre-free Leaflet map (lazy-loaded)
 - Deploy: Cloudflare Pages (wrangler deploy + _routes.json static-asset routing)
 
 ## Package Manager
@@ -25,7 +23,7 @@ Use `recall` to retrieve context, `remember` to save new info.
 - build: `npm run build` (vite only — เร็ว, ไม่ตรวจ types)
 - build:full: `npm run typecheck && npm run build` (tsc + vite — ตรวจครบก่อน release)
 - typecheck: `npm run typecheck` (`tsc --noEmit`)
-- test: `npm test` (watch) / `npm run test:run` (run once — 70 tests)
+- test: `npm test` (watch) / `npm run test:run` (run once)
 - health: `node scripts/health-check.mjs` (ต้องมี playwright chromium; ไม่มี → fallback curl smoke test)
 - deploy: `npm run deploy` (build vite + upload to Cloudflare Pages with --branch main)
 - wrangler any: `npm run wrangler <subcmd>` (auto-unsets `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` to force OAuth)
@@ -47,13 +45,12 @@ Use `recall` to retrieve context, `remember` to save new info.
 - git auto-deploy is OFF — manual `npm run deploy` required
 - branch: `main`
 
-## UI Versions (V3 = default, classic = /old)
-- **V3 is the main design** — `src/v3/**` (V3App shell, pages Catalog / Record /
-  Editor / Trash, styles scoped in `src/v3/styles/v3.css`), served at `/`.
-- Legacy "classic" UI was moved for real to `src/old/**` (pages, components, hooks,
-  lib, stores) and is routed under `/old/*` from `src/App.tsx`. Shared code
-  (ClientNames, form fields, map, photo, stores, lib) stays top-level in `src/`.
-- Old v2 "registry" experiment was deleted; do not reintroduce `src/v2`.
+## UI
+- **DATA Ledger V3** is the only application UI. Its shell and routes live in
+  `src/App.tsx`; pages are under `src/pages/`; shared components remain top-level.
+- The V3 label is product version metadata only; filenames and runtime identifiers
+  stay version-neutral.
+- The complete catalog is virtualized and renders only the visible row window.
 - Deploying from a git worktree auto-detects a non-production branch → PREVIEW deploy
   (custom domain won't update!). Always pass `--branch main`:
   `npm run wrangler -- pages deploy ./dist --project-name data-mcky-space --branch main`

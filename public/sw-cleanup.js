@@ -1,13 +1,13 @@
-// sw-cleanup.js — imported by the generated workbox service worker.
-// Evicts every cache written by the previous hand-rolled sw.js (ezzy-v2) so
-// stale shells from the old SW cannot survive the upgrade.
-// Activation is user-controlled; never skipWaiting during install.
+// Remove legacy application caches before Workbox takes ownership.
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
       const names = await caches.keys()
-      await Promise.all(names.filter((n) => ['ezzy-v2', 'api-cache', 'r2-images'].includes(n)).map((n) => caches.delete(n)))
-      // Workbox owns clientsClaim after the user accepts an update.
+      await Promise.all(
+        names
+          .filter((name) => name.endsWith('-v2') || name === 'api-cache' || name === 'r2-images')
+          .map((name) => caches.delete(name)),
+      )
     })(),
   )
 })

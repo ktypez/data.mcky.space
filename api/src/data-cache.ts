@@ -5,16 +5,21 @@ export const clientCorsHeaders = {
 }
 
 // ----------------------------------------------------------------------------
-// Catalog revision ETags — `rev-N`, not a hash of the body, so a revalidation
-// costs one indexed settings-row read (done by the caller) instead of a full
-// D1 scan + SHA-256 over every client row. Every clients-table mutation must
-// bump the counter (see bumpClientsRev in index.ts); trash/audit purges don't
-// touch clients data and don't bump. This module stays pure (no D1 import) so
-// the contract is unit-testable from the frontend workspace.
+// Catalog revision ETags — revision-based, not a hash of the body, so a
+// revalidation costs one indexed settings-row read instead of a full D1 scan.
+// Response-shape changes add a path contract suffix; data mutations bump the
+// revision (see bumpClientsRev in index.ts). This module stays pure for tests.
 // ----------------------------------------------------------------------------
 
 export function revEtag(rev: number): string {
   return `"rev-${rev}"`
+}
+
+/** Bump the path contract when a cached response shape changes. */
+export function clientDataEtag(path: string, rev: number): string {
+  return path === '/api/clients/list'
+    ? `"rev-${rev}-list-notes-v1"`
+    : revEtag(rev)
 }
 
 export function etagMatches(request: Request, etag: string): boolean {
@@ -39,7 +44,7 @@ export async function clientDataResponse(
   // A null/negative rev means the counter was unreadable — skip ETag handling
   // entirely rather than serving a made-up validator.
   if (rev == null || rev < 0) return
-  const etag = revEtag(rev)
+  const etag = clientDataEtag(path, rev)
   if (etagMatches(request, etag)) {
     return new Response(null, {
       status: 304,

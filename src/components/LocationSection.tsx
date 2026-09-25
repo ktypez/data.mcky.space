@@ -70,7 +70,7 @@ export default function LocationSection({ lat, lng, onCoordsChange }: LocationSe
     if (coords) {
       onCoordsChange(coords.lat, coords.lng)
       setLocQuery('')
-      setLocFeedback({ ok: true, msg: `📍 ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` })
+      setLocFeedback({ ok: true, msg: `ตำแหน่ง: ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` })
       setLocSearching(false)
       return
     }
@@ -92,7 +92,7 @@ export default function LocationSection({ lat, lng, onCoordsChange }: LocationSe
         }
         onCoordsChange(d.latitudeCenter, d.longitudeCenter)
         setLocQuery('')
-        setLocFeedback({ ok: true, msg: `📍 ${d.latitudeCenter.toFixed(4)}, ${d.longitudeCenter.toFixed(4)}` })
+        setLocFeedback({ ok: true, msg: `ตำแหน่ง: ${d.latitudeCenter.toFixed(4)}, ${d.longitudeCenter.toFixed(4)}` })
       } else {
         setLocFeedback({ ok: false, msg: 'ไม่รู้จักพิกัดนี้ — ลองละติจูด,ลองจิจูด เช่น 13.7563, 100.5018' })
       }
@@ -105,8 +105,8 @@ export default function LocationSection({ lat, lng, onCoordsChange }: LocationSe
 
   return (
     <div className="space-y-1.5">
-      <Label className="flex items-center gap-1">
-        <MapPin className="w-3.5 h-3.5" /> ตำแหน่ง
+      <Label htmlFor="location-query" className="flex items-center gap-1">
+        <MapPin className="w-3.5 h-3.5" aria-hidden /> ตำแหน่ง
       </Label>
       <MapPicker
         lat={lat}
@@ -115,6 +115,8 @@ export default function LocationSection({ lat, lng, onCoordsChange }: LocationSe
       />
       <div className="flex gap-1.5">
         <Input
+          id="location-query"
+          name="location-query"
           type="text"
           value={locQuery}
           onChange={(e) => { setLocQuery(e.target.value); setLocFeedback(null) }}
@@ -131,14 +133,14 @@ export default function LocationSection({ lat, lng, onCoordsChange }: LocationSe
           disabled={locSearching || !locQuery.trim()}
         >
           {locSearching ? (
-            <span className="text-xs">...</span>
+            <span className="text-xs">…</span>
           ) : (
             <MagnifyingGlass className="w-3.5 h-3.5" />
           )}
         </Button>
       </div>
       {locFeedback && (
-        <p className={`text-[13px] ${locFeedback.ok ? 'text-success' : 'text-destructive'}`}>
+        <p role="status" className={`text-[13px] ${locFeedback.ok ? 'text-success' : 'text-destructive'}`}>
           {locFeedback.msg}
         </p>
       )}
@@ -152,7 +154,7 @@ export default function LocationSection({ lat, lng, onCoordsChange }: LocationSe
           disabled={locating}
         >
           <Crosshair className="w-3.5 h-3.5" />
-          {locating ? 'กำลังค้นหา...' : 'ใช้ตำแหน่งปัจจุบัน'}
+          {locating ? 'กำลังค้นหา…' : 'ใช้ตำแหน่งปัจจุบัน'}
         </Button>
         <span className="text-[13px] text-muted-foreground/60">หรือแตะบนแผนที่</span>
       </div>

@@ -13,8 +13,8 @@ export default function FormBadgeField({ badge, onChange, visible }: FormBadgeFi
   ]
 
   return (
-    <div className="space-y-2">
-      <p className="text-sm font-medium">ประเภทชำระ</p>
+    <fieldset className="space-y-2">
+      <legend className="text-sm font-medium">ประเภทชำระ</legend>
       <div className="flex gap-2">
         {options.map(opt => {
           const active = badge === opt.value
@@ -22,15 +22,16 @@ export default function FormBadgeField({ badge, onChange, visible }: FormBadgeFi
             <button
               key={opt.value}
               type="button"
+              aria-pressed={active}
               onClick={() => onChange(active ? null : opt.value)}
-              className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${active ? 'bg-foreground text-background border-foreground' : 'bg-card border-border hover:bg-muted'}`}
+              className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${active ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted'}`}
             >
               {opt.label}
             </button>
           )
         })}
       </div>
-      {badge && <p className="text-xs opacity-50">เลือก “{options.find(o=>o.value===badge)?.label}” — กดอีกครั้งเพื่อเอาออก</p>}
-    </div>
+      {badge && <p className="text-xs opacity-60">เลือก “{options.find(o=>o.value===badge)?.label}” — กดอีกครั้งเพื่อเอาออก</p>}
+    </fieldset>
   )
 }

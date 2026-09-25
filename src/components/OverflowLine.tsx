@@ -65,7 +65,7 @@ export default function OverflowLine({
       className={`relative overflow-hidden whitespace-nowrap ${className}`}
     >
       {values.slice(0, visible).join(separator)}
-      {overflow > 0 && <span className="text-muted-foreground"> +{overflow}</span>}
+      {overflow > 0 && <span className="text-current opacity-60"> +{overflow}</span>}
       {/* Hidden measurer — inherits the container's font, never painted. */}
       <span
         ref={measureRef}

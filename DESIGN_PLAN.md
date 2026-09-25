@@ -1,42 +1,41 @@
-# DESIGN_PLAN — v3 Registry (locked from Lab F)
+# DESIGN_PLAN — DATA Ledger V3
 
-**Chosen:** Variant F — Command + C pill (E ทั้งหมด + filter pill แบบ C, avatar ใช้รูป)
-**Source:** Design Lab `/__design_lab/f` → synthesized from E (keyboard palette) + C (dense mono pill)
-**Locked:** 2026-08-30
+**Status:** Locked and implemented
+**Direction:** Command catalog with dense filter pills, compact records, and shared themes
 
-## Tokens
-- Isolation: `html:has(.v3-shell)` + `.v3-shell` (ไม่ชน v2/classic)
-- Light only: --background oklch(98% 0.005 95) warm, --foreground near-black 18%, --card white, --border 88%, --radius 16px
-- Font: Inter + Noto Sans Thai (body), mono for pills/kbd
-- Pill: `.v3-pill[data-active]` — active=bg-foreground text-background, inactive=muted
+## Shell and routes
 
-## Components
-- `src/v3/V3App.tsx` — shell + routing /v3, /v3/c/:id, /v3/add, /v3/edit/:id, /v3/trash
-- `src/v3/pages/V3Catalog.tsx` — command list: search (⌘K) + C-style dense pill (mono, counts) + focused row (bg-foreground) + avatar round image (AppImage) + keyboard ArrowUp/Down Enter
-- `src/v3/pages/V3Record.tsx` — header avatar round image, copy/link, edit/delete, map, photos lightbox
-- `src/v3/pages/V3Editor.tsx` — reuse InlineAddEditView
-- `src/v3/pages/V3Trash.tsx` — avatar round image + restore/force delete
-- `src/v3/styles/v3.css` — isolation contract
+- `src/App.tsx` owns the application shell, navigation, route guards, and page loading.
+- `/` renders the complete virtualized catalog.
+- `/c/:id` renders a client record and lazy-loads full details.
+- `/add` and `/edit/:id` render the shared editor workflow.
+- `/trash`, `/maps`, and `/settings` are top-level application routes.
+- `/__design_lab/detail` is the retained detail-design reference route.
 
-## A11y
-- Search input autoFocus, aria-label, keyboard nav
-- Row role=button? uses button element (accessible)
-- Pill aria via data-active
-- Focus ring via outline
-- Contrast: foreground on background 16:1, muted 4.5:1+
+## Catalog
 
-## Avatar Change (requested)
-- From: letter initial in circle
-- To: `AppImage` src={c.images[0]} rounded-full 28x28 (catalog), 56x56 (record), 40x40 (trash) — fallback to initial if no image
+- `src/pages/Catalog.tsx` provides search, keyboard navigation, filter counts, copy actions, and row navigation.
+- The full filtered result set remains in memory while `@tanstack/react-virtual` renders only the visible row window plus a small overscan.
+- The lightweight list response includes `hasNotes`, allowing the Notes filter without downloading note contents for every client.
+- The Notes filter also accepts full records whose note text is already loaded.
 
-## Next steps
-- Verify at /v3: keyboard, filter, navigation, avatar image loads
-- If need dark mode, add [data-mode] variant later
-- Cleanup: `design-lab:cleanup` removes `src/__design_lab` and `.design-lab` if no longer needed (keep global skill)
+## Record and editor
 
-## Routes
-- /v3 → V3Catalog (Command)
-- /v3/c/:id → V3Record
-- /v3/add, /v3/edit/:id → V3Editor
-- /v3/trash → V3Trash
-- /__design_lab/* → Lab (keep for reference)
+- `src/pages/Record.tsx` uses semantic rows, resilient image fallbacks, copy feedback, detail status, and an on-demand map.
+- `src/pages/Editor.tsx` shares name, badge, notes, address, photo, and location components with the rest of the application.
+- Dirty-form protection prevents accidental navigation while edits are unsaved.
+- Authentication gates all mutating actions on both client and API.
+
+## Visual system
+
+- `src/styles/ledger.css` defines the application shell and structural CSS without embedding a single theme palette.
+- `src/lib/design/themes.ts` and `src/lib/app-theme.ts` provide shared light/dark themes, mode persistence, and custom palettes.
+- `src/components/AppThemePicker.tsx` uses `@uiw/react-color` for custom color selection and reports unsafe text contrast combinations.
+- Theme fonts, background treatments, and color tokens are applied consistently across catalog, records, editor, maps, and settings.
+
+## Accessibility and resilience
+
+- Search, filters, dialogs, rows, tabs, uploads, and status regions have explicit labels or semantic controls.
+- Keyboard focus is visible, dialogs restore focus, and reduced-motion preferences are respected.
+- Deep links hydrate their data before rendering.
+- Stale thumbnails fall back cleanly, map instances are disposed on exit, and offline/404 states are explicit.

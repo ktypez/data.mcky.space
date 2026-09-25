@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Client, ClientListItem } from '@/types'
 const reads = vi.hoisted(() => ({ list: vi.fn(), full: vi.fn(), peek: vi.fn() }))
 vi.mock('./storage', () => ({ fetchClientList: reads.list, fetchClients: reads.full, peekClientList: reads.peek, getDataReadState: () => ({ offline: false, lastChecked: 123 }), subscribeDataReadState: () => () => {} }))
-const row = { id: 'a', name: ['a'], shopName: [], image: null, thumb: null, badge: null, createdAt: 1, updatedAt: 1 } satisfies ClientListItem
+const row = { id: 'a', name: ['a'], shopName: [], image: null, thumb: null, badge: null, hasNotes: false, createdAt: 1, updatedAt: 1 } satisfies ClientListItem
 const client = { ...row, address: 'full', images: [], lat: null, lng: null, notes: null } satisfies Client
 beforeEach(() => { vi.resetModules(); vi.clearAllMocks(); reads.peek.mockResolvedValue(undefined) })
 describe('catalog store reconciliation', () => {
@@ -22,6 +22,16 @@ describe('catalog store reconciliation', () => {
     await vi.waitFor(() => expect(store.getState().loading).toBe(false))
     expect(store.getState().error).toBeTruthy()
   })
+  it('upserts full records and clears stale list thumbnails', async () => {
+    const { useClientStore: store } = await import('@/stores/client-store')
+    store.setState({ clients: [{ ...client, thumb: 'https://example.test/old.jpg' }] })
+    store.getState().upsertClient({ ...client, address: 'updated' })
+    expect(store.getState().clients[0]).toMatchObject({ address: 'updated', thumb: null })
+
+    store.getState().upsertClient({ ...client, id: 'b' })
+    expect(store.getState().clients.map(item => item.id)).toContain('b')
+  })
+
   it('does not resurrect a local deletion from an in-flight refresh', async () => {
     const { useClientStore: store } = await import('@/stores/client-store')
     let resolve!: (clients: Client[]) => void

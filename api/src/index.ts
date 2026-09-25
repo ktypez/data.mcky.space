@@ -7,7 +7,7 @@ import { drizzle } from 'drizzle-orm/d1'
 import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core'
 import { desc, eq, sql, like, and, or, lt } from 'drizzle-orm'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
-import { clientDataResponse, clientCorsHeaders, etagMatches, revEtag } from './data-cache'
+import { clientDataEtag, clientDataResponse, clientCorsHeaders, etagMatches } from './data-cache'
 
 // ----------------------------------------------------------------------------
 // CORS — frontend runs on data.mcky.space, API on data-api.fall3n.workers.dev
@@ -143,6 +143,15 @@ function coerceStringArray(value: unknown): string[] {
 
 function serializeNames(value: unknown): string {
   return JSON.stringify(coerceStringArray(value))
+}
+
+function normalizeCoords(lat: unknown, lng: unknown): { lat: number | null; lng: number | null } {
+  if (typeof lat !== 'number' || typeof lng !== 'number' ||
+      !Number.isFinite(lat) || !Number.isFinite(lng) ||
+      lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return { lat: null, lng: null }
+  }
+  return { lat, lng }
 }
 
 function normalizeClient<T extends Record<string, unknown>>(row: T): T & { name: string[]; shopName: string[] } {
@@ -281,6 +290,21 @@ const ClientShape = t.Object({
   updatedAt: t.Number(),
 })
 
+const ClientMapShape = t.Object({
+  id: t.String(),
+  name: t.Array(t.String()),
+  shopName: t.Array(t.String()),
+  address: t.String(),
+  lat: t.Union([t.Number(), t.Null()]),
+  lng: t.Union([t.Number(), t.Null()]),
+  images: t.Array(t.String()),
+  thumb: t.Union([t.String(), t.Null()]),
+  badge: t.Union([t.String(), t.Null()]),
+  notes: t.Null(),
+  createdAt: t.Number(),
+  updatedAt: t.Number(),
+})
+
 // Lightweight catalog item — name/shopName are RAW db strings here.
 const ClientListItemShape = t.Object({
   id: t.String(),
@@ -289,6 +313,7 @@ const ClientListItemShape = t.Object({
   image: t.Union([t.String(), t.Null()]),
   thumb: t.Union([t.String(), t.Null()]),
   badge: t.Union([t.String(), t.Null()]),
+  hasNotes: t.Boolean(),
   updatedAt: t.Number(),
   createdAt: t.Number(),
 })
@@ -408,7 +433,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     if (!isClientsRead(request) || !request.headers.get('If-None-Match')) return
     const rev = await getClientsRev(createDb())
     if (rev < 0) return
-    const etag = revEtag(rev)
+    const etag = clientDataEtag(new URL(request.url).pathname, rev)
     if (etagMatches(request, etag)) {
       return new Response(null, {
         status: 304,
@@ -489,6 +514,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
           shopName: clientsTable.shopName,
           images: clientsTable.images,
           badge: clientsTable.badge,
+          hasNotes: sql<number>`CASE WHEN NULLIF(TRIM(${clientsTable.notes}), '') IS NULL THEN 0 ELSE 1 END`,
           updatedAt: clientsTable.updatedAt,
           createdAt: clientsTable.createdAt,
         })
@@ -504,6 +530,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
           image,
           thumb: thumbUrl(image),
           badge: r.badge,
+          hasNotes: Boolean(r.hasNotes),
           updatedAt: r.updatedAt,
           createdAt: r.createdAt,
         }
@@ -518,14 +545,15 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     const data = body as Record<string, unknown>
     const id = typeof data.id === 'string' ? data.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
     const now = Date.now()
+    const coords = normalizeCoords(data.lat, data.lng)
 
     await db.insert(clientsTable).values({
       id,
       name: serializeNames(data.name),
       shopName: serializeNames(data.shopName),
       address: String(data.address ?? ''),
-      lat: typeof data.lat === 'number' ? data.lat : null,
-      lng: typeof data.lng === 'number' ? data.lng : null,
+      lat: coords.lat,
+      lng: coords.lng,
       images: Array.isArray(data.images) ? data.images : [],
       badge: typeof data.badge === 'string' ? data.badge : null,
       notes: typeof data.notes === 'string' ? data.notes : null,
@@ -540,6 +568,34 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   }, {
     admin: true,
     body: ClientInputShape,
+  })
+
+  // --- lightweight map points (no notes or full photo payloads) ---
+  .get('/api/clients/map', async () => {
+    const db = createDb()
+    const rows = await db
+      .select({
+        id: clientsTable.id,
+        name: clientsTable.name,
+        shopName: clientsTable.shopName,
+        address: clientsTable.address,
+        lat: clientsTable.lat,
+        lng: clientsTable.lng,
+        images: clientsTable.images,
+        badge: clientsTable.badge,
+        createdAt: clientsTable.createdAt,
+        updatedAt: clientsTable.updatedAt,
+      })
+      .from(clientsTable)
+      .orderBy(desc(clientsTable.updatedAt), clientsTable.id)
+
+    return rows.map(row => {
+      const image = Array.isArray(row.images) && row.images.length > 0 ? row.images[0] : null
+      const normalized = normalizeClient(row)
+      return { ...normalized, notes: null, thumb: thumbUrl(image) }
+    })
+  }, {
+    response: t.Array(ClientMapShape),
   })
 
   // --- clients count (edge-cached 60s — count rarely changes) ---
@@ -663,18 +719,20 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   .put('/api/clients/:id', async ({ request, params, body }) => {
     const db = createDb()
     const data = body as Record<string, unknown>
+    const coords = normalizeCoords(data.lat, data.lng)
 
-    await db.update(clientsTable).set({
+    const result = await db.update(clientsTable).set({
       name: serializeNames(data.name),
       shopName: serializeNames(data.shopName),
       address: String(data.address ?? ''),
-      lat: typeof data.lat === 'number' ? data.lat : null,
-      lng: typeof data.lng === 'number' ? data.lng : null,
+      lat: coords.lat,
+      lng: coords.lng,
       images: Array.isArray(data.images) ? data.images : [],
       badge: typeof data.badge === 'string' ? data.badge : null,
       notes: typeof data.notes === 'string' ? data.notes : null,
       updatedAt: Date.now(),
     }).where(eq(clientsTable.id, params.id))
+    if (result.meta.changes === 0) return status(404, { error: 'Not found' })
 
     void logAudit(request, { action: 'client.update', target: params.id })
     await bumpClientsRev(db)
@@ -683,6 +741,10 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     admin: true,
     params: t.Object({ id: t.String() }),
     body: ClientInputShape,
+    response: {
+      200: t.Object({ ok: t.Boolean() }),
+      404: t.Object({ error: t.String() }),
+    },
   })
   .delete('/api/clients/:id', async ({ request, params }) => {
     const db = createDb()

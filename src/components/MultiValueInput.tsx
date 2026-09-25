@@ -49,6 +49,7 @@ export default function MultiValueInput({
             maxLength={maxLength}
             variant={variant}
             placeholder={placeholder}
+            aria-label={i === 0 ? placeholder : `${placeholder ?? 'ค่า'} ${i + 1}`}
             autoFocus={autoFocus && i === 0}
             autoComplete="off"
             spellCheck={false}
@@ -70,7 +71,7 @@ export default function MultiValueInput({
               type="button"
               onClick={add}
               aria-label={addLabel}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background hover:opacity-90"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" weight="bold" />
             </Button>
@@ -80,7 +81,7 @@ export default function MultiValueInput({
               type="button"
               onClick={add}
               aria-label={addLabel}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background hover:opacity-90"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" weight="bold" />
             </Button>
@@ -104,7 +105,7 @@ export default function MultiValueInput({
           type="button"
           onClick={add}
           aria-label={addLabel}
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background hover:opacity-90"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Plus className="h-4 w-4" weight="bold" />
         </Button>
