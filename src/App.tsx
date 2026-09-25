@@ -72,10 +72,10 @@ function App() {
       <nav className="ledger-bottom-nav relative z-50 shrink-0 border-t border-border bg-card/95 backdrop-blur" aria-label="หลัก">
         <div className="mx-auto flex h-[4.5rem] max-w-xl items-center justify-around px-3 pb-[env(safe-area-bottom)]">
           <NavLink to="/" end onClick={guardNavigation} aria-label="หน้าหลัก" className={({ isActive }) => `ledger-nav-item ${isActive ? 'is-active' : ''}`}><House weight="fill" size={21} aria-hidden /><span>หน้าหลัก</span></NavLink>
-          {isAdmin ? <NavLink to="/add" onClick={guardNavigation} aria-label="เพิ่มรายการ" className="ledger-add-button"><Plus weight="bold" size={25} aria-hidden /></NavLink> : <span aria-label="เพิ่มรายการ" aria-disabled="true" className="ledger-add-button opacity-40 bg-muted text-muted-foreground border border-border grayscale"><Plus weight="bold" size={25} aria-hidden /></span>}
           <NavLink to="/maps" onClick={guardNavigation} aria-label="แผนที่" className={({ isActive }) => `ledger-nav-item ${isActive ? 'is-active' : ''}`}><MapTrifold size={21} aria-hidden /><span>แผนที่</span></NavLink>
           <button type="button" onClick={event => { if (isFormDirty() && !window.confirm('มีข้อมูลที่ยังไม่บันทึก ต้องการรีเฟรชหน้าไหม?')) { event.preventDefault(); return } window.location.reload() }} aria-label="รีเฟรชหน้า" className="ledger-nav-item"><ArrowClockwise size={21} aria-hidden /><span>รีเฟรช</span></button>
           <button type="button" onClick={event => { guardNavigation(event); if (!event.defaultPrevented) navigate('/settings') }} aria-label="เมนูและการตั้งค่า" className={`ledger-nav-item ${location.pathname === '/settings' ? 'is-active' : ''}`}><Gear size={21} aria-hidden /><span>เมนู</span></button>
+          {isAdmin ? <NavLink to="/add" onClick={guardNavigation} aria-label="เพิ่มรายการ" className="ledger-add-button"><Plus weight="bold" size={25} aria-hidden /></NavLink> : <span aria-label="เพิ่มรายการ" aria-disabled="true" className="ledger-add-button opacity-40 bg-muted text-muted-foreground border border-border grayscale"><Plus weight="bold" size={25} aria-hidden /></span>}
         </div>
       </nav>
       <CommandPalette />
