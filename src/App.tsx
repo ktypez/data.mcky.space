@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, useLocation, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
-import { House, Plus, Trash, Gear, MapTrifold } from '@phosphor-icons/react'
+import { ArrowClockwise, House, Plus, Trash, Gear, MapTrifold } from '@phosphor-icons/react'
 import { Loading } from '@/components/Loading'
 import { AuthSync } from '@/components/AuthSync'
 import { useClientStore } from '@/stores/client-store'
@@ -75,6 +75,7 @@ function App() {
           {isAdmin ? <NavLink to="/trash" onClick={guardNavigation} aria-label="ถังขยะ" className={({ isActive }) => `ledger-nav-item ${isActive ? 'is-active' : ''}`}><Trash size={21} aria-hidden /><span>ถังขยะ</span></NavLink> : <span aria-label="ถังขยะ" aria-disabled="true" className="ledger-nav-item opacity-40"><Trash size={21} aria-hidden /><span>ถังขยะ</span></span>}
           {isAdmin ? <NavLink to="/add" onClick={guardNavigation} aria-label="เพิ่มรายการ" className="ledger-add-button"><Plus weight="bold" size={25} aria-hidden /></NavLink> : <span aria-label="เพิ่มรายการ" aria-disabled="true" className="ledger-add-button opacity-40 bg-muted text-muted-foreground border border-border grayscale"><Plus weight="bold" size={25} aria-hidden /></span>}
           <NavLink to="/maps" onClick={guardNavigation} aria-label="แผนที่" className={({ isActive }) => `ledger-nav-item ${isActive ? 'is-active' : ''}`}><MapTrifold size={21} aria-hidden /><span>แผนที่</span></NavLink>
+          <button type="button" onClick={event => { if (isFormDirty() && !window.confirm('มีข้อมูลที่ยังไม่บันทึก ต้องการรีเฟรชหน้าไหม?')) { event.preventDefault(); return } window.location.reload() }} aria-label="รีเฟรชหน้า" className="ledger-nav-item"><ArrowClockwise size={21} aria-hidden /><span>รีเฟรช</span></button>
           <button type="button" onClick={event => { guardNavigation(event); if (!event.defaultPrevented) navigate('/settings') }} aria-label="เมนูและการตั้งค่า" className={`ledger-nav-item ${location.pathname === '/settings' ? 'is-active' : ''}`}><Gear size={21} aria-hidden /><span>เมนู</span></button>
         </div>
       </nav>
