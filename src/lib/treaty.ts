@@ -12,11 +12,14 @@ export const treatyClient = treaty<App>(WORKER_BASE)
 // Auth mirrors the old apiFetch: Clerk Bearer when a session exists, omitted
 // for guests. Pass per call on admin routes — inline headers win over config:
 //   await treatyClient.api.clients.list.get({ headers: await treatyHeaders() })
-export async function treatyHeaders(): Promise<Record<string, string>> {
+export async function treatyHeaders(idempotencyKey?: string): Promise<Record<string, string>> {
+  const headers: Record<string, string> = {}
   try {
     const token = await clerkToken()
-    return token ? { Authorization: `Bearer ${token}` } : {}
+    if (token) headers.Authorization = `Bearer ${token}`
   } catch {
-    return {}
+    // An unauthenticated request will be rejected by the API gate.
   }
+  if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey
+  return headers
 }

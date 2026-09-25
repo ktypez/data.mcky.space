@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useAuth, useClerk } from '@clerk/clerk-react'
 import { useAuthStore } from '@/stores/auth-store'
+import { flushClientMutations } from '@/lib/offline-mutations'
 
 export function AuthSync() {
   const { isLoaded, isSignedIn, getToken } = useAuth()
@@ -11,6 +12,7 @@ export function AuthSync() {
     const admin = !!isSignedIn
     useAuthStore.getState().setAdmin(admin)
     useAuthStore.getState().setSignedIn(!!isSignedIn)
+    useAuthStore.getState().setUserId(isSignedIn ? (clerk.user?.id ?? null) : null)
     useAuthStore.getState().setChecking(false)
     // Stash the token-minting fn so the treaty client can attach the Bearer header
     // on write calls (Clerk exposes getToken only inside a provider/hook).
@@ -36,6 +38,16 @@ export function AuthSync() {
       },
     )
   }, [isLoaded, isSignedIn, getToken, clerk])
+
+  useEffect(() => {
+    const flush = () => {
+      const userId = useAuthStore.getState().userId
+      if (userId) void flushClientMutations(userId)
+    }
+    window.addEventListener('online', flush)
+    flush()
+    return () => window.removeEventListener('online', flush)
+  }, [isLoaded, isSignedIn])
 
   return null
 }

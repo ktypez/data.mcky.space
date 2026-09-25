@@ -100,6 +100,29 @@ async function isAdminReq(request: Request): Promise<boolean> {
 }
 const verifiedTokens = new Map<string, number>()
 
+async function idempotencyKey(request: Request): Promise<string | null> {
+  const supplied = request.headers.get('Idempotency-Key')?.trim()
+  const auth = request.headers.get('authorization')?.trim()
+  if (!supplied || supplied.length > 200 || !auth) return null
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${auth}:${supplied}`))
+  const hash = Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join('')
+  return `idem:v1:${hash}`
+}
+
+async function replayIdempotent(db: ReturnType<typeof createDb>, request: Request): Promise<any> {
+  const key = await idempotencyKey(request)
+  if (!key) return null
+  const [row] = await db.select().from(settingsTable).where(eq(settingsTable.key, key))
+  if (!row) return null
+  try { return JSON.parse(row.value) as Record<string, unknown> } catch { return null }
+}
+
+async function storeIdempotent(db: ReturnType<typeof createDb>, request: Request, value: Record<string, unknown>): Promise<void> {
+  const key = await idempotencyKey(request)
+  if (!key) return
+  await db.insert(settingsTable).values({ key, value: JSON.stringify(value) }).onConflictDoNothing()
+}
+
 // ----------------------------------------------------------------------------
 // Geo helpers (L2 fix: round to ~11m)
 // ----------------------------------------------------------------------------
@@ -542,6 +565,8 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   // --- clients create ---
   .post('/api/clients', async ({ request, body, set }) => {
     const db = createDb()
+    const replay = await replayIdempotent(db, request)
+    if (replay) return replay
     const data = body as Record<string, unknown>
     const id = typeof data.id === 'string' ? data.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
     const now = Date.now()
@@ -564,7 +589,9 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     void logAudit(request, { action: 'client.create', target: id, payload: { name: String(data.name ?? '') } })
     await bumpClientsRev(db)
     set.status = 201
-    return { ok: true, id }
+    const response = { ok: true, id }
+    await storeIdempotent(db, request, response)
+    return response
   }, {
     admin: true,
     body: ClientInputShape,
@@ -718,6 +745,8 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   })
   .put('/api/clients/:id', async ({ request, params, body }) => {
     const db = createDb()
+    const replay = await replayIdempotent(db, request)
+    if (replay) return replay
     const data = body as Record<string, unknown>
     const coords = normalizeCoords(data.lat, data.lng)
 
@@ -736,7 +765,9 @@ const app = new Elysia({ adapter: CloudflareAdapter })
 
     void logAudit(request, { action: 'client.update', target: params.id })
     await bumpClientsRev(db)
-    return { ok: true }
+    const response = { ok: true }
+    await storeIdempotent(db, request, response)
+    return response
   }, {
     admin: true,
     params: t.Object({ id: t.String() }),
@@ -748,6 +779,8 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   })
   .delete('/api/clients/:id', async ({ request, params }) => {
     const db = createDb()
+    const replay = await replayIdempotent(db, request)
+    if (replay) return replay
     const [row] = await db.select().from(clientsTable).where(eq(clientsTable.id, params.id))
     if (!row) return status(404, { error: 'Not found' })
 
@@ -758,7 +791,9 @@ const app = new Elysia({ adapter: CloudflareAdapter })
 
     void logAudit(request, { action: 'client.delete', target: params.id })
     await bumpClientsRev(db)
-    return { ok: true }
+    const response = { ok: true }
+    await storeIdempotent(db, request, response)
+    return response
   }, {
     admin: true,
     params: t.Object({ id: t.String() }),

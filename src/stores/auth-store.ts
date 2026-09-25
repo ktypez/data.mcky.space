@@ -22,6 +22,8 @@ interface AuthState {
   // Signed-in flag (back-compat with old code that read useAuthStore()).
   isSignedIn: boolean
   setSignedIn: (v: boolean) => void
+  userId: string | null
+  setUserId: (v: string | null) => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -37,6 +39,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   setSignOut: (signOut) => set({ signOut }),
   isSignedIn: false,
   setSignedIn: (v) => set({ isSignedIn: v }),
+  userId: null,
+  setUserId: (userId) => set({ userId }),
 }))
 
 // Store-level logout used by legacy components (e.g. NavDropdown).

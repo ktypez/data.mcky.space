@@ -1,11 +1,24 @@
 import type { Client, ClientListItem } from '@/types/index'
-import { responseStorage } from '@/lib/offline-db'
+import { responseStorage, putClient as putOfflineClient, deleteClient as deleteOfflineClient } from '@/lib/offline-db'
+import { enqueueClientMutation } from '@/lib/offline-mutations'
+import { useAuthStore } from '@/stores/auth-store'
 import { createDataCache, DataHttpError, type DataResult } from '@/lib/data-cache'
 import { clerkToken } from '@/lib/api'
 import { treatyClient, treatyHeaders } from '@/lib/treaty'
 import { normalizeClients, normalizeClient, coerceStringArray } from '@/lib/clientNames'
 
 const WORKER_BASE = 'https://data-api.fall3n.workers.dev'
+function offlineUserId(): string | null {
+  return useAuthStore.getState().userId
+}
+
+async function queueOfflineMutation(mutation: Parameters<typeof enqueueClientMutation>[1]): Promise<boolean> {
+  const userId = offlineUserId()
+  if (!userId || typeof navigator !== 'undefined' && navigator.onLine) return false
+  await enqueueClientMutation(userId, mutation)
+  return true
+}
+
 export const PHOTO_UPLOAD_ERROR = 'อัปโหลดรูปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'
 
 const dataCache = createDataCache(responseStorage)
@@ -164,6 +177,11 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
   // Strip base64 images (too large for the POST body / D1), upload to R2
   const base64Images = client.images.filter(isBase64Image)
   const cleanImages = client.images.filter((s) => !isBase64Image(s))
+  if (await queueOfflineMutation({ kind: 'create', client: { ...client, images: cleanImages } })) {
+    if (base64Images.length > 0) throw new Error('รูปภาพใหม่ต้องเชื่อมต่ออินเทอร์เน็ตก่อนบันทึก')
+    await putOfflineClient({ ...client, images: cleanImages })
+    return { ...client, images: cleanImages }
+  }
 
   const { data, error } = await treatyClient.api.clients.post(toWriteBody(client, cleanImages), {
     headers: await treatyHeaders(),
@@ -171,7 +189,7 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
   if (error || !data) throw new Error('Failed to add client')
   // The app-level 304 short-circuit only answers GET reads, so a POST body
   // here is always the JSON shape — the Response arm is a type-level artifact.
-  const { id } = data as { ok: boolean; id: string }
+  const { id } = data as unknown as { ok: boolean; id: string }
 
   // Upload photos to R2 now that we have a real clientId
   let finalImages = cleanImages
@@ -202,6 +220,12 @@ export async function addClient(client: Client, onProgress?: (pct: number) => vo
 export async function updateClient(client: Client, onProgress?: (pct: number) => void, photoThumbs?: Record<string, string | null>): Promise<Client> {
   const base64Images = client.images.filter(isBase64Image)
   const cleanImages = client.images.filter((s) => !isBase64Image(s))
+
+  if (await queueOfflineMutation({ kind: 'update', client: { ...client, images: cleanImages } })) {
+    if (base64Images.length > 0) throw new Error('รูปภาพใหม่ต้องเชื่อมต่ออินเทอร์เน็ตก่อนบันทึก')
+    await putOfflineClient({ ...client, images: cleanImages })
+    return { ...client, images: cleanImages }
+  }
 
   let finalImages = cleanImages
 
@@ -248,6 +272,10 @@ export async function updateClient(client: Client, onProgress?: (pct: number) =>
 }
 
 export async function deleteClient(id: string): Promise<void> {
+  if (await queueOfflineMutation({ kind: 'delete', id })) {
+    await deleteOfflineClient(id)
+    return
+  }
   const { error } = await treatyClient.api.clients({ id }).delete(undefined, { headers: await treatyHeaders() })
   if (error) throw new Error('Failed to delete client')
   // Only remove from IDB after the server confirms the delete so a failed

@@ -1,8 +1,9 @@
 import type { CachedResponse, ResponseStorage } from './data-cache'
 
 const DB_NAME = 'data-ledger-offline'
-const DB_VERSION = 3
+const DB_VERSION = 4
 const RESPONSE_STORE = 'public-responses'
+const MUTATION_STORE = 'client-mutations'
 const CACHE_TTL = 30 * 24 * 60 * 60 * 1000
 
 let dbPromise: Promise<IDBDatabase> | null = null
@@ -14,6 +15,7 @@ function getDb(): Promise<IDBDatabase> {
       req.onupgradeneeded = () => {
         const db = req.result
         if (!db.objectStoreNames.contains(RESPONSE_STORE)) db.createObjectStore(RESPONSE_STORE, { keyPath: 'url' })
+        if (!db.objectStoreNames.contains(MUTATION_STORE)) db.createObjectStore(MUTATION_STORE, { keyPath: 'id' })
         // Old clients mixed partial and full records; never migrate them as
         // verified response snapshots. Keep the legacy store API for callers.
         if (db.objectStoreNames.contains('clients')) req.transaction!.objectStore('clients').clear()
@@ -175,8 +177,37 @@ export async function deleteClient(id: string): Promise<void> {
   const db = await getDb()
   const tx = db.transaction('clients', 'readwrite')
   await promisifyRequest(tx.objectStore('clients').delete(id))
-  await new Promise<void>((resolve, reject) => {
-    tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
-  })
+  await transactionDone(tx)
+}
+
+import type { ClientMutation, QueuedClientMutation } from './offline-mutations'
+
+export async function listQueuedMutations(userId: string): Promise<QueuedClientMutation[]> {
+  const db = await getDb()
+  const rows = await promisifyRequest(db.transaction(MUTATION_STORE).objectStore(MUTATION_STORE).getAll()) as QueuedClientMutation[]
+  return rows.filter(row => row.userId === userId).sort((a, b) => a.createdAt - b.createdAt)
+}
+
+export async function putQueuedMutation(item: QueuedClientMutation): Promise<void> {
+  const db = await getDb()
+  const tx = db.transaction(MUTATION_STORE, 'readwrite')
+  tx.objectStore(MUTATION_STORE).put(item)
+  await transactionDone(tx)
+}
+
+export async function removeQueuedMutation(id: string): Promise<void> {
+  const db = await getDb()
+  const tx = db.transaction(MUTATION_STORE, 'readwrite')
+  tx.objectStore(MUTATION_STORE).delete(id)
+  await transactionDone(tx)
+}
+
+export async function clearQueuedMutations(userId: string): Promise<number> {
+  const rows = await listQueuedMutations(userId)
+  await Promise.all(rows.map(row => removeQueuedMutation(row.id)))
+  return rows.length
+}
+
+export function newQueuedMutation(userId: string, mutation: ClientMutation): QueuedClientMutation {
+  return { id: crypto.randomUUID(), userId, createdAt: Date.now(), attempts: 0, mutation }
 }
