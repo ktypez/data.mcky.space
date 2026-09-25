@@ -51,9 +51,6 @@ function App() {
   return (
     <div className="ledger-shell" data-mode={resolvedMode}>
       <AuthSync />
-      <div className="pointer-events-none fixed right-3 top-[env(safe-area-top)] z-40 pt-3 sm:right-5">
-        <div className="pointer-events-auto"><SyncStatus /></div>
-      </div>
       <a href="#ledger-main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-card focus:px-4 focus:py-3 focus:text-foreground">ข้ามไปเนื้อหา</a>
       <main id="ledger-main" className="ledger-main min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <Suspense fallback={<Loading />}>
@@ -79,6 +76,7 @@ function App() {
           {isAdmin ? <NavLink to="/add" onClick={guardNavigation} aria-label="เพิ่มรายการ" className="ledger-add-button"><Plus weight="bold" size={25} aria-hidden /></NavLink> : <span aria-label="เพิ่มรายการ" aria-disabled="true" className="ledger-add-button opacity-40 bg-muted text-muted-foreground border border-border grayscale"><Plus weight="bold" size={25} aria-hidden /></span>}
         </div>
       </nav>
+      <div className="ledger-sync-dock"><SyncStatus /></div>
       <CommandPalette />
     </div>
   )

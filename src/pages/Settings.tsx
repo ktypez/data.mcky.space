@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowsClockwise, DownloadSimple, LockKey, Monitor, Moon, SignOut, Sun, Trash } from '@phosphor-icons/react'
+import { ArrowsClockwise, DownloadSimple, LockKey, Monitor, Moon, SignOut, Sun } from '@phosphor-icons/react'
 import AppThemePicker from '@/components/AppThemePicker'
 import { usePwaInstall } from '@/hooks/usePwaInstall'
 import { useAuthStore, logout } from '@/stores/auth-store'
@@ -93,7 +93,6 @@ export default function SettingsPage({ mode, setMode, themeId, setThemeId, custo
           <div className="space-y-1">
             {canInstall && <button type="button" onClick={() => isIOS ? undefined : void install()} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><DownloadSimple size={18} aria-hidden /> ติดตั้งแอป{isIOS && <span className="ml-auto text-xs text-muted-foreground">ใช้เมนู Share ใน Safari</span>}</button>}
             <button type="button" onClick={() => void checkForAppUpdate()} disabled={appUpdateState === 'checking'} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted disabled:opacity-60"><ArrowsClockwise size={18} className={appUpdateState === 'checking' ? 'animate-spin' : undefined} aria-hidden /> {appUpdateState === 'checking' ? 'กำลังตรวจหาอัปเดต…' : 'ตรวจหาอัปเดตแอป'}{appUpdateState === 'latest' && <span className="ml-auto text-xs text-muted-foreground">เป็นเวอร์ชันล่าสุด</span>}{appUpdateState === 'error' && <span className="ml-auto text-xs text-destructive">ตรวจสอบไม่สำเร็จ</span>}</button>
-            {isSignedIn && <button type="button" onClick={() => window.location.assign('/trash')} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><Trash size={18} aria-hidden /> ถังขยะ</button>}
             {isSignedIn ? <button type="button" onClick={() => void logout()} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><SignOut size={18} aria-hidden /> ออกจากระบบ</button> : <button type="button" onClick={() => setLoginOpen(true)} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><LockKey size={18} aria-hidden /> เข้าสู่ระบบ</button>}
           </div>
         </section>

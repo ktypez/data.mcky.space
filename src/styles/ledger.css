@@ -98,7 +98,16 @@ html:has(.ledger-shell):root body {
 }
 
 /* Full bottom navigation: mobile-first, safe-area aware, centered primary action. */
-.ledger-bottom-nav { padding-bottom: env(safe-area-inset-bottom); }
+.ledger-sync-dock {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 12px calc(2px + env(safe-area-inset-bottom));
+  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+}
+.ledger-sync-dock > * { max-width: 100%; }
 .ledger-bottom-nav > div { position: relative; }
 .ledger-nav-item {
   display: inline-flex;
