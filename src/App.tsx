@@ -9,7 +9,6 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useAppTheme } from '@/lib/app-theme'
 import { isFormDirty } from '@/lib/form-dirty'
 import CommandPalette from '@/components/CommandPalette'
-import { SyncStatus } from '@/components/SyncStatus'
 import '@/styles/ledger.css'
 
 const CatalogPage = lazy(() => import('@/pages/Catalog'))
@@ -76,7 +75,6 @@ function App() {
           {isAdmin ? <NavLink to="/add" onClick={guardNavigation} aria-label="เพิ่มรายการ" className="ledger-add-button"><Plus weight="bold" size={25} aria-hidden /></NavLink> : <span aria-label="เพิ่มรายการ" aria-disabled="true" className="ledger-add-button opacity-40 bg-muted text-muted-foreground border border-border grayscale"><Plus weight="bold" size={25} aria-hidden /></span>}
         </div>
       </nav>
-      <div className="ledger-sync-dock"><SyncStatus /></div>
       <CommandPalette />
     </div>
   )

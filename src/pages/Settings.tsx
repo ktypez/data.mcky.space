@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowsClockwise, DownloadSimple, LockKey, Monitor, Moon, SignOut, Sun } from '@phosphor-icons/react'
+import { SyncStatus } from '@/components/SyncStatus'
 import AppThemePicker from '@/components/AppThemePicker'
 import { usePwaInstall } from '@/hooks/usePwaInstall'
 import { useAuthStore, logout } from '@/stores/auth-store'
@@ -51,6 +52,10 @@ export default function SettingsPage({ mode, setMode, themeId, setThemeId, custo
     <section className="mx-auto max-w-xl px-5 pb-8 pt-6 sm:px-6">
       <h1 className="sr-only">เมนูและการตั้งค่า</h1>
       <div className="space-y-4">
+        <section className="rounded-2xl border border-border bg-card p-4">
+          <h2 className="mb-3 text-sm font-semibold">การซิงค์ข้อมูล</h2>
+          <SyncStatus />
+        </section>
         <section className="rounded-2xl border border-border bg-card p-4">
           <h2 className="mb-3 text-sm font-semibold">ธีม</h2>
           <AppThemePicker
