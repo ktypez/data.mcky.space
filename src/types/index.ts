@@ -2,6 +2,8 @@ export interface Client {
   id: string
   name: string[]
   shopName: string[]
+  /** Branch label (สาขา) — free text, '' when unset. Shown after shop names. */
+  branch: string
   address: string
   lat: number | null
   lng: number | null
@@ -24,6 +26,7 @@ export interface ClientListItem {
   id: string
   name: string[]
   shopName: string[]
+  branch: string
   image: string | null
   /** Derived R2 thumb (clients/{id}/t/{base}.jpg). Null for old photos. */
   thumb: string | null

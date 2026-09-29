@@ -27,6 +27,7 @@ function toArray(v: string | string[] | undefined): string[] {
 type FormSnapshot = {
   name: string[]
   shopName: string[]
+  branch: string
   address: string
   lat: number | null
   lng: number | null
@@ -51,6 +52,7 @@ export default function EditorPage() {
   const [reloadKey, setReloadKey] = useState(0)
   const [name, setName] = useState<string[]>([''])
   const [shopName, setShopName] = useState<string[]>([''])
+  const [branch, setBranch] = useState('')
   const [address, setAddress] = useState('')
   const [lat, setLat] = useState<number | null>(null)
   const [lng, setLng] = useState<number | null>(null)
@@ -64,13 +66,14 @@ export default function EditorPage() {
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState(0)
-  const initialSnapshotRef = useRef(snapshot({ name: [''], shopName: [''], address: '', lat: null, lng: null, images: [], badge: null, notes: '' }))
+  const initialSnapshotRef = useRef(snapshot({ name: [''], shopName: [''], branch: '', address: '', lat: null, lng: null, images: [], badge: null, notes: '' }))
   const submitLockRef = useRef(false)
   const editing = Boolean(editClient)
 
   const applyForm = (client: Client | null) => {
     const nextName = toArray(client?.name)
     const nextShopName = toArray(client?.shopName)
+    const nextBranch = client?.branch ?? ''
     const nextAddress = client?.address ?? ''
     const nextLat = client?.lat ?? null
     const nextLng = client?.lng ?? null
@@ -80,6 +83,7 @@ export default function EditorPage() {
     setEditClient(client)
     setName(nextName)
     setShopName(nextShopName)
+    setBranch(nextBranch)
     setAddress(nextAddress)
     setLat(nextLat)
     setLng(nextLng)
@@ -89,7 +93,7 @@ export default function EditorPage() {
     setThumbs({})
     setDebouncedName(nextName.join('\u0000'))
     setTab(0)
-    initialSnapshotRef.current = snapshot({ name: nextName, shopName: nextShopName, address: nextAddress, lat: nextLat, lng: nextLng, images: nextImages, badge: nextBadge, notes: nextNotes })
+    initialSnapshotRef.current = snapshot({ name: nextName, shopName: nextShopName, branch: nextBranch, address: nextAddress, lat: nextLat, lng: nextLng, images: nextImages, badge: nextBadge, notes: nextNotes })
   }
 
   useEffect(() => {
@@ -147,7 +151,7 @@ export default function EditorPage() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [name])
 
-  const currentSnapshot = snapshot({ name, shopName, address, lat, lng, images, badge, notes })
+  const currentSnapshot = snapshot({ name, shopName, branch, address, lat, lng, images, badge, notes })
   const dirty = currentSnapshot !== initialSnapshotRef.current
   const readOnly = Boolean(loadError) || hydrating || checking
 
@@ -198,6 +202,7 @@ export default function EditorPage() {
       id: editClient?.id ?? generateId(),
       name: cleanName,
       shopName: cleanShopName,
+      branch: branch.trim(),
       address: address.trim(),
       lat,
       lng,
@@ -280,6 +285,10 @@ export default function EditorPage() {
                 <div className="space-y-1">
                   <Label>ชื่อร้านค้า</Label>
                   <MultiValueInput values={shopName} onChange={setShopName} placeholder="ชื่อร้านค้า" maxLength={60} addLabel="เพิ่มชื่อร้าน" inlineAdd />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="editor-branch">สาขา</Label>
+                  <Input id="editor-branch" name="branch" autoComplete="off" spellCheck={false} type="text" value={branch} onChange={event => setBranch(event.target.value)} maxLength={60} placeholder="สาขา…" />
                 </div>
                 <FormNameField values={name} onChange={setName} dupResult={dupResult} inlineAdd />
                 <FormNotesField value={notes} onChange={setNotes} />

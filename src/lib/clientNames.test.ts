@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   coerceStringArray,
   normalizeClient,
+  branchValue,
   clientTitle,
   clientTitleWithShops,
   clientShopNames,
@@ -9,6 +10,9 @@ import {
   clientNamesJoined,
   clientSubNames,
   clientMatchesQuery,
+  clientTitleValues,
+  shopNameValue,
+  stripLeadingLabel,
 } from './clientNames'
 
 describe('coerceStringArray', () => {
@@ -111,12 +115,105 @@ describe('clientShopNames / clientNameValues (array forms)', () => {
   })
 })
 
+describe('branchValue', () => {
+  it('strips the label so callers can add it exactly once', () => {
+    expect(branchValue('เชียงใหม่')).toBe('เชียงใหม่')
+    expect(branchValue('สาขาเชียงใหม่')).toBe('เชียงใหม่')
+    expect(branchValue('สาขา: เชียงใหม่')).toBe('เชียงใหม่')
+    expect(branchValue('  สาขา เชียงใหม่  ')).toBe('เชียงใหม่')
+  })
+
+  it('is empty for missing or label-only values', () => {
+    expect(branchValue('')).toBe('')
+    expect(branchValue('   ')).toBe('')
+    expect(branchValue(null)).toBe('')
+    expect(branchValue(undefined)).toBe('')
+    expect(branchValue('สาขา')).toBe('')
+  })
+
+  it('keeps a value that merely contains สาขา mid-string', () => {
+    expect(branchValue('ตลาดสาขาใหญ่')).toBe('ตลาดสาขาใหญ่')
+  })
+})
+
+describe('shopNameValue', () => {
+  it('strips the ร้าน prefix the copy label already supplies', () => {
+    expect(shopNameValue('ร้านสมชาย คาเฟ่')).toBe('สมชาย คาเฟ่')
+    expect(shopNameValue('ร้าน: กาแฟ')).toBe('กาแฟ')
+    expect(shopNameValue('ร้าน กาแฟ')).toBe('กาแฟ')
+    expect(shopNameValue('  ร้านกาแฟ  ')).toBe('กาแฟ')
+  })
+
+  it('keeps the name when there is nothing left after stripping', () => {
+    expect(shopNameValue('ร้าน')).toBe('ร้าน')
+    expect(shopNameValue('ร้าน: ')).toBe('ร้าน:')
+  })
+
+  it('leaves ร้าน alone when it is part of the name, not a prefix', () => {
+    expect(shopNameValue('บ้านร้านอาหาร')).toBe('บ้านร้านอาหาร')
+    expect(shopNameValue('ร้านยา')).toBe('ยา')
+  })
+
+  it('leaves names without the prefix untouched', () => {
+    expect(shopNameValue('Khao Man Gai Shop')).toBe('Khao Man Gai Shop')
+    expect(shopNameValue('')).toBe('')
+    expect(shopNameValue(null)).toBe('')
+  })
+})
+
+describe('stripLeadingLabel', () => {
+  it('only strips a leading occurrence', () => {
+    expect(stripLeadingLabel('ร้าน ร้านคาเฟ่', 'ร้าน')).toBe('ร้านคาเฟ่')
+    expect(stripLeadingLabel('  สาขา : เหนือ', 'สาขา')).toBe('เหนือ')
+    expect(stripLeadingLabel('เชียงใหม่', 'สาขา')).toBe('เชียงใหม่')
+  })
+})
+
+describe('clientTitleValues', () => {
+  it('glues the branch onto the first shop name with a dash', () => {
+    expect(clientTitleValues({ name: ['ชาญชัย'], shopName: ['BEYOND CAFE'], branch: 'ขอนแก่น' }))
+      .toEqual(['BEYOND CAFE - ขอนแก่น'])
+  })
+
+  it('leaves the title alone when there is no branch', () => {
+    expect(clientTitleValues({ name: ['Alice'], shopName: ['Cafe'] })).toEqual(['Cafe'])
+    expect(clientTitleValues({ name: ['Alice'], shopName: ['Cafe'], branch: '' })).toEqual(['Cafe'])
+    expect(clientTitleValues({ name: ['Alice'], shopName: ['Cafe'], branch: '   ' })).toEqual(['Cafe'])
+  })
+
+  it('keeps extra shop names after the branch so they collapse into +N', () => {
+    expect(clientTitleValues({ name: [], shopName: ['Cafe A', 'Cafe B', 'Cafe C'], branch: 'เหนือ' }))
+      .toEqual(['Cafe A - เหนือ', 'Cafe B', 'Cafe C'])
+  })
+
+  it('falls back to the person name when there is no shop name', () => {
+    expect(clientTitleValues({ name: ['Alice'], shopName: [] })).toEqual(['Alice'])
+    expect(clientTitleValues({ name: ['Alice'], shopName: [], branch: 'เหนือ' })).toEqual(['Alice - เหนือ'])
+  })
+
+  it('is empty when there is nothing to show', () => {
+    expect(clientTitleValues({ name: [], shopName: [], branch: 'เหนือ' })).toEqual([])
+  })
+})
+
 describe('clientMatchesQuery', () => {
   it('matches any name or shopName value case-insensitively', () => {
     const c = { name: ['Alice', 'Somchai'], shopName: ['Cafe'] }
     expect(clientMatchesQuery(c, 'somchai')).toBe(true)
     expect(clientMatchesQuery(c, 'CAFE')).toBe(true)
     expect(clientMatchesQuery(c, 'alice')).toBe(true)
+    expect(clientMatchesQuery(c, 'zzz')).toBe(false)
+  })
+
+  it('matches branch case-insensitively', () => {
+    const c = { name: ['Alice'], shopName: ['Cafe'], branch: 'สาขาเชียงใหม่' }
+    expect(clientMatchesQuery(c, 'เชียง')).toBe(true)
+    expect(clientMatchesQuery(c, 'สาขา')).toBe(true)
+    expect(clientMatchesQuery(c, 'phuket')).toBe(false)
+  })
+
+  it('never matches on an empty branch for a non-matching query', () => {
+    const c = { name: ['Alice'], shopName: ['Cafe'], branch: '' }
     expect(clientMatchesQuery(c, 'zzz')).toBe(false)
   })
 })
@@ -127,6 +224,7 @@ describe('normalizeClient', () => {
       id: 'x',
       name: 'Alice',
       shopName: '["Cafe","Noodle"]',
+      branch: '  สาขาเชียงใหม่  ',
       address: '123',
       lat: 1.5,
       lng: 2.5,
@@ -138,6 +236,7 @@ describe('normalizeClient', () => {
     })
     expect(c.name).toEqual(['Alice'])
     expect(c.shopName).toEqual(['Cafe', 'Noodle'])
+    expect(c.branch).toBe('สาขาเชียงใหม่')
     expect(c.address).toBe('123')
     expect(c.images).toEqual(['a.png'])
     expect(c.createdAt).toBe(1)

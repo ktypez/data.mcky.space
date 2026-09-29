@@ -12,6 +12,7 @@ interface TrashItem {
   id: string
   name: string[]
   shopName: string[]
+  branch: string
   images: string[]
   badge: string | null
   deletedAt: number

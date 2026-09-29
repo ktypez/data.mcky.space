@@ -63,6 +63,7 @@ async function send(item: QueuedClientMutation): Promise<void> {
     id: mutation.client.id,
     name: mutation.client.name,
     shopName: mutation.client.shopName,
+    branch: mutation.client.branch,
     address: mutation.client.address,
     lat: mutation.client.lat,
     lng: mutation.client.lng,

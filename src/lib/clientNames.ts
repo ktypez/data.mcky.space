@@ -37,6 +37,7 @@ export function normalizeClient(raw: Record<string, unknown>): Client {
     id: String(raw.id ?? ''),
     name: coerceStringArray(raw.name),
     shopName: coerceStringArray(raw.shopName),
+    branch: typeof raw.branch === 'string' ? raw.branch.trim() : '',
     address: String(raw.address ?? ''),
     lat: typeof raw.lat === 'number' ? raw.lat : null,
     lng: typeof raw.lng === 'number' ? raw.lng : null,
@@ -94,6 +95,24 @@ export function clientNameValues(c: Pick<Client, 'name' | 'shopName'>): string[]
 }
 
 /**
+ * Values for the compact list title: the first shop name with the branch glued
+ * on ("shop - สาขา"), then any further shop names.
+ *
+ * Order matters — `OverflowLine` keeps the first values and collapses the rest
+ * to "+N", so the branch has to sit ahead of the extra shop names to survive
+ * a narrow row. The branch keeps its own wording here (no label): a list row
+ * has no room for one.
+ */
+export function clientTitleValues(
+  c: Pick<Client, 'name' | 'shopName'> & { branch?: string },
+): string[] {
+  const [primary, ...restShops] = clientShopNames(c)
+  if (!primary) return []
+  const branch = (c.branch ?? '').trim()
+  return [branch ? `${primary} - ${branch}` : primary, ...restShops]
+}
+
+/**
  * Secondary line: every remaining name/shop value, joined by " / ".
  * Legacy helper — still used by the duplicate-check warning in FormNameField,
  * where a single combined hint line is acceptable.
@@ -106,11 +125,46 @@ export function clientSubNames(c: Pick<Client, 'name' | 'shopName'>): string {
   return rest.join(' / ')
 }
 
-/** True if any name or shopName value contains the (lowercased) query. */
-export function clientMatchesQuery(c: Pick<Client, 'name' | 'shopName'>, query: string): boolean {
+/**
+ * Strips a leading label word (plus any separator) so callers can add the
+ * label exactly once: "สาขาเชียงใหม่" → "เชียงใหม่", "ร้าน: กาแฟ" → "กาแฟ".
+ */
+export function stripLeadingLabel(value: string | null | undefined, label: string): string {
+  return (value ?? '').trim().replace(new RegExp(`^${label}[\\s:]*\\s*`), '')
+}
+
+/**
+ * Branch value with any leading "สาขา" (plus a separator) removed. The label
+ * is added by the caller, so the word appears exactly once whether the field
+ * holds "เชียงใหม่" or "สาขาเชียงใหม่". '' when there is no branch.
+ */
+export function branchValue(branch: string | null | undefined): string {
+  return stripLeadingLabel(branch, 'สาขา')
+}
+
+/**
+ * Shop name with any leading "ร้าน" removed — the copy output already says
+ * "ชื่อร้าน : …", so the word the user typed would just repeat it. A name that
+ * is nothing but the label keeps the original: an empty shop line reads worse
+ * than "ร้าน".
+ */
+export function shopNameValue(shopName: string | null | undefined): string {
+  const value = (shopName ?? '').trim()
+  return stripLeadingLabel(value, 'ร้าน') || value
+}
+
+/** True if any name, shopName, or branch value contains the (lowercased) query. */
+export function clientMatchesQuery(
+  c: Pick<Client, 'name' | 'shopName'> & { branch?: string },
+  query: string,
+): boolean {
   const q = query.toLowerCase()
+  // An empty query would match every client (`''.includes('')` is true) —
+  // callers short-circuit on empty, this is the same guard one level down.
+  if (!q) return false
   return (
     coerceStringArray(c.name).some((n) => n.toLowerCase().includes(q)) ||
-    coerceStringArray(c.shopName).some((n) => n.toLowerCase().includes(q))
+    coerceStringArray(c.shopName).some((n) => n.toLowerCase().includes(q)) ||
+    (c.branch ?? '').toLowerCase().includes(q)
   )
 }

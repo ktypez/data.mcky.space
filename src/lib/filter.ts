@@ -46,7 +46,7 @@ export function sortByCreatedDesc(clients: Client[]): Client[] {
  * Pure — does not depend on React, stores, or time. Safe to unit test.
  *
  * - `query` is already lowercased + trimmed by the caller
- * - matches on name, shopName, address, or id
+ * - matches on name, shopName, branch, address, or id
  * - `FilterKey.All` returns the search result untouched
  */
 export function applyFilter(

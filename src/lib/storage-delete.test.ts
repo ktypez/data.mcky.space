@@ -63,7 +63,7 @@ describe('client deletion through real Eden Treaty transport', () => {
     try {
       const { addClient, PHOTO_UPLOAD_ERROR } = await import('./storage')
       await expect(addClient({
-        id: '', name: ['Test'], shopName: [], address: '', lat: null, lng: null,
+        id: '', name: ['Test'], shopName: [], branch: '', address: '', lat: null, lng: null,
         images: ['data:image/png;base64,test'], badge: null, notes: null, createdAt: 1, updatedAt: 1,
       })).rejects.toThrow(PHOTO_UPLOAD_ERROR)
       expect(requests.map(request => request.method)).toEqual(['POST', 'DELETE'])

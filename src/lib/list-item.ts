@@ -11,6 +11,7 @@ export function listItemToClient(item: ClientListItem): Client {
     id: item.id,
     name: item.name,
     shopName: item.shopName,
+    branch: item.branch ?? '',
     address: '',
     lat: null,
     lng: null,

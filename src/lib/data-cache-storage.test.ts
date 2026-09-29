@@ -16,7 +16,7 @@ beforeEach(() => { disk.clear(); vi.resetModules(); vi.unstubAllGlobals() })
 describe('storage public offline reads', () => {
   it('reopens exact catalog offline, but never makes full/detail data from lightweight rows', async () => {
     const fetcher = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify([
-      { id: 'a', name: '["name"]', shopName: 'shop', image: null, thumb: null, badge: null, createdAt: 1, updatedAt: 1 },
+      { id: 'a', name: '["name"]', shopName: 'shop', branch: '', image: null, thumb: null, badge: null, createdAt: 1, updatedAt: 1 },
     ]), { headers: { ETag: '"catalog"' } })).mockRejectedValue(new TypeError('offline'))
     vi.stubGlobal('fetch', fetcher)
     let storage = await import('./storage')

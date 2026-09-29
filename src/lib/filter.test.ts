@@ -7,12 +7,13 @@ function mk(
     id: string
     name: string | string[]
     shopName?: string | string[]
-  },
+  } & Partial<Pick<Client, 'branch'>>,
 ): Client {
-  const { name, shopName, ...rest } = over
+  const { name, shopName, branch = '', ...rest } = over
   return {
     name: Array.isArray(name) ? name : [name],
     shopName: shopName ? (Array.isArray(shopName) ? shopName : [shopName]) : [],
+    branch,
     address: '',
     lat: null,
     lng: null,
@@ -89,6 +90,21 @@ describe('applyFilter', () => {
   it('filters by shopName', () => {
     const out = applyFilter(clients, 'cafe', FilterKey.All, cutoff)
     expect(out.map((c) => c.id)).toEqual(['c'])
+  })
+
+  it('filters by branch', () => {
+    const branched = [
+      mk({ id: 'br1', name: 'Nok', shopName: 'Cafe', branch: 'เชียงใหม่' }),
+      mk({ id: 'br2', name: 'Bank', shopName: 'Cafe', branch: 'ภูเก็ต' }),
+    ]
+    expect(applyFilter(branched, 'เชียง', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['br1'])
+    expect(applyFilter(branched, 'ภูเก็ต', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['br2'])
+  })
+
+  it('does not match clients with an empty branch', () => {
+    const unbranched = [mk({ id: 'nb1', name: 'Nok', shopName: 'Cafe' })]
+    expect(applyFilter(unbranched, 'cafe', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['nb1'])
+    expect(applyFilter(unbranched, 'zzz', FilterKey.All, cutoff)).toEqual([])
   })
 
   it('matches ANY value in a multi-name client', () => {

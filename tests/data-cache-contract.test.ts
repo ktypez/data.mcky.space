@@ -6,9 +6,9 @@ describe('client data cache contract', () => {
     expect(clientDataEtag('/api/clients', 7)).toBe('"rev-7"')
   })
 
-  it('changes the list validator when the response gains hasNotes', () => {
+  it('changes the list validator when the response gains hasNotes and branch', () => {
     const etag = clientDataEtag('/api/clients/list', 7)
-    expect(etag).toBe('"rev-7-list-notes-v1"')
+    expect(etag).toBe('"rev-7-list-notes-v2"')
     expect(etagMatches(new Request('https://example.test/api/clients/list', {
       headers: { 'If-None-Match': etag },
     }), etag)).toBe(true)

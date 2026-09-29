@@ -7,7 +7,7 @@ import {
 
 describe('offline client mutation contract', () => {
   const client = {
-    id: 'client-1', name: ['ร้าน'], shopName: [], address: '', lat: null, lng: null,
+    id: 'client-1', name: ['ร้าน'], shopName: [], branch: 'สาขาเชียงใหม่', address: '', lat: null, lng: null,
     images: ['https://cdn.example/photo.jpg'], badge: null, notes: null, createdAt: 1, updatedAt: 1,
   }
 

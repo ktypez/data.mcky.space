@@ -15,10 +15,11 @@ export function revEtag(rev: number): string {
   return `"rev-${rev}"`
 }
 
-/** Bump the path contract when a cached response shape changes. */
+/** Bump the path contract when a cached response shape changes.
+ *  v2 — `branch` joined the list payload. */
 export function clientDataEtag(path: string, rev: number): string {
   return path === '/api/clients/list'
-    ? `"rev-${rev}-list-notes-v1"`
+    ? `"rev-${rev}-list-notes-v2"`
     : revEtag(rev)
 }
 

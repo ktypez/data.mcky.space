@@ -23,6 +23,7 @@ const clientsTable = sqliteTable('clients', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   shopName: text('shop_name').notNull(),
+  branch: text('branch').notNull().default(''),
   address: text('address').notNull(),
   lat: real('lat'),
   lng: real('lng'),
@@ -177,11 +178,15 @@ function normalizeCoords(lat: unknown, lng: unknown): { lat: number | null; lng:
   return { lat, lng }
 }
 
-function normalizeClient<T extends Record<string, unknown>>(row: T): T & { name: string[]; shopName: string[] } {
-  return { ...row, name: coerceStringArray(row.name), shopName: coerceStringArray(row.shopName) }
+function normalizeBranch(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
 }
 
-function normalizeClientList<T extends Record<string, unknown>>(rows: T[]): Array<T & { name: string[]; shopName: string[] }> {
+function normalizeClient<T extends Record<string, unknown>>(row: T): T & { name: string[]; shopName: string[]; branch: string } {
+  return { ...row, name: coerceStringArray(row.name), shopName: coerceStringArray(row.shopName), branch: normalizeBranch(row.branch) }
+}
+
+function normalizeClientList<T extends Record<string, unknown>>(rows: T[]): Array<T & { name: string[]; shopName: string[]; branch: string }> {
   return rows.map(normalizeClient)
 }
 
@@ -303,6 +308,7 @@ const ClientShape = t.Object({
   id: t.String(),
   name: t.Array(t.String()),
   shopName: t.Array(t.String()),
+  branch: t.String(),
   address: t.String(),
   lat: t.Union([t.Number(), t.Null()]),
   lng: t.Union([t.Number(), t.Null()]),
@@ -317,6 +323,7 @@ const ClientMapShape = t.Object({
   id: t.String(),
   name: t.Array(t.String()),
   shopName: t.Array(t.String()),
+  branch: t.String(),
   address: t.String(),
   lat: t.Union([t.Number(), t.Null()]),
   lng: t.Union([t.Number(), t.Null()]),
@@ -333,6 +340,7 @@ const ClientListItemShape = t.Object({
   id: t.String(),
   name: t.String(),
   shopName: t.String(),
+  branch: t.String(),
   image: t.Union([t.String(), t.Null()]),
   thumb: t.Union([t.String(), t.Null()]),
   badge: t.Union([t.String(), t.Null()]),
@@ -347,6 +355,7 @@ const RawClientShape = t.Object({
   id: t.String(),
   name: t.String(),
   shopName: t.String(),
+  branch: t.String(),
   address: t.String(),
   lat: t.Union([t.Number(), t.Null()]),
   lng: t.Union([t.Number(), t.Null()]),
@@ -363,6 +372,7 @@ const ClientInputShape = t.Object({
   id: t.Optional(t.String()),
   name: t.Optional(t.Any()),
   shopName: t.Optional(t.Any()),
+  branch: t.Optional(t.Any()),
   address: t.Optional(t.Any()),
   lat: t.Optional(t.Any()),
   lng: t.Optional(t.Any()),
@@ -535,6 +545,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
           id: clientsTable.id,
           name: clientsTable.name,
           shopName: clientsTable.shopName,
+          branch: clientsTable.branch,
           images: clientsTable.images,
           badge: clientsTable.badge,
           hasNotes: sql<number>`CASE WHEN NULLIF(TRIM(${clientsTable.notes}), '') IS NULL THEN 0 ELSE 1 END`,
@@ -550,6 +561,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
           id: r.id,
           name: r.name,
           shopName: r.shopName,
+          branch: normalizeBranch(r.branch),
           image,
           thumb: thumbUrl(image),
           badge: r.badge,
@@ -576,6 +588,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
       id,
       name: serializeNames(data.name),
       shopName: serializeNames(data.shopName),
+      branch: normalizeBranch(data.branch),
       address: String(data.address ?? ''),
       lat: coords.lat,
       lng: coords.lng,
@@ -605,6 +618,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
         id: clientsTable.id,
         name: clientsTable.name,
         shopName: clientsTable.shopName,
+        branch: clientsTable.branch,
         address: clientsTable.address,
         lat: clientsTable.lat,
         lng: clientsTable.lng,
@@ -642,11 +656,15 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     if (!q || !q.trim()) return []
 
     return cachedData(request, set, async () => {
-      // P3: cap keywords — each adds 2 LIKE scans (`%kw%` can't use an index).
+      // P3: cap keywords — each adds 3 LIKE scans (`%kw%` can't use an index).
       const keywords = q.trim().split(/\s+/).filter(Boolean).slice(0, 5)
       const conditions = keywords.map((kw) => {
         const pattern = `%${kw}%`
-        return or(like(clientsTable.name, pattern), like(clientsTable.shopName, pattern))
+        return or(
+          like(clientsTable.name, pattern),
+          like(clientsTable.shopName, pattern),
+          like(clientsTable.branch, pattern),
+        )
       })
 
       const db = createDb()
@@ -753,6 +771,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     const result = await db.update(clientsTable).set({
       name: serializeNames(data.name),
       shopName: serializeNames(data.shopName),
+      branch: normalizeBranch(data.branch),
       address: String(data.address ?? ''),
       lat: coords.lat,
       lng: coords.lng,

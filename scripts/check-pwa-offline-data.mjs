@@ -11,8 +11,8 @@ import path from 'node:path'
 const root = await mkdtemp(path.join(tmpdir(), 'data-offline-e2e-'))
 await cp('dist', root, { recursive: true })
 const LIST_BODY = JSON.stringify([
-  { id: 'a', name: '["ร้านเอ"]', shopName: '["เอ"]', image: null, thumb: null, badge: null, updatedAt: 1, createdAt: 1 },
-  { id: 'b', name: '["ร้านบี"]', shopName: '["บี"]', image: null, thumb: null, badge: null, updatedAt: 2, createdAt: 2 },
+  { id: 'a', name: '["ร้านเอ"]', shopName: '["เอ"]', branch: '', image: null, thumb: null, badge: null, updatedAt: 1, createdAt: 1 },
+  { id: 'b', name: '["ร้านบี"]', shopName: '["บี"]', branch: '', image: null, thumb: null, badge: null, updatedAt: 2, createdAt: 2 },
 ])
 const LIST_ETAG = '"list-v1"'
 const mime = { '.html': 'text/html', '.js': 'application/javascript', '.json': 'application/json', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' }
