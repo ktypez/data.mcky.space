@@ -43,7 +43,10 @@ try {
   await send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 })
   const offline = await evaluate(String.raw`(async()=>{await navigator.serviceWorker.ready;const names=await caches.keys();const pc=await caches.open(names.find(n=>n.startsWith('workbox-precache')));const requests=await pc.keys(); const entry=requests.find(r=>/\/assets\/index-.*\.js$/.test(new URL(r.url).pathname)); return {entry:!!entry && (await fetch(entry.url)).ok, api:await fetch('/api/pwa-offline-probe').then(()=>false).catch(()=>true), remote:await fetch('https://data-api.fall3n.workers.dev/api/pwa-offline-probe').then(()=>false).catch(()=>true)}})()`)
   assert.deepEqual(offline, { entry: true, api: true, remote: true })
-  await send('Page.navigate', { url: BASE + '/demo' })
+  // Must be a route the service worker actually serves offline: the shell
+  // allowlist covers /, /add, /trash, /maps, /settings, /c/:id and /edit/:id.
+  // /demo is not a route in this app and never was in the allowlist.
+  await send('Page.navigate', { url: BASE + '/' })
   const shell = await evaluate(`new Promise((resolve,reject)=>{let n=0;const t=setInterval(()=>{if(document.querySelector('link[rel=manifest]')){clearInterval(t);resolve(true)}else if(++n>50){clearInterval(t);reject(Error('offline shell timeout'))}},100)})`)
   assert.ok(shell)
   console.log(JSON.stringify({ sw, keys, offline, offlineShell: shell, note: 'SW/static-shell test only; not authenticated offline customer functionality' }, null, 2))

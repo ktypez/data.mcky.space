@@ -6,7 +6,7 @@
 //
 // Usage: node scripts/measure-perf.mjs [--url URL] [--port 4178] [--json]
 import { spawn } from 'node:child_process'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -19,7 +19,7 @@ const opt = (name, fallback) => {
 
 const PORT = Number(opt('--port', 4178))
 const BASE = opt('--url', `http://127.0.0.1:${PORT}/`)
-const CDP_PORT = Number(opt('--cdp', 9431))
+const REPEAT = Number(opt('--repeat', 3))
 const CHROME = process.env.CHROME_PATH || '/usr/bin/chromium'
 
 // Without a Clerk session every API call 401s and the catalog renders its
@@ -47,37 +47,54 @@ const SLOW_4G = {
 }
 const CPU_THROTTLE = 4
 
-const profile = await mkdtemp(path.join(tmpdir(), 'perf-profile-'))
-const chrome = spawn(CHROME, [
-  '--headless',
-  '--no-sandbox',
-  '--disable-gpu',
-  '--disable-dev-shm-usage',
-  '--hide-scrollbars',
-  `--remote-debugging-port=${CDP_PORT}`,
-  `--user-data-dir=${profile}`,
-  'about:blank',
-], { stdio: 'ignore' })
+// One browser per run, each with its own throwaway profile. Reusing a profile
+// would let the service worker installed by run 1 answer run 2, which quietly
+// turns every "cold" measurement after the first into a warm one.
+async function launchBrowser() {
+  const profile = await mkdtemp(path.join(tmpdir(), 'perf-profile-'))
+  const chrome = spawn(CHROME, [
+    '--headless',
+    '--no-sandbox',
+    '--disable-gpu',
+    '--disable-dev-shm-usage',
+    '--hide-scrollbars',
+    // Port 0 + DevToolsActivePort: a fixed or reused port can silently attach
+    // to a previous run's still-warm browser, which invalidates the numbers.
+    '--remote-debugging-port=0',
+    `--user-data-dir=${profile}`,
+    'about:blank',
+  ], { stdio: 'ignore' })
 
-const cleanup = async () => {
-  chrome.kill()
-  await rm(profile, { recursive: true, force: true }).catch(() => {})
-}
-process.on('exit', () => chrome.kill())
+  const portFile = path.join(profile, 'DevToolsActivePort')
+  let port = null
+  for (let i = 0; i < 200 && port === null; i++) {
+    await new Promise(r => setTimeout(r, 50))
+    try {
+      const [line] = (await readFile(portFile, 'utf8')).split('\n')
+      if (line && /^\d+$/.test(line.trim())) port = Number(line.trim())
+    } catch {}
+  }
+  if (port === null) throw new Error('Chromium never reported a DevTools port')
 
-async function waitForCdp() {
   for (let i = 0; i < 100; i++) {
     try {
-      const r = await fetch(`http://127.0.0.1:${CDP_PORT}/json/version`)
-      if (r.ok) return
+      if ((await fetch(`http://127.0.0.1:${port}/json/version`)).ok) {
+        return {
+          port,
+          kill: async () => {
+            chrome.kill()
+            await rm(profile, { recursive: true, force: true }).catch(() => {})
+          },
+        }
+      }
     } catch {}
     await new Promise(r => setTimeout(r, 100))
   }
   throw new Error('Chromium DevTools endpoint did not come up')
 }
 
-async function openTab(onEvent) {
-  const t = await (await fetch(`http://127.0.0.1:${CDP_PORT}/json/new?about:blank`, { method: 'PUT' })).json()
+async function openTab(onEvent, cdpPort) {
+  const t = await (await fetch(`http://127.0.0.1:${cdpPort}/json/new?about:blank`, { method: 'PUT' })).json()
   const ws = new WebSocket(t.webSocketDebuggerUrl)
   await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej })
   let id = 0
@@ -174,43 +191,83 @@ async function readMetrics(tab) {
   return r.result.value
 }
 
-await waitForCdp()
+// Median of a numeric field across runs, and the min-max spread for LCP.
+function median(runs, field) {
+  const pick = { ...runs[0] }
+  for (const key of ['fcp', 'lcp', 'ttfb', 'domContentLoaded', 'load', 'transferBytes', 'resourceCount', 'domNodes']) {
+    const values = runs.map(r => r[key]).filter(v => typeof v === 'number').sort((a, b) => a - b)
+    if (values.length) pick[key] = values[Math.floor(values.length / 2)]
+  }
+  return pick
+}
+function spread(runs, field) {
+  const values = runs.map(r => r[field]).filter(v => typeof v === 'number')
+  return values.length ? `${Math.min(...values).toFixed(0)}-${Math.max(...values).toFixed(0)} ms` : 'n/a'
+}
+
 const stub = flag('--stub-api')
-const tab = await openTab(async (m, send) => {
-  if (m.method !== 'Fetch.requestPaused') return
-  const { requestId, request } = m.params
-  const body = Buffer.from(JSON.stringify(
-    request.url.includes('/api/clients/list') ? STUB_CLIENTS : STUB_CLIENTS.map(c => ({ ...c, address: '', lat: null, lng: null, images: [], notes: null })),
-  ))
-  await send('Fetch.fulfillRequest', {
-    requestId,
-    responseCode: 200,
-    responseHeaders: [
-      { name: 'content-type', value: 'application/json' },
-      { name: 'content-length', value: String(body.length) },
-      { name: 'access-control-allow-origin', value: '*' },
-    ],
-    body: body.toString('base64'),
-  })
-})
-let cold, warm
 let report
 try {
-  const coldEvents = await navigate(tab, BASE)
-  cold = await readMetrics(tab)
-
-  // Second visit in the same profile: the service worker installed during the
-  // cold pass, so this is the "open, use, close, open again" case the PWA buys.
-  await navigate(tab, BASE)
-  warm = await readMetrics(tab)
-
-  const nonOk = coldEvents
-    .filter(e => e.method === 'Network.responseReceived' && e.params.response.status >= 400)
-    .map(e => `${e.params.response.status} ${e.params.response.url}`)
-  report = { url: BASE, throttling: 'lighthouse mobile slow-4G + 4x CPU', stubbedApi: stub, cold, warm, nonOk }
-} finally {
-  tab.close()
-  await cleanup()
+  // Webfont races make single runs swing by >1s, so every visit type is
+  // measured REPEAT times, each in its own browser profile, and reported
+  // as a median.
+  const coldRuns = []
+  const warmRuns = []
+  const nonOk = new Set()
+  for (let i = 0; i < REPEAT; i++) {
+    const browser = await launchBrowser()
+    try {
+      const tab = await openTab(async (m, send) => {
+        if (m.method !== 'Fetch.requestPaused') return
+        const { requestId, request } = m.params
+        const body = Buffer.from(JSON.stringify(
+          request.url.includes('/api/clients/list') ? STUB_CLIENTS : STUB_CLIENTS.map(c => ({ ...c, address: '', lat: null, lng: null, images: [], notes: null })),
+        ))
+        await send('Fetch.fulfillRequest', {
+          requestId,
+          responseCode: 200,
+          responseHeaders: [
+            { name: 'content-type', value: 'application/json' },
+            { name: 'content-length', value: String(body.length) },
+            { name: 'access-control-allow-origin', value: '*' },
+          ],
+          body: body.toString('base64'),
+        })
+      }, browser.port)
+      try {
+        const coldEvents = await navigate(tab, BASE)
+        coldRuns.push(await readMetrics(tab))
+        // Second visit in the same profile: the service worker installed
+        // during the cold pass, so this is the "open, use, close, open again"
+        // case the PWA buys.
+        await navigate(tab, BASE)
+        warmRuns.push(await readMetrics(tab))
+        for (const e of coldEvents) {
+          if (e.method === 'Network.responseReceived' && e.params.response.status >= 400) {
+            nonOk.add(`${e.params.response.status} ${e.params.response.url}`)
+          }
+        }
+      } finally {
+        tab.close()
+      }
+    } finally {
+      await browser.kill()
+    }
+  }
+  report = {
+    url: BASE,
+    throttling: 'lighthouse mobile slow-4G + 4x CPU',
+    stubbedApi: stub,
+    runs: REPEAT,
+    cold: median(coldRuns),
+    warm: median(warmRuns),
+    coldSpread: spread(coldRuns, 'lcp'),
+    warmSpread: spread(warmRuns, 'lcp'),
+    nonOk: [...nonOk],
+  }
+} catch (error) {
+  console.error(error)
+  process.exit(1)
 }
 
 const kb = n => `${(n / 1024).toFixed(1)} KB`
@@ -220,14 +277,13 @@ const line = (label, value) => console.log(`${label.padEnd(20)} ${String(value).
 if (flag('--json')) {
   console.log(JSON.stringify(report, null, 2))
 } else {
-  console.log(`\n@ ${report.url}  (${report.throttling})`)
-  for (const [label, run] of [['cold start', report.cold], ['warm (SW)', report.warm]]) {
+  console.log(`\n@ ${report.url}  (${report.throttling}, median of ${report.runs})`)
+  for (const [label, run, lcpSpread] of [['cold start', report.cold, report.coldSpread], ['warm (SW)', report.warm, report.warmSpread]]) {
     console.log(`\n${label}`)
     console.log('--------------------------------------------------')
     line('TTFB', ms(run.ttfb))
     line('FCP', ms(run.fcp))
-    line('LCP', ms(run.lcp))
-    if (run.lcpElement) console.log(`${''.padEnd(20)} ${run.lcpElement}`.padEnd(33))
+    line('LCP', `${ms(run.lcp)}  (${lcpSpread})`)
     line('CLS', typeof run.cls === 'number' ? run.cls.toFixed(4) : 'n/a')
     line('DOMContentLoaded', ms(run.domContentLoaded))
     line('load', ms(run.load))

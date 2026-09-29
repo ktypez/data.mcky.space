@@ -34,7 +34,9 @@ const BASE = `http://127.0.0.1:${server.address().port}`
 const CDP = process.env.CDP_URL || 'http://127.0.0.1:9429'
 const tabs = []
 async function open() {
-  const target = await (await fetch(`${CDP}/json/new?${BASE}/demo`, { method: 'PUT' })).json()
+  // '/' is the catalog route and is in the service worker's offline
+  // navigateFallbackAllowlist. /demo is not a route in this app.
+  const target = await (await fetch(`${CDP}/json/new?${BASE}/`, { method: 'PUT' })).json()
   const ws = new WebSocket(target.webSocketDebuggerUrl)
   await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject })
   let id = 0

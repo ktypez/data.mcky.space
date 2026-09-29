@@ -31,10 +31,18 @@ await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
 const BASE = `http://127.0.0.1:${server.address().port}`
 const CDP = process.env.CDP_URL || 'http://127.0.0.1:9429'
 const API = 'https://data-api.fall3n.workers.dev/api/clients/list'
-// Fixture state — never a claim about the real deployed API.
-const fixture = { calls: 0, mode: 'etag' }
+// Fixture state lives in the page (see the interceptor) and is never a claim
+// about the real deployed API.
 const interceptor = `
-  window.__fixture = ${JSON.stringify(fixture)}
+  // The interceptor is re-injected on every document, including reloads, so the
+  // fixture state has to live in sessionStorage. Without this the test could
+  // not put the "next load is offline" mode in place across a Page.reload.
+  const KEY = '__fixture'
+  const state = JSON.parse(sessionStorage.getItem(KEY) || 'null') || { calls: 0, mode: 'etag' }
+  const flush = () => sessionStorage.setItem(KEY, JSON.stringify(state))
+  window.__fixture = new Proxy(state, {
+    set(target, prop, value) { target[prop] = value; flush(); return true },
+  })
   const realFetch = window.fetch.bind(window)
   window.fetch = (input, init) => {
     const url = typeof input === 'string' ? input : input.url
@@ -57,7 +65,9 @@ const interceptor = `
 `
 const tabs = []
 async function open() {
-  const target = await (await fetch(`${CDP}/json/new?${BASE}/demo`, { method: 'PUT' })).json()
+  // '/' is the catalog route and is in the service worker's offline
+  // navigateFallbackAllowlist. /demo is not a route in this app.
+  const target = await (await fetch(`${CDP}/json/new?${BASE}/`, { method: 'PUT' })).json()
   const ws = new WebSocket(target.webSocketDebuggerUrl)
   await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject })
   let id = 0
@@ -94,6 +104,11 @@ async function open() {
   tabs.push(tab)
   await send('Page.enable')
   await send('Page.addScriptToEvaluateOnNewDocument', { source: interceptor })
+  // /json/new?url already started loading the document, and
+  // addScriptToEvaluateOnNewDocument only applies to the *next* one. Without
+  // this navigation the fetch interceptor never runs and the app hits the
+  // real API instead of the fixture.
+  await send('Page.navigate', { url: BASE + '/' })
   return tab
 }
 const catalog = `Array.from(document.querySelectorAll('a,button,[role="listitem"],[data-client-id]')).length`
@@ -113,11 +128,29 @@ try {
   const offlineState = await tab.evaluate(`JSON.stringify({calls:window.__fixture.calls})`)
 
   // Network back: If-None-Match revalidation returns 304 and the app keeps data.
-  await tab.evaluate(`window.__fixture.mode='match'`)
+  // data-cache skips revalidation while an entry is younger than FRESH_MS
+  // (30s), so age the stored response first — otherwise this reload would
+  // correctly read the cache and never touch the network.
+  const aged = await tab.evaluate(`(async () => {
+    const db = await new Promise((res, rej) => { const r = indexedDB.open('data-ledger-offline'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error) })
+    const store = db.transaction('public-responses', 'readwrite').objectStore('public-responses')
+    const keys = await new Promise((res, rej) => { const r = store.getAllKeys(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error) })
+    let n = 0
+    for (const key of keys) {
+      const entry = await new Promise((res, rej) => { const r = store.get(key); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error) })
+      if (!entry) continue
+      entry.checkedAt = Date.now() - 120000
+      store.put(entry); n++
+    }
+    await new Promise(res => { const t = db.transaction('public-responses'); t.oncomplete = res })
+    return n
+  })()`)
+  assert.ok(aged > 0, 'expected a cached response to age')
+  await tab.evaluate(`window.__fixture.mode='match'; window.__fixture.calls=0`)
   await tab.send('Page.reload')
   await tab.wait(`document.body.innerText.includes('ร้านเอ') && document.body.innerText.includes('ร้านบี')`)
   const calls = await tab.evaluate(`window.__fixture.calls`)
-  assert.ok(calls >= 3, `expected a revalidation call, got ${calls}`)
+  assert.equal(calls, 1, `expected exactly one conditional revalidation, got ${calls}`)
   console.log(JSON.stringify({
     passed: true, origin: BASE,
     firstLoadFromMock200: true,

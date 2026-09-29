@@ -30,7 +30,25 @@ Project context is stored in the shared agentmemory service under the stable pro
 - perf: `npm run measure:perf` — cold + warm start timings on the built `dist/`.
   Needs a server first (`npx vite preview --port 4178`). Pass `--stub-api` to
   serve fake client data over CDP, otherwise the catalog renders its error
-  state and LCP measures the error string instead of real rows.
+  state and LCP measures the error string instead of real rows. `--repeat N`
+  (default 3) runs each visit type N times in throwaway browser profiles and
+  reports medians; webfont races make single runs swing by over a second.
+
+## Browser PWA checks
+`scripts/check-pwa-browser.mjs`, `check-pwa-offline-data.mjs` and
+`check-pwa-update-browser.mjs` drive a real Chromium over CDP and assume an
+**empty browser profile** — a profile carrying a service worker from a previous
+build leaves the new worker waiting and the check times out at "activation
+timeout". Start one per run:
+
+```sh
+npx vite preview --port 4178 &        # check-pwa-browser.mjs only
+chromium --headless --no-sandbox --remote-debugging-port=9429 \
+  --user-data-dir="$(mktemp -d)" about:blank &
+```
+
+`check-pwa-update-browser.mjs` sleeps 61s on purpose (Workbox ignores updates
+within 60s), so give it a generous timeout.
 
 ## Auth
 - **OAuth-only.** Always use `npm run wrangler ...` (not `npm exec wrangler ...`).
