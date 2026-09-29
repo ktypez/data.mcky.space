@@ -200,7 +200,7 @@ export default function RecordPage() {
       <div className="mt-8 min-w-0">
         <h1 className="sr-only">รายละเอียดรายการ</h1>
         <div>
-          <ClientNames client={client} variant="detail" titleClassName="text-lg font-semibold leading-tight break-words whitespace-normal [overflow-wrap:anywhere]" subClassName="mt-1 text-sm opacity-60 break-words whitespace-normal [overflow-wrap:anywhere]" />
+          <ClientNames client={client} variant="detail" titleClassName="text-lg font-semibold leading-tight break-words whitespace-normal [overflow-wrap:anywhere]" branchClassName="mt-1 text-sm opacity-60 break-words whitespace-normal [overflow-wrap:anywhere]" subClassName="mt-1 text-sm opacity-60 break-words whitespace-normal [overflow-wrap:anywhere]" />
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {badgeLabel && <span className="inline-flex rounded-full bg-secondary px-2.5 py-1 font-mono text-xs font-medium text-secondary-foreground ring-1 ring-border">{badgeLabel}</span>}

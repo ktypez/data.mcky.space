@@ -1,50 +1,60 @@
 import type { Client } from '@/types/index'
-import { clientShopNames, clientNameValues } from '@/lib/clientNames'
+import { branchValue, clientNameValues, clientShopNames, clientTitleValues } from '@/lib/clientNames'
 import OverflowLine from '@/components/OverflowLine'
 
 interface ClientNamesProps {
-  client: Pick<Client, 'name' | 'shopName'>
+  client: Pick<Client, 'name' | 'shopName'> & { branch?: string }
   titleClassName?: string
   subClassName?: string
+  /** 'detail' only — styles the "สาขา : …" line between title and names. */
+  branchClassName?: string
   /** 'list' truncates to fit with "+N"; 'detail' shows all, wrapping only between fields. */
   variant?: 'list' | 'detail'
 }
 
 /**
- * Renders a client's name block with shop names on the title line and
- * person names below, each group never mixed:
+ * Renders a client's name block, keeping the three groups on their own lines:
  *
- *   {title + all shops}   — "xxx / yyy / zzz" (shops on the title line)
- *   {names joined " / "}  — "aaaaa / bbbbb / cccc" (person names)
+ *   detail                        list (single compact line)
+ *   ──────────────────────        ──────────────────────────
+ *   xxx / yyy      (shops)        xxx - อมกร        (shop1 + branch)
+ *   สาขา : อมกร                   yyy              (other shops → +1)
+ *   ลูกค้า : aaaaa / bbbbb        aaaaa / bbbbb    (person names)
  *
- * - variant="list" (default): each line becomes an `OverflowLine` — only the
- *   values that fit the container are shown, hidden ones collapse to "+N".
- * - variant="detail": every value is shown; wrapping only happens at the
- *   " / " separators, never mid-field.
+ * In 'detail' the title is the shop names alone — the branch already has its
+ * own labelled line right below, so repeating it would show it twice. Every
+ * line carries a label, so a block read out of context (or copied) still says
+ * what each line is.
+ *
+ * In 'list' there is no room for labels or a third line, so the branch is
+ * glued to the first shop name as "shop - branch" and the remaining shop
+ * names follow it — those are what collapse into "+N" when the row is narrow.
  */
 export default function ClientNames({
   client,
   titleClassName = '',
   subClassName = '',
+  branchClassName = '',
   variant = 'list',
 }: ClientNamesProps) {
-  const shops = clientShopNames(client)
   const names = clientNameValues(client)
 
   if (variant === 'detail') {
+    // Shop names only: the branch has its own labelled line directly below,
+    // so repeating it in the title would show the same value twice.
+    const branch = branchValue(client.branch)
     return (
       <>
-        <WrapBetweenFields values={shops} className={titleClassName} />
-        {names.length > 0 && (
-          <WrapBetweenFields values={names} className={subClassName} />
-        )}
+        <WrapBetweenFields values={clientShopNames(client)} className={titleClassName} />
+        <WrapBetweenFields values={branch ? [branch] : []} className={branchClassName} label="สาขา" />
+        <WrapBetweenFields values={names} className={subClassName} label="ลูกค้า" />
       </>
     )
   }
 
   return (
     <>
-      <OverflowLine values={shops} className={titleClassName} />
+      <OverflowLine values={clientTitleValues(client)} className={titleClassName} />
       {names.length > 0 && (
         <OverflowLine values={names} className={subClassName} />
       )}
@@ -53,17 +63,22 @@ export default function ClientNames({
 }
 
 /** Shows every value, wrapping between fields — long single-field names
- *  wrap at word boundaries via overflow-wrap:anywhere (never mid-word). */
+ *  wrap at word boundaries via overflow-wrap:anywhere (never mid-word).
+ *  An optional `label` prefixes the line as "label : " and stays part of the
+ *  same text run, so wrapping can also break right after the label. */
 function WrapBetweenFields({
   values,
   className = '',
+  label,
 }: {
   values: string[]
   className?: string
+  label?: string
 }) {
   if (values.length === 0) return null
   return (
     <div className={className}>
+      {label && <span>{label} : </span>}
       {values.map((v, i) => (
         <span key={i}>
           {i > 0 && ' / '}
