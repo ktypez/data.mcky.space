@@ -27,6 +27,10 @@ Project context is stored in the shared agentmemory service under the stable pro
 - health: `node scripts/health-check.mjs` (ต้องมี playwright chromium; ไม่มี → fallback curl smoke test)
 - deploy: `npm run deploy` (build vite + upload to Cloudflare Pages with --branch main)
 - wrangler any: `npm run wrangler <subcmd>` (auto-unsets `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` to force OAuth)
+- perf: `npm run measure:perf` — cold + warm start timings on the built `dist/`.
+  Needs a server first (`npx vite preview --port 4178`). Pass `--stub-api` to
+  serve fake client data over CDP, otherwise the catalog renders its error
+  state and LCP measures the error string instead of real rows.
 
 ## Auth
 - **OAuth-only.** Always use `npm run wrangler ...` (not `npm exec wrangler ...`).

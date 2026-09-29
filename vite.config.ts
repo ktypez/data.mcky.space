@@ -75,15 +75,21 @@ export default defineConfig({
           if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
             return 'vendor'
           }
-          if (id.includes('node_modules/@phosphor-icons') || id.includes('node_modules/class-variance-authority') || id.includes('node_modules/clsx') || id.includes('node_modules/tailwind-merge')) {
+          // NOTE: no manual chunk for `@phosphor-icons`. The barrel already
+          // tree-shakes, but a single named chunk forces every icon used by a
+          // lazy route into the entry's preload set. Let rolldown split them so
+          // the shell only ships the handful of nav icons it paints.
+          if (id.includes('node_modules/class-variance-authority') || id.includes('node_modules/clsx') || id.includes('node_modules/tailwind-merge')) {
             return 'ui'
           }
           if (id.includes('node_modules/zustand')) {
             return 'stores'
           }
-          if (id.includes('node_modules/motion') || id.includes('node_modules/@motion')) {
-            return 'motion'
-          }
+          // NOTE: no manual chunk for `motion`. Forcing it into a named chunk
+          // made rolldown emit a *static* import from the entry, so the 41KB
+          // chunk was preloaded on every cold start even though only the lazy
+          // Editor route (via ui/dialog -> PhotoUploadModal) ever needs it.
+          // Left to rolldown it lands in the Editor chunk instead.
         },
       },
     },

@@ -21,6 +21,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "check:pwa": "node scripts/check-pwa.mjs",
+    "measure:perf": "node scripts/measure-perf.mjs",
     "generate:offline-map-styles": "node scripts/generate-offline-map-styles.mjs"
   },
   "dependencies": {
