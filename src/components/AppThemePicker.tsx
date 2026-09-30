@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { CaretDown, Check, X } from '@phosphor-icons/react'
 import { Sketch } from '@uiw/react-color'
-import { getTheme, getThemeGroupId, themeGroups, themes } from '@/lib/design/themes'
+import { getTheme, themeGroups, themes } from '@/lib/design/themes'
 import type { ThemeGroupId } from '@/lib/design/tokens'
 import {
   DEFAULT_CUSTOM_PALETTE,
@@ -23,6 +23,14 @@ type ThemePickerProps = {
 const PRESET_THEMES = themes.filter(theme => theme.id !== 'custom')
 type ResolvedMode = 'light' | 'dark'
 type PickerTab = 'themes' | 'custom'
+
+/** The bucket a theme belongs to. The buckets partition the registry, so this
+ *  always finds one; a miss would mean a theme is unreachable in the picker. */
+function groupOf(theme: (typeof themes)[number]): ThemeGroupId {
+  const group = themeGroups.find(candidate => candidate.matches(theme))
+  if (!group) throw new Error(`Theme "${theme.id}" matches no theme group`)
+  return group.id
+}
 
 function cleanDescription(value: string): string {
   return value.replace(/\s+[—–-]\s+/g, ', ')
@@ -60,7 +68,7 @@ function ThemeGroups({
 }) {
   // Only the bucket holding the current theme starts open, so the dialog opens
   // on the answer to "which one am I using" without burying the rest.
-  const [openGroups, setOpenGroups] = useState<ThemeGroupId[]>(() => [getThemeGroupId(getTheme(themeId))])
+  const [openGroups, setOpenGroups] = useState<ThemeGroupId[]>(() => [groupOf(getTheme(themeId))])
   const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   const toggleGroup = (groupId: ThemeGroupId) => {
@@ -83,7 +91,7 @@ function ThemeGroups({
   return (
     <div className="app-theme-groups">
       {themeGroups.map(group => {
-        const items = PRESET_THEMES.filter(theme => getThemeGroupId(theme) === group.id)
+        const items = PRESET_THEMES.filter(theme => group.matches(theme))
         if (items.length === 0) return null
         const open = openGroups.includes(group.id)
         const hasActive = items.some(theme => theme.id === themeId)

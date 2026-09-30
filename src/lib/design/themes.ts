@@ -1,4 +1,4 @@
-import type { Theme, ThemeGroup, ThemeGroupId } from './tokens'
+import type { Theme, ThemeGroup } from './tokens'
 
 /**
  * Legacy theme (color-swap only, softer character). Kept as a static
@@ -16,10 +16,10 @@ const BUBBLEGUM_FONT_URL =
 const baseThemes: Theme[] = [
   {
     id: 'bubblegum',
-    group: 'loud',
     label: 'Bubblegum',
     description: 'Playful pink — bold shadows, poppy borders',
     character: 'plain',
+    modes: ['light', 'dark'],
     fonts: BUBBLEGUM_FONTS,
     fontUrl: BUBBLEGUM_FONT_URL,
     staticCss: '/themes/bubblegum.css',
@@ -96,10 +96,10 @@ const baseThemes: Theme[] = [
   },
   {
     id: 'slate',
-    group: 'everyday',
     label: 'Slate',
     description: 'Cool steel — industrial, clean',
     character: 'plain',
+    modes: ['light', 'dark'],
     fonts: {
       display: "'Inter', 'Sarabun', system-ui, sans-serif",
       body: "'Sarabun', 'Inter', system-ui, sans-serif",
@@ -214,7 +214,6 @@ const CLAUDE_FONT_URL =
 // glitchpage — dark navy + hot pink/cyan, RGB-split glitch, scanlines (dark-only)
 const glitchpage: Theme = {
   id: 'glitchpage',
-  group: 'machine',
   label: 'GLITCHPAGE',
   description: 'Error-page กลางคืน — hot pink + cyan, glitch เต็มรูปแบบ',
   character: 'glitch',
@@ -297,7 +296,6 @@ const glitchpage: Theme = {
 // crt — PIXSH phosphor-green terminal, scanlines, มุม 0 องศา (dark-only)
 const crt: Theme = {
   id: 'crt',
-  group: 'machine',
   label: 'PIXSH · CRT',
   description: 'จอ phosphor เขียว + scanlines — terminal ยุค 80',
   character: 'crt',
@@ -380,7 +378,6 @@ const crt: Theme = {
 // claude — warm editorial paper, clay accent, bilingual serif (dual mode)
 const claude: Theme = {
   id: 'claude',
-  group: 'paper',
   label: 'CLAUDE PAPER',
   description: 'กระดาษอบอุ่น + clay — editorial serif ภาษาไทย-อังกฤษ',
   character: 'paper',
@@ -471,7 +468,6 @@ const RACK_FONT_URL =
 
 const rack: Theme = {
   id: 'rack',
-  group: 'machine',
   label: 'STACK//FRAME',
   description: 'ตู้เซิร์ฟเวอร์ — amber LED + hardware green, mono',
   character: 'rack',
@@ -561,7 +557,6 @@ const NOC_FONT_URL = RACK_FONT_URL
 
 const noc: Theme = {
   id: 'noc',
-  group: 'machine',
   label: 'PACKETGRID',
   description: 'ห้องเน็ตเวิร์ก — teal/cyan packet grid + status dots',
   character: 'noc',
@@ -651,7 +646,6 @@ const MIN_FONT_URL = RACK_FONT_URL
 
 const min: Theme = {
   id: 'min',
-  group: 'machine',
   label: 'collage.sh · MIN',
   description: 'มินิมอลสายเทอร์มินัล — olive lime บนขาวสะอาด',
   character: 'min',
@@ -742,7 +736,6 @@ const BRUT_FONT_URL =
 
 const brut: Theme = {
   id: 'brut',
-  group: 'loud',
   label: 'BRUT',
   description: 'Brutalist — คอนกรีต + ขอบหมึกดำ + แดงสัญญาณ',
   character: 'brut',
@@ -833,7 +826,6 @@ const MCKY_FONT_URL =
 
 const mcky: Theme = {
   id: 'mcky',
-  group: 'everyday',
   label: 'MCKY',
   description: 'สไตล์บ้าน — กระดาษ + ขอบดำ + amber + เงาแข็ง (light only)',
   character: 'mcky',
@@ -924,7 +916,6 @@ const PORTAL_FONT_URL =
 
 const portal: Theme = {
   id: 'portal',
-  group: 'everyday',
   label: 'PORTAL',
   description: 'Editorial paper — olive ink, quiet and calm',
   character: 'portal',
@@ -1015,7 +1006,6 @@ const BLUEPRINT_FONT_URL =
 
 const blueprint: Theme = {
   id: 'blueprint',
-  group: 'paper',
   label: 'BLUEPRINT',
   description: 'สถาปัตย์เทคนิค — blueprint paper + steel blue + hairline grid',
   character: 'blueprint',
@@ -1106,7 +1096,6 @@ const NOIR_FONT_URL =
 
 const noir: Theme = {
   id: 'noir',
-  group: 'paper',
   label: 'NOIR',
   description: 'Whiskey bar ตอนตี 1 — oxblood + brass + Playfair',
   character: 'noir',
@@ -1270,21 +1259,6 @@ const characterThemes: Theme[] = [portal, glitchpage, crt, claude, rack, noc, mi
 
 export const themes: Theme[] = [...baseThemes, ...characterThemes]
 
-/**
- * Collapsible buckets in the theme picker, in display order. Themes keep their
- * declaration order inside a bucket, so reordering the registry above moves a
- * theme within its group without touching this list.
- */
-export const themeGroups: ThemeGroup[] = [
-  { id: 'everyday', label: 'ประจำวัน', description: 'หน้าตานิ่ง ใช้ทำงานทั้งวันได้' },
-  { id: 'paper', label: 'กระดาษ & บรรณาธิการ', description: 'ผิวกระดาษ ตัวพิมพ์ editorial' },
-  { id: 'machine', label: 'เครื่อง & เทคย้อนยุค', description: 'จอ CRT ปลายทาง ห้องเซิร์ฟเวอร์' },
-  { id: 'loud', label: 'ดิด & สนุก', description: 'หน้าตาแรง ไม่เคยเก็บตัว' },
-]
-
-/** Bucket for themes with no explicit group, so nothing is hidden. */
-export const DEFAULT_THEME_GROUP: ThemeGroupId = 'everyday'
-
 const defaultTheme: Theme = portal
 
 /** Resolve a theme by id, falling back to the default. */
@@ -1292,13 +1266,8 @@ export function getTheme(id: string | undefined | null): Theme {
   return themes.find((t) => t.id === id) ?? defaultTheme
 }
 
-/** The bucket a theme renders under in the picker. */
-export function getThemeGroupId(theme: Theme): ThemeGroupId {
-  return theme.group ?? DEFAULT_THEME_GROUP
-}
-
 /** Full-character themes (vs the plain/legacy bubblegum). All themes own a
- *  static stylesheet now; this only drives picker grouping/labels. */
+ *  static stylesheet now, so this only reports character, not loading. */
 export function isCharacterTheme(t: Theme): boolean {
   return !!t.character && t.character !== 'plain'
 }
@@ -1315,8 +1284,19 @@ export function isLightOnlyTheme(t: Theme): boolean {
 
 /** Theme supports both light and dark modes. */
 export function isDualModeTheme(t: Theme): boolean {
-  return !!t.modes && t.modes.length === 2
+  return !isLightOnlyTheme(t) && !isDarkOnlyTheme(t)
 }
+
+/**
+ * Collapsible buckets in the theme picker, in display order. The split is by
+ * supported color mode, not by mood, so the three groups are mutually
+ * exclusive and cover the registry exactly once — which a test pins down.
+ */
+export const themeGroups: ThemeGroup[] = [
+  { id: 'dual', label: 'DUO', description: 'ใช้ได้ทั้งโหมดสว่างและโหมดมืด', matches: isDualModeTheme },
+  { id: 'light', label: 'LIGHT', description: 'ใช้ได้เฉพาะโหมดสว่าง', matches: isLightOnlyTheme },
+  { id: 'dark', label: 'DARK', description: 'ใช้ได้เฉพาะโหมดมืด', matches: isDarkOnlyTheme },
+]
 
 /** ids ที่ backend อนุญาต — ต้องตรงกับ registry นี้ (mirror ใน functions/lib/theme-ids.ts) */
 // THEME_IDS removed — backend still mirrors functions/lib/theme-ids.ts

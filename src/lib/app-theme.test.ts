@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getTheme, getThemeGroupId, themeGroups, themes } from '@/lib/design/themes'
+import { getTheme, themeGroups, themes } from '@/lib/design/themes'
 import {
   DEFAULT_CUSTOM_PALETTE,
   normaliseAppMode,
@@ -18,18 +18,29 @@ describe('shared app theme mode', () => {
     expect(getTheme('custom').modes).toEqual(['light', 'dark'])
   })
 
-  it('puts every preset theme in a declared, non-empty picker group', () => {
+  it('partitions every preset into exactly one mode group', () => {
     const presets = themes.filter(theme => theme.id !== 'custom')
-    const groupIds = themeGroups.map(group => group.id)
-    expect(new Set(groupIds).size).toBe(groupIds.length)
-
+    // A theme in no group is invisible; a theme in two groups is duplicated.
+    // Both are silent failures, so assert the partition holds.
     for (const theme of presets) {
-      expect(groupIds).toContain(getThemeGroupId(theme))
+      expect(themeGroups.filter(group => group.matches(theme))).toHaveLength(1)
     }
-    // A typo'd group would silently hide a theme from the picker.
     for (const group of themeGroups) {
-      expect(presets.filter(theme => getThemeGroupId(theme) === group.id).length).toBeGreaterThan(0)
+      expect(presets.filter(theme => group.matches(theme)).length).toBeGreaterThan(0)
     }
+    expect(new Set(themeGroups.map(group => group.id)).size).toBe(themeGroups.length)
+  })
+
+  it('buckets by supported mode, not by a hand-assigned field', () => {
+    const bucket = (id: string) => themeGroups.find(group => group.matches(getTheme(id)))?.id
+    expect(bucket('mcky')).toBe('light')
+    expect(bucket('crt')).toBe('dark')
+    expect(bucket('portal')).toBe('dual')
+    // bubblegum and slate are dual-mode but carry no explicit `modes` until
+    // they were declared as such, so this also guards that declaration.
+    expect(getTheme('bubblegum').modes).toEqual(['light', 'dark'])
+    expect(bucket('bubblegum')).toBe('dual')
+    expect(bucket('slate')).toBe('dual')
   })
 
   it('normalizes the legacy system value to auto', () => {
