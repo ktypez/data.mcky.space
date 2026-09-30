@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { CaretDown, Check, X } from '@phosphor-icons/react'
 import { Sketch } from '@uiw/react-color'
-import { getTheme, themes } from '@/lib/design/themes'
+import { getTheme, getThemeGroupId, themeGroups, themes } from '@/lib/design/themes'
+import type { ThemeGroupId } from '@/lib/design/tokens'
 import {
   DEFAULT_CUSTOM_PALETTE,
   contrastRatio,
@@ -46,7 +47,7 @@ function ThemeSwatches({ theme, dark, customPalette }: { theme: typeof themes[nu
   )
 }
 
-function ThemeGrid({
+function ThemeGroups({
   themeId,
   setThemeId,
   dark,
@@ -57,32 +58,91 @@ function ThemeGrid({
   dark: boolean
   onChoose?: () => void
 }) {
+  // Only the bucket holding the current theme starts open, so the dialog opens
+  // on the answer to "which one am I using" without burying the rest.
+  const [openGroups, setOpenGroups] = useState<ThemeGroupId[]>(() => [getThemeGroupId(getTheme(themeId))])
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+
+  const toggleGroup = (groupId: ThemeGroupId) => {
+    setOpenGroups(current => current.includes(groupId)
+      ? current.filter(id => id !== groupId)
+      : [...current, groupId])
+  }
+
+  const onTriggerKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, groupId: ThemeGroupId) => {
+    const order = themeGroups.map(group => group.id)
+    const step = event.key === 'ArrowDown' || event.key === 'ArrowRight' ? 1
+      : event.key === 'ArrowUp' || event.key === 'ArrowLeft' ? -1
+      : 0
+    if (step === 0) return
+    event.preventDefault()
+    const next = order[(order.indexOf(groupId) + step + order.length) % order.length]
+    triggerRefs.current[next]?.focus()
+  }
+
   return (
-    <div className="app-theme-grid" role="radiogroup" aria-label="เลือกธีมสำเร็จรูป">
-      {PRESET_THEMES.map((theme) => {
-        const active = theme.id === themeId
+    <div className="app-theme-groups">
+      {themeGroups.map(group => {
+        const items = PRESET_THEMES.filter(theme => getThemeGroupId(theme) === group.id)
+        if (items.length === 0) return null
+        const open = openGroups.includes(group.id)
+        const hasActive = items.some(theme => theme.id === themeId)
+        const panelId = `app-theme-group-${group.id}`
+        const triggerId = `${panelId}-trigger`
         return (
-          <button
-            key={theme.id}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            data-active={active}
-            className="app-theme-card"
-            onClick={() => {
-              setThemeId(theme.id)
-              onChoose?.()
-            }}
-          >
-            <ThemeSwatches theme={theme} dark={dark} />
-            <span className="app-theme-card-copy">
-              <span className="app-theme-card-label">
-                {theme.label}
-                {active && <Check size={14} weight="bold" aria-label="ธีมปัจจุบัน" />}
-              </span>
-              <span className="app-theme-card-description">{cleanDescription(theme.description)}</span>
-            </span>
-          </button>
+          <section key={group.id} className="app-theme-group">
+            <h3 className="app-theme-group-heading">
+              <button
+                ref={node => { triggerRefs.current[group.id] = node }}
+                type="button"
+                id={triggerId}
+                className="app-theme-group-trigger"
+                data-open={open}
+                data-has-active={hasActive}
+                aria-expanded={open}
+                aria-controls={panelId}
+                onClick={() => toggleGroup(group.id)}
+                onKeyDown={event => onTriggerKeyDown(event, group.id)}
+              >
+                <CaretDown size={14} weight="bold" className="app-theme-group-caret" aria-hidden />
+                <span className="app-theme-group-copy">
+                  <strong>{group.label}</strong>
+                  <small>{group.description}</small>
+                </span>
+                <span className="app-theme-group-count">{items.length}</span>
+              </button>
+            </h3>
+            <div id={panelId} role="group" aria-labelledby={triggerId} hidden={!open} className="app-theme-group-panel">
+              <div className="app-theme-grid" role="radiogroup" aria-label={`ธีมกลุ่ม${group.label}`}>
+                {items.map((theme) => {
+                  const active = theme.id === themeId
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      data-active={active}
+                      className="app-theme-card"
+                      onClick={() => {
+                        setThemeId(theme.id)
+                        onChoose?.()
+                      }}
+                    >
+                      <ThemeSwatches theme={theme} dark={dark} />
+                      <span className="app-theme-card-copy">
+                        <span className="app-theme-card-label">
+                          {theme.label}
+                          {active && <Check size={14} weight="bold" aria-label="ธีมปัจจุบัน" />}
+                        </span>
+                        <span className="app-theme-card-description">{cleanDescription(theme.description)}</span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </section>
         )
       })}
     </div>
@@ -277,7 +337,7 @@ export default function AppThemePicker({
 
         <div id="app-theme-panel" role="tabpanel" aria-labelledby={tab === 'themes' ? 'app-theme-themes-tab' : 'app-theme-custom-tab'} className="app-theme-dialog-body">
           {tab === 'themes' ? (
-            <ThemeGrid
+            <ThemeGroups
               themeId={themeId}
               setThemeId={setThemeId}
               dark={resolvedMode === 'dark'}

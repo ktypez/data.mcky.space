@@ -1,3 +1,83 @@
+.app-theme-groups {
+  display: grid;
+  gap: 8px;
+}
+.app-theme-group {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.app-theme-group-heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.app-theme-group-trigger {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  color: var(--foreground);
+  background: var(--background);
+  border: 0;
+  border-radius: 3px;
+  text-align: left;
+}
+.app-theme-group-trigger:hover {
+  background: var(--muted);
+}
+.app-theme-group-caret {
+  flex: 0 0 auto;
+  transition: transform .12s;
+}
+.app-theme-group-trigger[data-open='false'] .app-theme-group-caret {
+  transform: rotate(-90deg);
+}
+.app-theme-group-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.app-theme-group-copy strong,
+.app-theme-group-copy small {
+  display: block;
+}
+.app-theme-group-copy strong {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.app-theme-group-copy small {
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.app-theme-group-count {
+  flex: 0 0 auto;
+  min-width: 24px;
+  padding: 2px 7px;
+  font-family: var(--theme-font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.app-theme-group-trigger[data-has-active='true'] .app-theme-group-count {
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border-color: var(--primary);
+}
+/* No display here: the panel relies on [hidden] to collapse, and a display
+   rule would win over it. */
+.app-theme-group-panel {
+  padding: 0 8px 8px;
+  animation: app-theme-group-in .12s ease-out;
+}
+@keyframes app-theme-group-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .app-theme-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -372,5 +452,11 @@
 @media (prefers-reduced-motion: reduce) {
   .app-theme-dialog[open] {
     animation: none;
+  }
+  .app-theme-group-panel {
+    animation: none;
+  }
+  .app-theme-group-caret {
+    transition: none;
   }
 }

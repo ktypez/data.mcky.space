@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getTheme, themes } from '@/lib/design/themes'
+import { getTheme, getThemeGroupId, themeGroups, themes } from '@/lib/design/themes'
 import {
   DEFAULT_CUSTOM_PALETTE,
   normaliseAppMode,
@@ -16,6 +16,20 @@ describe('shared app theme mode', () => {
     expect(themes.map(theme => theme.id)).toContain('portal')
     expect(themes.map(theme => theme.id)).toContain('mcky')
     expect(getTheme('custom').modes).toEqual(['light', 'dark'])
+  })
+
+  it('puts every preset theme in a declared, non-empty picker group', () => {
+    const presets = themes.filter(theme => theme.id !== 'custom')
+    const groupIds = themeGroups.map(group => group.id)
+    expect(new Set(groupIds).size).toBe(groupIds.length)
+
+    for (const theme of presets) {
+      expect(groupIds).toContain(getThemeGroupId(theme))
+    }
+    // A typo'd group would silently hide a theme from the picker.
+    for (const group of themeGroups) {
+      expect(presets.filter(theme => getThemeGroupId(theme) === group.id).length).toBeGreaterThan(0)
+    }
   })
 
   it('normalizes the legacy system value to auto', () => {

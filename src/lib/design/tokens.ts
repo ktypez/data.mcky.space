@@ -34,6 +34,16 @@ export interface ThemeVars {
   '--pin-color': string
 }
 
+/** Picker buckets. Order comes from themeGroups in themes.ts. */
+export type ThemeGroupId = 'everyday' | 'paper' | 'machine' | 'loud'
+
+export interface ThemeGroup {
+  id: ThemeGroupId
+  label: string
+  /** One line explaining the bucket, shown under the group heading. */
+  description: string
+}
+
 export interface ThemeFonts {
   /** display/heading font stack (maps to --theme-font-display) */
   display: string
@@ -53,6 +63,11 @@ export interface Theme {
    * own static stylesheet in public/themes/.
    */
   character?: 'plain' | 'glitch' | 'crt' | 'paper' | 'rack' | 'noc' | 'min' | 'brut' | 'mcky' | 'blueprint' | 'noir' | 'portal'
+  /**
+   * Picker bucket. Unset falls back to DEFAULT_THEME_GROUP, so a theme is
+   * never invisible in the picker.
+   */
+  group?: ThemeGroupId
   /** Color modes this theme supports. Dark-only themes force .dark. */
   modes?: Array<'light' | 'dark'>
   /** Font stacks exposed as --theme-font-{display,body,mono} */
