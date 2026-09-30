@@ -18,11 +18,16 @@ export default defineConfig({
       // Prevents mid-session asset swaps under a live form.
       registerType: 'prompt',
       // Public manifest is the single source of truth.
-      includeAssets: ['favicon.svg', 'icon-192.png', 'icon-512.png'],
       manifest: false,
       injectRegister: null,
       workbox: {
+        // globPatterns already covers everything in public/, so the previous
+        // includeAssets of the icons only listed them a second time — 28KB of
+        // duplicate precache entries on every install.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // The design lab is an internal route under /__design_lab, not part of
+        // the catalog experience, so it does not need to work offline.
+        globIgnores: ['assets/DetailLabApp-*.js'],
         // Only known app navigations receive the shell; never API/auth/assets.
         navigateFallbackAllowlist: [/^\/$/, /^\/(?:add|trash|maps|settings)\/?$/, /^\/(?:c|edit)\/[^/]+\/?$/],
         importScripts: ['sw-cleanup.js'],
