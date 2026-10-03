@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { NotePencil } from 'phosphor-svelte'
+  import { CreditCard, NotePencil } from 'phosphor-svelte'
   import type { Client } from '@/types/index'
   import ClientNames from '@/components/ClientNames.svelte'
   import AppImage from '@/components/AppImage.svelte'
@@ -54,6 +54,21 @@
         subClassName={`truncate py-0.5 text-xs leading-5 ${active ? 'text-primary-foreground/60' : 'opacity-60'}`}
       />
     </span>
+    <!-- Only `credit` earns a chip: `penpay` is the common case (88 of 483 in
+         production) and tagging it would bury the signal. The chip inverts the
+         row's own foreground/background pair rather than using a status hue --
+         hue-based chips drop to 1.19:1 on some themes, this pair stays at
+         5.65:1 at worst. -->
+    {#if client.badge === 'credit'}
+      <span
+        data-credit="true"
+        title="ประเภทชำระ: บัตรเครดิต"
+        class="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[10px] font-semibold leading-none {active ? 'border border-primary-foreground/60 bg-primary-foreground/20 text-primary-foreground' : 'bg-foreground text-background'}"
+      >
+        <CreditCard size={11} weight="fill" aria-hidden />
+        บัตรเครดิต
+      </span>
+    {/if}
     {#if client.hasNotes || client.notes?.trim()}
       <span class="flex shrink-0 text-destructive" title={client.notes?.trim() || 'มีโน้ต'}>
         <NotePencil size={14} weight="fill" aria-hidden />
