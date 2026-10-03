@@ -6,11 +6,14 @@ Project context is stored in the shared agentmemory service under the stable pro
 - Save durable outcomes with `memory_save`, always setting `project: "data"`.
 
 ## Stack
-- Vite 8 + React 19 + TypeScript
-- Tailwind CSS 4 + Zustand
+- Vite 8 + Svelte 5 + TypeScript (React ถูกเขียนใหม่ทั้งหมด — React ตัวเก่าอยู่ที่ tag `archive/react-final-2026-10-03`)
+- Tailwind CSS 4 + Zustand (ผ่าน shim `src/stores/create-store.ts` ที่ใช้ `writable` + `getState`/`setState`)
 - Cloudflare D1 (SQLite) + R2 storage
 - MapLibre-free Leaflet map (lazy-loaded)
 - Deploy: Cloudflare Pages (wrangler deploy + _routes.json static-asset routing)
+- **Map tiles**: Stadia `alidade_smooth` / `alidade_smooth_dark`, needs `VITE_MAP_API_KEY`
+  (gitignored `.env.local`). ไม่มี key → `getTileUrl` ตกไปใช้ raster ของ OSM ที่ไม่มีสไตล์มืด
+  (ดู `tilePaneFilter` ใน `src/lib/map-styles.ts`)
 
 ## Package Manager
 - **npm เท่านั้น** — เครื่องนี้ไม่มี pnpm อย่าใช้ `pnpm ...` ให้ใช้ `npm run ...` แทน
