@@ -49,18 +49,45 @@
     needRefresh.set(false)
   }
 
+  // vite-plugin-pwa ignores the reload flag it is handed and relies on
+  // Workbox's `controlling` event, which iOS Safari does not reliably fire for
+  // a skipWaiting sent over a message. Wait for the browser's own
+  // controllerchange instead, then reload ourselves; the timeout keeps a
+  // stalled activation from freezing the button forever.
+  function awaitControllerChange(timeoutMs: number): Promise<void> {
+    return new Promise((resolve) => {
+      if (!navigator.serviceWorker) return resolve()
+      let settled = false
+      const finish = () => {
+        if (settled) return
+        settled = true
+        navigator.serviceWorker.removeEventListener('controllerchange', onChange)
+        resolve()
+      }
+      function onChange() {
+        finish()
+      }
+      navigator.serviceWorker.addEventListener('controllerchange', onChange, { once: true })
+      setTimeout(finish, timeoutMs)
+    })
+  }
+
   async function apply() {
     error = false
+    applying = true
     try {
       await acceptUpdate(
-        async (reload) => {
-          applying = true
-          await updateServiceWorker(reload)
+        async () => {
+          await updateServiceWorker(true)
+          await awaitControllerChange(3000)
+          window.location.reload()
         },
         // Only interrupt when a form actually holds unsaved edits; otherwise
         // the reload is harmless and asking is just noise.
         () => !isFormDirty() || window.confirm('มีข้อมูลที่ยังไม่บันทึก อัปเดตจะโหลดหน้านี้ใหม่ ต่อไหม?'),
       )
+      // Reached only when the update could not be handed over at all.
+      applying = false
     } catch {
       error = true
       applying = false
