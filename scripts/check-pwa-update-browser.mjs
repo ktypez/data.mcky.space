@@ -76,7 +76,7 @@ async function open() {
   return tab
 }
 const version = `(async()=>{const c=navigator.serviceWorker.controller;if(!c)return null;return new Promise((resolve,reject)=>{const ch=new MessageChannel();const t=setTimeout(()=>reject(Error('worker version timeout')),5000);ch.port1.onmessage=e=>{clearTimeout(t);resolve(e.data)};c.postMessage('E2E_VERSION',[ch.port2])})})()`
-const button = `[...document.querySelectorAll('button')].find(b=>b.textContent.includes('อัปเดตและรีเฟรช'))`
+const button = `document.querySelector('[data-update-apply]')`
 try {
   const first = await open()
   await first.wait(`navigator.serviceWorker.controller && document.body.innerText.length>100`)
@@ -99,7 +99,8 @@ try {
   assert.equal(await second.evaluate(version), 'A')
   assert.equal(await second.evaluate(`document.querySelector('meta[name="e2e-build"]').content`), 'A')
   assert.equal(await second.evaluate(`navigator.serviceWorker.getRegistration().then(r=>r.waiting?.state)`), 'installed')
-  // Actual banner click opens the confirmation; CDP accepts as the user would.
+  // Clicking apply with no unsaved form must go straight through: the prompt
+  // only interrupts when isFormDirty() is set, so no dialog is expected here.
   let confirmed = false
   second.events.set('Page.javascriptDialogOpening', () => {
     confirmed = true
@@ -107,7 +108,7 @@ try {
   })
   await second.evaluate(`setTimeout(()=>(${button}).click(),0);true`)
   await second.wait(`document.querySelector('meta[name="e2e-build"]')?.content==='B'`)
-  assert.equal(confirmed, true)
+  assert.equal(confirmed, false)
   assert.equal(await second.evaluate(version), 'B')
   assert.equal(await second.evaluate('navigator.serviceWorker.getRegistration().then(r=>r.waiting===null)'), true)
   assert.equal(await second.evaluate(`!!(${button})`), false)
