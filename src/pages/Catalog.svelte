@@ -187,15 +187,20 @@
         <div style="height: {$vstore?.getTotalSize() ?? 0}px; position: relative;">
           {#each $vstore?.getVirtualItems() ?? [] as vi (filtered[vi.index]?.id ?? vi.index)}
             {@const c = filtered[vi.index]}
-            <CatalogRow
-              client={c}
-              active={vi.index === focused}
-              index={vi.index}
-              onOpen={() => push(`/c/${encodeURIComponent(c.id)}`)}
-              onFocus={() => (focused = vi.index)}
-              measureElement={(node) => vstore && get(vstore).measureElement(node)}
-              style="position: absolute; left: 0; top: 0; width: 100%; transform: translateY({vi.start}px);"
-            />
+            <!-- The virtualizer keeps its previous range for one frame after
+                 setOptions({ count }), so a filter that shrinks the list can
+                 hand us an index that is already out of bounds. -->
+            {#if c}
+              <CatalogRow
+                client={c}
+                active={vi.index === focused}
+                index={vi.index}
+                onOpen={() => push(`/c/${encodeURIComponent(c.id)}`)}
+                onFocus={() => (focused = vi.index)}
+                measureElement={(node) => vstore && get(vstore).measureElement(node)}
+                style="position: absolute; left: 0; top: 0; width: 100%; transform: translateY({vi.start}px);"
+              />
+            {/if}
           {/each}
         </div>
       </div>
