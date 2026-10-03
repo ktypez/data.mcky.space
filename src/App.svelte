@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import Router, { location, link, push } from 'svelte-spa-router'
+import wrap from 'svelte-spa-router/wrap'
   import { ArrowClockwise, House, Plus, Gear, MapTrifold, Trash } from 'phosphor-svelte'
   import { useAuthStore } from '@/stores/auth-store'
   import { useClientStore } from '@/stores/client-store'
@@ -14,24 +15,19 @@
 
   import Login from './pages/Login.svelte'
 
-  const Catalog = () => import('./pages/Catalog.svelte')
-  const Record = () => import('./pages/Record.svelte')
-  const Editor = () => import('./pages/Editor.svelte')
-  const TrashPage = () => import('./pages/Trash.svelte')
-  const Maps = () => import('./pages/Maps.svelte')
-  const Settings = () => import('./pages/Settings.svelte')
-  const NotFound = () => import('./pages/NotFound.svelte')
-
+  // svelte-spa-router treats a bare function route as a *sync* component and
+  // wraps it in () => Promise.resolve(fn), so a lazy route must be passed
+  // through wrap({ asyncComponent }) or the loader itself gets mounted.
   const routes = {
-    '/': Catalog,
-    '/add': Editor,
-    '/edit/:id': Editor,
-    '/trash': TrashPage,
-    '/maps': Maps,
-    '/settings': Settings,
-    '/c/:id': Record,
+    '/': wrap({ asyncComponent: () => import('./pages/Catalog.svelte') }),
+    '/add': wrap({ asyncComponent: () => import('./pages/Editor.svelte') }),
+    '/edit/:id': wrap({ asyncComponent: () => import('./pages/Editor.svelte') }),
+    '/trash': wrap({ asyncComponent: () => import('./pages/Trash.svelte') }),
+    '/maps': wrap({ asyncComponent: () => import('./pages/Maps.svelte') }),
+    '/settings': wrap({ asyncComponent: () => import('./pages/Settings.svelte') }),
+    '/c/:id': wrap({ asyncComponent: () => import('./pages/Record.svelte') }),
     '/login': Login,
-    '*': NotFound,
+    '*': wrap({ asyncComponent: () => import('./pages/NotFound.svelte') }),
   }
 
   let theme = $derived($appTheme)

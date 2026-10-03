@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
 
   let {
     src,
@@ -16,8 +17,8 @@
     [key: string]: unknown
   } = $props()
 
-  let current = $state(src)
-  let prevSrc = $state(src)
+  let current = $state(untrack(() => src))
+  let prevSrc = $state(untrack(() => src))
   $effect(() => {
     if (src !== prevSrc) {
       prevSrc = src

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, untrack } from 'svelte'
   import { push } from 'svelte-spa-router'
   import { MapTrifold, X, MagnifyingGlass } from 'phosphor-svelte'
   import { useClientStore } from '@/stores/client-store'
@@ -27,14 +27,14 @@
 
   let storeClients = $derived($useClientStore.clients)
 
-  let containerRef: HTMLDivElement
+  let containerRef = $state<HTMLDivElement>()
   let map: InstanceType<LL['Map']> | null = null
   let layer: InstanceType<LL['TileLayer']> | null = null
   let lib: LL | null = null
   let markers: InstanceType<LL['Marker']>[] = []
   let pinsRef: Client[] = []
   let dark = $state(isDarkMode())
-  let darkRef = dark
+  let darkRef = untrack(() => dark)
   let attrOpen = $state(false)
   let failed = $state(false)
   let loading = $state(true)

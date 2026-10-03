@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, untrack } from 'svelte'
 
   let {
     values,
@@ -7,9 +7,9 @@
     className = '',
   }: { values: string[]; separator?: string; className?: string } = $props()
 
-  let container: HTMLDivElement
-  let measure: HTMLSpanElement
-  let visible = $state(values.length)
+  let container = $state<HTMLDivElement>()
+  let measure = $state<HTMLSpanElement>()
+  let visible = $state(untrack(() => values.length))
 
   function compute() {
     if (!container || !measure || values.length === 0) return

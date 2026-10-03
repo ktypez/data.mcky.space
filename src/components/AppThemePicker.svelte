@@ -1,5 +1,6 @@
 <script lang="ts">
   import { CaretDown, Check, X } from 'phosphor-svelte'
+  import { untrack } from 'svelte'
   import { getTheme, themeGroups, themes } from '@/lib/design/themes'
   import type { ThemeGroupId } from '@/lib/design/tokens'
   import {
@@ -42,9 +43,9 @@
   let dialogRef: HTMLDialogElement
   let tab = $state<PickerTab>('themes')
   let resolvedMode: ResolvedMode = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
-  let draft = $state<CustomColorSet>(customPalette[resolvedMode])
+  let draft = $state<CustomColorSet>(untrack(() => customPalette[resolvedMode]))
   let selected = $derived(getTheme(themeId))
-  let openGroups = $state<ThemeGroupId[]>([groupOf(getTheme(themeId))])
+  let openGroups = $state<ThemeGroupId[]>(untrack(() => [groupOf(getTheme(themeId))]))
   let activeColor = $state<ColorKey>('primary')
 
   const COLOR_FIELDS: { key: ColorKey; label: string }[] = [
@@ -105,7 +106,7 @@
     : dark
       ? theme.dark
       : theme.light}
-  <span class="app-theme-swatches" aria-hidden>
+  <span class="app-theme-swatches" aria-hidden="true">
     <span style="background-color: {palette['--background']}"></span>
     <span style="background-color: {palette['--primary']}"></span>
     <span style="background-color: {palette['--accent']}"></span>
@@ -253,7 +254,7 @@
               >
                 <span>{field.label}</span>
                 <span class="app-color-value">
-                  <span class="app-color-swatch" style="background-color: {draft[field.key]}" aria-hidden></span>
+                  <span class="app-color-swatch" style="background-color: {draft[field.key]}" aria-hidden="true"></span>
                   <code>{draft[field.key]}</code>
                 </span>
               </button>

@@ -11,7 +11,7 @@
     return (mod.default ?? mod) as LL
   }
 
-  let containerRef: HTMLDivElement
+  let containerRef = $state<HTMLDivElement>()
   let map: InstanceType<LL['Map']> | null = null
   let layer: InstanceType<LL['TileLayer']> | null = null
   let lib: LL | null = null

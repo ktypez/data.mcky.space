@@ -1,5 +1,6 @@
 <script lang="ts">
   import { push, replace } from 'svelte-spa-router'
+  import { untrack } from 'svelte'
   import { ArrowLeft, Plus, Pencil } from 'phosphor-svelte'
   import { useClientStore } from '@/stores/client-store'
   import { useAuthStore } from '@/stores/auth-store'
@@ -26,8 +27,8 @@
   let checking = $derived($useAuthStore.checking)
 
   let editClient = $state<Client | null>(null)
-  let loadedId = $state<string | null>(id || null)
-  let hydrating = $state(Boolean(id))
+  let loadedId = $state<string | null>(untrack(() => id || null))
+  let hydrating = $state(untrack(() => Boolean(id)))
   let loadError = $state<string | null>(null)
   let reloadKey = $state(0)
   let name = $state<string[]>([''])

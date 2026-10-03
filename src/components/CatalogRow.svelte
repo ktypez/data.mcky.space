@@ -36,6 +36,7 @@
   bind:this={el}
   data-index={index}
   {style}
+  role="presentation"
   onmouseenter={onFocus}
   class="flex min-h-16 w-full items-center border-b border-border {active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/50'}"
 >

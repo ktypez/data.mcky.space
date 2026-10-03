@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, untrack } from 'svelte'
   import { OpenLocationCode } from 'open-location-code'
   import { pinHtml } from '@/lib/pin'
   import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_CENTER, KHON_KAEN_BOUNDS, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
@@ -22,7 +22,7 @@
   const PIN_ZOOM = 16
   const PROVINCE_ZOOM = 11
 
-  let containerRef: HTMLDivElement
+  let containerRef = $state<HTMLDivElement>()
   let map: InstanceType<LL['Map']> | null = null
   let layer: InstanceType<LL['TileLayer']> | null = null
   let marker: InstanceType<LL['Marker']> | null = null
@@ -31,12 +31,12 @@
   let dark = $state(isDarkMode())
   let attrOpen = $state(false)
   let initialized = false
-  let onChangeCb = onChange
+  let onChangeCb = untrack(() => onChange)
   $effect(() => {
     onChangeCb = onChange
   })
-  let latRef = lat
-  let lngRef = lng
+  let latRef = untrack(() => lat)
+  let lngRef = untrack(() => lng)
   $effect(() => {
     latRef = lat
     lngRef = lng
