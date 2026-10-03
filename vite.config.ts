@@ -27,7 +27,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         // The design lab is an internal route under /__design_lab, not part of
         // the catalog experience, so it does not need to work offline.
-        globIgnores: [],
+        globIgnores: ['assets/clerk-*.js'],
         // Only known app navigations receive the shell; never API/auth/assets.
         navigateFallbackAllowlist: [/^\/$/, /^\/(?:add|trash|maps|settings)\/?$/, /^\/(?:c|edit)\/[^/]+\/?$/],
         importScripts: ['sw-cleanup.js'],
