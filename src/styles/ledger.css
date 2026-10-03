@@ -104,6 +104,51 @@ html:has(.ledger-shell):root body {
 }
 
 /* Full bottom navigation: mobile-first, safe-area aware, centered primary action. */
+/* The nav floats over the scrolling area — glass needs content behind it to
+   refract, and a nav in flex flow has nothing but the shell background behind
+   it. .ledger-main reserves the height so the last rows stay reachable. */
+.ledger-shell { position: relative; }
+.ledger-main { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
+.ledger-bottom-nav {
+  /* Liquid glass: a translucent slab plus a saturating frost, instead of the
+     flat bg-card/95 + backdrop-blur it used before. */
+  position: absolute;
+  inset: auto 0 0;
+  background: color-mix(in oklab, var(--card) 62%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  border-top: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
+}
+/* Edge lensing: the band where the glass meets the content gets the SVG
+   displacement, so the backdrop bends at the lip rather than across the whole
+   bar. Masked to a thin strip to keep the filter area (and the frame cost)
+   small, and skipped entirely where backdrop-filter: url() is unsupported. */
+.ledger-bottom-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 18px;
+  pointer-events: none;
+  -webkit-backdrop-filter: url(#lg-nav-dist);
+  backdrop-filter: url(#lg-nav-dist);
+  mask-image: linear-gradient(to bottom, #000, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+}
+/* Specular hairline along the lip. */
+.ledger-bottom-nav::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--foreground) 26%, transparent) 20%,
+    color-mix(in oklab, var(--foreground) 26%, transparent) 80%,
+    transparent
+  );
+}
 .ledger-bottom-nav > div { position: relative; }
 .ledger-nav-item {
   display: inline-flex;
@@ -121,7 +166,15 @@ html:has(.ledger-shell):root body {
   font-weight: 600;
   text-decoration: none;
 }
-.ledger-nav-item:hover, .ledger-nav-item.is-active { color: var(--foreground); background: var(--muted); }
+.ledger-nav-item:hover, .ledger-nav-item.is-active { color: var(--foreground); }
+/* The active tab is a lens sitting on the glass rather than a flat fill. */
+.ledger-nav-item.is-active {
+  background: color-mix(in oklab, var(--card) 58%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--foreground) 16%, transparent),
+    0 1px 3px color-mix(in oklab, var(--foreground) 12%, transparent);
+}
+.ledger-nav-item:hover { background: color-mix(in oklab, var(--card) 40%, transparent); }
 .ledger-nav-spacer { flex: 1 1 0; max-width: 88px; }
 .ledger-add-button {
   display: inline-flex;
