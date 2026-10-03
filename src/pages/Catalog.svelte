@@ -98,7 +98,7 @@
   }
 </script>
 
-<div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-6 pb-4 pt-6">
+<div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pb-4 pt-6 sm:px-6">
   <h1 class="sr-only">รายการลูกค้า</h1>
   <div class="mt-0 flex shrink-0 gap-2">
     <button
@@ -164,8 +164,6 @@
       </button>
     {/each}
   </div>
-
-  <p class="mt-2 shrink-0 text-center font-mono text-xs opacity-30">{filtered.length} / {counts.total} · {filter !== FilterKey.All ? `กรอง: ${FILTER_LABELS[filter]}` : 'ทั้งหมด'}</p>
 
   {#if offline}
     <p class="mt-3 shrink-0 rounded-xl border border-border bg-muted px-3 py-2 text-center text-xs text-muted-foreground" role="status">อยู่ออฟไลน์ — กำลังแสดงข้อมูลที่บันทึกไว้</p>

@@ -245,7 +245,7 @@
 {:else if hydrating || (id && loadedId !== id)}
   <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดข้อมูลสำหรับแก้ไข…</div>
 {:else if id && !editClient}
-  <div class="mx-auto max-w-3xl px-6 pt-6">
+  <div class="mx-auto max-w-3xl px-5 sm:px-6 pt-6">
     <div class="rounded-2xl border border-border bg-card p-6 text-center">
       <p class="text-sm text-destructive" role="alert">{loadError ?? 'ไม่พบรายการ'}</p>
       <div class="mt-5 flex justify-center gap-2">
@@ -257,11 +257,11 @@
 {:else}
   <div class="pb-4">
     <h1 class="sr-only">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
-    <div class="mx-auto flex w-full max-w-3xl px-6 pt-6">
+    <div class="mx-auto flex w-full max-w-3xl px-5 sm:px-6 pt-6">
       <button type="button" onclick={onBack} class="inline-flex min-h-11 items-center gap-1 rounded-md border border-border bg-card px-3 py-2 font-mono text-xs text-foreground hover:bg-muted"><ArrowLeft class="inline h-3 w-3" aria-hidden /> กลับ</button>
     </div>
 
-    <div class="mx-auto mt-4 max-w-3xl px-6">
+    <div class="mx-auto mt-4 max-w-3xl px-5 sm:px-6">
       <div class="overflow-hidden rounded-2xl border border-border bg-card p-1">
         <div class="flex gap-1" role="tablist" aria-label="ขั้นตอนแก้ไข">
           {#each steps as step, index}
@@ -272,7 +272,7 @@
     </div>
 
     {#if loadError}
-      <div class="mx-auto mt-4 max-w-3xl px-6">
+      <div class="mx-auto mt-4 max-w-3xl px-5 sm:px-6">
         <div class="flex items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm" role="status">
           <span>{loadError}</span>
           <button type="button" onclick={() => reloadKey++} class="min-h-11 shrink-0 rounded-full border border-border px-3 text-xs hover:bg-muted">ลองใหม่</button>
@@ -280,7 +280,7 @@
       </div>
     {/if}
 
-    <form onsubmit={handleSubmit} class="mx-auto mt-6 max-w-3xl px-6" aria-busy={uploading}>
+    <form onsubmit={handleSubmit} class="mx-auto mt-6 max-w-3xl px-5 sm:px-6" aria-busy={uploading}>
       <fieldset disabled={readOnly || uploading} class="min-w-0 rounded-2xl border border-border bg-card p-5">
         <div id="editor-panel" role="tabpanel" aria-label={steps[tab]}>
           {#if tab === 0}
