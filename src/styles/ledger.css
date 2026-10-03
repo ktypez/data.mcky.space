@@ -113,13 +113,16 @@ html:has(.ledger-shell):root body {
   --ledger-nav-inset: max(10px, env(safe-area-inset-bottom));
 }
 .ledger-main { padding-bottom: calc(var(--ledger-nav-height) + var(--ledger-nav-inset) + 14px); }
-.ledger-bottom-nav {
-  /* Liquid glass: a translucent slab plus a saturating frost, instead of the
-     flat bg-card/95 + backdrop-blur it used before. */
+/* The glass slab is a sibling of the nav, not a child: a backdrop-filter
+   nested inside the nav samples the nav's own icons and refracts a second
+   copy of them above the bar. Sibling = the backdrop is only page content. */
+.ledger-nav-glass {
   position: absolute;
   left: 50%;
   bottom: var(--ledger-nav-inset);
+  z-index: 40;
   width: min(100% - 24px, 34rem);
+  height: var(--ledger-nav-height);
   transform: translateX(-50%);
   overflow: hidden;
   border: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
@@ -133,7 +136,7 @@ html:has(.ledger-shell):root body {
    displacement, so the backdrop bends at the lip rather than across the whole
    bar. Masked to a thin strip to keep the filter area (and the frame cost)
    small, and skipped entirely where backdrop-filter: url() is unsupported. */
-.ledger-bottom-nav::before {
+.ledger-nav-glass::before {
   content: '';
   position: absolute;
   inset: 0 0 auto;
@@ -145,7 +148,7 @@ html:has(.ledger-shell):root body {
   -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
 }
 /* Specular hairline along the lip. */
-.ledger-bottom-nav::after {
+.ledger-nav-glass::after {
   content: '';
   position: absolute;
   inset: 0 0 auto;
@@ -159,7 +162,15 @@ html:has(.ledger-shell):root body {
     transparent
   );
 }
-.ledger-bottom-nav > div { height: var(--ledger-nav-height); }
+.ledger-bottom-nav {
+  position: absolute;
+  left: 50%;
+  bottom: var(--ledger-nav-inset);
+  width: min(100% - 24px, 34rem);
+  height: var(--ledger-nav-height);
+  transform: translateX(-50%);
+}
+.ledger-bottom-nav > div { height: 100%; }
 .ledger-nav-item {
   display: inline-flex;
   min-width: 52px;

@@ -78,12 +78,16 @@ import wrap from 'svelte-spa-router/wrap'
         {/snippet}
       </svelte:boundary>
     </main>
+    <div class="ledger-nav-glass" aria-hidden="true"></div>
     <nav class="ledger-bottom-nav relative z-50 shrink-0" aria-label="หลัก">
       <!-- Liquid-glass refraction for the nav's top edge. Technique ported from
            liquid-glass-svelte (feTurbulence -> feGaussianBlur ->
            feDisplacementMap), rewritten in CSS so there is no runtime script
            from a third party. Browsers without backdrop-filter: url() ignore
-           the declaration and keep the plain frosted glass underneath. -->
+           the declaration and keep the plain frosted glass underneath.
+           The layer that uses it is .ledger-nav-glass, a sibling of the nav:
+           nested inside the nav the filter samples the nav's own icons and
+           refracts a second copy of them above the bar. -->
       <svg aria-hidden="true" focusable="false" width="0" height="0" class="pointer-events-none absolute">
         <filter id="lg-nav-dist" x="0%" y="0%" width="100%" height="100%">
           <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />
