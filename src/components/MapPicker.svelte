@@ -4,7 +4,7 @@
   import { pinHtml } from '@/lib/pin'
   import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_CENTER, KHON_KAEN_BOUNDS, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
   import { cssVarToHex } from '@/lib/utils'
-  import { observeMapDarkMode } from '@/lib/map-dark-mode'
+  import { applyTileDarkMode, observeMapDarkMode } from '@/lib/map-dark-mode'
 
   let { lat, lng, onChange }: { lat: number | null; lng: number | null; onChange: (lat: number, lng: number) => void } = $props()
 
@@ -52,6 +52,7 @@
 
   $effect(() => {
     layer?.setUrl(getTileUrl(dark), true)
+    applyTileDarkMode(map, dark)
   })
 
   onMount(() => {
@@ -87,6 +88,7 @@
           placeMarker(latRef, lngRef)
         }
         map = m
+        applyTileDarkMode(m, dark)
         setTimeout(() => {
           if (!cancelled) m.invalidateSize()
         }, 100)

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_BOUNDS, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
-  import { observeMapDarkMode } from '@/lib/map-dark-mode'
+  import { applyTileDarkMode, observeMapDarkMode } from '@/lib/map-dark-mode'
 
   let { lat, lng }: { lat: number; lng: number } = $props()
 
@@ -22,6 +22,7 @@
 
   $effect(() => {
     layer?.setUrl(getTileUrl(dark), true)
+    applyTileDarkMode(map, dark)
   })
 
   onMount(() => {
@@ -56,6 +57,7 @@
         dot.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
         marker = L.marker([lat, lng], { icon: L.divIcon({ html: dot, className: '', iconSize: [12, 12], iconAnchor: [6, 6] }), interactive: false }).addTo(m)
         map = m
+        applyTileDarkMode(m, dark)
       } catch {
         if (!cancelled) failed = true
       }

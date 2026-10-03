@@ -19,6 +19,21 @@ export function getTileUrl(dark = false): string {
   return `${base}?api_key=${encodeURIComponent(MAP_API_KEY)}`
 }
 
+/**
+ * CSS filter that turns the OSM raster into a dark map.
+ *
+ * Only needed when there is no Stadia key: getTileUrl then hands back the
+ * OSM raster, which ships no dark style, so light/dark had nothing to switch
+ * between. The hue rotation after the inversion keeps water blue instead of
+ * pink. With a key the dark Stadia raster is used instead, so this must stay
+ * off there or the tiles get inverted twice.
+ */
+const OSM_DARK_FILTER = 'invert(1) hue-rotate(180deg) brightness(0.94) contrast(0.86) saturate(0.72)'
+
+export function tilePaneFilter(dark: boolean): string {
+  return dark && !MAP_API_KEY ? OSM_DARK_FILTER : ''
+}
+
 export function isDarkMode(): boolean {
   if (typeof document === 'undefined') return false
   const shell = document.querySelector('.ledger-shell') as HTMLElement | null

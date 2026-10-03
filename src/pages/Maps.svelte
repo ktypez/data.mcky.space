@@ -4,7 +4,7 @@
   import { MapTrifold, X, MagnifyingGlass } from 'phosphor-svelte'
   import { useClientStore } from '@/stores/client-store'
   import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_CENTER, KHON_KAEN_BOUNDS, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
-  import { observeMapDarkMode } from '@/lib/map-dark-mode'
+  import { applyTileDarkMode, observeMapDarkMode } from '@/lib/map-dark-mode'
   import { hasValidCoords } from '@/lib/utils'
   import { fetchClientMap } from '@/lib/storage'
   import { clientMatchesQuery } from '@/lib/clientNames'
@@ -60,6 +60,7 @@
   })
   $effect(() => {
     layer?.setUrl(getTileUrl(dark), true)
+    applyTileDarkMode(map, dark)
   })
 
   $effect(() => {
@@ -186,6 +187,7 @@
         }).setView([KHON_KAEN_CENTER[1], KHON_KAEN_CENTER[0]], 11)
         layer = L.tileLayer(getTileUrl(darkRef), { maxZoom: TILE_MAX_ZOOM, detectRetina: true, attribution: TILE_ATTRIBUTION }).addTo(m)
         map = m
+        applyTileDarkMode(m, darkRef)
         const onMove = () => {
           cancelAnimationFrame(raf)
           raf = requestAnimationFrame(() => updateClusters())
