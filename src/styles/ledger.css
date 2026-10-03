@@ -103,21 +103,31 @@ html:has(.ledger-shell):root body {
   }
 }
 
-/* Full bottom navigation: mobile-first, safe-area aware, centered primary action. */
-/* The nav floats over the scrolling area — glass needs content behind it to
+/* Floating glass pill navigation.
+   The nav floats over the scrolling area — glass needs content behind it to
    refract, and a nav in flex flow has nothing but the shell background behind
-   it. .ledger-main reserves the height so the last rows stay reachable. */
-.ledger-shell { position: relative; }
-.ledger-main { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
+   it. .ledger-main reserves the same height so the last rows stay reachable. */
+.ledger-shell {
+  position: relative;
+  --ledger-nav-height: 3.5rem;
+  --ledger-nav-inset: max(10px, env(safe-area-inset-bottom));
+}
+.ledger-main { padding-bottom: calc(var(--ledger-nav-height) + var(--ledger-nav-inset) + 14px); }
 .ledger-bottom-nav {
   /* Liquid glass: a translucent slab plus a saturating frost, instead of the
      flat bg-card/95 + backdrop-blur it used before. */
   position: absolute;
-  inset: auto 0 0;
+  left: 50%;
+  bottom: var(--ledger-nav-inset);
+  width: min(100% - 24px, 34rem);
+  transform: translateX(-50%);
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
+  border-radius: 26px;
   background: color-mix(in oklab, var(--card) 62%, transparent);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
   backdrop-filter: blur(18px) saturate(180%);
-  border-top: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--foreground) 14%, transparent);
 }
 /* Edge lensing: the band where the glass meets the content gets the SVG
    displacement, so the backdrop bends at the lip rather than across the whole
@@ -149,18 +159,20 @@ html:has(.ledger-shell):root body {
     transparent
   );
 }
-.ledger-bottom-nav > div { position: relative; }
+.ledger-bottom-nav > div { height: var(--ledger-nav-height); }
 .ledger-nav-item {
   display: inline-flex;
-  min-width: 56px;
+  min-width: 52px;
   min-height: 44px;
   flex: 1 1 0;
-  max-width: 88px;
+  max-width: 92px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  border-radius: 14px;
+  gap: 2px;
+  border: 0;
+  background: transparent;
+  border-radius: 18px;
   color: var(--muted-foreground);
   font-size: 10px;
   font-weight: 600;
@@ -175,27 +187,12 @@ html:has(.ledger-shell):root body {
     0 1px 3px color-mix(in oklab, var(--foreground) 12%, transparent);
 }
 .ledger-nav-item:hover { background: color-mix(in oklab, var(--card) 40%, transparent); }
-.ledger-nav-spacer { flex: 1 1 0; max-width: 88px; }
-.ledger-add-button {
-  display: inline-flex;
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  align-items: center;
-  justify-content: center;
-  margin: 0 4px;
-  border: 0;
-  border-radius: 14px;
-  background: var(--primary);
-  color: var(--primary-foreground);
-  box-shadow: none;
-}
+.ledger-nav-item-disabled { opacity: .38; filter: grayscale(1); }
 .ledger-more-menu { animation: ledger-menu-in 140ms ease-out; }
 @keyframes ledger-menu-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @media (min-width: 768px) {
-  .ledger-bottom-nav { left: 50%; right: auto; bottom: 16px; width: min(100% - 32px, 560px); transform: translateX(-50%); border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 12px 32px color-mix(in srgb, var(--foreground) 12%, transparent); }
-  .ledger-bottom-nav > div { padding-bottom: 0; }
-  .ledger-main { padding-bottom: 8rem; }
+  /* The pill is the same shape everywhere; only its footprint grows. */
+  .ledger-bottom-nav { width: min(100% - 40px, 34rem); }
 }
 @media (prefers-reduced-motion: reduce) {
   .ledger-shell *,
