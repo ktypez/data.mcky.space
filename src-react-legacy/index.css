@@ -1,0 +1,303 @@
+@import 'tailwindcss';
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-pin: var(--pin-color);
+  --font-sans: var(--theme-font-body);
+  --font-serif: var(--theme-font-body);
+  --font-mono: var(--theme-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Bump base typography up ~2px (≈1.5–2pt) for better readability */
+  --text-xs: 0.875rem; /* 14px (was 12) */
+  --text-sm: 1rem; /* 16px (was 14) */
+  --text-base: 1.125rem; /* 18px (was 16) */
+  --text-lg: 1.25rem; /* 20px (was 18) */
+  --text-xl: 1.375rem; /* 22px (was 20) */
+  --text-2xl: 1.625rem; /* 26px (was 24) */
+}
+
+:root {
+  /* Base shadows. Themes may override these in their own stylesheet
+     (bubblegum / brut / mcky define hard-offset shadows).
+     Theme colors + fonts are NOT defined here anymore — every theme ships
+     a full static stylesheet that the pre-paint boot script always loads
+     (defaults to claude), so the app is never unstyled. */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.15);
+}
+
+/* Hide native scrollbars globally — custom indicators handle visual feedback */
+*::-webkit-scrollbar {
+  display: none !important;
+}
+:root {
+  scrollbar-width: none !important;
+
+  /* Scroll indicator defaults — themes override these */
+  --scroll-indicator-color: oklch(0.5 0 0 / 0.2);
+  --scroll-indicator-width: 5px;
+  --scroll-indicator-radius: 999px;
+  --scroll-indicator-glow: none;
+  --scroll-progress-color: var(--primary);
+
+  /* Prevent iOS Safari from auto-zooming into inputs on focus */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  --scroll-progress-glow: none;
+
+  /* Frame border-radius — themes override for square vs rounded */
+  --frame-radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-muted text-foreground font-sans antialiased;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  [role='button']:focus-visible,
+  [role='switch']:focus-visible,
+  [role='checkbox']:focus-visible,
+  [role='tab']:focus-visible,
+  [tabindex]:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 20%, transparent);
+  }
+}
+
+/* Hard-shadow / brutalist themes: disable lift+scale "premium press" because the
+   theme's own press language (collapse hard offset shadow) is the right metaphor. */
+[data-theme='brut'] button:hover,
+[data-theme='mcky'] button:hover,
+[data-theme='bubblegum'] button:hover,
+[data-theme='brut'] [role='button']:hover,
+[data-theme='mcky'] [role='button']:hover,
+[data-theme='bubblegum'] [role='button']:hover {
+  transform: none !important;
+}
+[data-theme='brut'] button:active,
+[data-theme='mcky'] button:active,
+[data-theme='bubblegum'] button:active,
+[data-theme='brut'] [role='button']:active,
+[data-theme='mcky'] [role='button']:active,
+[data-theme='bubblegum'] [role='button']:active {
+  transform: translate(2px, 2px) !important;
+  scale: 1 !important;
+}
+
+@utility font-display {
+  font-family: var(--theme-font-display);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+@utility glass {
+  background: color-mix(in oklch, var(--card) 70%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@utility glass-strong {
+  background: color-mix(in oklch, var(--card) 85%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+@utility scrollbar-none {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Press feedback for interactive elements (e.g. the list copy button).
+   Base: a gentle sink so clicks always feel tactile even before any theme
+   overrides. Themes layer their own character on top via
+   `[data-theme='x'] .copy-press:active`.
+   --------------------------------------------------------------------------- */
+.copy-press {
+  transition:
+    transform 0.32s cubic-bezier(0.34, 1.8, 0.36, 1),
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+.copy-press:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+/* App viewport + frame = bearnie-style canvas with header OUTSIDE the border.
+   The viewport is a position:fixed container filling the viewport with 8px
+   inset on all sides. The header sits inside the viewport as a non-scrolling
+   element at the top (no border). The frame sits below the header: bordered,
+   scrollable (overflow-y:auto), flex-1 to fill remaining space. At 2xl the
+   viewport centers at max-width 1400px with a subtle glow. Flat (no
+   border-radius). All popovers are portaled to <body>, so nothing is clipped. */
+@utility app-viewport {
+  @apply mx-auto flex flex-col gap-1.5;
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  height: calc(100dvh - 16px);
+  border-radius: var(--frame-radius);
+  overflow: hidden;
+}
+/* Desktop: sidebar offset */
+@media (min-width: 768px) {
+  .app-viewport {
+    left: 236px;
+  }
+}
+@media (min-width: 1536px) {
+  .app-viewport {
+    left: 236px;
+    right: 0;
+    max-width: calc(1400px - 220px);
+    box-shadow: 0 0 60px -20px color-mix(in oklch, var(--foreground) 20%, transparent);
+  }
+}
+
+@utility app-frame {
+  @apply flex-1 flex flex-col bg-background border border-border overflow-y-auto;
+  border-radius: var(--frame-radius);
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%) }
+  to { transform: translateY(0) }
+}
+@utility animate-slide-up {
+  animation: slide-up 0.25s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+@utility animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95) }
+  to { opacity: 1; transform: scale(1) }
+}
+@utility animate-scale-in {
+  animation: scale-in 0.15s ease-out;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1 }
+  50% { opacity: 0.6 }
+}
+@utility animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg) }
+}
+@utility animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+}
+
+/* Skeleton shimmer — compositor-only via transform on ::after band */
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%) }
+  100% { transform: translateX(250%) }
+}
+.skeleton-shimmer {
+  position: relative;
+  isolation: isolate;
+}
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklch, var(--foreground) 8%, transparent) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: shimmer-sweep 2s ease-in-out infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after { animation: none }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Leaflet raster fallback (no-WebGL devices). */
+.leaflet-container {
+  background: var(--muted);
+  font-family: inherit;
+}
+.leaflet-control-zoom a {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+
+

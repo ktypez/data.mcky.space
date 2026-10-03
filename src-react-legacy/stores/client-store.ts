@@ -1,4 +1,4 @@
-import { create } from './create-store'
+import { create } from 'zustand'
 import type { Client } from '@/types/index'
 import { fetchClients, fetchClientList, peekClientList, getDataReadState, subscribeDataReadState } from '@/lib/storage'
 import { listItemToClient } from '@/lib/list-item'

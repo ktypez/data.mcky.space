@@ -1,19 +1,25 @@
-import { create } from './create-store'
+import { create } from 'zustand'
+import { useUser, useAuth } from '@clerk/clerk-react'
 
 interface AuthState {
   // open the Clerk-powered login modal (or page) from anywhere.
   loginOpen: boolean
   setLoginOpen: (open: boolean) => void
+  // Kept for back-compat with old code that reads `useAuthStore().isAdmin`.
+  // New code should use `useAdminAuth()` instead.
   isAdmin: boolean
   setAdmin: (isAdmin: boolean) => void
   checking: boolean
   setChecking: (checking: boolean) => void
-  // Fresh Clerk session token obtainer — populated by the Clerk wrapper
-  // (AuthSync equivalent). The treaty client uses it for Bearer JWT.
+  // Fresh Clerk session token obtainer — populated by AuthSync from the
+  // `useAuth()` hook (the only place the token minting function lives).
+  // The treaty client uses it to attach `Authorization: Bearer <JWT>`.
   getToken: (() => Promise<string | null>) | null
   setTokenGetter: (fn: (() => Promise<string | null>) | null) => void
+  // Sign-out function stashed from Clerk (useClerk().signOut) by AuthSync.
   signOut: (() => Promise<void>) | null
   setSignOut: (fn: (() => Promise<void>) | null) => void
+  // Signed-in flag (back-compat with old code that read useAuthStore()).
   isSignedIn: boolean
   setSignedIn: (v: boolean) => void
   userId: string | null
@@ -37,10 +43,27 @@ export const useAuthStore = create<AuthState>((set) => ({
   setUserId: (userId) => set({ userId }),
 }))
 
-// Store-level logout used by legacy components.
-// Delegates to the Clerk signOut stashed by the auth wrapper; no-op if unset.
+// Store-level logout used by legacy components (e.g. NavDropdown).
+// Delegates to the Clerk signOut stashed by AuthSync; no-op if unset.
 export async function logout() {
   const fn = useAuthStore.getState().signOut
   if (fn) await fn()
   useAuthStore.getState().setLoginOpen(false)
 }
+
+// Call this from components to check Clerk's current auth state.
+// Admin model: any signed-in user is admin (no email allowlist).
+export function useAdminAuth() {
+  const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+  const email = user?.primaryEmailAddress?.emailAddress ?? null
+  const isAdmin = !!isSignedIn
+
+  return {
+    isLoaded,
+    isSignedIn,
+    isAdmin,
+    email,
+  }
+}
+

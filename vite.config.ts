@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { webVitalsReport } from './vite-webvitals-plugin.mjs'
@@ -9,7 +9,7 @@ const projectRoot = import.meta.dirname
 
 export default defineConfig({
   plugins: [
-    react({ include: '**/*.{jsx,tsx}' }),
+    svelte(),
     tailwindcss(),
     webVitalsReport(),
     VitePWA({
@@ -27,7 +27,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         // The design lab is an internal route under /__design_lab, not part of
         // the catalog experience, so it does not need to work offline.
-        globIgnores: ['assets/DetailLabApp-*.js'],
+        globIgnores: [],
         // Only known app navigations receive the shell; never API/auth/assets.
         navigateFallbackAllowlist: [/^\/$/, /^\/(?:add|trash|maps|settings)\/?$/, /^\/(?:c|edit)\/[^/]+\/?$/],
         importScripts: ['sw-cleanup.js'],
@@ -53,8 +53,6 @@ export default defineConfig({
       'set-cookie-parser': path.resolve(projectRoot, 'src/shims/set-cookie-parser.js'),
     },
     dedupe: [
-      'react',
-      'react-dom',
       'leaflet',
       'class-variance-authority',
       'clsx',
@@ -77,7 +75,7 @@ export default defineConfig({
           if (id.includes('node_modules/leaflet')) {
             return 'map'
           }
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+          if (id.includes('node_modules/svelte') || id.includes('node_modules/svelte-spa-router')) {
             return 'vendor'
           }
           // NOTE: no manual chunk for `@phosphor-icons`. The barrel already
@@ -87,14 +85,7 @@ export default defineConfig({
           if (id.includes('node_modules/class-variance-authority') || id.includes('node_modules/clsx') || id.includes('node_modules/tailwind-merge')) {
             return 'ui'
           }
-          if (id.includes('node_modules/zustand')) {
-            return 'stores'
-          }
-          // NOTE: no manual chunk for `motion`. Forcing it into a named chunk
-          // made rolldown emit a *static* import from the entry, so the 41KB
-          // chunk was preloaded on every cold start even though only the lazy
-          // Editor route (via ui/dialog -> PhotoUploadModal) ever needs it.
-          // Left to rolldown it lands in the Editor chunk instead.
+          // Left to rolldown it lands in the lazy route chunk instead.
         },
       },
     },

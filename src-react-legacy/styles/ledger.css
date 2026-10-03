@@ -1,0 +1,150 @@
+/* DATA Ledger structure; colors and fonts come from the shared theme. */
+html:has(.ledger-shell),
+body:has(.ledger-shell) {
+  height: 100%;
+  overscroll-behavior-y: auto;
+}
+#root:has(.ledger-shell) {
+  height: 100%;
+  overflow: hidden;
+}
+html:has(.ledger-shell):root {
+  color-scheme: light;
+}
+html:has(.ledger-shell[data-mode='dark']):root {
+  color-scheme: dark;
+}
+/* Theme stylesheets may paint body patterns/effects; only set the color here. */
+html:has(.ledger-shell):root body {
+  background-color: var(--background);
+  color: var(--foreground);
+  position: relative;
+  isolation: isolate;
+}
+.ledger-shell {
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: transparent;
+  color: var(--foreground);
+  font-family: var(--theme-font-body, 'Inter', 'Noto Sans Thai', system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+}
+.ledger-shell ::selection { background: var(--primary); color: var(--primary-foreground); }
+.ledger-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 38px;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.ledger-pill[data-active='true'] { background: var(--primary); color: var(--primary-foreground); }
+.ledger-pill[data-active='false'] { background: color-mix(in srgb, var(--muted) 80%, transparent); color: var(--muted-foreground); }
+.ledger-pill[data-active='false']:hover { background: var(--muted); color: var(--foreground); }
+
+/* Typography — balance headings, pretty body (no orphan widows) */
+.ledger-shell h1,
+.ledger-shell h2,
+.ledger-shell h3,
+.ledger-shell h4,
+.ledger-shell [role='heading'] {
+  text-wrap: balance;
+}
+.ledger-shell p,
+.ledger-shell blockquote {
+  text-wrap: pretty;
+}
+
+/* Nested border: inner cards inside rounded-2xl parent get slightly smaller radius */
+.ledger-shell .rounded-2xl > .rounded-xl {
+  border-radius: calc(var(--radius) - 4px);
+}
+
+/* Press feedback — scale near 0.96 */
+.ledger-shell button,
+.ledger-shell [type="button"],
+.ledger-shell [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.08s ease;
+}
+.ledger-shell button:active,
+.ledger-shell [type="button"]:active,
+.ledger-shell [role="button"]:active {
+  transform: scale(0.96);
+}
+
+/* Input = body (14px) — iOS needs 16px, so bump on mobile only */
+.ledger-shell input,
+.ledger-shell textarea,
+.ledger-shell select {
+  font-size: 14px;
+}
+@media (max-width: 767px) {
+  .ledger-shell input,
+  .ledger-shell textarea,
+  .ledger-shell select {
+    font-size: 16px !important;
+  }
+}
+
+/* Full bottom navigation: mobile-first, safe-area aware, centered primary action. */
+.ledger-bottom-nav > div { position: relative; }
+.ledger-nav-item {
+  display: inline-flex;
+  min-width: 56px;
+  min-height: 44px;
+  flex: 1 1 0;
+  max-width: 88px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 14px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.ledger-nav-item:hover, .ledger-nav-item.is-active { color: var(--foreground); background: var(--muted); }
+.ledger-nav-spacer { flex: 1 1 0; max-width: 88px; }
+.ledger-add-button {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 4px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: none;
+}
+.ledger-more-menu { animation: ledger-menu-in 140ms ease-out; }
+@keyframes ledger-menu-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (min-width: 768px) {
+  .ledger-bottom-nav { left: 50%; right: auto; bottom: 16px; width: min(100% - 32px, 560px); transform: translateX(-50%); border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 12px 32px color-mix(in srgb, var(--foreground) 12%, transparent); }
+  .ledger-bottom-nav > div { padding-bottom: 0; }
+  .ledger-main { padding-bottom: 8rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ledger-shell *,
+  .ledger-shell *::before,
+  .ledger-shell *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

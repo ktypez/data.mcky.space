@@ -1,5 +1,5 @@
 
-import { create } from './create-store'
+import { create } from 'zustand'
 import { FilterKey, type ViewMode } from '@/types/index'
 
 interface FilterState {
