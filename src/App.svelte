@@ -8,6 +8,8 @@
   import { appTheme, initAppTheme } from '@/lib/app-theme'
   import { initClerk } from '@/lib/clerk'
   import { flushClientMutations } from '@/lib/offline-mutations'
+  import CommandPalette from '@/components/CommandPalette.svelte'
+  import UpdatePrompt from '@/components/UpdatePrompt.svelte'
   import '@/styles/ledger.css'
 
   import Login from './pages/Login.svelte'
@@ -73,7 +75,12 @@
   <div class="ledger-shell" data-mode={theme.resolvedMode}>
     <a href="#ledger-main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-card focus:px-4 focus:py-3 focus:text-foreground">ข้ามไปเนื้อหา</a>
     <main id="ledger-main" class="ledger-main min-h-0 flex-1 overflow-y-auto overscroll-contain">
-      <Router {routes} />
+      <svelte:boundary onerror={(e) => console.error(e)}>
+        <Router {routes} />
+        {#snippet failed(error)}
+          <div class="p-8 text-sm text-destructive">{(error as Error)?.message ?? 'เกิดข้อผิดพลาด'}</div>
+        {/snippet}
+      </svelte:boundary>
     </main>
     <nav class="ledger-bottom-nav relative z-50 shrink-0 border-t border-border bg-card/95 backdrop-blur" aria-label="หลัก">
       <div class="mx-auto flex h-[4.5rem] max-w-xl items-center justify-around px-3 pb-[env(safe-area-bottom)]">
@@ -89,5 +96,7 @@
         {/if}
       </div>
     </nav>
+    <CommandPalette />
+    <UpdatePrompt />
   </div>
 {/if}
