@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { MagnifyingGlass, Plus, X } from 'phosphor-svelte'
+  import { ArrowClockwise, MagnifyingGlass, Plus, X } from 'phosphor-svelte'
   import { push } from 'svelte-spa-router'
   import { createVirtualizer } from '@tanstack/svelte-virtual'
   import { useClientStore } from '@/stores/client-store'
@@ -101,6 +101,14 @@
 <div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-6 pb-4 pt-6">
   <h1 class="sr-only">รายการลูกค้า</h1>
   <div class="mt-0 flex shrink-0 gap-2">
+    <button
+      type="button"
+      onclick={() => window.location.reload()}
+      aria-label="รีเฟรชหน้า"
+      class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-border bg-card text-muted-foreground shadow-sm hover:bg-muted"
+    >
+      <ArrowClockwise class="h-5 w-5" weight="bold" aria-hidden />
+    </button>
     <div class="relative flex-1">
       <MagnifyingGlass class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
       <input

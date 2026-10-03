@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import Router, { location, link, push } from 'svelte-spa-router'
 import wrap from 'svelte-spa-router/wrap'
-  import { ArrowClockwise, House, Plus, Gear, MapTrifold, Trash } from 'phosphor-svelte'
+  import { House, Plus, Gear, MapTrifold, Trash } from 'phosphor-svelte'
   import { useAuthStore } from '@/stores/auth-store'
   import { useClientStore } from '@/stores/client-store'
   import { isFormDirty } from '@/lib/form-dirty'
@@ -83,7 +83,6 @@ import wrap from 'svelte-spa-router/wrap'
         <a href="/" use:link onclick={guardNavigation} aria-label="หน้าหลัก" class="ledger-nav-item" class:is-active={$location === '/'} tabindex="0"><House weight="fill" size={21} aria-hidden /><span>หน้าหลัก</span></a>
         <a href="/maps" use:link onclick={guardNavigation} aria-label="แผนที่" class="ledger-nav-item" class:is-active={$location === '/maps'}><MapTrifold size={21} aria-hidden /><span>แผนที่</span></a>
         <a href="/trash" use:link onclick={guardNavigation} aria-label="ถังขยะ" class="ledger-nav-item" class:is-active={$location === '/trash'}><Trash size={21} aria-hidden /><span>ถังขยะ</span></a>
-        <button type="button" onclick={() => window.location.reload()} aria-label="รีเฟรชหน้า" class="ledger-nav-item"><ArrowClockwise size={21} aria-hidden /><span>รีเฟรช</span></button>
         <button type="button" onclick={(e) => { guardNavigation(e); if (!e.defaultPrevented) push('/settings') }} aria-label="เมนูและการตั้งค่า" class="ledger-nav-item" class:is-active={$location === '/settings'}><Gear size={21} aria-hidden /><span>เมนู</span></button>
         {#if isAdmin}
           <a href="/add" use:link onclick={guardNavigation} aria-label="เพิ่มรายการ" class="ledger-add-button"><Plus weight="bold" size={25} aria-hidden /></a>

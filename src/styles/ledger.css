@@ -23,6 +23,12 @@ html:has(.ledger-shell):root body {
 }
 .ledger-shell {
   height: 100dvh;
+  /* dvh grows the moment the browser chrome collapses, so a reload that lands
+     mid-transition sizes the shell taller than the visible area and the bottom
+     nav falls off screen. svh is the height with the chrome always shown, so
+     capping there keeps the nav pinned; browsers without svh drop the
+     declaration and keep the 100dvh behaviour. */
+  max-height: 100svh;
   min-height: 0;
   display: flex;
   flex-direction: column;
