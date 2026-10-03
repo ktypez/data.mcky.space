@@ -25,13 +25,28 @@ export default defineConfig({
         // includeAssets of the icons only listed them a second time — 28KB of
         // duplicate precache entries on every install.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // The design lab is an internal route under /__design_lab, not part of
-        // the catalog experience, so it does not need to work offline.
+        // The Clerk SDK chunk is ~930KB — 89% of the cold payload. Precaching
+        // it would triple the install-time cache for a bundle that only
+        // matters once a session exists, so it is excluded here and picked up
+        // by the CacheFirst runtime cache below instead.
         globIgnores: ['assets/clerk-*.js'],
         // Only known app navigations receive the shell; never API/auth/assets.
         navigateFallbackAllowlist: [/^\/$/, /^\/(?:add|trash|maps|settings)\/?$/, /^\/(?:c|edit)\/[^/]+\/?$/],
         importScripts: ['sw-cleanup.js'],
-        runtimeCaching: [],
+        runtimeCaching: [
+          {
+            // The filename carries a content hash, so a cached response can
+            // never be stale: a new build ships a new name. Without this the
+            // chunk is re-downloaded on every single visit.
+            urlPattern: /\/assets\/clerk-[^/]+\.js$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'clerk-sdk',
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 90 },
+            },
+          },
+        ],
         // Evict precaches from superseded SW versions on activation.
         cleanupOutdatedCaches: true,
         skipWaiting: false,
