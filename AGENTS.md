@@ -72,7 +72,7 @@ within 60s), so give it a generous timeout.
 
 ## UI
 - **DATA Ledger V3** is the only application UI. Its shell and routes live in
-  `src/App.tsx`; pages are under `src/pages/`; shared components remain top-level.
+  `src/App.svelte`; pages are under `src/pages/`; shared components remain top-level.
 - The V3 label is product version metadata only; filenames and runtime identifiers
   stay version-neutral.
 - The complete catalog is virtualized and renders only the visible row window.
