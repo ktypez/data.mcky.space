@@ -78,32 +78,16 @@ import wrap from 'svelte-spa-router/wrap'
         {/snippet}
       </svelte:boundary>
     </main>
-    <div class="ledger-nav-glass" aria-hidden="true"></div>
-    <nav class="ledger-bottom-nav relative z-50 shrink-0" aria-label="หลัก">
-      <!-- Liquid-glass refraction for the nav's top edge. Technique ported from
-           liquid-glass-svelte (feTurbulence -> feGaussianBlur ->
-           feDisplacementMap), rewritten in CSS so there is no runtime script
-           from a third party. Browsers without backdrop-filter: url() ignore
-           the declaration and keep the plain frosted glass underneath.
-           The layer that uses it is .ledger-nav-glass, a sibling of the nav:
-           nested inside the nav the filter samples the nav's own icons and
-           refracts a second copy of them above the bar. -->
-      <svg aria-hidden="true" focusable="false" width="0" height="0" class="pointer-events-none absolute">
-        <filter id="lg-nav-dist" x="0%" y="0%" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />
-          <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
-          <feDisplacementMap in="SourceGraphic" in2="blurred" scale="42" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
-      <div class="flex h-full items-center justify-around px-2">
+    <nav class="ledger-bottom-nav relative z-50 shrink-0 border-t border-border bg-card" aria-label="หลัก">
+      <div class="mx-auto flex h-[4.5rem] max-w-xl items-center justify-around px-3 pb-[env(safe-area-inset-bottom)]">
         <a href="/" use:link onclick={guardNavigation} aria-label="หน้าหลัก" class="ledger-nav-item" class:is-active={$location === '/'} tabindex="0"><House weight="fill" size={21} aria-hidden /><span>หน้าหลัก</span></a>
         <a href="/maps" use:link onclick={guardNavigation} aria-label="แผนที่" class="ledger-nav-item" class:is-active={$location === '/maps'}><MapTrifold size={21} aria-hidden /><span>แผนที่</span></a>
         <a href="/trash" use:link onclick={guardNavigation} aria-label="ถังขยะ" class="ledger-nav-item" class:is-active={$location === '/trash'}><Trash size={21} aria-hidden /><span>ถังขยะ</span></a>
         <button type="button" onclick={(e) => { guardNavigation(e); if (!e.defaultPrevented) push('/settings') }} aria-label="เมนูและการตั้งค่า" class="ledger-nav-item" class:is-active={$location === '/settings'}><Gear size={21} aria-hidden /><span>เมนู</span></button>
         {#if isAdmin}
-          <a href="/add" use:link onclick={guardNavigation} aria-label="เพิ่มรายการ" class="ledger-nav-item"><Plus weight="bold" size={21} aria-hidden /><span>เพิ่ม</span></a>
+          <a href="/add" use:link onclick={guardNavigation} aria-label="เพิ่มรายการ" class="ledger-add-button"><Plus weight="bold" size={25} aria-hidden /></a>
         {:else}
-          <span aria-label="เพิ่มรายการ" aria-disabled="true" class="ledger-nav-item ledger-nav-item-disabled"><Plus weight="bold" size={21} aria-hidden /><span>เพิ่ม</span></span>
+          <span aria-label="เพิ่มรายการ" aria-disabled="true" class="ledger-add-button opacity-40 grayscale"><Plus weight="bold" size={25} aria-hidden /></span>
         {/if}
       </div>
     </nav>

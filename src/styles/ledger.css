@@ -103,105 +103,14 @@ html:has(.ledger-shell):root body {
   }
 }
 
-/* Floating glass pill navigation.
-   The nav floats over the scrolling area — glass needs content behind it to
-   refract, and a nav in flex flow has nothing but the shell background behind
-   it. .ledger-main reserves the same height so the last rows stay reachable. */
+/* Bottom navigation: full-width bar in flow, safe-area aware. */
 .ledger-shell {
   position: relative;
   --ledger-nav-height: 3.5rem;
   --ledger-nav-inset: max(10px, env(safe-area-inset-bottom));
-  /* Both floating pills and the list column share one width, so their edges
-     line up on every screen. */
-  --ledger-column: min(100% - 24px, 36rem);
-  --ledger-pill-inset: max(10px, env(safe-area-inset-top));
-  --ledger-head-clear: calc(var(--ledger-pill-inset) + 50px);
 }
-.ledger-column { width: var(--ledger-column); margin-inline: auto; }
 .ledger-main { padding-bottom: calc(var(--ledger-nav-height) + var(--ledger-nav-inset) + 14px); }
-/* The catalog opts out of that bottom inset so its list can run to the screen
-   edge, with a spacer inside the scroller making up the difference. */
-.ledger-shell:has(.ledger-full-bleed) .ledger-main { padding-bottom: 0; }
-/* Shared glass material: translucent slab, saturating frost, hairline edge and
-   a top specular so the surface reads as lit from above. */
-.glass-surface,
-.ledger-field {
-  background: color-mix(in oklab, var(--card) 62%, transparent);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-  backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 12%, transparent);
-}
-.ledger-field { border-radius: 12px; }
-/* Floating search pill: the twin of the nav pill above the list. */
-.catalog-head {
-  position: absolute;
-  top: var(--ledger-pill-inset);
-  left: 50%;
-  z-index: 30;
-  width: var(--ledger-column);
-  transform: translateX(-50%);
-  border-radius: 26px;
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--foreground) 10%, transparent);
-}
-/* The glass slab is a sibling of the nav, not a child: a backdrop-filter
-   nested inside the nav samples the nav's own icons and refracts a second
-   copy of them above the bar. Sibling = the backdrop is only page content. */
-.ledger-nav-glass {
-  position: absolute;
-  left: 50%;
-  bottom: var(--ledger-nav-inset);
-  z-index: 40;
-  width: min(100% - 24px, 34rem);
-  height: var(--ledger-nav-height);
-  transform: translateX(-50%);
-  overflow: hidden;
-  border-radius: 26px;
-  background: color-mix(in oklab, var(--card) 62%, transparent);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-  backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--foreground) 14%, transparent);
-}
-/* Edge lensing: the band where the glass meets the content gets the SVG
-   displacement, so the backdrop bends at the lip rather than across the whole
-   bar. Masked to a thin strip to keep the filter area (and the frame cost)
-   small, and skipped entirely where backdrop-filter: url() is unsupported. */
-.ledger-nav-glass::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 18px;
-  pointer-events: none;
-  -webkit-backdrop-filter: url(#lg-nav-dist);
-  backdrop-filter: url(#lg-nav-dist);
-  mask-image: linear-gradient(to bottom, #000, transparent);
-  -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
-}
-/* Specular hairline along the lip. */
-.ledger-nav-glass::after {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 1px;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in oklab, var(--foreground) 26%, transparent) 20%,
-    color-mix(in oklab, var(--foreground) 26%, transparent) 80%,
-    transparent
-  );
-}
-.ledger-bottom-nav {
-  position: absolute;
-  left: 50%;
-  bottom: var(--ledger-nav-inset);
-  width: min(100% - 24px, 34rem);
-  height: var(--ledger-nav-height);
-  transform: translateX(-50%);
-}
-.ledger-bottom-nav > div { height: 100%; }
+.ledger-bottom-nav > div { position: relative; }
 .ledger-nav-item {
   display: inline-flex;
   min-width: 52px;
@@ -220,21 +129,26 @@ html:has(.ledger-shell):root body {
   font-weight: 600;
   text-decoration: none;
 }
-.ledger-nav-item:hover, .ledger-nav-item.is-active { color: var(--foreground); }
-/* The active tab is a lens sitting on the glass rather than a flat fill. */
-.ledger-nav-item.is-active {
-  background: color-mix(in oklab, var(--card) 58%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--foreground) 16%, transparent),
-    0 1px 3px color-mix(in oklab, var(--foreground) 12%, transparent);
+.ledger-nav-item:hover, .ledger-nav-item.is-active { color: var(--foreground); background: var(--muted); }
+.ledger-add-button {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 4px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  text-decoration: none;
 }
-.ledger-nav-item:hover { background: color-mix(in oklab, var(--card) 40%, transparent); }
-.ledger-nav-item-disabled { opacity: .38; filter: grayscale(1); }
 .ledger-more-menu { animation: ledger-menu-in 140ms ease-out; }
 @keyframes ledger-menu-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @media (min-width: 768px) {
-  /* The pill is the same shape everywhere; only its footprint grows. */
-  .ledger-bottom-nav { width: min(100% - 40px, 34rem); }
+  .ledger-bottom-nav { left: 50%; right: auto; bottom: 16px; width: min(100% - 32px, 560px); transform: translateX(-50%); border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 12px 32px color-mix(in srgb, var(--foreground) 12%, transparent); }
+  .ledger-bottom-nav > div { padding-bottom: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ledger-shell *,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowClockwise, Funnel, MagnifyingGlass, X } from 'phosphor-svelte'
+  import { Funnel, MagnifyingGlass, X } from 'phosphor-svelte'
   import { push } from 'svelte-spa-router'
   import { createVirtualizer } from '@tanstack/svelte-virtual'
   import { useClientStore } from '@/stores/client-store'
@@ -102,22 +102,11 @@
   }
 </script>
 
-<div class="ledger-full-bleed ledger-column flex h-full flex-col overflow-hidden">
+<div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pb-4 pt-5 sm:px-6">
   <h1 class="sr-only">รายการลูกค้า</h1>
-  <!-- Floating glass pill, same shape as the nav: the list scrolls under it
-       and the glass has something to refract. -->
-  <div class="ledger-field catalog-head flex items-center">
-    <button
-      type="button"
-      onclick={() => window.location.reload()}
-      aria-label="รีเฟรชหน้า"
-      class="grid size-[42px] shrink-0 place-items-center rounded-l-xl text-muted-foreground transition-colors hover:text-foreground"
-    >
-      <ArrowClockwise class="h-[18px] w-[18px]" weight="bold" aria-hidden />
-    </button>
-    <span class="h-5 w-px shrink-0 bg-[color-mix(in_oklab,var(--border)_70%,transparent)]" aria-hidden="true"></span>
+  <div class="flex shrink-0 gap-2">
     <div class="relative min-w-0 flex-1">
-      <MagnifyingGlass class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
+      <MagnifyingGlass class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
       <input
         value={search}
         oninput={(e) => {
@@ -130,7 +119,7 @@
         name="q"
         autocomplete="off"
         spellcheck="false"
-        class="h-[42px] w-full rounded-xl bg-transparent pl-8 pr-9 text-sm outline-none placeholder:text-muted-foreground/70"
+        class="h-12 w-full rounded-xl border border-border bg-card pl-10 pr-10 text-sm shadow-sm outline-none placeholder:text-muted-foreground/70 focus:border-foreground/20 focus:ring-4 focus:ring-foreground/5"
       />
       {#if search}
         <button
@@ -139,7 +128,7 @@
             setSearch('')
             focused = 0
           }}
-          class="absolute right-0 top-1/2 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+          class="absolute right-0 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
           aria-label="ล้างการค้นหา"
         >
           <X class="h-3.5 w-3.5" weight="bold" aria-hidden />
@@ -148,16 +137,15 @@
         <span class="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-primary px-2.5 py-1 font-mono text-[10px] text-primary-foreground md:block">⌘K</span>
       {/if}
     </div>
-    <span class="h-6 w-px shrink-0 bg-[color-mix(in_oklab,var(--border)_70%,transparent)]" aria-hidden="true"></span>
     <button
       type="button"
       onclick={() => (filterOpen = true)}
       aria-label={filter === FilterKey.All ? 'ตัวกรองรายการ' : `ตัวกรองรายการ: ${FILTER_LABELS[filter]}`}
       aria-expanded={filterOpen}
       aria-haspopup="dialog"
-      class="relative grid size-[42px] shrink-0 place-items-center rounded-r-xl transition-colors hover:text-foreground {filter === FilterKey.All ? 'text-muted-foreground' : 'text-primary'}"
+      class="relative grid size-12 shrink-0 place-items-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground {filter === FilterKey.All ? '' : '!border-primary/40 !text-primary'}"
     >
-      <Funnel class="h-[18px] w-[18px]" weight={filter === FilterKey.All ? 'regular' : 'fill'} aria-hidden />
+      <Funnel class="h-5 w-5" weight={filter === FilterKey.All ? 'regular' : 'fill'} aria-hidden />
       {#if filter !== FilterKey.All}
         <span class="absolute right-2 top-2 size-1.5 rounded-full bg-primary" aria-hidden="true"></span>
       {/if}
@@ -185,7 +173,7 @@
   </AppDialog>
 
   {#if offline}
-    <p class="absolute inset-x-3 top-[var(--ledger-head-clear)] z-20 shrink-0 rounded-xl border border-border bg-muted px-3 py-2 text-center text-xs text-muted-foreground" role="status">อยู่ออฟไลน์ — กำลังแสดงข้อมูลที่บันทึกไว้</p>
+    <p class="mt-3 shrink-0 rounded-xl border border-border bg-muted px-3 py-2 text-center text-xs text-muted-foreground" role="status">อยู่ออฟไลน์ — กำลังแสดงข้อมูลที่บันทึกไว้</p>
   {/if}
   {#if error && filtered.length === 0}
     <div class="mt-3 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
@@ -194,16 +182,13 @@
     </div>
   {/if}
 
-  <div class="flex min-h-0 flex-1 flex-col overflow-hidden bg-card">
+  <div class="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
     {#if loading && filtered.length === 0}
       <div class="flex h-full items-center justify-center p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดรายการ…</div>
     {:else if filtered.length === 0}
       <div class="flex h-full items-center justify-center p-8 text-center text-sm opacity-50">{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ — ลองล้างการค้นหาหรือเปลี่ยนตัวกรอง'}</div>
     {:else}
       <div bind:this={parentRef} class="h-full overflow-auto overscroll-contain">
-        <!-- Clears the floating pill at both ends so the first and last rows
-             can scroll out from under them. -->
-        <div class="h-[var(--ledger-head-clear)]" aria-hidden="true"></div>
         <div style="height: {$vstore?.getTotalSize() ?? 0}px; position: relative;">
           {#each $vstore?.getVirtualItems() ?? [] as vi (filtered[vi.index]?.id ?? vi.index)}
             {@const c = filtered[vi.index]}
@@ -223,10 +208,6 @@
             {/if}
           {/each}
         </div>
-        <!-- The list runs to the bottom edge so the floating nav has rows
-             behind it; this spacer is what lets the last row scroll clear of
-             the nav instead of resting underneath it. -->
-        <div class="h-[calc(var(--ledger-nav-height)+var(--ledger-nav-inset))]" aria-hidden="true"></div>
       </div>
     {/if}
   </div>

@@ -31,18 +31,19 @@ describe('locked application viewport', () => {
     expect(app).toContain('ledger-bottom-nav relative')
     expect(app).not.toContain('<footer')
     expect(settings).toContain('DATA Ledger · V3')
-    // The catalog root is a full-height column on the shared pill column, so
-    // the list, the search pill and the nav pill all share their edges.
-    expect(catalog).toContain('ledger-full-bleed ledger-column flex h-full flex-col')
+    // The catalog is a full-height column with the card filling the rest.
+    expect(catalog).toContain('flex h-full max-w-xl flex-col')
     expect(maps).toContain('flex h-full max-w-xl flex-col')
   })
 
-  it('floats the search pill above the list rather than collapsing it', () => {
-    expect(catalog).toContain('ledger-field catalog-head')
-    expect(catalog).not.toContain('data-collapsed')
-    expect(shell).toMatch(/\.catalog-head\s*\{[^}]*position:\s*absolute/s)
-    // The list scrolls under both pills, so the scroller pads both ends.
-    expect(catalog).toContain('h-[var(--ledger-head-clear)]')
-    expect(catalog).toContain('calc(var(--ledger-nav-height)+var(--ledger-nav-inset))')
+  it('keeps the search field and filter button as separate controls', () => {
+    expect(catalog).toContain('name="q"')
+    expect(catalog).toContain('aria-haspopup="dialog"')
+    expect(catalog).not.toContain('ledger-field')
+    expect(catalog).not.toContain('รีเฟรชหน้า')
+    // The nav is a full-width bar in flow with its own primary action.
+    expect(app).toContain('ledger-add-button')
+    expect(shell).toContain('.ledger-add-button')
+    expect(shell).not.toContain('lg-nav-dist')
   })
 })
