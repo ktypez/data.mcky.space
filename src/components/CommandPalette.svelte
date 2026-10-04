@@ -89,7 +89,7 @@
 </script>
 
 <AppDialog {open} onClose={() => (open = false)} title="ค้นหา" showHeader={false} panelClassName="max-w-xl overflow-hidden">
-  <div class="flex items-center gap-3 border-b border-border px-4">
+  <div class="flex items-center gap-3 border-b border-border/30 px-4">
     <MagnifyingGlass class="h-5 w-5 shrink-0 text-muted-foreground" weight="bold" aria-hidden />
     <input use:trackField={readQuery} bind:this={inputRef} value={query} oninput={(e) => (query = e.currentTarget.value)} onkeydown={onKeyDown} placeholder="พิมพ์ชื่อ ร้าน หรือ ID… — Enter เพื่อเปิด" aria-label="ค้นหาชื่อ ร้าน หรือ ID" class="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60" autocomplete="off" spellcheck="false" />
     <span class="hidden shrink-0 rounded-full bg-muted px-2 py-1 font-mono text-[10px] text-muted-foreground sm:block">Esc</span>
@@ -125,7 +125,7 @@
     {/if}
   </div>
 
-  <div class="flex items-center justify-between border-t border-border bg-muted/30 px-4 py-2 font-mono text-[10px] text-muted-foreground">
+  <div class="flex items-center justify-between border-t border-border/30 bg-muted/30 px-4 py-2 font-mono text-[10px] text-muted-foreground">
     <span class="hidden sm:inline">↑↓ เลือก · Enter เปิด · Esc ปิด</span>
     <span class="sm:hidden">แตะเพื่อเปิด</span>
     <span class="tabular-nums">{filtered.length} รายการ</span>

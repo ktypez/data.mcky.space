@@ -135,7 +135,7 @@
       {:else}
         {#each items as item, index (item.id)}
           {@const active = index === focused}
-          <div role="listitem" onmouseenter={() => (focused = index)} class="flex items-center {active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/50'} border-b border-border last:border-b-0">
+          <div role="listitem" onmouseenter={() => (focused = index)} class="flex items-center {active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/50'} border-b border-border/30 last:border-b-0">
             <button
               bind:this={rowEls[index]}
               type="button"

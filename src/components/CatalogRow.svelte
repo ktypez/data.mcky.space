@@ -38,7 +38,7 @@
   {style}
   role="presentation"
   onmouseenter={onFocus}
-  class="flex min-h-16 w-full items-center border-b border-border {active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/50'}"
+  class="flex min-h-16 w-full items-center border-b border-border/30 {active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/50'}"
 >
   <button type="button" onclick={onOpen} onfocus={onFocus} class="flex min-h-16 min-w-0 flex-1 items-center gap-3 px-4 py-1.5 text-left">
     {#if client.images[0]}
