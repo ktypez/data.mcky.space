@@ -10,7 +10,7 @@
   import { trackField } from '@/lib/restore-field'
   import AppDialog from '@/components/AppDialog.svelte'
   import CatalogRow from '@/components/CatalogRow.svelte'
-  import PullToRefresh from '@/components/PullToRefresh.svelte'
+  import { pullToRefresh } from '@/lib/pull-to-refresh'
 
   let clients = $derived($useClientStore.clients)
   let loading = $derived($useClientStore.loading)
@@ -107,12 +107,12 @@
   const handleRefresh = async () => {
     await refresh().catch(() => undefined)
   }
-
-  const getScrollElement = () => parentRef
 </script>
 
-<PullToRefresh onRefresh={handleRefresh} {getScrollElement}>
-  <div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-3 pt-5 sm:px-4">
+<div 
+  class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-3 pt-5 sm:px-4"
+  use:pullToRefresh={{ onRefresh: handleRefresh }}
+>
     <h1 class="sr-only">รายการลูกค้า</h1>
     <div class="flex shrink-0 gap-2">
       <div class="relative min-w-0 flex-1">
@@ -223,4 +223,3 @@
       {/if}
     </div>
   </div>
-</PullToRefresh>

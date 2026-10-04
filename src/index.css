@@ -299,5 +299,53 @@
   border-color: var(--border) !important;
 }
 
+/* Pull-to-refresh indicator */
+.ptr-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+  pointer-events: none;
+  opacity: var(--ptr-progress, 0);
+  transform: translateY(var(--ptr-y, 0px));
+  transition: transform 0.3s ease, opacity 0.2s ease;
+  z-index: 10;
+}
 
+.ptr-spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  border-top-color: transparent;
+  background: var(--background);
+}
+
+.ptr-refreshing .ptr-spinner {
+  animation: ptr-spin 0.8s linear infinite;
+}
+
+.ptr-refreshing .ptr-indicator {
+  opacity: 1 !important;
+}
+
+@keyframes ptr-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptr-indicator,
+  .ptr-spinner {
+    transition: none;
+    animation: none !important;
+  }
+  .ptr-refreshing .ptr-spinner {
+    animation: none !important;
+  }
+}
 

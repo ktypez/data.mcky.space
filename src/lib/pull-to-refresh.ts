@@ -1,49 +1,83 @@
 /**
  * Pull-to-refresh gesture handler for touch devices
- * Calls onRefresh when user pulls down beyond threshold
+ * Uses Svelte action pattern for safe cleanup
  */
 
 export interface PullToRefreshOptions {
-  threshold?: number // pixels to pull before triggering refresh (default: 80)
+  threshold?: number
   onRefresh: () => Promise<void> | void
-  getScrollElement: () => HTMLElement | null | undefined
 }
 
-export function setupPullToRefresh(options: PullToRefreshOptions) {
-  const { threshold = 80, onRefresh, getScrollElement } = options
+export function pullToRefresh(node: HTMLElement, options: PullToRefreshOptions) {
+  const threshold = options.threshold ?? 80
+  const { onRefresh } = options
+
+  // Only enable on touch devices
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  if (!isTouchDevice) {
+    return { destroy: () => {} }
+  }
 
   let startY = 0
   let pulling = false
   let refreshing = false
-  let container: HTMLElement | null = null
+
+  // Create indicator element
+  const indicator = document.createElement('div')
+  indicator.className = 'ptr-indicator'
+  indicator.setAttribute('aria-hidden', 'true')
+  indicator.innerHTML = `
+    <div class="ptr-spinner"></div>
+  `
+  node.style.position = 'relative'
+  node.insertBefore(indicator, node.firstChild)
 
   function reset() {
     startY = 0
     pulling = false
-    updateIndicator(0)
+    node.style.setProperty('--ptr-progress', '0')
+    node.style.setProperty('--ptr-y', '0px')
+    node.classList.remove('ptr-refreshing')
   }
 
-  function updateIndicator(delta: number) {
-    if (!container) return
-    const progress = Math.min(delta / threshold, 1)
-    container.style.setProperty('--ptr-progress', `${progress}`)
-    container.style.setProperty('--ptr-y', `${Math.min(delta, threshold * 1.5)}px`)
+  function findScrollElement(): HTMLElement | null {
+    // Find the nearest scrollable element
+    let el: HTMLElement | null = node
+    while (el) {
+      const style = window.getComputedStyle(el)
+      if (
+        (el.scrollTop > 0 || el.scrollLeft > 0) ||
+        (style.overflowY === 'auto' || style.overflowY === 'scroll') ||
+        (style.overflow === 'auto' || style.overflow === 'scroll')
+      ) {
+        if (el.scrollTop > 0) return el
+        if (style.overflowY === 'auto' || style.overflowY === 'scroll' || style.overflow === 'auto' || style.overflow === 'scroll') {
+          return el
+        }
+      }
+      el = el.parentElement
+    }
+    return null
   }
 
   function onTouchStart(e: TouchEvent) {
     if (refreshing) return
-    const scrollEl = getScrollElement()
+
+    const scrollEl = findScrollElement()
     if (!scrollEl || scrollEl.scrollTop > 0) return
-    
+
     startY = e.touches[0].clientY
     pulling = true
   }
 
   function onTouchMove(e: TouchEvent) {
     if (!pulling || refreshing) return
-    
-    const scrollEl = getScrollElement()
-    if (!scrollEl) return
+
+    const scrollEl = findScrollElement()
+    if (!scrollEl) {
+      reset()
+      return
+    }
 
     const currentY = e.touches[0].clientY
     const delta = currentY - startY
@@ -51,10 +85,13 @@ export function setupPullToRefresh(options: PullToRefreshOptions) {
     // Only handle pull down (positive delta) when at the top
     if (delta > 0 && scrollEl.scrollTop <= 0) {
       // Add resistance as user pulls
-      const resistance = 0.5
+      const resistance = 0.4
       const adjustedDelta = delta * resistance
-      updateIndicator(adjustedDelta)
-      
+      const progress = Math.min(adjustedDelta / threshold, 1)
+
+      node.style.setProperty('--ptr-progress', `${progress}`)
+      node.style.setProperty('--ptr-y', `${Math.min(adjustedDelta, threshold * 1.2)}px`)
+
       // Prevent default scroll behavior
       if (delta > 10) {
         e.preventDefault()
@@ -67,24 +104,19 @@ export function setupPullToRefresh(options: PullToRefreshOptions) {
   function onTouchEnd() {
     if (!pulling || refreshing) return
 
-    const scrollEl = getScrollElement()
-    if (!scrollEl) {
-      reset()
-      return
-    }
+    const progress = parseFloat(node.style.getPropertyValue('--ptr-progress') || '0')
 
-    const currentProgress = parseFloat(container?.style.getPropertyValue('--ptr-progress') || '0')
-    
-    if (currentProgress >= 1) {
+    if (progress >= 1) {
       refreshing = true
-      container?.classList.add('ptr-refreshing')
-      container?.style.setProperty('--ptr-y', `${threshold}px`)
-      
+      pulling = false
+      node.classList.add('ptr-refreshing')
+      node.style.setProperty('--ptr-y', `${threshold}px`)
+      node.style.setProperty('--ptr-progress', '1')
+
       Promise.resolve(onRefresh())
         .catch(() => undefined)
         .finally(() => {
           refreshing = false
-          container?.classList.remove('ptr-refreshing')
           reset()
         })
     } else {
@@ -94,22 +126,16 @@ export function setupPullToRefresh(options: PullToRefreshOptions) {
     pulling = false
   }
 
-  function setContainer(el: HTMLElement | null) {
-    container = el
-    if (el) {
-      el.addEventListener('touchstart', onTouchStart, { passive: true })
-      el.addEventListener('touchmove', onTouchMove, { passive: false })
-      el.addEventListener('touchend', onTouchEnd, { passive: true })
+  node.addEventListener('touchstart', onTouchStart, { passive: true })
+  node.addEventListener('touchmove', onTouchMove, { passive: false })
+  node.addEventListener('touchend', onTouchEnd, { passive: true })
+
+  return {
+    destroy() {
+      node.removeEventListener('touchstart', onTouchStart)
+      node.removeEventListener('touchmove', onTouchMove)
+      node.removeEventListener('touchend', onTouchEnd)
+      indicator.remove()
     }
   }
-
-  function destroy() {
-    if (container) {
-      container.removeEventListener('touchstart', onTouchStart)
-      container.removeEventListener('touchmove', onTouchMove)
-      container.removeEventListener('touchend', onTouchEnd)
-    }
-  }
-
-  return { setContainer, destroy }
 }
