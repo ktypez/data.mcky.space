@@ -1,6 +1,7 @@
 <script lang="ts">
   import { cva, type VariantProps } from 'class-variance-authority'
   import { cn } from '@/lib/utils'
+  import { trackField } from '@/lib/restore-field'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
   const inputVariants = cva(
@@ -25,7 +26,17 @@
     },
   )
 
-  let { class: className, variant, size, ...rest }: HTMLInputAttributes & VariantProps<typeof inputVariants> = $props()
+  let {
+    class: className,
+    variant,
+    size,
+    syncValue,
+    ...rest
+  }: HTMLInputAttributes & VariantProps<typeof inputVariants> & { syncValue?: () => string } = $props()
 </script>
 
-<input class={cn(inputVariants({ variant, size, className }))} {...rest} />
+<input
+  class={cn(inputVariants({ variant, size, className }))}
+  use:trackField={syncValue}
+  {...rest}
+/>

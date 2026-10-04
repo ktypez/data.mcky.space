@@ -6,6 +6,7 @@
   import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_CENTER, KHON_KAEN_BOUNDS, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
   import { applyTileDarkMode, observeMapDarkMode } from '@/lib/map-dark-mode'
   import { hasValidCoords } from '@/lib/utils'
+  import { trackField } from '@/lib/restore-field'
   import { fetchClientMap } from '@/lib/storage'
   import { clientMatchesQuery } from '@/lib/clientNames'
   import { safeTooltipContent } from '@/lib/leaflet-content'
@@ -43,6 +44,7 @@
   let pins = $state<Client[]>([])
   let selected = $state<Client | null>(null)
   let search = $state('')
+  const readSearch = () => search
   let inputFocused = $state(false)
 
   let filteredForMap = $derived.by(() => {
@@ -272,6 +274,7 @@
     <div class="relative mb-4 shrink-0">
       <MagnifyingGlass class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
       <input
+        use:trackField={readSearch}
         value={search}
         oninput={(e) => (search = e.currentTarget.value)}
         onfocus={() => (inputFocused = true)}

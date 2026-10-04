@@ -10,6 +10,7 @@
 
   const geo = createGeolocation()
   let locQuery = $state('')
+  const readLocQuery = () => locQuery
   let locSearching = $state(false)
   let locFeedback = $state<{ ok: boolean; msg: string } | null>(null)
 
@@ -98,6 +99,7 @@
       id="location-query"
       name="location-query"
       type="text"
+      syncValue={readLocQuery}
       value={locQuery}
       oninput={(e) => {
         locQuery = e.currentTarget.value

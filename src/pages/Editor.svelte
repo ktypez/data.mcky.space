@@ -49,6 +49,9 @@
   let initialSnapshot = snapshot({ name: [''], shopName: [''], branch: '', address: '', lat: null, lng: null, images: [], badge: null, notes: '' })
   let submitLock = false
 
+  const readBranch = () => branch
+  const readAddress = () => address
+
   type FormSnapshot = { name: string[]; shopName: string[]; branch: string; address: string; lat: number | null; lng: number | null; images: string[]; badge: string | null; notes: string }
   function snapshot(values: FormSnapshot): string {
     return JSON.stringify(values)
@@ -291,7 +294,7 @@
               </div>
               <div class="space-y-1">
                 <Label for="editor-branch">สาขา</Label>
-                <Input id="editor-branch" name="branch" autocomplete="off" spellcheck="false" type="text" value={branch} oninput={(e) => (branch = e.currentTarget.value)} maxlength={60} placeholder="สาขา…" />
+                <Input syncValue={readBranch} id="editor-branch" name="branch" autocomplete="off" spellcheck="false" type="text" value={branch} oninput={(e) => (branch = e.currentTarget.value)} maxlength={60} placeholder="สาขา…" />
               </div>
               <FormNameField values={name} onChange={(v) => (name = v)} {dupResult} inlineAdd />
               <FormNotesField value={notes} onChange={(v) => (notes = v)} />
@@ -301,7 +304,7 @@
             <div class="space-y-4">
               <div class="space-y-1">
                 <Label for="editor-address">ที่อยู่/รายละเอียด</Label>
-                <Input id="editor-address" name="address" autocomplete="off" spellcheck="false" type="text" value={address} oninput={(e) => (address = e.currentTarget.value)} maxlength={120} placeholder="บ้านเลขที่ ถนน ตำบล…" />
+                <Input syncValue={readAddress} id="editor-address" name="address" autocomplete="off" spellcheck="false" type="text" value={address} oninput={(e) => (address = e.currentTarget.value)} maxlength={120} placeholder="บ้านเลขที่ ถนน ตำบล…" />
               </div>
               <LocationSection {lat} {lng} onCoordsChange={(nextLat, nextLng) => { lat = nextLat; lng = nextLng }} />
             </div>

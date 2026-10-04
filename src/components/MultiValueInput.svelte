@@ -38,6 +38,7 @@
   {#each values as v, i (i)}
     <div class="flex items-center gap-1.5">
       <Input
+        syncValue={() => values[i] ?? ''}
         type="text"
         value={v}
         oninput={(e) => update(i, e.currentTarget.value)}
