@@ -113,6 +113,20 @@ html:has(.ledger-shell):root body {
   --ledger-nav-inset: max(10px, env(safe-area-inset-bottom));
 }
 .ledger-main { padding-bottom: calc(var(--ledger-nav-height) + var(--ledger-nav-inset) + 14px); }
+/* The catalog opts out of that bottom inset so its list can run to the screen
+   edge, with a spacer inside the scroller making up the difference. */
+.ledger-shell:has(.ledger-full-bleed) .ledger-main { padding-bottom: 0; }
+/* Shared glass material: translucent slab, saturating frost, hairline edge and
+   a top specular so the surface reads as lit from above. */
+.glass-surface,
+.ledger-field {
+  background: color-mix(in oklab, var(--card) 62%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 12%, transparent);
+}
+.ledger-field { border-radius: 16px; }
 /* The glass slab is a sibling of the nav, not a child: a backdrop-filter
    nested inside the nav samples the nav's own icons and refracts a second
    copy of them above the bar. Sibling = the backdrop is only page content. */
@@ -125,11 +139,11 @@ html:has(.ledger-shell):root body {
   height: var(--ledger-nav-height);
   transform: translateX(-50%);
   overflow: hidden;
-  border: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
   border-radius: 26px;
   background: color-mix(in oklab, var(--card) 62%, transparent);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
   backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
   box-shadow: 0 10px 30px color-mix(in srgb, var(--foreground) 14%, transparent);
 }
 /* Edge lensing: the band where the glass meets the content gets the SVG

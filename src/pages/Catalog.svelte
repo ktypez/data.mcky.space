@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { ArrowClockwise, MagnifyingGlass, Plus, X } from 'phosphor-svelte'
+  import { ArrowClockwise, MagnifyingGlass, X } from 'phosphor-svelte'
   import { push } from 'svelte-spa-router'
   import { createVirtualizer } from '@tanstack/svelte-virtual'
   import { useClientStore } from '@/stores/client-store'
   import { useFilterStore } from '@/stores/filter-store'
-  import { useAuthStore } from '@/stores/auth-store'
   import { FilterKey } from '@/types/index'
   import { applyCounts, applyFilter, sortByCreatedDesc } from '@/lib/filter'
   import { get } from 'svelte/store'
@@ -15,7 +14,6 @@
   let error = $derived($useClientStore.error)
   let offline = $derived($useClientStore.offline)
   let refresh = $derived($useClientStore.refresh)
-  let isAdmin = $derived($useAuthStore.isAdmin)
   let search = $derived($useFilterStore.search)
   let setSearch = $derived($useFilterStore.setSearch)
   let filter = $derived($useFilterStore.filter)
@@ -98,18 +96,21 @@
   }
 </script>
 
-<div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pb-4 pt-6 sm:px-6">
+<div class="ledger-full-bleed mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pt-5 sm:px-6">
   <h1 class="sr-only">รายการลูกค้า</h1>
-  <div class="mt-0 flex shrink-0 gap-2">
+  <!-- One glass slab for refresh + search, so the row reads as a single
+       surface instead of two separate boxes. -->
+  <div class="ledger-field mt-0 flex shrink-0 items-center">
     <button
       type="button"
       onclick={() => window.location.reload()}
       aria-label="รีเฟรชหน้า"
-      class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-border bg-card text-muted-foreground shadow-sm hover:bg-muted"
+      class="grid size-12 shrink-0 place-items-center rounded-l-2xl text-muted-foreground transition-colors hover:text-foreground"
     >
       <ArrowClockwise class="h-5 w-5" weight="bold" aria-hidden />
     </button>
-    <div class="relative flex-1">
+    <span class="h-6 w-px shrink-0 bg-[color-mix(in_oklab,var(--border)_70%,transparent)]" aria-hidden="true"></span>
+    <div class="relative min-w-0 flex-1">
       <MagnifyingGlass class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
       <input
         value={search}
@@ -123,7 +124,7 @@
         name="q"
         autocomplete="off"
         spellcheck="false"
-        class="h-12 w-full rounded-2xl border border-border bg-card pl-10 pr-10 text-sm shadow-sm outline-none focus:border-foreground/20 focus:ring-4 focus:ring-foreground/5"
+        class="h-12 w-full rounded-2xl bg-transparent pl-3 pr-10 text-sm outline-none placeholder:text-muted-foreground/70"
       />
       {#if search}
         <button
@@ -132,7 +133,7 @@
             setSearch('')
             focused = 0
           }}
-          class="absolute right-0 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground"
+          class="absolute right-0 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
           aria-label="ล้างการค้นหา"
         >
           <X class="h-3.5 w-3.5" weight="bold" aria-hidden />
@@ -141,11 +142,6 @@
         <span class="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-primary px-2.5 py-1 font-mono text-[10px] text-primary-foreground md:block">⌘K</span>
       {/if}
     </div>
-    {#if isAdmin}
-      <button type="button" onclick={() => push('/add')} class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm hover:opacity-90" aria-label="เพิ่มรายการ">
-        <Plus class="h-5 w-5" weight="bold" aria-hidden />
-      </button>
-    {/if}
   </div>
 
   <div class="mt-3 flex shrink-0 gap-0.5 overflow-auto pb-1" role="group" aria-label="ตัวกรองรายการ">
@@ -175,7 +171,7 @@
     </div>
   {/if}
 
-  <div class="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+  <div class="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-2xl border border-b-0 border-border bg-card">
     {#if loading && filtered.length === 0}
       <div class="flex h-full items-center justify-center p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดรายการ…</div>
     {:else if filtered.length === 0}
@@ -201,6 +197,10 @@
             {/if}
           {/each}
         </div>
+        <!-- The list runs to the bottom edge so the floating nav has rows
+             behind it; this spacer is what lets the last row scroll clear of
+             the nav instead of resting underneath it. -->
+        <div class="h-[calc(var(--ledger-nav-height)+var(--ledger-nav-inset))]" aria-hidden="true"></div>
       </div>
     {/if}
   </div>
