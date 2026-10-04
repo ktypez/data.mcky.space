@@ -245,7 +245,7 @@
 {:else if hydrating || (id && loadedId !== id)}
   <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดข้อมูลสำหรับแก้ไข…</div>
 {:else if id && !editClient}
-  <div class="mx-auto max-w-3xl px-5 sm:px-6 pt-6">
+  <div class="mx-auto max-w-3xl px-5 pb-6 pt-6 sm:px-6">
     <div class="rounded-2xl border border-border bg-card p-6 text-center">
       <p class="text-sm text-destructive" role="alert">{loadError ?? 'ไม่พบรายการ'}</p>
       <div class="mt-5 flex justify-center gap-2">
@@ -257,7 +257,7 @@
 {:else}
   <div class="pb-4">
     <h1 class="sr-only">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
-    <div class="mx-auto flex w-full max-w-3xl px-5 sm:px-6 pt-6">
+    <div class="mx-auto flex w-full max-w-3xl px-5 pb-6 pt-6 sm:px-6">
       <button type="button" onclick={onBack} class="inline-flex min-h-11 items-center gap-1 rounded-md border border-border bg-card px-3 py-2 font-mono text-xs text-foreground hover:bg-muted"><ArrowLeft class="inline h-3 w-3" aria-hidden /> กลับ</button>
     </div>
 

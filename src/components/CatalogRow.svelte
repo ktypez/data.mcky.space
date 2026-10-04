@@ -42,7 +42,7 @@
 >
   <button type="button" onclick={onOpen} onfocus={onFocus} class="flex min-h-16 min-w-0 flex-1 items-center gap-3 px-4 py-1.5 text-left">
     {#if client.images[0]}
-      <AppImage src={client.thumb ?? client.images[0]} fallbackSrc={client.thumb ? client.images[0] : undefined} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-full object-cover border border-border" />
+      <AppImage src={client.thumb ?? client.images[0]} fallbackSrc={client.thumb ? client.images[0] : undefined} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-full object-cover border border-border" />
     {:else}
       <NameAvatar className={active ? 'ring-2 ring-background' : ''} />
     {/if}

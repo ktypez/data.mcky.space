@@ -102,7 +102,7 @@
   }
 </script>
 
-<div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pb-4 pt-5 sm:px-6">
+<div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pt-5 sm:px-6">
   <h1 class="sr-only">รายการลูกค้า</h1>
   <div class="flex shrink-0 gap-2">
     <div class="relative min-w-0 flex-1">

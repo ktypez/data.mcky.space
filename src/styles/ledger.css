@@ -106,10 +106,9 @@ html:has(.ledger-shell):root body {
 /* Bottom navigation: full-width bar in flow, safe-area aware. */
 .ledger-shell {
   position: relative;
-  --ledger-nav-height: 3.5rem;
-  --ledger-nav-inset: max(10px, env(safe-area-inset-bottom));
 }
-.ledger-main { padding-bottom: calc(var(--ledger-nav-height) + var(--ledger-nav-inset) + 14px); }
+/* The nav sits in flow, so it reserves its own height — no inset needed here. */
+.ledger-main { padding-bottom: 0; }
 .ledger-bottom-nav > div { position: relative; }
 .ledger-nav-item {
   display: inline-flex;
