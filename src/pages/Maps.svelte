@@ -256,11 +256,11 @@
 </script>
 
 {#if failed}
-  <section class="mx-auto flex h-full max-w-xl items-center justify-center px-5 pb-4 pt-6 sm:px-6">
+  <section class="mx-auto flex h-full max-w-xl items-center justify-center px-3 pb-4 pt-6 sm:px-4">
     <p class="text-sm text-muted-foreground">ไม่สามารถโหลดแผนที่ได้</p>
   </section>
 {:else}
-  <section class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pb-4 pt-6 sm:px-6">
+  <section class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-3 pb-4 pt-6 sm:px-4">
     <h1 class="sr-only">แผนที่รายการลูกค้า</h1>
     {#if loadError}
       <div class="mb-4 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm" role="status">

@@ -117,7 +117,7 @@
 {:else if !isAdmin}
   <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังนำกลับ…</div>
 {:else}
-  <section class="mx-auto max-w-xl px-5 pb-8 pt-6 sm:px-6">
+  <section class="mx-auto max-w-xl px-3 pb-8 pt-6 sm:px-4">
     <h1 class="sr-only">ถังขยะ</h1>
     <div class="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
       <span>{loading ? 'กำลังโหลด…' : `${items.length} รายการ`}</span>

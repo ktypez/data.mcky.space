@@ -40,7 +40,7 @@
   }
 </script>
 
-<section class="mx-auto max-w-xl px-5 pb-8 pt-6 sm:px-6">
+<section class="mx-auto max-w-xl px-3 pb-8 pt-6 sm:px-4">
   <h1 class="sr-only">เมนูและการตั้งค่า</h1>
   <div class="space-y-4">
     <section class="rounded-2xl border border-border bg-card p-4">
