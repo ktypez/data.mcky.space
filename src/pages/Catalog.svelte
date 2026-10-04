@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowClockwise, MagnifyingGlass, X } from 'phosphor-svelte'
+  import { ArrowClockwise, Funnel, MagnifyingGlass, X } from 'phosphor-svelte'
   import { push } from 'svelte-spa-router'
   import { createVirtualizer } from '@tanstack/svelte-virtual'
   import { useClientStore } from '@/stores/client-store'
@@ -7,6 +7,7 @@
   import { FilterKey } from '@/types/index'
   import { applyCounts, applyFilter, sortByCreatedDesc } from '@/lib/filter'
   import { get } from 'svelte/store'
+  import AppDialog from '@/components/AppDialog.svelte'
   import CatalogRow from '@/components/CatalogRow.svelte'
 
   let clients = $derived($useClientStore.clients)
@@ -28,19 +29,12 @@
   })
 
   let focused = $state(0)
+  let filterOpen = $state(false)
 
   $effect(() => {
     filtered.length // re-clamp when the list changes
     focused = Math.min(focused, Math.max(filtered.length - 1, 0))
   })
-
-  const CATALOG_FILTERS = [
-    { key: FilterKey.NoImages, countKey: 'noImages' },
-    { key: FilterKey.Notes, countKey: 'notes' },
-    { key: FilterKey.Recent, countKey: 'recent' },
-    { key: FilterKey.Penpay, countKey: 'penpay' },
-    { key: FilterKey.Credit, countKey: 'credit' },
-  ] as const
 
   const FILTER_LABELS: Record<FilterKey, string> = {
     [FilterKey.All]: 'ทั้งหมด',
@@ -51,6 +45,18 @@
     [FilterKey.Penpay]: 'จ่ายในวัน',
     [FilterKey.Credit]: 'บัตรเครดิต',
   }
+
+  // The pills became one button on the right of the search field, so the
+  // choices move into a sheet and carry their own counts.
+  const FILTER_CHOICES = [
+    { key: FilterKey.All, count: () => counts.total },
+    { key: FilterKey.WithImages, count: () => counts.withImages },
+    { key: FilterKey.NoImages, count: () => counts.noImages },
+    { key: FilterKey.Notes, count: () => counts.notes },
+    { key: FilterKey.Recent, count: () => counts.recent },
+    { key: FilterKey.Penpay, count: () => counts.penpay },
+    { key: FilterKey.Credit, count: () => counts.credit },
+  ]
 
   let parentRef: HTMLDivElement | undefined = $state()
   let vstore: ReturnType<typeof createVirtualizer<HTMLDivElement, HTMLDivElement>> | undefined = $state()
@@ -124,7 +130,7 @@
         name="q"
         autocomplete="off"
         spellcheck="false"
-        class="h-12 w-full rounded-2xl bg-transparent pl-3 pr-10 text-sm outline-none placeholder:text-muted-foreground/70"
+        class="h-12 w-full rounded-2xl bg-transparent pl-9 pr-10 text-sm outline-none placeholder:text-muted-foreground/70"
       />
       {#if search}
         <button
@@ -142,24 +148,41 @@
         <span class="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-primary px-2.5 py-1 font-mono text-[10px] text-primary-foreground md:block">⌘K</span>
       {/if}
     </div>
+    <span class="h-6 w-px shrink-0 bg-[color-mix(in_oklab,var(--border)_70%,transparent)]" aria-hidden="true"></span>
+    <button
+      type="button"
+      onclick={() => (filterOpen = true)}
+      aria-label={filter === FilterKey.All ? 'ตัวกรองรายการ' : `ตัวกรองรายการ: ${FILTER_LABELS[filter]}`}
+      aria-expanded={filterOpen}
+      aria-haspopup="dialog"
+      class="relative grid size-12 shrink-0 place-items-center rounded-r-2xl transition-colors hover:text-foreground {filter === FilterKey.All ? 'text-muted-foreground' : 'text-primary'}"
+    >
+      <Funnel class="h-5 w-5" weight={filter === FilterKey.All ? 'regular' : 'fill'} aria-hidden />
+      {#if filter !== FilterKey.All}
+        <span class="absolute right-2 top-2 size-1.5 rounded-full bg-primary" aria-hidden="true"></span>
+      {/if}
+    </button>
   </div>
 
-  <div class="mt-3 flex shrink-0 gap-0.5 overflow-auto pb-1" role="group" aria-label="ตัวกรองรายการ">
-    {#each CATALOG_FILTERS as { key, countKey }}
-      <button
-        type="button"
-        onclick={() => {
-          setFilter(filter === key ? FilterKey.All : key)
-          focused = 0
-        }}
-        data-active={filter === key}
-        aria-pressed={filter === key}
-        class="ledger-pill whitespace-nowrap"
-      >
-        {FILTER_LABELS[key]} <span class="opacity-60">{counts[countKey]}</span>
-      </button>
-    {/each}
-  </div>
+  <AppDialog open={filterOpen} onClose={() => (filterOpen = false)} title="ตัวกรองรายการ">
+    <div class="flex flex-col gap-1 p-4">
+      {#each FILTER_CHOICES as choice}
+        <button
+          type="button"
+          onclick={() => {
+            setFilter(choice.key)
+            focused = 0
+            filterOpen = false
+          }}
+          aria-pressed={filter === choice.key}
+          class="flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-left text-sm transition-colors {filter === choice.key ? 'bg-primary/12 font-medium text-primary' : 'text-foreground hover:bg-muted'}"
+        >
+          <span>{FILTER_LABELS[choice.key]}</span>
+          <span class="font-mono text-xs opacity-60">{choice.count()}</span>
+        </button>
+      {/each}
+    </div>
+  </AppDialog>
 
   {#if offline}
     <p class="mt-3 shrink-0 rounded-xl border border-border bg-muted px-3 py-2 text-center text-xs text-muted-foreground" role="status">อยู่ออฟไลน์ — กำลังแสดงข้อมูลที่บันทึกไว้</p>
