@@ -7,6 +7,7 @@
   import { FilterKey } from '@/types/index'
   import { applyCounts, applyFilter, sortByCreatedDesc } from '@/lib/filter'
   import { get } from 'svelte/store'
+  import { onMount } from 'svelte'
   import AppDialog from '@/components/AppDialog.svelte'
   import CatalogRow from '@/components/CatalogRow.svelte'
 
@@ -30,6 +31,24 @@
 
   let focused = $state(0)
   let filterOpen = $state(false)
+  let searchInput: HTMLInputElement | undefined = $state()
+
+  onMount(() => {
+    // Mobile browsers restore form fields on their own when a page comes back —
+    // session restore after the app was killed, PWA resume, or the back/forward
+    // cache. That happens without an input event, so the box ends up showing
+    // one term while the list is still filtered by another, and the catalog
+    // looks like it lost data. Re-assert the store's value on the way back.
+    const syncFromStore = () => {
+      if (searchInput && searchInput.value !== search) searchInput.value = search
+    }
+    window.addEventListener('pageshow', syncFromStore)
+    document.addEventListener('visibilitychange', syncFromStore)
+    return () => {
+      window.removeEventListener('pageshow', syncFromStore)
+      document.removeEventListener('visibilitychange', syncFromStore)
+    }
+  })
 
   $effect(() => {
     filtered.length // re-clamp when the list changes
@@ -108,6 +127,7 @@
     <div class="relative min-w-0 flex-1">
       <MagnifyingGlass class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
       <input
+        bind:this={searchInput}
         value={search}
         oninput={(e) => {
           setSearch(e.currentTarget.value)
