@@ -38,6 +38,7 @@
       // dark-only flag). Fonts load lazily via ThemeInjector, not here.
       (function () {
         var THEMES = {
+          'duo-mono': { css: '/themes/duo-mono.css', dark: false },
           bubblegum: { css: '/themes/bubblegum.css', dark: false },
           slate: { css: '/themes/slate.css', dark: false },
           glitchpage: { css: '/themes/glitchpage.css', dark: true },
@@ -81,7 +82,7 @@
             try { localStorage.setItem(MIG_KEY, '1'); } catch (e) {}
           }
         } catch (e) {}
-        if (!THEMES[id]) id = 'portal'; // invalid/stale id → default theme
+        if (!THEMES[id]) id = 'duo-mono'; // invalid/stale id → default theme
         var t = THEMES[id];
         var root = document.documentElement;
         root.setAttribute('data-theme', id);

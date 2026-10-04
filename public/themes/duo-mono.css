@@ -1,0 +1,169 @@
+/* ============================================================================
+   duo-mono.css — data.mcky.space character theme (DUO·MONO)
+   ----------------------------------------------------------------------------
+   Pure black-and-white duotone. No hue anywhere: the only contrast is
+   foreground on background, so light and dark are the same design inverted.
+   - paper white (#ffffff) / ink black (#000000) surfaces
+   - accent is the inverse of the surface, never a colour
+   - JetBrains Mono across display, body and mono — the app reads as a terminal
+   - 0.5rem radius, hairline borders, no tinted shadows
+   Dual mode (OS-driven).
+   ============================================================================ */
+
+/* ---- tokens light (paper) ---- */
+[data-theme='duo-mono'] {
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f2f2;
+  --secondary-foreground: #000000;
+  --muted: #f2f2f2;
+  --muted-foreground: #525252;
+  --accent: #000000;
+  --accent-foreground: #ffffff;
+  --destructive: #000000;
+  --destructive-foreground: #ffffff;
+  --success: #000000;
+  --success-foreground: #ffffff;
+  --warning: #000000;
+  --warning-foreground: #ffffff;
+  --info: #000000;
+  --info-foreground: #ffffff;
+  --border: #000000;
+  --input: #000000;
+  --ring: #000000;
+  --sidebar: #f2f2f2;
+  --sidebar-foreground: #000000;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #000000;
+  --sidebar-ring: #000000;
+  --radius: 0.5rem;
+  --pin-color: #000000;
+
+  --theme-font-display: 'JetBrains Mono', ui-monospace, monospace;
+  --theme-font-body: 'JetBrains Mono', ui-monospace, monospace;
+  --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* light: no shadow, only hairline depth */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 4px 0 0 rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 6px 0 0 rgba(0, 0, 0, 0.12);
+  --shadow-2xl: 0 8px 0 0 rgba(0, 0, 0, 0.14);
+
+  --frame-radius: 0.5rem;
+  --scroll-indicator-color: rgba(0, 0, 0, 0.3);
+  --scroll-progress-color: #000000;
+  --scroll-progress-glow: none;
+}
+
+/* ---- tokens dark (ink) ---- */
+.dark[data-theme='duo-mono'],
+[data-theme='duo-mono'].dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #171717;
+  --secondary-foreground: #ffffff;
+  --muted: #171717;
+  --muted-foreground: #a3a3a3;
+  --accent: #ffffff;
+  --accent-foreground: #000000;
+  --destructive: #ffffff;
+  --destructive-foreground: #000000;
+  --success: #ffffff;
+  --success-foreground: #000000;
+  --warning: #ffffff;
+  --warning-foreground: #000000;
+  --info: #ffffff;
+  --info-foreground: #000000;
+  --border: #ffffff;
+  --input: #ffffff;
+  --ring: #ffffff;
+  --sidebar: #171717;
+  --sidebar-foreground: #ffffff;
+  --sidebar-accent: #000000;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #ffffff;
+  --sidebar-ring: #ffffff;
+  --radius: 0.5rem;
+  --pin-color: #ffffff;
+
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 4px 0 0 rgba(255, 255, 255, 0.16);
+  --shadow-xl: 0 6px 0 0 rgba(255, 255, 255, 0.16);
+  --shadow-2xl: 0 8px 0 0 rgba(255, 255, 255, 0.2);
+
+  --scroll-indicator-color: rgba(255, 255, 255, 0.3);
+  --scroll-progress-color: #ffffff;
+  --scroll-progress-glow: none;
+}
+
+/* ---- base: monospaced, tighter ---- */
+[data-theme='duo-mono'] body {
+  background-color: var(--background);
+  font-family: var(--theme-font-body);
+  letter-spacing: -0.01em;
+}
+
+/* ---- headings: mono, uppercase-ish weight ---- */
+[data-theme='duo-mono'] h1,
+[data-theme='duo-mono'] h2,
+[data-theme='duo-mono'] h3 {
+  font-family: var(--theme-font-display);
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+/* ---- cards: hard hairline, square ---- */
+[data-theme='duo-mono'] [data-slot='card'] {
+  border-color: var(--border);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+
+/* ---- buttons: invert, no lift ---- */
+[data-theme='duo-mono'] [data-slot='button'] {
+  border-radius: var(--radius);
+  font-family: var(--theme-font-mono);
+  transition: none;
+}
+[data-theme='duo-mono'] [data-slot='button']:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---- inputs: square, visible caret ---- */
+[data-theme='duo-mono'] input,
+[data-theme='duo-mono'] textarea {
+  caret-color: var(--ring);
+  border-radius: var(--radius);
+  background-color: transparent;
+}
+[data-theme='duo-mono'] input:focus,
+[data-theme='duo-mono'] textarea:focus,
+[data-theme='duo-mono'] input:focus-visible,
+[data-theme='duo-mono'] textarea:focus-visible {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 1px var(--ring);
+}
+
+/* ---- progress + scrollbar: pure ink ---- */
+[data-theme='duo-mono'] ::selection {
+  background: var(--foreground);
+  color: var(--background);
+}

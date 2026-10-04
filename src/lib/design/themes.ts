@@ -1255,11 +1255,105 @@ const custom: Theme = {
   },
 }
 
-const characterThemes: Theme[] = [portal, glitchpage, crt, claude, rack, noc, min, brut, mcky, blueprint, noir, custom]
+const DUO_MONO_FONTS = {
+  display: "'JetBrains Mono', ui-monospace, monospace",
+  body: "'JetBrains Mono', ui-monospace, monospace",
+  mono: "'JetBrains Mono', ui-monospace, monospace",
+}
+const DUO_MONO_FONT_URL =
+  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap'
+
+/**
+ * Black and white only — light and dark are the same design inverted, so the
+ * accent is always the inverse of the surface rather than a hue.
+ */
+const duoMono: Theme = {
+  id: 'duo-mono',
+  label: 'DUO·MONO',
+  description: 'Black and white — monospaced, nothing but contrast',
+  character: 'duo-mono',
+  modes: ['light', 'dark'],
+  fonts: DUO_MONO_FONTS,
+  fontUrl: DUO_MONO_FONT_URL,
+  staticCss: '/themes/duo-mono.css',
+  light: {
+    '--background': '#ffffff',
+    '--foreground': '#000000',
+    '--card': '#ffffff',
+    '--card-foreground': '#000000',
+    '--popover': '#ffffff',
+    '--popover-foreground': '#000000',
+    '--primary': '#000000',
+    '--primary-foreground': '#ffffff',
+    '--secondary': '#f2f2f2',
+    '--secondary-foreground': '#000000',
+    '--muted': '#f2f2f2',
+    '--muted-foreground': '#525252',
+    '--accent': '#000000',
+    '--accent-foreground': '#ffffff',
+    '--destructive': '#000000',
+    '--destructive-foreground': '#ffffff',
+    '--success': '#000000',
+    '--success-foreground': '#ffffff',
+    '--warning': '#000000',
+    '--warning-foreground': '#ffffff',
+    '--info': '#000000',
+    '--info-foreground': '#ffffff',
+    '--border': '#000000',
+    '--input': '#000000',
+    '--ring': '#000000',
+    '--sidebar': '#f2f2f2',
+    '--sidebar-foreground': '#000000',
+    '--sidebar-accent': '#ffffff',
+    '--sidebar-accent-foreground': '#000000',
+    '--sidebar-border': '#000000',
+    '--sidebar-ring': '#000000',
+    '--radius': '0.5rem',
+    '--pin-color': '#000000',
+  },
+  dark: {
+    '--background': '#000000',
+    '--foreground': '#ffffff',
+    '--card': '#000000',
+    '--card-foreground': '#ffffff',
+    '--popover': '#000000',
+    '--popover-foreground': '#ffffff',
+    '--primary': '#ffffff',
+    '--primary-foreground': '#000000',
+    '--secondary': '#171717',
+    '--secondary-foreground': '#ffffff',
+    '--muted': '#171717',
+    '--muted-foreground': '#a3a3a3',
+    '--accent': '#ffffff',
+    '--accent-foreground': '#000000',
+    '--destructive': '#ffffff',
+    '--destructive-foreground': '#000000',
+    '--success': '#ffffff',
+    '--success-foreground': '#000000',
+    '--warning': '#ffffff',
+    '--warning-foreground': '#000000',
+    '--info': '#ffffff',
+    '--info-foreground': '#000000',
+    '--border': '#ffffff',
+    '--input': '#ffffff',
+    '--ring': '#ffffff',
+    '--sidebar': '#171717',
+    '--sidebar-foreground': '#ffffff',
+    '--sidebar-accent': '#000000',
+    '--sidebar-accent-foreground': '#ffffff',
+    '--sidebar-border': '#ffffff',
+    '--sidebar-ring': '#ffffff',
+    '--radius': '0.5rem',
+    '--pin-color': '#ffffff',
+  },
+}
+
+// First in the list, so the picker opens on it.
+const characterThemes: Theme[] = [duoMono, portal, glitchpage, crt, claude, rack, noc, min, brut, mcky, blueprint, noir, custom]
 
 export const themes: Theme[] = [...baseThemes, ...characterThemes]
 
-const defaultTheme: Theme = portal
+const defaultTheme: Theme = duoMono
 
 /** Resolve a theme by id, falling back to the default. */
 export function getTheme(id: string | undefined | null): Theme {
