@@ -30,21 +30,6 @@
 
   let focused = $state(0)
   let filterOpen = $state(false)
-  // The search header hides while the list scrolls down and returns on any
-  // upward scroll, so a long list gets the whole screen without losing the
-  // way back to search.
-  let headHidden = $state(false)
-  let lastScrollTop = 0
-
-  function onListScroll(event: Event) {
-    const el = event.currentTarget as HTMLElement
-    const top = el.scrollTop
-    const delta = top - lastScrollTop
-    lastScrollTop = top
-    if (top <= 4) headHidden = false
-    else if (delta > 2) headHidden = true
-    else if (delta < -2) headHidden = false
-  }
 
   $effect(() => {
     filtered.length // re-clamp when the list changes
@@ -117,12 +102,11 @@
   }
 </script>
 
-<div class="ledger-full-bleed mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pt-4 sm:px-6">
+<div class="ledger-full-bleed ledger-column flex h-full flex-col overflow-hidden">
   <h1 class="sr-only">รายการลูกค้า</h1>
-  <!-- One glass slab for refresh + search, so the row reads as a single
-surface instead of two separate boxes. It collapses out of the way while the
-list scrolls down and comes back on any upward scroll. -->
-  <div class="ledger-field catalog-head mt-0 flex items-center" data-collapsed={headHidden}>
+  <!-- Floating glass pill, same shape as the nav: the list scrolls under it
+       and the glass has something to refract. -->
+  <div class="ledger-field catalog-head flex items-center">
     <button
       type="button"
       onclick={() => window.location.reload()}
@@ -201,7 +185,7 @@ list scrolls down and comes back on any upward scroll. -->
   </AppDialog>
 
   {#if offline}
-    <p class="mt-3 shrink-0 rounded-xl border border-border bg-muted px-3 py-2 text-center text-xs text-muted-foreground" role="status">อยู่ออฟไลน์ — กำลังแสดงข้อมูลที่บันทึกไว้</p>
+    <p class="absolute inset-x-3 top-[var(--ledger-head-clear)] z-20 shrink-0 rounded-xl border border-border bg-muted px-3 py-2 text-center text-xs text-muted-foreground" role="status">อยู่ออฟไลน์ — กำลังแสดงข้อมูลที่บันทึกไว้</p>
   {/if}
   {#if error && filtered.length === 0}
     <div class="mt-3 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
@@ -210,13 +194,16 @@ list scrolls down and comes back on any upward scroll. -->
     </div>
   {/if}
 
-  <div class="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-2xl border border-b-0 border-border bg-card">
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden bg-card">
     {#if loading && filtered.length === 0}
       <div class="flex h-full items-center justify-center p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดรายการ…</div>
     {:else if filtered.length === 0}
       <div class="flex h-full items-center justify-center p-8 text-center text-sm opacity-50">{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ — ลองล้างการค้นหาหรือเปลี่ยนตัวกรอง'}</div>
     {:else}
-      <div bind:this={parentRef} onscroll={onListScroll} class="h-full overflow-auto overscroll-contain">
+      <div bind:this={parentRef} class="h-full overflow-auto overscroll-contain">
+        <!-- Clears the floating pill at both ends so the first and last rows
+             can scroll out from under them. -->
+        <div class="h-[var(--ledger-head-clear)]" aria-hidden="true"></div>
         <div style="height: {$vstore?.getTotalSize() ?? 0}px; position: relative;">
           {#each $vstore?.getVirtualItems() ?? [] as vi (filtered[vi.index]?.id ?? vi.index)}
             {@const c = filtered[vi.index]}
