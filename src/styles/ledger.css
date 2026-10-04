@@ -107,8 +107,9 @@ html:has(.ledger-shell):root body {
 .ledger-shell {
   position: relative;
 }
-/* The nav sits in flow, so it reserves its own height — no inset needed here. */
-.ledger-main { padding-bottom: 0; }
+/* The nav sits in flow and reserves its own height; this inset is only the
+   breathing room between the card and the nav. */
+.ledger-main { padding-bottom: 12px; }
 .ledger-bottom-nav > div { position: relative; }
 .ledger-nav-item {
   display: inline-flex;
