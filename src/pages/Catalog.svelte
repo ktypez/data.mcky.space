@@ -30,6 +30,21 @@
 
   let focused = $state(0)
   let filterOpen = $state(false)
+  // The search header hides while the list scrolls down and returns on any
+  // upward scroll, so a long list gets the whole screen without losing the
+  // way back to search.
+  let headHidden = $state(false)
+  let lastScrollTop = 0
+
+  function onListScroll(event: Event) {
+    const el = event.currentTarget as HTMLElement
+    const top = el.scrollTop
+    const delta = top - lastScrollTop
+    lastScrollTop = top
+    if (top <= 4) headHidden = false
+    else if (delta > 2) headHidden = true
+    else if (delta < -2) headHidden = false
+  }
 
   $effect(() => {
     filtered.length // re-clamp when the list changes
@@ -102,22 +117,23 @@
   }
 </script>
 
-<div class="ledger-full-bleed mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pt-5 sm:px-6">
+<div class="ledger-full-bleed mx-auto flex h-full max-w-xl flex-col overflow-hidden px-5 pt-4 sm:px-6">
   <h1 class="sr-only">รายการลูกค้า</h1>
   <!-- One glass slab for refresh + search, so the row reads as a single
-       surface instead of two separate boxes. -->
-  <div class="ledger-field mt-0 flex shrink-0 items-center">
+surface instead of two separate boxes. It collapses out of the way while the
+list scrolls down and comes back on any upward scroll. -->
+  <div class="ledger-field catalog-head mt-0 flex items-center" data-collapsed={headHidden}>
     <button
       type="button"
       onclick={() => window.location.reload()}
       aria-label="รีเฟรชหน้า"
-      class="grid size-12 shrink-0 place-items-center rounded-l-2xl text-muted-foreground transition-colors hover:text-foreground"
+      class="grid size-[42px] shrink-0 place-items-center rounded-l-xl text-muted-foreground transition-colors hover:text-foreground"
     >
-      <ArrowClockwise class="h-5 w-5" weight="bold" aria-hidden />
+      <ArrowClockwise class="h-[18px] w-[18px]" weight="bold" aria-hidden />
     </button>
-    <span class="h-6 w-px shrink-0 bg-[color-mix(in_oklab,var(--border)_70%,transparent)]" aria-hidden="true"></span>
+    <span class="h-5 w-px shrink-0 bg-[color-mix(in_oklab,var(--border)_70%,transparent)]" aria-hidden="true"></span>
     <div class="relative min-w-0 flex-1">
-      <MagnifyingGlass class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
+      <MagnifyingGlass class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
       <input
         value={search}
         oninput={(e) => {
@@ -130,7 +146,7 @@
         name="q"
         autocomplete="off"
         spellcheck="false"
-        class="h-12 w-full rounded-2xl bg-transparent pl-9 pr-10 text-sm outline-none placeholder:text-muted-foreground/70"
+        class="h-[42px] w-full rounded-xl bg-transparent pl-8 pr-9 text-sm outline-none placeholder:text-muted-foreground/70"
       />
       {#if search}
         <button
@@ -139,7 +155,7 @@
             setSearch('')
             focused = 0
           }}
-          class="absolute right-0 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+          class="absolute right-0 top-1/2 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
           aria-label="ล้างการค้นหา"
         >
           <X class="h-3.5 w-3.5" weight="bold" aria-hidden />
@@ -155,9 +171,9 @@
       aria-label={filter === FilterKey.All ? 'ตัวกรองรายการ' : `ตัวกรองรายการ: ${FILTER_LABELS[filter]}`}
       aria-expanded={filterOpen}
       aria-haspopup="dialog"
-      class="relative grid size-12 shrink-0 place-items-center rounded-r-2xl transition-colors hover:text-foreground {filter === FilterKey.All ? 'text-muted-foreground' : 'text-primary'}"
+      class="relative grid size-[42px] shrink-0 place-items-center rounded-r-xl transition-colors hover:text-foreground {filter === FilterKey.All ? 'text-muted-foreground' : 'text-primary'}"
     >
-      <Funnel class="h-5 w-5" weight={filter === FilterKey.All ? 'regular' : 'fill'} aria-hidden />
+      <Funnel class="h-[18px] w-[18px]" weight={filter === FilterKey.All ? 'regular' : 'fill'} aria-hidden />
       {#if filter !== FilterKey.All}
         <span class="absolute right-2 top-2 size-1.5 rounded-full bg-primary" aria-hidden="true"></span>
       {/if}
@@ -200,7 +216,7 @@
     {:else if filtered.length === 0}
       <div class="flex h-full items-center justify-center p-8 text-center text-sm opacity-50">{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ — ลองล้างการค้นหาหรือเปลี่ยนตัวกรอง'}</div>
     {:else}
-      <div bind:this={parentRef} class="h-full overflow-auto overscroll-contain">
+      <div bind:this={parentRef} onscroll={onListScroll} class="h-full overflow-auto overscroll-contain">
         <div style="height: {$vstore?.getTotalSize() ?? 0}px; position: relative;">
           {#each $vstore?.getVirtualItems() ?? [] as vi (filtered[vi.index]?.id ?? vi.index)}
             {@const c = filtered[vi.index]}
