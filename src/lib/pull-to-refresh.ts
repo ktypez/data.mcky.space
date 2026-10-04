@@ -105,6 +105,7 @@ export function pullToRefresh(node: HTMLElement, options: PullToRefreshOptions) 
     if (!pulling || refreshing) return
 
     const progress = parseFloat(node.style.getPropertyValue('--ptr-progress') || '0')
+    console.log('[PTR] onTouchEnd', { progress, threshold, willRefresh: progress >= 1 })
 
     if (progress >= 1) {
       refreshing = true
@@ -113,9 +114,12 @@ export function pullToRefresh(node: HTMLElement, options: PullToRefreshOptions) 
       node.style.setProperty('--ptr-y', `${threshold}px`)
       node.style.setProperty('--ptr-progress', '1')
 
+      console.log('[PTR] Calling onRefresh')
       Promise.resolve(onRefresh())
-        .catch(() => undefined)
+        .then(() => console.log('[PTR] onRefresh completed'))
+        .catch((err) => console.error('[PTR] onRefresh error', err))
         .finally(() => {
+          console.log('[PTR] Resetting')
           refreshing = false
           reset()
         })

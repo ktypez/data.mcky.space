@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Funnel, MagnifyingGlass, X } from 'phosphor-svelte'
+  import { Funnel, MagnifyingGlass, X, ArrowsClockwise } from 'phosphor-svelte'
   import { push } from 'svelte-spa-router'
   import { createVirtualizer } from '@tanstack/svelte-virtual'
   import { useClientStore } from '@/stores/client-store'
@@ -10,13 +10,13 @@
   import { trackField } from '@/lib/restore-field'
   import AppDialog from '@/components/AppDialog.svelte'
   import CatalogRow from '@/components/CatalogRow.svelte'
-  import { pullToRefresh } from '@/lib/pull-to-refresh'
 
   let clients = $derived($useClientStore.clients)
   let loading = $derived($useClientStore.loading)
   let error = $derived($useClientStore.error)
   let offline = $derived($useClientStore.offline)
   let refresh = $derived($useClientStore.refresh)
+  let refreshing = $derived($useClientStore.refreshing)
   let search = $derived($useFilterStore.search)
   let setSearch = $derived($useFilterStore.setSearch)
   let filter = $derived($useFilterStore.filter)
@@ -109,10 +109,7 @@
   }
 </script>
 
-<div 
-  class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-3 pt-5 sm:px-4"
-  use:pullToRefresh={{ onRefresh: handleRefresh }}
->
+<div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-3 pt-5 sm:px-4">
     <h1 class="sr-only">รายการลูกค้า</h1>
     <div class="flex shrink-0 gap-2">
       <div class="relative min-w-0 flex-1">
@@ -148,6 +145,15 @@
           <span class="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-primary px-2.5 py-1 font-mono text-[10px] text-primary-foreground md:block">⌘K</span>
         {/if}
       </div>
+      <button
+        type="button"
+        onclick={handleRefresh}
+        disabled={refreshing}
+        aria-label="รีเฟรชรายการ"
+        class="grid size-12 shrink-0 place-items-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+      >
+        <ArrowsClockwise class="h-5 w-5" weight="bold" aria-hidden />
+      </button>
       <button
         type="button"
         onclick={() => (filterOpen = true)}
