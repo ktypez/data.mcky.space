@@ -5,6 +5,7 @@ import wrap from 'svelte-spa-router/wrap'
   import { House, Plus, Gear, MapTrifold, Trash } from 'phosphor-svelte'
   import { useAuthStore } from '@/stores/auth-store'
   import { useClientStore } from '@/stores/client-store'
+  import { useFilterStore } from '@/stores/filter-store'
   import { isFormDirty } from '@/lib/form-dirty'
   import { appTheme, initAppTheme } from '@/lib/app-theme'
   import { initClerk } from '@/lib/clerk'
@@ -35,6 +36,28 @@ import wrap from 'svelte-spa-router/wrap'
   let checking = $derived($useAuthStore.checking)
   let signedIn = $derived($useAuthStore.isSignedIn)
   let loginOpen = $derived($useAuthStore.loginOpen)
+
+  let lastHomeTap = 0
+  const DOUBLE_TAP_DELAY = 300 // ms
+
+  function handleHomeClick(event: MouseEvent) {
+    guardNavigation(event)
+    if (event.defaultPrevented) return
+
+    const now = Date.now()
+    const isDoubleTap = now - lastHomeTap < DOUBLE_TAP_DELAY
+
+    if (isDoubleTap) {
+      // Double tap: clear search and filter
+      useFilterStore.getState().setSearch('')
+      useFilterStore.getState().setFilter('all')
+      lastHomeTap = 0
+    } else {
+      // Single tap: navigate to home
+      push('/')
+      lastHomeTap = now
+    }
+  }
 
   onMount(() => {
     initAppTheme()
@@ -80,7 +103,7 @@ import wrap from 'svelte-spa-router/wrap'
     </main>
     <nav class="ledger-bottom-nav relative z-50 shrink-0 border-t border-border bg-card" aria-label="หลัก">
       <div class="mx-auto flex h-[4.5rem] max-w-xl items-center justify-around px-3 pb-[env(safe-area-inset-bottom)]">
-        <a href="/" use:link onclick={guardNavigation} aria-label="หน้าหลัก" class="ledger-nav-item" class:is-active={$location === '/'} tabindex="0"><House weight="fill" size={21} aria-hidden /><span>หน้าหลัก</span></a>
+        <button type="button" onclick={handleHomeClick} aria-label="หน้าหลัก" class="ledger-nav-item" class:is-active={$location === '/'}><House weight="fill" size={21} aria-hidden /><span>หน้าหลัก</span></button>
         <a href="/maps" use:link onclick={guardNavigation} aria-label="แผนที่" class="ledger-nav-item" class:is-active={$location === '/maps'}><MapTrifold size={21} aria-hidden /><span>แผนที่</span></a>
         {#if isAdmin}
           <a href="/add" use:link onclick={guardNavigation} aria-label="เพิ่มรายการ" class="ledger-add-button"><Plus weight="bold" size={25} aria-hidden /></a>
