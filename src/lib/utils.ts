@@ -94,6 +94,15 @@ export function generateId(): string {
  * MapLibre's parseCssColor() only supports hex/rgb/hsl — not oklch() or var().
  * The Canvas2D trick forces the browser to resolve oklch → sRGB hex.
  */
+function rgbToHex(rgb: string): string | null {
+  const match = rgb.match(/rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i)
+  if (!match) return null
+  const r = parseInt(match[1]).toString(16).padStart(2, '0')
+  const g = parseInt(match[2]).toString(16).padStart(2, '0')
+  const b = parseInt(match[3]).toString(16).padStart(2, '0')
+  return `#${r}${g}${b}`
+}
+
 export function cssVarToHex(varName: string, fallback = '#2e2e2e'): string {
   if (typeof document === 'undefined') return fallback
   const raw = getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
@@ -108,7 +117,10 @@ export function cssVarToHex(varName: string, fallback = '#2e2e2e'): string {
   document.body.appendChild(div)
   const rgb = getComputedStyle(div).color
   document.body.removeChild(div)
-  if (rgb && /^rgb/i.test(rgb)) return rgb
+  if (rgb && /^rgb/i.test(rgb)) {
+    const hex = rgbToHex(rgb)
+    if (hex) return hex
+  }
   return fallback
 }
 
