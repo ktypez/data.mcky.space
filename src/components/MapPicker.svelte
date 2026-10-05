@@ -121,7 +121,8 @@
     }
     if (marker) marker.setLatLng([lat, lng])
     else placeMarker(lat, lng)
-    m.flyTo([lat, lng], Math.max(m.getZoom(), PIN_ZOOM), { duration: 0.6 })
+    // Force map to move to new coords
+    m.setView([lat, lng], Math.max(m.getZoom(), PIN_ZOOM), { animate: true, duration: 0.6 })
   })
 </script>
 
