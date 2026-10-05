@@ -114,8 +114,9 @@
     if (!m || lat == null || lng == null) return
     if (!initialized) {
       initialized = true
+      // Always place marker when coords are provided
+      placeMarker(lat, lng)
       if (lat !== KHON_KAEN_CENTER[1] || lng !== KHON_KAEN_CENTER[0]) m.flyTo([lat, lng], PIN_ZOOM, { duration: 0.6 })
-      if (!marker) placeMarker(lat, lng)
       return
     }
     if (marker) marker.setLatLng([lat, lng])
