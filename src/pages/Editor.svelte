@@ -45,7 +45,6 @@
   let uploading = $state(false)
   let progress = $state(0)
   let error = $state<string | null>(null)
-  let tab = $state(0)
   let initialSnapshot = snapshot({ name: [''], shopName: [''], branch: '', address: '', lat: null, lng: null, images: [], badge: null, notes: '' })
   let submitLock = false
 
@@ -84,7 +83,6 @@
     notes = nextNotes
     thumbs = {}
     debouncedName = nextName.join('\u0000')
-    tab = 0
     initialSnapshot = snapshot({ name: nextName, shopName: nextShopName, branch: nextBranch, address: nextAddress, lat: nextLat, lng: nextLng, images: nextImages, badge: nextBadge, notes: nextNotes })
   }
 
@@ -183,7 +181,6 @@
     return { exact, similar: [...similarMap.values()].sort((a, b) => b.similarity - a.similarity) }
   })
 
-  const steps = ['ข้อมูลหลัก', 'ที่อยู่ & พิกัด', 'รูปภาพ']
   let canSave = $derived(name.some((value) => value.trim()) || shopName.some((value) => value.trim()))
   let editing = $derived(Boolean(editClient))
 
@@ -264,16 +261,6 @@
       <button type="button" onclick={onBack} class="inline-flex min-h-11 items-center gap-1 rounded-md border border-border bg-card px-3 py-2 font-mono text-xs text-foreground hover:bg-muted"><ArrowLeft class="inline h-3 w-3" aria-hidden /> กลับ</button>
     </div>
 
-    <div class="mx-auto mt-4 max-w-3xl px-3 sm:px-4">
-      <div class="overflow-hidden rounded-2xl border border-border bg-card p-1">
-        <div class="flex gap-1" role="tablist" aria-label="ขั้นตอนแก้ไข">
-          {#each steps as step, index}
-            <button type="button" role="tab" aria-selected={tab === index} aria-controls="editor-panel" onclick={() => (tab = index)} class="min-h-11 flex-1 rounded-xl px-3 py-2 text-xs font-medium {tab === index ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}">{step}</button>
-          {/each}
-        </div>
-      </div>
-    </div>
-
     {#if loadError}
       <div class="mx-auto mt-4 max-w-3xl px-3 sm:px-4">
         <div class="flex items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm" role="status">
@@ -284,36 +271,36 @@
     {/if}
 
     <form onsubmit={handleSubmit} class="mx-auto mt-6 max-w-3xl px-3 sm:px-4" aria-busy={uploading}>
-      <fieldset disabled={readOnly || uploading} class="min-w-0 rounded-2xl border border-border bg-card p-5">
-        <div id="editor-panel" role="tabpanel" aria-label={steps[tab]}>
-          {#if tab === 0}
-            <div class="space-y-4">
-              <div class="space-y-1">
-                <Label>ชื่อร้านค้า</Label>
-                <MultiValueInput values={shopName} onChange={(v) => (shopName = v)} placeholder="ชื่อร้านค้า" maxLength={60} addLabel="เพิ่มชื่อร้าน" inlineAdd />
-              </div>
-              <div class="space-y-1">
-                <Label for="editor-branch">สาขา</Label>
-                <Input syncValue={readBranch} id="editor-branch" name="branch" autocomplete="off" spellcheck="false" type="text" value={branch} oninput={(e) => (branch = e.currentTarget.value)} maxlength={60} placeholder="สาขา…" />
-              </div>
-              <FormNameField values={name} onChange={(v) => (name = v)} {dupResult} inlineAdd />
-              <FormNotesField value={notes} onChange={(v) => (notes = v)} />
-              <FormBadgeField badge={badge} onChange={(v) => (badge = v)} visible />
-            </div>
-          {:else if tab === 1}
-            <div class="space-y-4">
-              <div class="space-y-1">
-                <Label for="editor-address">ที่อยู่/รายละเอียด</Label>
-                <Input syncValue={readAddress} id="editor-address" name="address" autocomplete="off" spellcheck="false" type="text" value={address} oninput={(e) => (address = e.currentTarget.value)} maxlength={120} placeholder="บ้านเลขที่ ถนน ตำบล…" />
-              </div>
-              <LocationSection {lat} {lng} onCoordsChange={(nextLat, nextLng) => { lat = nextLat; lng = nextLng }} />
-            </div>
-          {:else}
-            <div class="space-y-4">
-              <PhotoSection images={images} onImagesChange={(v) => (images = v)} {uploading} {thumbs} onThumbsChange={(v) => (thumbs = v)} />
-            </div>
-          {/if}
-        </div>
+      <fieldset disabled={readOnly || uploading} class="min-w-0 space-y-6 rounded-2xl border border-border bg-card p-5">
+        <section class="space-y-4">
+          <div class="space-y-1">
+            <Label>ชื่อร้านค้า</Label>
+            <MultiValueInput values={shopName} onChange={(v) => (shopName = v)} placeholder="ชื่อร้านค้า" maxLength={60} addLabel="เพิ่มชื่อร้าน" inlineAdd />
+          </div>
+          <div class="space-y-1">
+            <Label for="editor-branch">สาขา</Label>
+            <Input syncValue={readBranch} id="editor-branch" name="branch" autocomplete="off" spellcheck="false" type="text" value={branch} oninput={(e) => (branch = e.currentTarget.value)} maxlength={60} placeholder="สาขา…" />
+          </div>
+          <FormNameField values={name} onChange={(v) => (name = v)} {dupResult} inlineAdd />
+          <FormNotesField value={notes} onChange={(v) => (notes = v)} />
+          <FormBadgeField badge={badge} onChange={(v) => (badge = v)} visible />
+        </section>
+
+        <hr class="border-border" />
+
+        <section class="space-y-4">
+          <div class="space-y-1">
+            <Label for="editor-address">ที่อยู่/รายละเอียด</Label>
+            <Input syncValue={readAddress} id="editor-address" name="address" autocomplete="off" spellcheck="false" type="text" value={address} oninput={(e) => (address = e.currentTarget.value)} maxlength={120} placeholder="บ้านเลขที่ ถนน ตำบล…" />
+          </div>
+          <LocationSection {lat} {lng} onCoordsChange={(nextLat, nextLng) => { lat = nextLat; lng = nextLng }} />
+        </section>
+
+        <hr class="border-border" />
+
+        <section class="space-y-4">
+          <PhotoSection images={images} onImagesChange={(v) => (images = v)} {uploading} {thumbs} onThumbsChange={(v) => (thumbs = v)} />
+        </section>
 
         {#if error}
           <p class="mt-4 text-[13px] font-medium text-destructive" role="alert">{error}</p>
@@ -322,22 +309,11 @@
           <p class="mt-2 font-mono text-xs opacity-60" role="status">อัปโหลด {progress}%</p>
         {/if}
 
-        <div class="mt-6 flex items-center justify-between border-t border-border pt-4">
-          <div>
-            {#if tab > 0}
-              <button type="button" onclick={() => tab--} class="min-h-11 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted">ย้อนกลับ</button>
-            {/if}
-          </div>
-          <div>
-            {#if tab < 2}
-              <button type="button" onclick={() => tab++} class="min-h-11 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted">ถัดไป</button>
-            {:else}
-              <Button type="submit" class="min-h-11 px-6" disabled={uploading || readOnly || !canSave}>
-                {#if editing}<Pencil class="h-4 w-4" aria-hidden />{:else}<Plus class="h-4 w-4" aria-hidden />{/if}
-                {uploading ? 'กำลังบันทึก…' : editing ? 'อัปเดตข้อมูล' : 'เพิ่มลูกค้าใหม่'}
-              </Button>
-            {/if}
-          </div>
+        <div class="flex justify-end border-t border-border pt-4">
+          <Button type="submit" class="min-h-11 px-6" disabled={uploading || readOnly || !canSave}>
+            {#if editing}<Pencil class="h-4 w-4" aria-hidden />{:else}<Plus class="h-4 w-4" aria-hidden />{/if}
+            {uploading ? 'กำลังบันทึก…' : editing ? 'อัปเดตข้อมูล' : 'เพิ่มลูกค้าใหม่'}
+          </Button>
         </div>
       </fieldset>
       {#if !canSave}
