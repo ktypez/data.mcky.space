@@ -6,6 +6,7 @@ import wrap from 'svelte-spa-router/wrap'
   import { useAuthStore } from '@/stores/auth-store'
   import { useClientStore } from '@/stores/client-store'
   import { useFilterStore } from '@/stores/filter-store'
+  import { FilterKey } from '@/types/index'
   import { isFormDirty } from '@/lib/form-dirty'
   import { appTheme, initAppTheme } from '@/lib/app-theme'
   import { initClerk } from '@/lib/clerk'
@@ -50,7 +51,7 @@ import wrap from 'svelte-spa-router/wrap'
     if (isDoubleTap) {
       // Double tap: clear search and filter
       useFilterStore.getState().setSearch('')
-      useFilterStore.getState().setFilter('all')
+      useFilterStore.getState().setFilter(FilterKey.All)
       lastHomeTap = 0
     } else {
       // Single tap: navigate to home
