@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>map-e2e harness</title>
+    <style>
+      /* The harness page has no Tailwind; inline the utilities the Leaflet
+         container needs or it collapses to 0 height and every position
+         assert is vacuous. */
+      .h-48 { height: 12rem; }
+      .w-full { width: 100%; }
+      body { margin: 0; font-family: system-ui, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/map-e2e/main.ts"></script>
+  </body>
+</html>
