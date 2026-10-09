@@ -38,16 +38,14 @@ Project context is stored in the shared agentmemory service under the stable pro
   reports medians; webfont races make single runs swing by over a second.
 
 ## Map picker
-`scripts/map-e2e.mjs` drives a real Chromium over CDP against a throwaway
+`scripts/map-e2e.mjs` drives a real Chromium over CDP against the
 `map-e2e/` harness (mounts `LocationSection`, geolocation pinned via
 `Emulation.setGeolocationOverride`) and asserts the pin renders and lands at
 the viewport centre. It runs **two** cases — one fix inside the province, one
 far outside it. Both must pass; testing only an in-province fix hides the
-`maxBounds` failure. **Recreate the harness before running** — it is not
-committed:
+`maxBounds` failure:
 
 ```sh
-mkdir -p map-e2e   # index.html + main.ts + Harness.svelte mounting LocationSection
 npx vite --port 5199 --strictPort --host 127.0.0.1 &
 node scripts/map-e2e.mjs
 ```
