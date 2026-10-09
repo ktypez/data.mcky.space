@@ -37,6 +37,36 @@ Project context is stored in the shared agentmemory service under the stable pro
   (default 3) runs each visit type N times in throwaway browser profiles and
   reports medians; webfont races make single runs swing by over a second.
 
+## Map picker
+`scripts/map-e2e.mjs` drives a real Chromium over CDP against a throwaway
+`map-e2e/` harness (mounts `LocationSection`, geolocation pinned via
+`Emulation.setGeolocationOverride`) and asserts the pin renders and lands at
+the viewport centre. It runs **two** cases — one fix inside the province, one
+far outside it. Both must pass; testing only an in-province fix hides the
+`maxBounds` failure. **Recreate the harness before running** — it is not
+committed:
+
+```sh
+mkdir -p map-e2e   # index.html + main.ts + Harness.svelte mounting LocationSection
+npx vite --port 5199 --strictPort --host 127.0.0.1 &
+node scripts/map-e2e.mjs
+```
+
+The harness page has no Tailwind, so `index.html` must inline `.h-48`/`.w-full`
+or the Leaflet container collapses to 0 height and every position assert is vacuous.
+
+Gotcha: the map components set **no `maxBounds`** (`MapPicker`, `MapPreview`,
+`Maps`). A clamp makes Leaflet refuse to pan to any coordinate outside the
+region, so `get location` updates the lat/long readout while the pin stays
+thousands of pixels off-screen. If a region limit is ever reintroduced, it must
+expand to contain the incoming fix.
+
+Gotcha: in `MapPicker.svelte` the `map` variable must stay `$state`. Leaflet is
+dynamically imported, so a plain `let` lets the coords `$effect` run once while
+`map` is still `null` and never re-run — no pin, no pan, while the lat/long
+readout still updates correctly. Plain `let` for `layer`/`marker`/`lib` is fine
+because only the effect reads them.
+
 ## Browser PWA checks
 `scripts/check-pwa-browser.mjs`, `check-pwa-offline-data.mjs` and
 `check-pwa-update-browser.mjs` drive a real Chromium over CDP and assume an

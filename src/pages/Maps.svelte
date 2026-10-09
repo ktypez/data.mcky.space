@@ -3,7 +3,7 @@
   import { push } from 'svelte-spa-router'
   import { MapTrifold, X, MagnifyingGlass } from 'phosphor-svelte'
   import { useClientStore } from '@/stores/client-store'
-  import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_CENTER, KHON_KAEN_BOUNDS, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
+  import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_CENTER, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
   import { applyTileDarkMode, observeMapDarkMode } from '@/lib/map-dark-mode'
   import { hasValidCoords } from '@/lib/utils'
   import { trackField } from '@/lib/restore-field'
@@ -178,11 +178,6 @@
           attributionControl: false,
           zoomControl: true,
           minZoom: KHON_KAEN_MIN_ZOOM,
-          maxBounds: [
-            [KHON_KAEN_BOUNDS[0][1], KHON_KAEN_BOUNDS[0][0]],
-            [KHON_KAEN_BOUNDS[1][1], KHON_KAEN_BOUNDS[1][0]],
-          ],
-          maxBoundsViscosity: 1,
           zoomAnimation: true,
           fadeAnimation: true,
           markerZoomAnimation: true,

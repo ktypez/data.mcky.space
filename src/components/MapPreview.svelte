@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_BOUNDS, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
+  import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
   import { applyTileDarkMode, observeMapDarkMode } from '@/lib/map-dark-mode'
 
   let { lat, lng }: { lat: number; lng: number } = $props()
@@ -49,8 +49,6 @@
           boxZoom: false,
           keyboard: false,
           minZoom: KHON_KAEN_MIN_ZOOM,
-          maxBounds: [[KHON_KAEN_BOUNDS[0][1], KHON_KAEN_BOUNDS[0][0]], [KHON_KAEN_BOUNDS[1][1], KHON_KAEN_BOUNDS[1][0]]],
-          maxBoundsViscosity: 1.0,
         }).setView([lat, lng], 15)
         layer = L.tileLayer(getTileUrl(dark), { maxZoom: TILE_MAX_ZOOM, detectRetina: true, attribution: TILE_ATTRIBUTION }).addTo(m)
         const dot = document.createElement('div')

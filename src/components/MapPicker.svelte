@@ -2,7 +2,7 @@
   import { onMount, untrack } from 'svelte'
   import { OpenLocationCode } from 'open-location-code'
   import { pinHtml } from '@/lib/pin'
-  import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_CENTER, KHON_KAEN_BOUNDS, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
+  import { getTileUrl, TILE_ATTRIBUTION, TILE_MAX_ZOOM, isDarkMode, KHON_KAEN_CENTER, KHON_KAEN_MIN_ZOOM } from '@/lib/map-styles'
   import { cssVarToHex } from '@/lib/utils'
   import { applyTileDarkMode, observeMapDarkMode } from '@/lib/map-dark-mode'
 
@@ -23,7 +23,11 @@
   const PROVINCE_ZOOM = 11
 
   let containerRef = $state<HTMLDivElement>()
-  let map: InstanceType<LL['Map']> | null = null
+  // MUST stay $state: Leaflet loads asynchronously, so the coords effect below
+  // has to re-run once the map instance finally exists. As a plain `let` the
+  // effect runs once at mount (map still null), never again, and the pin never
+  // appears. Guarded by scripts/map-e2e.mjs.
+  let map = $state<InstanceType<LL['Map']> | null>(null)
   let layer: InstanceType<LL['TileLayer']> | null = null
   let marker: InstanceType<LL['Marker']> | null = null
   let lib: LL | null = null
@@ -35,13 +39,6 @@
   $effect(() => {
     onChangeCb = onChange
   })
-  let latRef = untrack(() => lat)
-  let lngRef = untrack(() => lng)
-  $effect(() => {
-    latRef = lat
-    lngRef = lng
-  })
-
   function placeMarker(mlat: number, mlng: number) {
     if (!lib || !map) return
     marker?.remove()
@@ -69,13 +66,13 @@
       if (cancelled || !L?.map || !containerRef) return
       lib = L
       try {
-        const hasPos = lngRef != null && latRef != null
+        const hasPos = lat != null && lng != null
         const m = L.map(containerRef, {
           attributionControl: false,
           minZoom: KHON_KAEN_MIN_ZOOM,
-          maxBounds: [[KHON_KAEN_BOUNDS[0][1], KHON_KAEN_BOUNDS[0][0]], [KHON_KAEN_BOUNDS[1][1], KHON_KAEN_BOUNDS[1][0]]],
-          maxBoundsViscosity: 1.0,
-        }).setView(hasPos ? [latRef as number, lngRef as number] : [KHON_KAEN_CENTER[1], KHON_KAEN_CENTER[0]], hasPos ? PIN_ZOOM : PROVINCE_ZOOM)
+          // No maxBounds: a hard clamp refuses to pan to any fix outside the
+          // province, so the readout updates while the pin stays off-screen.
+        }).setView(hasPos ? [lat, lng] : [KHON_KAEN_CENTER[1], KHON_KAEN_CENTER[0]], hasPos ? PIN_ZOOM : PROVINCE_ZOOM)
         layer = L.tileLayer(getTileUrl(dark), { maxZoom: TILE_MAX_ZOOM, detectRetina: true, attribution: TILE_ATTRIBUTION }).addTo(m)
         m.on('click', (e) => {
           const { lat: mlat, lng: mlng } = e.latlng
@@ -83,10 +80,8 @@
           m.flyTo([mlat, mlng], Math.max(m.getZoom(), PIN_ZOOM), { duration: 0.6 })
           placeMarker(mlat, mlng)
         })
-        if (latRef != null && lngRef != null) {
-          initialized = true
-          placeMarker(latRef, lngRef)
-        }
+        // Assigning the reactive `map` re-triggers the coords effect below,
+        // which owns marker placement and view movement.
         map = m
         applyTileDarkMode(m, dark)
         setTimeout(() => {
@@ -109,19 +104,19 @@
     }
   })
 
+  // Runs whenever `map` finishes initializing or the coords change.
   $effect(() => {
     const m = map
     if (!m || lat == null || lng == null) return
-    if (!initialized) {
-      initialized = true
-      // Always place marker when coords are provided
-      placeMarker(lat, lng)
+    if (marker) marker.setLatLng([lat, lng])
+    else placeMarker(lat, lng)
+    const isFirst = !initialized
+    initialized = true
+    if (isFirst) {
+      // Skip the pan on first placement: setView above already centred the map.
       if (lat !== KHON_KAEN_CENTER[1] || lng !== KHON_KAEN_CENTER[0]) m.flyTo([lat, lng], PIN_ZOOM, { duration: 0.6 })
       return
     }
-    if (marker) marker.setLatLng([lat, lng])
-    else placeMarker(lat, lng)
-    // Force map to move to new coords
     m.setView([lat, lng], Math.max(m.getZoom(), PIN_ZOOM), { animate: true, duration: 0.6 })
   })
 </script>
