@@ -1,9 +1,10 @@
 # data.mcky.space
 
 ## Memory
-Project context is stored in the shared agentmemory service under the stable project slug `data`.
-- Use `memory_recall` before non-trivial work and `memory_file_history` before editing established files.
-- Save durable outcomes with `memory_save`, always setting `project: "data"`.
+Project knowledge is in the shared memory system **minimem** (REST :3100), stored under
+the stable project slug `data`.
+- Use `minimem_memory_search` before non-trivial work.
+- Save durable outcomes with `minimem_memory_save` (include tag/keyword `data`).
 
 ## Stack
 - Vite 8 + Svelte 5 + TypeScript (React ถูกเขียนใหม่ทั้งหมด — React ตัวเก่าอยู่ที่ tag `archive/react-final-2026-10-03`)
@@ -111,6 +112,5 @@ within 60s), so give it a generous timeout.
   domain — HTTP 200 alone proves nothing (SPA fallback answers 200 for every path).
 
 ## MCP Source Cite
-When answering using data from an MCP server, indicate the source in square brackets at the end:
-- `[source: brain]` — from brain.mcky.space
-- `[source: context7]` — from library docs
+When answering using data from an MCP server, indicate the source:
+- `[source: minimem]` — from the shared memory store (REST :3100)
