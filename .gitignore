@@ -5,6 +5,7 @@ dist/
 .wrangler/
 .cache/
 .design-lab/
+.commandcode/
 secrets.env
 *.key
 *.pem
