@@ -15,6 +15,11 @@ the stable project slug `data`.
 - **Map tiles**: Stadia `alidade_smooth` / `alidade_smooth_dark`, needs `VITE_MAP_API_KEY`
   (gitignored `.env.local`). ไม่มี key → `getTileUrl` ตกไปใช้ raster ของ OSM ที่ไม่มีสไตล์มืด
   (ดู `tilePaneFilter` ใน `src/lib/map-styles.ts`)
+- **Router**: `svelte-spa-router` v5 — API ต่างจาก v4: ใช้ `router.location` / `router.querystring`
+  (runes-backed object) แทน store `location` / `querystring` ที่ถูกถอดออกแล้ว; `Router` (default),
+  `push`, `replace`, `link`, `wrap` เหมือนเดิม
+- **Auth SDK**: `@clerk/clerk-js` v6 (vanilla, dynamic import ใน `src/lib/clerk.ts`). ตรวจ JWT
+  ฝั่ง api ใช้ `jose` + JWKS เอง (`api/src/index.ts`) จึงไม่ผูกกับ major ของ clerk-js
 
 ## Package Manager
 - **npm เท่านั้น** — เครื่องนี้ไม่มี pnpm อย่าใช้ `pnpm ...` ให้ใช้ `npm run ...` แทน

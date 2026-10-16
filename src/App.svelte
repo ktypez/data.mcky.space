@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import Router, { location, link, push } from 'svelte-spa-router'
+  import Router, { router, link, push } from 'svelte-spa-router'
 import wrap from 'svelte-spa-router/wrap'
   import { House, Plus, Gear, MapTrifold, Trash } from 'phosphor-svelte'
   import { useAuthStore } from '@/stores/auth-store'
@@ -70,13 +70,16 @@ import wrap from 'svelte-spa-router/wrap'
     }
     window.addEventListener('online', flush)
     flush()
-    const unsub = location.subscribe(() => {
-      document.getElementById('ledger-main')?.scrollTo({ top: 0 })
-    })
     return () => {
       window.removeEventListener('online', flush)
-      unsub()
     }
+  })
+
+  // v5 replaced the `location` store with the runes-backed `router` object, so
+  // reset the main scroll container in an effect that tracks router.location.
+  $effect(() => {
+    void router.location
+    document.getElementById('ledger-main')?.scrollTo({ top: 0 })
   })
 
   function guardNavigation(event: MouseEvent): void {
@@ -86,7 +89,7 @@ import wrap from 'svelte-spa-router/wrap'
     }
   }
 
-  const wantsLogin = $derived($location === '/login' || loginOpen)
+  const wantsLogin = $derived(router.location === '/login' || loginOpen)
 </script>
 
 {#if wantsLogin && !checking && !signedIn}
@@ -104,15 +107,15 @@ import wrap from 'svelte-spa-router/wrap'
     </main>
     <nav class="ledger-bottom-nav relative z-50 shrink-0 border-t border-border bg-card" aria-label="หลัก">
       <div class="mx-auto flex h-[4.5rem] max-w-xl items-center justify-around px-3 pb-[env(safe-area-inset-bottom)]">
-        <button type="button" onclick={handleHomeClick} aria-label="หน้าหลัก" class="ledger-nav-item" class:is-active={$location === '/'}><House weight="fill" size={21} aria-hidden /><span>หน้าหลัก</span></button>
-        <a href="/maps" use:link onclick={guardNavigation} aria-label="แผนที่" class="ledger-nav-item" class:is-active={$location === '/maps'}><MapTrifold size={21} aria-hidden /><span>แผนที่</span></a>
+        <button type="button" onclick={handleHomeClick} aria-label="หน้าหลัก" class="ledger-nav-item" class:is-active={router.location === '/'}><House weight="fill" size={21} aria-hidden /><span>หน้าหลัก</span></button>
+        <a href="/maps" use:link onclick={guardNavigation} aria-label="แผนที่" class="ledger-nav-item" class:is-active={router.location === '/maps'}><MapTrifold size={21} aria-hidden /><span>แผนที่</span></a>
         {#if isAdmin}
           <a href="/add" use:link onclick={guardNavigation} aria-label="เพิ่มรายการ" class="ledger-add-button"><Plus weight="bold" size={25} aria-hidden /></a>
         {:else}
           <span aria-label="เพิ่มรายการ" aria-disabled="true" class="ledger-add-button opacity-40 grayscale"><Plus weight="bold" size={25} aria-hidden /></span>
         {/if}
-        <a href="/trash" use:link onclick={guardNavigation} aria-label="ถังขยะ" class="ledger-nav-item" class:is-active={$location === '/trash'}><Trash size={21} aria-hidden /><span>ถังขยะ</span></a>
-        <button type="button" onclick={(e) => { guardNavigation(e); if (!e.defaultPrevented) push('/settings') }} aria-label="เมนูและการตั้งค่า" class="ledger-nav-item" class:is-active={$location === '/settings'}><Gear size={21} aria-hidden /><span>เมนู</span></button>
+        <a href="/trash" use:link onclick={guardNavigation} aria-label="ถังขยะ" class="ledger-nav-item" class:is-active={router.location === '/trash'}><Trash size={21} aria-hidden /><span>ถังขยะ</span></a>
+        <button type="button" onclick={(e) => { guardNavigation(e); if (!e.defaultPrevented) push('/settings') }} aria-label="เมนูและการตั้งค่า" class="ledger-nav-item" class:is-active={router.location === '/settings'}><Gear size={21} aria-hidden /><span>เมนู</span></button>
       </div>
     </nav>
     <CommandPalette />

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { push, querystring } from 'svelte-spa-router'
+  import { push, router } from 'svelte-spa-router'
   import { useAuthStore } from '@/stores/auth-store'
 
   let isLoaded = $derived(!$useAuthStore.checking)
   let isSignedIn = $derived($useAuthStore.isSignedIn)
-  let target = $derived(new URLSearchParams($querystring ?? '').get('redirect') || '/')
+  let target = $derived(new URLSearchParams(router.querystring ?? '').get('redirect') || '/')
 
   $effect(() => {
     if (isLoaded && isSignedIn) push(target)
