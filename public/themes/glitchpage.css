@@ -51,8 +51,8 @@
   --glitch-grid-2: rgba(255, 61, 143, 0.045);
   --glitch-scan: rgba(0, 0, 0, 0.16);
 
-  --theme-font-display: 'Chakra Petch', 'Sarabun', system-ui, sans-serif;
-  --theme-font-body: 'Sarabun', 'Chakra Petch', system-ui, sans-serif;
+  --theme-font-display: 'Chakra Petch', 'Noto Sans Thai', system-ui, sans-serif;
+  --theme-font-body: 'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif;
   --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 

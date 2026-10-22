@@ -4,7 +4,7 @@
    แกะ DNA จาก design-gallery/concepts/crt.css → scoped ใหม่เข้ากับ app.
    - จอ phosphor เขียว + scanlines + text-shadow เรืองแสง
    - มุม 0 องศา (--radius: 0)
-   - ฟอนต์: Chakra Petch (Latin/ตัวเลข) + Sarabun (ไทย) + mono
+   - ฟอนต์: Chakra Petch (Latin/ตัวเลข) + Google Sans Flex / Noto Sans Thai (body) + mono
    Dark-only — โหลดเฉพาะเมื่อ [data-theme='crt']
    ============================================================================ */
 
@@ -44,8 +44,8 @@
   --radius: 0rem;
   --pin-color: #4af626;
 
-  --theme-font-display: 'Chakra Petch', 'Sarabun', ui-monospace, monospace;
-  --theme-font-body: 'Sarabun', 'Chakra Petch', system-ui, sans-serif;
+  --theme-font-display: 'Chakra Petch', 'Noto Sans Thai', ui-monospace, monospace;
+  --theme-font-body: 'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif;
   --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
