@@ -35,7 +35,7 @@ html:has(.ledger-shell):root body {
   overflow: hidden;
   background-color: transparent;
   color: var(--foreground);
-  font-family: var(--theme-font-body, 'Inter', 'Noto Sans Thai', system-ui, sans-serif);
+  font-family: var(--theme-font-body, 'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;
 }
 .ledger-shell ::selection { background: var(--primary); color: var(--primary-foreground); }

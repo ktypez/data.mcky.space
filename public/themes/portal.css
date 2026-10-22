@@ -5,7 +5,7 @@
    - warm paper surfaces (#f6f5ef light / #0c0d0f dark)
    - olive editorial accent (#3f5c05 / #d6ff3f)
    - soft 14px radius, hairline borders, quiet warm shadows (no hard shadows)
-   - Kanit display + IBM Plex Sans Thai body
+   - Kanit display + Google Sans Flex / Noto Sans Thai body
    Dual mode (OS-driven).
    ============================================================================ */
 
@@ -45,8 +45,8 @@
   --radius: 0.875rem;
   --pin-color: #3f5c05;
 
-  --theme-font-display: 'Kanit', 'IBM Plex Sans Thai', system-ui, sans-serif;
-  --theme-font-body: 'IBM Plex Sans Thai', system-ui, sans-serif;
+  --theme-font-display: 'Kanit', 'Noto Sans Thai', system-ui, sans-serif;
+  --theme-font-body: 'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif;
   --theme-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   /* light: soft warm layered shadows */

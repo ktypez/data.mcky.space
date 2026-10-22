@@ -110,6 +110,14 @@ within 60s), so give it a generous timeout.
 - The V3 label is product version metadata only; filenames and runtime identifiers
   stay version-neutral.
 - The complete catalog is virtualized and renders only the visible row window.
+- **Typography (2026-10):** body font = `Google Sans Flex` (wght 100–1000) +
+  `Noto Sans Thai` คู่ไทย Google Sans ในเกือบทุกธีม; display/mono ยังเก็บเอกลักษณ์ธีม
+  (Baloo 2 / Chakra Petch / Kanit / Playfair / JetBrains Mono). ข้าม = claude, blueprint
+  (ธีมผูกกับฟอนต์ตระกูล IBM/serif). **Font stacks ผูกกัน 2 ที่ต้องแก้พร้อมกัน:**
+  `src/lib/design/themes.ts` (FONTS + fontUrl) และ `public/themes/{id}.css` (pre-paint
+  stylesheet ที่ render จริงตั้งแต่ first paint). ห้ามใส่ font CSS ใน head แบบ blocking
+  (LCP regression — ดู minimem); font link โหลดแบบ non-blocking preload+rel-swap
+  ตามที่อยู่แล้ว.
 - Deploying from a git worktree auto-detects a non-production branch → PREVIEW deploy
   (custom domain won't update!). Always pass `--branch main`:
   `npm run wrangler -- pages deploy ./dist --project-name data-mcky-space --branch main`

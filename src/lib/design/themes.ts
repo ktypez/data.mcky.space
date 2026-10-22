@@ -6,12 +6,12 @@ import type { Theme, ThemeGroup } from './tokens'
  * a full theme — that's what lets us drop the :root/.dark fallback vars.
  */
 const BUBBLEGUM_FONTS = {
-  display: "'Baloo 2', 'Sarabun', system-ui, sans-serif",
-  body: "'Sarabun', 'Baloo 2', system-ui, sans-serif",
+  display: "'Baloo 2', 'Noto Sans Thai', system-ui, sans-serif",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const BUBBLEGUM_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@400;500&display=swap'
 
 const baseThemes: Theme[] = [
   {
@@ -101,12 +101,12 @@ const baseThemes: Theme[] = [
     character: 'plain',
     modes: ['light', 'dark'],
     fonts: {
-      display: "'Inter', 'Sarabun', system-ui, sans-serif",
-      body: "'Sarabun', 'Inter', system-ui, sans-serif",
+      display: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
+      body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
       mono: "'JetBrains Mono', ui-monospace, monospace",
     },
     fontUrl:
-      'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sarabun:wght@400;500;600&display=swap',
+      'https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@400;500&display=swap',
     staticCss: '/themes/slate.css',
     light: {
       '--background': 'oklch(0.97 0.005 255)',
@@ -188,20 +188,20 @@ const baseThemes: Theme[] = [
    ============================================================================ */
 
 const GLITCH_FONTS = {
-  display: "'Chakra Petch', 'Sarabun', system-ui, sans-serif",
-  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Noto Sans Thai', system-ui, sans-serif",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const GLITCH_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@400;500&display=swap'
 
 const CRT_FONTS = {
-  display: "'Chakra Petch', 'Sarabun', ui-monospace, monospace",
-  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Noto Sans Thai', ui-monospace, monospace",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const CRT_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@400;500&display=swap'
 
 const CLAUDE_FONTS = {
   display: "'Source Serif 4', 'Noto Serif Thai', Georgia, 'Times New Roman', serif",
@@ -459,12 +459,12 @@ const claude: Theme = {
 
 // rack — STACK//FRAME: server rack, amber LEDs + hardware green (dark-only)
 const RACK_FONTS = {
-  display: "'Chakra Petch', 'Sarabun', ui-monospace, monospace",
-  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Noto Sans Thai', ui-monospace, monospace",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const RACK_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@400;500;600&display=swap'
 
 const rack: Theme = {
   id: 'rack',
@@ -549,8 +549,8 @@ const rack: Theme = {
 
 // noc — PACKETGRID: network ops, teal/cyan packet grid (dark-only)
 const NOC_FONTS = {
-  display: "'Chakra Petch', 'Sarabun', ui-monospace, monospace",
-  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Noto Sans Thai', ui-monospace, monospace",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const NOC_FONT_URL = RACK_FONT_URL
@@ -638,8 +638,8 @@ const noc: Theme = {
 
 // min — collage.sh: light minimal, olive lime terminal (light-only)
 const MIN_FONTS = {
-  display: "'Inter', 'Sarabun', system-ui, sans-serif",
-  body: "'Sarabun', 'Inter', system-ui, sans-serif",
+  display: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const MIN_FONT_URL = RACK_FONT_URL
@@ -727,12 +727,12 @@ const min: Theme = {
 
 // brut — BRUT: concrete + ink borders + signal red, Anton display (light-only)
 const BRUT_FONTS = {
-  display: "'Chakra Petch', 'Sarabun', Impact, sans-serif",
-  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Noto Sans Thai', Impact, sans-serif",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const BRUT_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@400;500&display=swap'
 
 const brut: Theme = {
   id: 'brut',
@@ -817,12 +817,12 @@ const brut: Theme = {
 
 // mcky — house style: paper + black borders + amber + hard shadows (light-only)
 const MCKY_FONTS = {
-  display: "'Chakra Petch', 'Sarabun', ui-monospace, monospace",
-  body: "'Sarabun', 'Chakra Petch', system-ui, sans-serif",
+  display: "'Chakra Petch', 'Noto Sans Thai', ui-monospace, monospace",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const MCKY_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap'
+  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@400;500;600&display=swap'
 
 const mcky: Theme = {
   id: 'mcky',
@@ -907,12 +907,12 @@ const mcky: Theme = {
 
 // portal — me.mcky.space editorial (INK // portal): olive on paper, dual mode
 const PORTAL_FONTS = {
-  display: "'Kanit', 'IBM Plex Sans Thai', system-ui, sans-serif",
-  body: "'IBM Plex Sans Thai', system-ui, sans-serif",
+  display: "'Kanit', 'Noto Sans Thai', system-ui, sans-serif",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const PORTAL_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@400;500&display=swap'
 
 const portal: Theme = {
   id: 'portal',
@@ -1088,11 +1088,11 @@ const blueprint: Theme = {
 // noir — whiskey-bar luxe: oxblood + brass + Playfair, old-money dark (dual mode)
 const NOIR_FONTS = {
   display: "'Playfair Display', 'Noto Serif Thai', Georgia, serif",
-  body: "'Inter', 'Sarabun', system-ui, sans-serif",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const NOIR_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600&family=Sarabun:wght@400;500;600&family=Noto+Serif+Thai:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=Noto+Serif+Thai:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap'
 
 const noir: Theme = {
   id: 'noir',
@@ -1257,11 +1257,11 @@ const custom: Theme = {
 
 const DUO_MONO_FONTS = {
   display: "'JetBrains Mono', ui-monospace, monospace",
-  body: "'JetBrains Mono', ui-monospace, monospace",
+  body: "'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, monospace",
 }
 const DUO_MONO_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&display=swap'
 
 /**
  * Black and white only — light and dark are the same design inverted, so the
