@@ -44,7 +44,7 @@
   --pin-color: #2b5aa8;
 
   --theme-font-display: 'IBM Plex Serif', 'Noto Serif Thai', Georgia, serif;
-  --theme-font-body: 'IBM Plex Sans', 'Sarabun', system-ui, sans-serif;
+  --theme-font-body: 'IBM Plex Sans', 'Noto Sans Thai', system-ui, sans-serif;
   --theme-font-mono: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;
 
   --shadow-xs: 0 1px 1px rgba(26, 41, 66, 0.05);

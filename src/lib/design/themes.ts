@@ -998,11 +998,11 @@ const portal: Theme = {
 // blueprint — architectural/technical drawing: pale blueprint paper + steel blue, IBM Plex (dual mode)
 const BLUEPRINT_FONTS = {
   display: "'IBM Plex Serif', 'Noto Serif Thai', Georgia, serif",
-  body: "'IBM Plex Sans', 'Sarabun', system-ui, sans-serif",
+  body: "'IBM Plex Sans', 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace",
 }
 const BLUEPRINT_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+Thai:wght@400;600&family=Sarabun:wght@400;500;600&display=swap'
+  'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+Thai:wght@400;600&family=Noto+Sans+Thai:wght@400;500;600&display=swap'
 
 const blueprint: Theme = {
   id: 'blueprint',
