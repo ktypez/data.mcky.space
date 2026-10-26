@@ -4,3 +4,6 @@
 # HSTS header (1 year max-age)
 *  
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json
