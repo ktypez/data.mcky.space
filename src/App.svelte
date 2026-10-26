@@ -10,7 +10,7 @@ import wrap from 'svelte-spa-router/wrap'
   import { isFormDirty } from '@/lib/form-dirty'
   import { appTheme, initAppTheme } from '@/lib/app-theme'
   import { initClerk } from '@/lib/clerk'
-  import { startPwaInstallListener } from '@/lib/pwa-install'
+  import '@/lib/pwa-install'
   import { flushClientMutations } from '@/lib/offline-mutations'
   import CommandPalette from '@/components/CommandPalette.svelte'
   import UpdatePrompt from '@/components/UpdatePrompt.svelte'
@@ -64,7 +64,6 @@ import wrap from 'svelte-spa-router/wrap'
   onMount(() => {
     initAppTheme()
     void initClerk()
-    startPwaInstallListener()
     void useClientStore.getState().initialize()
     const flush = () => {
       const userId = useAuthStore.getState().userId
