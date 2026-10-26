@@ -39,3 +39,11 @@ export function clearPwaInstallPrompt(): void {
   deferredPrompt = null
   notify()
 }
+
+// Auto-register the beforeinstallprompt listener as soon as this module is
+// loaded, so the event is captured even if it fires before any component's
+// onMount runs (e.g. when the user opens Settings early). Guarded by the
+// `started` flag inside startPwaInstallListener, so repeated imports are safe.
+if (typeof window !== 'undefined') {
+  startPwaInstallListener()
+}
