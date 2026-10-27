@@ -252,6 +252,15 @@
   animation: spin-slow 2s linear infinite;
 }
 
+/* Bottom-sheet entrance (proto's dialog/sheet language). */
+@keyframes sheet-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.985) }
+  to { opacity: 1; transform: none }
+}
+@utility animate-sheet {
+  animation: sheet-in 0.18s ease-out
+}
+
 /* Skeleton shimmer — compositor-only via transform on ::after band */
 @keyframes shimmer-sweep {
   0% { transform: translateX(-100%) }
@@ -297,6 +306,24 @@
   background: var(--card) !important;
   color: var(--foreground) !important;
   border-color: var(--border) !important;
+}
+/* Tighter, theme-tinted map attribution (proto language). */
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  background: color-mix(in srgb, var(--card) 80%, transparent) !important;
+  color: var(--muted-foreground) !important;
+}
+/* Ledger map pin — rotated square, card-ringed, primary fill. */
+.ledger-pin {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 99px 99px 99px 2px;
+  transform: rotate(-45deg);
+  background: var(--primary);
+  border: 2px solid var(--card);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.3);
 }
 
 /* Pull-to-refresh indicator */
