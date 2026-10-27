@@ -118,6 +118,38 @@ describe('applyFilter', () => {
     expect(applyFilter(multi, 'ramen', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['m2'])
   })
 
+  it('multi-keyword AND: every whitespace-separated keyword must match', () => {
+    const list = [
+      mk({ id: 'kh1', name: ['ร้านข้าวหอม'] }),
+      mk({ id: 'kh2', name: ['ข้าวมันไก่'] }),
+    ]
+    expect(applyFilter(list, 'ข้าว หอม', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['kh1'])
+    // order-insensitive
+    expect(applyFilter(list, 'หอม ข้าว', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['kh1'])
+  })
+
+  it('keywords can match across different fields (name + address)', () => {
+    const list = [
+      mk({ id: 'x1', name: ['สมชาย'], address: 'ถนนข้าวสาร' }),
+      mk({ id: 'x2', name: ['สมหญิง'], address: 'ถนนสุขุมวิท' }),
+    ]
+    expect(applyFilter(list, 'สมชาย ข้าวสาร', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['x1'])
+    expect(applyFilter(list, 'สมชาย สุขุมวิท', FilterKey.All, cutoff)).toEqual([])
+  })
+
+  it('notes are searchable', () => {
+    const list = [
+      mk({ id: 'n1', name: ['A'], notes: 'สั่งประจำ' }),
+      mk({ id: 'n2', name: ['B'], notes: null }),
+    ]
+    expect(applyFilter(list, 'ประจำ', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['n1'])
+  })
+
+  it('extra whitespace between keywords is tolerated', () => {
+    const list = [mk({ id: 'w1', name: ['ร้านข้าวหอม'] })]
+    expect(applyFilter(list, 'ข้าว   หอม', FilterKey.All, cutoff).map((c) => c.id)).toEqual(['w1'])
+  })
+
   it('does not match when no value contains the query', () => {
     const multi = [mk({ id: 'm1', name: ['Alice', 'Somchai'] })]
     expect(applyFilter(multi, 'zzz', FilterKey.All, cutoff)).toEqual([])

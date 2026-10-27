@@ -1,5 +1,5 @@
 import { FilterKey, type Client } from '@/types/index'
-import { clientMatchesQuery } from '@/lib/clientNames'
+import { clientSearchText } from '@/lib/clientNames'
 
 /**
  * Counts for the filter chips shown in `SelectionToolbar`.
@@ -46,7 +46,10 @@ export function sortByCreatedDesc(clients: Client[]): Client[] {
  * Pure — does not depend on React, stores, or time. Safe to unit test.
  *
  * - `query` is already lowercased + trimmed by the caller
- * - matches on name, shopName, branch, address, or id
+ * - multi-keyword AND semantics: whitespace-separated keywords must ALL be
+ *   present ("ข้าว หอม" matches entries containing both words)
+ * - each keyword matches against names, shop names, branch, address, id,
+ *   and notes (joined searchable text per client)
  * - `FilterKey.All` returns the search result untouched
  */
 export function applyFilter(
@@ -57,12 +60,11 @@ export function applyFilter(
 ): Client[] {
   let result = clients
   if (query) {
-    result = result.filter(
-      (c) =>
-        clientMatchesQuery(c, query) ||
-        c.address.toLowerCase().includes(query) ||
-        c.id.toLowerCase().includes(query),
-    )
+    const keywords = query.split(/\s+/).filter(Boolean) // query arrives lowercased+trimmed; split defensively
+    result = result.filter((c) => {
+      const text = clientSearchText(c)
+      return keywords.every((k) => text.includes(k))
+    })
   }
   switch (filter) {
     case FilterKey.WithImages:
