@@ -38,6 +38,25 @@ html:has(.ledger-shell):root body {
   font-family: var(--theme-font-body, 'Google Sans Flex', 'Noto Sans Thai', system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;
 }
+/* Ledger grain — the prototype's signature paper texture. A 22px repeating
+   dot field at 7% foreground opacity sits over the (transparent) shell bg, so
+   it shows only in the gutters between opaque cards. Adapts to light/dark via
+   --foreground. */
+.ledger-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--foreground) 7%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+}
+/* Content sits above the grain so cards stay crisp and text stays legible. */
+.ledger-main { position: relative; z-index: 1; }
 .ledger-shell ::selection { background: var(--primary); color: var(--primary-foreground); }
 .ledger-pill {
   display: inline-flex;
