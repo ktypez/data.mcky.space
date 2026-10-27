@@ -17,7 +17,6 @@
   import PhotoSection from '@/components/PhotoSection.svelte'
   import Input from '@/components/ui/Input.svelte'
   import Label from '@/components/ui/Label.svelte'
-  import Button from '@/components/ui/Button.svelte'
 
   let { params }: { params?: { id?: string } } = $props()
   let id = $derived(params?.id ?? '')
@@ -256,10 +255,14 @@
   </div>
 {:else}
   <div class="pb-4">
-    <h1 class="sr-only">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
-    <div class="mx-auto flex w-full max-w-3xl px-3 pb-6 pt-6 sm:px-4">
-      <button type="button" onclick={onBack} class="inline-flex min-h-11 items-center gap-1 rounded-md border border-border bg-card px-3 py-2 font-mono text-xs text-foreground hover:bg-muted"><ArrowLeft class="inline h-3 w-3" aria-hidden /> กลับ</button>
-    </div>
+  <h1 class="sr-only">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
+  <div class="mx-auto flex w-full max-w-3xl items-center gap-2 px-3 pb-6 pt-6 sm:px-4">
+    <button type="button" onclick={onBack} class="inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"><ArrowLeft class="h-4 w-4" aria-hidden /> ยกเลิก</button>
+    <h1 class="ml-1 text-sm font-semibold">{editing ? 'แก้ไขระเบียน' : 'เพิ่มระเบียนใหม่'}</h1>
+    {#if dirty && !readOnly}
+      <span class="ml-auto rounded-full bg-accent/15 px-2 py-0.5 text-[10px] text-accent">ยังไม่บันทึก</span>
+    {/if}
+  </div>
 
     {#if loadError}
       <div class="mx-auto mt-4 max-w-3xl px-3 sm:px-4">
@@ -271,7 +274,7 @@
     {/if}
 
     <form onsubmit={handleSubmit} class="mx-auto mt-6 max-w-3xl px-3 sm:px-4" aria-busy={uploading}>
-      <fieldset disabled={readOnly || uploading} class="min-w-0 space-y-6 rounded-2xl border border-border bg-card p-5">
+      <fieldset disabled={readOnly || uploading} class="min-w-0 space-y-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
         <section class="space-y-4">
           <div class="space-y-1">
             <Label>ชื่อร้านค้า</Label>
@@ -310,10 +313,10 @@
         {/if}
 
         <div class="flex justify-end border-t border-border pt-4">
-          <Button type="submit" class="min-h-11 px-6" disabled={uploading || readOnly || !canSave}>
+          <button type="submit" class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50" disabled={uploading || readOnly || !canSave}>
             {#if editing}<Pencil class="h-4 w-4" aria-hidden />{:else}<Plus class="h-4 w-4" aria-hidden />{/if}
             {uploading ? 'กำลังบันทึก…' : editing ? 'อัปเดตข้อมูล' : 'เพิ่มลูกค้าใหม่'}
-          </Button>
+          </button>
         </div>
       </fieldset>
       {#if !canSave}
