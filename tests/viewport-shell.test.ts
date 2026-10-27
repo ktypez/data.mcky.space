@@ -41,8 +41,10 @@ describe('locked application viewport', () => {
     expect(catalog).toContain('aria-haspopup="dialog"')
     expect(catalog).not.toContain('ledger-field')
     expect(catalog).not.toContain('รีเฟรชหน้า')
-    // The nav is a full-width bar in flow with its own primary action.
-    expect(app).toContain('ledger-add-button')
+    // The primary action is now a floating button (proto layout) instead of a
+    // nav-embedded add button.
+    expect(app).toContain('fixed bottom-20 right-4')
+    expect(app).toContain('rounded-2xl bg-primary')
     expect(shell).toContain('.ledger-add-button')
     expect(shell).not.toContain('lg-nav-dist')
   })
