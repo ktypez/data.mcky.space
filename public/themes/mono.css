@@ -37,7 +37,7 @@
   --sidebar-accent-foreground: #1a1a1a;
   --sidebar-border: #d0d0d0;
   --sidebar-ring: #2f6f54;
-  --radius: 0.4rem;
+  --radius: 0.625rem;
   --pin-color: #2f6f54;
   --theme-font-display: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --theme-font-body: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -76,7 +76,7 @@
   --sidebar-accent-foreground: #e0e0e0;
   --sidebar-border: #383838;
   --sidebar-ring: #4ecb8f;
-  --radius: 0.4rem;
+  --radius: 0.625rem;
   --pin-color: #4ecb8f;
   --theme-font-display: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --theme-font-body: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;

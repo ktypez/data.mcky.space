@@ -52,7 +52,7 @@ const PALETTE_TO_VARS = (p) => [
   ['--sidebar-accent-foreground', p.fg],
   ['--sidebar-border', p.border],
   ['--sidebar-ring', p.primary],
-  ['--radius', '0.4rem'],
+  ['--radius', '0.625rem'],
   ['--pin-color', p.primary],
 ]
 
@@ -139,7 +139,7 @@ const CUSTOM = {
     '--info-foreground': '#ffffff', '--border': '#d1d5db', '--input': '#d1d5db',
     '--ring': '#2563eb', '--sidebar': '#f8fafc', '--sidebar-foreground': '#111111',
     '--sidebar-accent': '#e2e8f0', '--sidebar-accent-foreground': '#111111',
-    '--sidebar-border': '#d1d5db', '--sidebar-ring': '#2563eb', '--radius': '0.5rem',
+    '--sidebar-border': '#d1d5db', '--sidebar-ring': '#2563eb', '--radius': '0.625rem',
     '--pin-color': '#2563eb',
   },
   dark: {
@@ -153,7 +153,7 @@ const CUSTOM = {
     '--info-foreground': '#0f172a', '--border': '#334155', '--input': '#334155',
     '--ring': '#a3e635', '--sidebar': '#111827', '--sidebar-foreground': '#f8fafc',
     '--sidebar-accent': '#1e293b', '--sidebar-accent-foreground': '#f8fafc',
-    '--sidebar-border': '#334155', '--sidebar-ring': '#a3e635', '--radius': '0.5rem',
+    '--sidebar-border': '#334155', '--sidebar-ring': '#a3e635', '--radius': '0.625rem',
     '--pin-color': '#a3e635',
   },
 }
