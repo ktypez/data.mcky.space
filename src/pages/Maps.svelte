@@ -256,11 +256,11 @@
 </script>
 
 {#if failed}
-  <section class="mx-auto flex h-full max-w-xl items-center justify-center px-3 pb-4 pt-6 sm:px-4">
+  <section class="mx-auto flex h-full max-w-3xl items-center justify-center px-3 pb-4 pt-4 sm:px-4">
     <p class="text-sm text-muted-foreground">ไม่สามารถโหลดแผนที่ได้</p>
   </section>
 {:else}
-  <section class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-3 pb-4 pt-6 sm:px-4">
+  <section class="mx-auto flex h-full max-w-3xl flex-col overflow-hidden px-3 pb-4 pt-4 sm:px-4">
     <h1 class="sr-only">แผนที่รายการลูกค้า</h1>
     {#if loadError}
       <div class="mb-4 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm" role="status">
@@ -279,7 +279,7 @@
         onblur={() => (inputFocused = false)}
         placeholder="ค้นหาในแผนที่ — ชื่อ ร้าน ที่อยู่…"
         aria-label="ค้นหาในแผนที่"
-        class="h-11 w-full rounded-2xl border border-border bg-card pl-10 pr-10 text-sm shadow-sm outline-none focus:border-foreground/20 focus:ring-4 focus:ring-foreground/5"
+        class="h-11 w-full rounded-xl border border-border bg-card pl-10 pr-10 text-sm shadow-sm outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
         autocomplete="off"
         spellcheck="false"
       />
@@ -332,7 +332,7 @@
       {/if}
       {#if selected}
         <div class="absolute bottom-3 left-3 right-3 z-20">
-          <div class="rounded-2xl border border-border bg-card p-3 shadow-xl">
+          <div class="rounded-2xl border border-border bg-card p-3 shadow-sm">
             <div class="flex gap-3">
               {#if selected.images[0] || selected.thumb}
                 <AppImage src={selected.thumb ?? selected.images[0]} fallbackSrc={selected.images[0]} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover border border-border" />
