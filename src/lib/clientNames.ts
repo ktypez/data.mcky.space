@@ -153,6 +153,29 @@ export function shopNameValue(shopName: string | null | undefined): string {
   return stripLeadingLabel(value, 'ร้าน') || value
 }
 
+/**
+ * Full searchable text for one client, lowercased: every name/shop value,
+ * branch, address, id, notes — space-joined. Used by keyword search so a
+ * token can hit any field (AND across tokens is done by the caller).
+ */
+export function clientSearchText(
+  c: Pick<Client, 'name' | 'shopName'> & Partial<Pick<Client, 'branch' | 'address' | 'id' | 'notes'>>,
+): string {
+  return [
+    ...coerceStringArray(c.name),
+    ...coerceStringArray(c.shopName),
+    c.branch ?? '',
+    c.address ?? '',
+    c.id ?? '',
+    c.notes ?? '',
+  ].join(' ').toLowerCase()
+}
+
+/** Split a raw search input into lowercased, non-empty keyword tokens on any whitespace. */
+export function tokenizeQuery(raw: string): string[] {
+  return raw.trim().toLowerCase().split(/\s+/).filter(Boolean)
+}
+
 /** True if any name, shopName, or branch value contains the (lowercased) query. */
 export function clientMatchesQuery(
   c: Pick<Client, 'name' | 'shopName'> & { branch?: string },

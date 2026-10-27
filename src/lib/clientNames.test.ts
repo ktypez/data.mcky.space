@@ -10,6 +10,8 @@ import {
   clientNamesJoined,
   clientSubNames,
   clientMatchesQuery,
+  clientSearchText,
+  tokenizeQuery,
   clientTitleValues,
   shopNameValue,
   stripLeadingLabel,
@@ -215,6 +217,38 @@ describe('clientMatchesQuery', () => {
   it('never matches on an empty branch for a non-matching query', () => {
     const c = { name: ['Alice'], shopName: ['Cafe'], branch: '' }
     expect(clientMatchesQuery(c, 'zzz')).toBe(false)
+  })
+})
+
+describe('clientSearchText', () => {
+  it('joins every searchable field, lowercased', () => {
+    const c = {
+      name: ['Alice'],
+      shopName: ['Cafe A'],
+      branch: 'เชียงใหม่',
+      address: 'Sukhumvit 11',
+      id: 'ID-1',
+      notes: 'สั่งประจำ',
+    }
+    const text = clientSearchText(c)
+    expect(text).toContain('alice')
+    expect(text).toContain('cafe a')
+    expect(text).toContain('เชียงใหม่')
+    expect(text).toContain('sukhumvit 11')
+    expect(text).toContain('id-1')
+    expect(text).toContain('สั่งประจำ')
+  })
+
+  it('handles missing optional fields', () => {
+    expect(clientSearchText({ name: ['Bob'], shopName: [] })).toContain('bob')
+  })
+})
+
+describe('tokenizeQuery', () => {
+  it('splits on any whitespace, lowercases, drops empties', () => {
+    expect(tokenizeQuery('ข้าว   หอม')).toEqual(['ข้าว', 'หอม'])
+    expect(tokenizeQuery(' Cafe A ')).toEqual(['cafe', 'a'])
+    expect(tokenizeQuery('   ')).toEqual([])
   })
 })
 

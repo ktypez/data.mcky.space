@@ -8,7 +8,7 @@
   import { hasValidCoords } from '@/lib/utils'
   import { trackField } from '@/lib/restore-field'
   import { fetchClientMap } from '@/lib/storage'
-  import { clientMatchesQuery } from '@/lib/clientNames'
+  import { clientSearchText, tokenizeQuery } from '@/lib/clientNames'
   import { safeTooltipContent } from '@/lib/leaflet-content'
   import type { Client } from '@/types/index'
   import ClientNames from '@/components/ClientNames.svelte'
@@ -48,9 +48,12 @@
   let inputFocused = $state(false)
 
   let filteredForMap = $derived.by(() => {
-    const q = search.trim().toLowerCase()
-    if (!q) return pins
-    return pins.filter((c) => clientMatchesQuery(c, q) || c.address.toLowerCase().includes(q) || c.id.toLowerCase().includes(q))
+    const tokens = tokenizeQuery(search)
+    if (tokens.length === 0) return pins
+    return pins.filter((c) => {
+      const text = clientSearchText(c)
+      return tokens.every((k) => text.includes(k))
+    })
   })
   let searchResults = $derived(filteredForMap.slice(0, 5))
 

@@ -2,7 +2,7 @@
   import { push } from 'svelte-spa-router'
   import { MagnifyingGlass, ArrowRight } from 'phosphor-svelte'
   import { useClientStore } from '@/stores/client-store'
-  import { clientMatchesQuery } from '@/lib/clientNames'
+  import { clientSearchText, tokenizeQuery } from '@/lib/clientNames'
   import ClientNames from '@/components/ClientNames.svelte'
   import AppImage from '@/components/AppImage.svelte'
   import NameAvatar from '@/components/NameAvatar.svelte'
@@ -21,9 +21,14 @@
   let error = $derived($useClientStore.error)
 
   let filtered = $derived.by(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return clients.slice(0, 8)
-    return clients.filter((c) => clientMatchesQuery(c, q) || c.address.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)).slice(0, 8)
+    const tokens = tokenizeQuery(query)
+    if (tokens.length === 0) return clients.slice(0, 8)
+    return clients
+      .filter((c) => {
+        const text = clientSearchText(c)
+        return tokens.every((k) => text.includes(k))
+      })
+      .slice(0, 8)
   })
 
   $effect(() => {
