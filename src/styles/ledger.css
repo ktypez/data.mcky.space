@@ -94,6 +94,14 @@ html:has(.ledger-shell):root body {
   border-radius: calc(var(--radius) - 4px);
 }
 
+/* Proto Surface: a soft drop shadow gives the rounded-2xl cards lift off the
+   grain. Scoped to the shell's main cards only — list rows stay border-only so
+   the virtualized list keeps its crisp divider rhythm. */
+.ledger-shell .rounded-2xl {
+  box-shadow: 0 1px 2px 0 color-mix(in srgb, var(--foreground) 6%, transparent),
+    0 2px 6px -2px color-mix(in srgb, var(--foreground) 14%, transparent);
+}
+
 /* Press feedback — scale near 0.96 */
 .ledger-shell button,
 .ledger-shell [type="button"],
