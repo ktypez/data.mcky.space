@@ -3,10 +3,8 @@
   import { useAuthStore } from '@/stores/auth-store'
   import { useClientStore } from '@/stores/client-store'
   import { treatyClient, treatyHeaders } from '@/lib/treaty'
-  import ClientNames from '@/components/ClientNames.svelte'
   import AppImage from '@/components/AppImage.svelte'
   import AppDialog from '@/components/AppDialog.svelte'
-  import { formatDateTime } from '@/lib/utils'
 
   interface TrashItem {
     id: string
@@ -26,9 +24,15 @@
   let loading = $state(true)
   let error = $state<string | null>(null)
   let confirm = $state<TrashItem | null>(null)
+  let confirmEmpty = $state(false)
   let busyId = $state<string | null>(null)
   let focused = $state(0)
-  let rowEls: (HTMLButtonElement | null)[] = []
+
+  function since(ts: number) {
+    const days = Math.max(0, Math.floor((Date.now() - ts) / 86400000))
+    if (days === 0) return 'วันนี้'
+    return `${days} วันที่แล้ว`
+  }
 
   async function fetchTrash() {
     loading = true
@@ -52,11 +56,6 @@
     items.length
     focused = Math.min(focused, Math.max(items.length - 1, 0))
   })
-
-  function focusRow(index: number) {
-    focused = index
-    rowEls[index]?.focus()
-  }
 
   async function restore(id: string) {
     if (busyId) return
@@ -91,19 +90,22 @@
     }
   }
 
-  function onRowKeyDown(event: KeyboardEvent, index: number) {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      focusRow(Math.min(index + 1, items.length - 1))
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault()
-      focusRow(Math.max(index - 1, 0))
-    } else if (event.key === 'Enter') {
-      event.preventDefault()
-      void restore(items[index].id)
-    } else if (event.key === 'Delete' || event.key === 'Backspace') {
-      event.preventDefault()
-      confirm = items[index]
+  async function emptyTrash() {
+    if (busyId) return
+    busyId = '__empty__'
+    error = null
+    try {
+      for (const item of items) {
+        const { error: requestError } = await treatyClient.api.clients.trash.post({ id: item.id }, { query: { action: 'force-delete' }, headers: await treatyHeaders() })
+        if (requestError) throw new Error('fail')
+      }
+      items = []
+    } catch {
+      error = 'ล้างถังขยะไม่สำเร็จ'
+      void fetchTrash()
+    } finally {
+      busyId = null
+      confirmEmpty = false
     }
   }
 
@@ -117,54 +119,62 @@
 {:else if !isAdmin}
   <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังนำกลับ…</div>
 {:else}
-  <section class="mx-auto max-w-xl px-3 pb-8 pt-6 sm:px-4">
-    <h1 class="sr-only">ถังขยะ</h1>
-    <div class="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
-      <span>{loading ? 'กำลังโหลด…' : `${items.length} รายการ`}</span>
-      <span class="font-mono opacity-60">↑↓ เลือก · Enter กู้คืน</span>
-    </div>
-    {#if error}
-      <p role="alert" class="mt-4 rounded-xl border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</p>
-    {/if}
-
-    <div role="list" aria-label="รายการถังขยะ" class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-      {#if loading}
-        <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดถังขยะ…</div>
-      {:else if items.length === 0 && !error}
-        <div class="p-8 text-center text-sm opacity-50">ถังขยะว่าง</div>
-      {:else}
-        {#each items as item, index (item.id)}
-          {@const active = index === focused}
-          <div role="listitem" onmouseenter={() => (focused = index)} class="flex items-center {active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/50'} border-b border-border/30 last:border-b-0">
-            <button
-              bind:this={rowEls[index]}
-              type="button"
-              onfocus={() => (focused = index)}
-              onkeydown={(event) => onRowKeyDown(event, index)}
-              onclick={() => void restore(item.id)}
-              class="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left"
-              aria-label={`กู้คืน ${item.shopName[0] || item.name[0] || item.id}`}
-            >
-              {#if item.images[0]}
-                <AppImage src={item.images[0]} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-cover border border-border" />
-              {:else}
-                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-mono {active ? 'bg-background text-foreground' : 'bg-muted text-muted-foreground'}">{(item.shopName[0] || item.name[0] || '·').trim().charAt(0).toUpperCase()}</span>
-              {/if}
-              <span class="min-w-0 flex-1">
-                <ClientNames client={item} variant="list" titleClassName="text-sm truncate {active ? 'text-primary-foreground' : 'text-foreground'}" subClassName="text-xs truncate {active ? 'text-primary-foreground/60' : 'opacity-60'}" />
-                <span class="font-mono text-[10px] {active ? 'text-primary-foreground/50' : 'opacity-30'}">ลบเมื่อ {formatDateTime(item.deletedAt)}</span>
-              </span>
-            </button>
-            <div class="flex shrink-0 items-center gap-1 pr-3">
-              <button type="button" disabled={busyId === item.id} onclick={() => void restore(item.id)} class="min-h-11 rounded-full px-3 text-xs disabled:opacity-50 {active ? 'bg-background text-foreground' : 'border border-border bg-card hover:bg-muted'}">กู้คืน</button>
-              <button type="button" disabled={busyId === item.id} onclick={() => (confirm = item)} aria-label={`ลบ ${item.shopName[0] || item.name[0] || item.id} ถาวร`} class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-[13px] font-bold leading-none transition-colors disabled:opacity-50 {active ? 'border-destructive bg-destructive text-destructive-foreground' : 'border-destructive/30 bg-destructive/10 text-destructive hover:border-destructive hover:bg-destructive hover:text-destructive-foreground'}">×</button>
-            </div>
-          </div>
-        {/each}
+  <div class="scroll-thin mx-auto h-full max-w-xl overflow-y-auto px-3 pb-28 pt-4 sm:px-4">
+    <div class="mb-3 flex items-center justify-between gap-2">
+      <div>
+        <h1 class="font-display text-lg font-semibold">ถังขยะ</h1>
+        <p class="text-[11px] text-muted-foreground">
+          ระเบียนที่ลบจะถูกเก็บไว้ 30 วันก่อนถูกลบถาวรอัตโนมัติ
+        </p>
+      </div>
+      {#if items.length > 0}
+        <button type="button" onclick={() => (confirmEmpty = true)} disabled={busyId !== null} class="inline-flex min-h-9 items-center gap-1 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/20 disabled:opacity-50">
+          ล้างทั้งหมด
+        </button>
       {/if}
     </div>
 
-    <AppDialog open={confirm !== null} onClose={() => { if (!busyId) confirm = null }} title="ลบถาวร" showHeader>
+    {#if error}
+      <p role="alert" class="mt-2 rounded-xl border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</p>
+    {/if}
+
+    {#if loading}
+      <div class="mt-4 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดถังขยะ…</div>
+    {:else if items.length === 0 && !error}
+      <div class="mt-4 rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">ถังขยะว่างเปล่า</div>
+    {:else}
+      <div class="space-y-2">
+        {#each items as item, index (item.id)}
+          {@const active = index === focused}
+          <div class="rounded-2xl border border-border bg-card flex items-center gap-3 p-2.5 {active ? 'ring-1 ring-primary' : ''}" onmouseenter={() => (focused = index)} role="listitem">
+            {#if item.images[0]}
+              <AppImage src={item.images[0]} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-lg object-cover border border-border" />
+            {:else}
+              <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground font-mono text-xs">
+                {(item.shopName[0] || item.name[0] || '·').trim().charAt(0).toUpperCase()}
+              </span>
+            {/if}
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-medium">{item.shopName[0] || item.name[0] || item.id}</p>
+              <p class="truncate text-[11px] text-muted-foreground">
+                {item.name[0] || ''} · <span class="font-mono">{item.id}</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground/80">
+                ลบเมื่อ {since(item.deletedAt)}
+              </p>
+            </div>
+            <button type="button" disabled={busyId === item.id} onclick={() => void restore(item.id)} class="inline-flex min-h-9 items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs hover:bg-muted disabled:opacity-50">
+              กู้คืน
+            </button>
+            <button type="button" disabled={busyId === item.id} onclick={() => (confirm = item)} aria-label="ลบ {item.shopName[0] || item.name[0] || item.id} ถาวร" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 disabled:opacity-50">
+              ×
+            </button>
+          </div>
+        {/each}
+      </div>
+    {/if}
+
+    <AppDialog open={confirm !== null} onClose={() => { if (!busyId) confirm = null }} title="ลบถาวร">
       {#if confirm}
         <div class="p-6">
           <p class="mt-2 text-sm text-muted-foreground">“{confirm.shopName[0] || confirm.name[0] || confirm.id.slice(0, 8)}” จะหายถาวร และไม่สามารถกู้คืนได้</p>
@@ -175,5 +185,15 @@
         </div>
       {/if}
     </AppDialog>
-  </section>
+
+    <AppDialog open={confirmEmpty} onClose={() => { if (busyId === null) confirmEmpty = false }} title="ล้างถังขยะทั้งหมด?">
+      <div class="p-6">
+        <p class="mt-2 text-sm text-muted-foreground">การลบถาวรไม่สามารถย้อนกลับได้ ไฟล์รูปใน R2 ที่ผูกกับระเบียนเหล่านี้จะถูกลบไปด้วย</p>
+        <div class="mt-6 flex justify-end gap-2">
+          <button type="button" onclick={() => (confirmEmpty = false)} disabled={busyId !== null} class="min-h-11 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted disabled:opacity-50">ยกเลิก</button>
+          <button type="button" disabled={busyId !== null} onclick={() => void emptyTrash()} class="min-h-11 rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground disabled:opacity-50">{busyId === '__empty__' ? 'กำลังลบ…' : `ลบถาวร ${items.length} รายการ`}</button>
+        </div>
+      </div>
+    </AppDialog>
+  </div>
 {/if}
