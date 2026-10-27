@@ -37,7 +37,7 @@
   --sidebar-accent-foreground: #1a2733;
   --sidebar-border: #c5d0dc;
   --sidebar-ring: #1a5fb4;
-  --radius: 0.4rem;
+  --radius: 0.625rem;
   --pin-color: #1a5fb4;
   --theme-font-display: Noto Sans Thai, monospace;
   --theme-font-body: Noto Sans Thai, monospace;
@@ -76,7 +76,7 @@
   --sidebar-accent-foreground: #dce6f0;
   --sidebar-border: #2e3e4e;
   --sidebar-ring: #5b9bf0;
-  --radius: 0.4rem;
+  --radius: 0.625rem;
   --pin-color: #5b9bf0;
   --theme-font-display: Noto Sans Thai, monospace;
   --theme-font-body: Noto Sans Thai, monospace;
