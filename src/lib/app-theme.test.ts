@@ -13,8 +13,9 @@ import {
 describe('shared app theme mode', () => {
   it('keeps a unique registry for the app', () => {
     expect(new Set(themes.map(theme => theme.id)).size).toBe(themes.length)
-    expect(themes.map(theme => theme.id)).toContain('portal')
-    expect(themes.map(theme => theme.id)).toContain('mcky')
+    for (const id of ['ledger', 'claude', 'blueprint', 'mono', 'lotus', 'terminal']) {
+      expect(themes.map(theme => theme.id)).toContain(id)
+    }
     expect(getTheme('custom').modes).toEqual(['light', 'dark'])
   })
 
@@ -33,14 +34,11 @@ describe('shared app theme mode', () => {
 
   it('buckets by supported mode, not by a hand-assigned field', () => {
     const bucket = (id: string) => themeGroups.find(group => group.matches(getTheme(id)))?.id
-    expect(bucket('mcky')).toBe('light')
-    expect(bucket('crt')).toBe('dark')
-    expect(bucket('portal')).toBe('dual')
-    // bubblegum and slate are dual-mode but carry no explicit `modes` until
-    // they were declared as such, so this also guards that declaration.
-    expect(getTheme('bubblegum').modes).toEqual(['light', 'dark'])
-    expect(bucket('bubblegum')).toBe('dual')
-    expect(bucket('slate')).toBe('dual')
+    // All 6 adopted themes are dual-mode.
+    for (const id of ['ledger', 'claude', 'blueprint', 'mono', 'lotus', 'terminal']) {
+      expect(bucket(id)).toBe('dual')
+      expect(getTheme(id).modes).toEqual(['light', 'dark'])
+    }
   })
 
   it('normalizes the legacy system value to auto', () => {
@@ -50,9 +48,9 @@ describe('shared app theme mode', () => {
   })
 
   it('resolves auto from the operating system for dual themes', () => {
-    const portal = getTheme('portal')
-    expect(resolveThemeMode(portal, 'auto', false)).toBe('light')
-    expect(resolveThemeMode(portal, 'auto', true)).toBe('dark')
+    const ledger = getTheme('ledger')
+    expect(resolveThemeMode(ledger, 'auto', false)).toBe('light')
+    expect(resolveThemeMode(ledger, 'auto', true)).toBe('dark')
   })
 
   it('normalizes custom colors and derives readable accent text', () => {
@@ -73,12 +71,11 @@ describe('shared app theme mode', () => {
     expect(hasReadableForeground('#2563eb')).toBe(true)
   })
 
-  it('forces single-mode themes while retaining support metadata', () => {
-    const lightOnly = getTheme('mcky')
-    const darkOnly = getTheme('crt')
-    expect(themeSupportsMode(lightOnly, 'light')).toBe(true)
-    expect(themeSupportsMode(lightOnly, 'dark')).toBe(false)
-    expect(resolveThemeMode(lightOnly, 'dark', false)).toBe('light')
-    expect(resolveThemeMode(darkOnly, 'light', false)).toBe('dark')
+  it('custom theme is dual-mode and supports both modes', () => {
+    const custom = getTheme('custom')
+    expect(themeSupportsMode(custom, 'light')).toBe(true)
+    expect(themeSupportsMode(custom, 'dark')).toBe(true)
+    expect(resolveThemeMode(custom, 'light', false)).toBe('light')
+    expect(resolveThemeMode(custom, 'dark', false)).toBe('dark')
   })
 })

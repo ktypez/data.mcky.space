@@ -38,21 +38,13 @@
       // dark-only flag). Fonts load lazily via ThemeInjector, not here.
       (function () {
         var THEMES = {
-          'duo-mono': { css: '/themes/duo-mono.css', dark: false },
-          bubblegum: { css: '/themes/bubblegum.css', dark: false },
-          slate: { css: '/themes/slate.css', dark: false },
-          glitchpage: { css: '/themes/glitchpage.css', dark: true },
-          crt: { css: '/themes/crt.css', dark: true },
-          claude: { css: '/themes/claude.css', dark: false },
-          rack: { css: '/themes/rack.css', dark: true },
-          noc: { css: '/themes/noc.css', dark: true },
-          min: { css: '/themes/min.css', dark: false, light: true },
-          brut: { css: '/themes/brut.css', dark: false, light: true },
-          mcky: { css: '/themes/mcky.css', dark: false, light: true },
-          blueprint: { css: '/themes/blueprint.css', dark: false },
-          noir: { css: '/themes/noir.css', dark: false },
-          portal: { css: '/themes/portal.css', dark: false },
-          custom: { css: '/themes/custom.css', dark: false },
+          'ledger': { css: '/themes/ledger.css', dark: false },
+          'claude': { css: '/themes/claude.css', dark: false },
+          'blueprint': { css: '/themes/blueprint.css', dark: false },
+          'mono': { css: '/themes/mono.css', dark: false },
+          'lotus': { css: '/themes/lotus.css', dark: false },
+          'terminal': { css: '/themes/terminal.css', dark: false },
+          'custom': { css: '/themes/custom.css', dark: false },
         };
         var id = null;
         try {
@@ -62,27 +54,9 @@
             if (data && data.state && typeof data.state.theme === 'string') id = data.state.theme;
           }
         } catch (e) {}
-        // One-time migration: users who still have the old 'claude' default
-        // get switched to 'portal' once, then we stamp a flag so future
-        // visits respect whatever they pick next.
-        var MIG_KEY = 'theme-migrated-to-portal-v1';
-        try {
-          if (id === 'claude' && !localStorage.getItem(MIG_KEY)) {
-            id = 'portal';
-            try {
-              var raw2 = localStorage.getItem('data-ledger-ui');
-              if (raw2) {
-                var data2 = JSON.parse(raw2);
-                if (data2 && data2.state) {
-                  data2.state.theme = 'portal';
-                  localStorage.setItem('data-ledger-ui', JSON.stringify(data2));
-                }
-              }
-            } catch (e) {}
-            try { localStorage.setItem(MIG_KEY, '1'); } catch (e) {}
-          }
-        } catch (e) {}
-        if (!THEMES[id]) id = 'duo-mono'; // invalid/stale id → default theme
+        // No legacy migration — the 6 adopted themes are all fresh; any stale
+        // saved id falls through to the Ledger default below.
+        if (!THEMES[id]) id = 'ledger'; // invalid/stale id → default theme
         var t = THEMES[id];
         var root = document.documentElement;
         root.setAttribute('data-theme', id);
