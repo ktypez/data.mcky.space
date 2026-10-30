@@ -45,9 +45,9 @@ The browser must never call the Worker directly for privileged operations and mu
 
 - Use tiny.caller.id as the identity key. Never accept a caller ID from browser input as proof of identity.
 - Store allowlist records in the Tiniest app's shared data scope, under a dedicated prefix such as bridge:allowlist:<caller-id>.
-- The allowlist is read and changed only by backend functions. Add tiny.rules.json rules so browser users cannot write the allowlist prefix directly; function-only writes are required.
+- The allowlist is read and changed only by backend functions. Reserve the bridge:allowlist: prefix with tiny.rules.json so only the function role can read/write it. Set the default rule to deny browser reads/writes to shared app data unless a later UI feature explicitly needs a narrowly scoped prefix. The platform documents function-only writes as a special server role.
 - The app must use shared data mode for one common allowlist. Do not use private mode for this record.
-- Bootstrap/management must be owner-only. Before implementation, verify the platform's exact tiny.caller.roles contract and owner identity semantics. Do not guess role strings. If a reliable owner claim is unavailable, use a one-time owner-ID bootstrap in code/config, then remove the bootstrap path after seeding.
+- Tiniest Cloud documents caller roles as owner, admin, member, and user (plus guest for eligible visitors). The owner-only allowlist management function must require tiny.caller.roles to include owner; do not infer owner status from email or browser input. Verify this claim with a live test before enabling management.
 - Deny by default: missing caller, missing allowlist record, malformed identity, or failed lookup all reject.
 - Email may be displayed for administration, but it is not the authorization key.
 
@@ -97,12 +97,24 @@ Do not implement all legacy endpoints automatically. Build the minimum surface n
 5. Record baseline: root/API typecheck, unit tests, build, and API smoke tests.
 
 ### Phase 1 — Threat model and contracts
-1. Confirm Tiniest caller ID and role semantics from current platform docs/tests.
+1. Verify tiny.caller.id stability and the documented owner role with a live test call; the current guide documents owner/admin/member/user/guest roles.
 2. Define allowlist roles: reader, writer, admin; default deny.
 3. Define request/response schemas and field-level exposure for each MVP operation.
 4. Decide whether reader access may include addresses, coordinates, notes, and image URLs. Default to minimum necessary fields.
 5. Define rate limits, payload limits, audit fields, error codes, and secret rotation.
 6. Add tests for all allowlist and role boundaries before wiring the UI.
+
+Proposed rules baseline (adjust only after validating the exact app data needs):
+
+    {
+      "version": 1,
+      "rules": [
+        { "prefix": "bridge:allowlist:", "read": ["function"], "write": ["function"] }
+      ],
+      "default": { "read": [], "write": [] }
+    }
+
+This intentionally prevents browser code from inspecting or mutating the shared allowlist. Backend functions still enforce per-caller authorization before every operation.
 
 ### Phase 2 — Additive Worker Bridge
 1. Add Bridge token validation isolated from Clerk auth.
