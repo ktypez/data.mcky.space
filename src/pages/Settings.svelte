@@ -86,7 +86,7 @@
     <section class="rounded-2xl border border-border bg-card p-4">
       <div class="mb-2 flex items-center justify-between gap-3">
         <h2 class="text-sm font-semibold">แอปและบัญชี</h2>
-        <span class="font-mono text-[10px] uppercase text-muted-foreground">DATA Ledger · V3</span>
+        <span class="font-mono text-[10px] uppercase text-muted-foreground">DATA Ledger · V4</span>
       </div>
       <div class="space-y-1">
         <button type="button" onclick={() => (pwa.isIOS ? undefined : (pwa.canInstall ? void pwa.install() : undefined))} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><DownloadSimple size={18} aria-hidden /> ติดตั้งแอป{#if pwa.isIOS}<span class="ml-auto text-xs text-muted-foreground">ใช้เมนู Share ใน Safari</span>{:else if !pwa.canInstall}<span class="ml-auto text-xs text-muted-foreground">เปิดใน Chrome/Edge เพื่อติดตั้ง</span>{/if}</button>

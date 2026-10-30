@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import Router, { router, link, push } from 'svelte-spa-router'
 import wrap from 'svelte-spa-router/wrap'
-  import { House, Plus, Gear, MapTrifold, Trash, Database, Sun, Moon, LockKey } from 'phosphor-svelte'
+  import { House, Plus, Gear, MapTrifold, Trash, Sun, Moon, LockKey } from 'phosphor-svelte'
   import { useAuthStore } from '@/stores/auth-store'
   import { useClientStore } from '@/stores/client-store'
   import { useFilterStore } from '@/stores/filter-store'
@@ -108,13 +108,11 @@ import wrap from 'svelte-spa-router/wrap'
   <div class="ledger-shell" data-mode={theme.resolvedMode}>
     <a href="#ledger-main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-card focus:px-4 focus:py-3 focus:text-foreground">ข้ามไปเนื้อหา</a>
     <header class="ledger-header relative z-40 shrink-0 border-b border-border bg-card/85 backdrop-blur">
-      <div class="mx-auto flex h-14 max-w-3xl items-center gap-2 px-3 sm:px-4">
+      <div class="mx-auto flex min-h-16 max-w-6xl items-center gap-2 px-3 sm:px-8">
         <a href="/" use:link onclick={guardNavigation} aria-label="DATA Ledger หน้าแรก" class="flex items-center gap-2">
-          <span class="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground"><Database size={17} aria-hidden /></span>
-          <span class="leading-none">
-            <span class="font-display block text-sm font-semibold tracking-tight">DATA Ledger</span>
-            <span class="block font-mono text-[10px] text-muted-foreground">data.mcky.space · V3</span>
-          </span>
+          <span class="ledger-wordmark">DATA</span>
+          <span class="font-mono text-xs text-muted-foreground">/ ledger</span>
+          <span class="rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">V4</span>
         </a>
         <nav class="ml-4 hidden items-center gap-1 sm:flex" aria-label="เมนูหลัก">
           {#each navItems as item}
@@ -123,13 +121,13 @@ import wrap from 'svelte-spa-router/wrap'
         </nav>
         <div class="ml-auto flex items-center gap-1.5">
           {#if isAdmin}
-            <a href="/add" use:link onclick={guardNavigation} class="ledger-top-add hidden sm:inline-flex"><Plus weight="bold" size={14} aria-hidden /> เพิ่มรายการ</a>
+            <a href="/add" use:link onclick={guardNavigation} class="ledger-top-add hidden sm:inline-flex"><Plus weight="bold" size={14} aria-hidden /> เพิ่มลูกค้า</a>
           {/if}
-          <button type="button" onclick={() => setMode(isDark ? 'light' : 'dark')} aria-label={isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'} class="grid size-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground">
+          <button type="button" onclick={() => setMode(isDark ? 'light' : 'dark')} aria-label={isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'} class="grid size-11 place-items-center rounded-[10px] border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
             {#if isDark}<Sun size={17} aria-hidden />{:else}<Moon size={17} aria-hidden />{/if}
           </button>
           {#if !isAdmin && !signedIn}
-            <a href="/login" use:link aria-label="เข้าสู่ระบบผู้ดูแล" class="grid size-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"><LockKey size={17} aria-hidden /></a>
+            <a href="/login" use:link aria-label="เข้าสู่ระบบผู้ดูแล" class="grid size-11 place-items-center rounded-[10px] border border-border text-muted-foreground hover:bg-muted hover:text-foreground"><LockKey size={17} aria-hidden /></a>
           {:else if isAdmin}
             <span class="hidden rounded-full bg-primary/10 px-2.5 py-1 text-[10px] text-primary sm:block">admin</span>
           {/if}

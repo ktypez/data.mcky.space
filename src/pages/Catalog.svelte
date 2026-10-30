@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Funnel, MagnifyingGlass, X, ArrowsClockwise } from 'phosphor-svelte'
+  import { MagnifyingGlass, X, ArrowsClockwise } from 'phosphor-svelte'
   import { push } from 'svelte-spa-router'
   import { createVirtualizer } from '@tanstack/svelte-virtual'
   import { useClientStore } from '@/stores/client-store'
@@ -8,7 +8,10 @@
   import { applyCounts, applyFilter, sortByCreatedDesc } from '@/lib/filter'
   import { get } from 'svelte/store'
   import { trackField } from '@/lib/restore-field'
-  import AppDialog from '@/components/AppDialog.svelte'
+  import ClientNames from '@/components/ClientNames.svelte'
+  import { clientTitleValues } from '@/lib/clientNames'
+  import { useAuthStore } from '@/stores/auth-store'
+  import { formatDate } from '@/lib/utils'
   import CatalogRow from '@/components/CatalogRow.svelte'
 
   let clients = $derived($useClientStore.clients)
@@ -31,7 +34,8 @@
   })
 
   let focused = $state(0)
-  let filterOpen = $state(false)
+  let isAdmin = $derived($useAuthStore.isAdmin)
+  let current = $derived(filtered[focused])
   const readSearch = () => search
 
   $effect(() => {
@@ -109,11 +113,17 @@
   }
 </script>
 
-<div class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-3 pt-5 sm:px-4">
-    <h1 class="sr-only">รายการลูกค้า</h1>
+<div class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pt-5 sm:px-8 sm:pt-6">
+    <div class="flex shrink-0 items-end justify-between gap-3 pb-3">
+      <div>
+        <p class="ledger-eyebrow">แคตตาล็อก</p>
+        <h1 class="text-[clamp(22px,6vw,28px)] font-bold tracking-tight">รายการลูกค้า</h1>
+      </div>
+      <p class="font-mono text-xs text-muted-foreground" role="status">{counts.total.toLocaleString('th-TH')} รายการ</p>
+    </div>
     <div class="flex shrink-0 gap-2">
       <div class="relative min-w-0 flex-1">
-        <MagnifyingGlass class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
+        <MagnifyingGlass class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" aria-hidden />
         <input
           use:trackField={readSearch}
           value={search}
@@ -127,85 +137,56 @@
           name="q"
           autocomplete="off"
           spellcheck="false"
-          class="h-12 w-full rounded-xl border border-border bg-card pl-10 pr-10 text-sm shadow-sm outline-none placeholder:text-muted-foreground/70 focus:border-foreground/20 focus:ring-4 focus:ring-foreground/5"
+          class="h-12 w-full rounded-xl border border-border bg-card pl-10 pr-10 text-sm outline-none placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20"
         />
         {#if search}
-          <button
-            type="button"
-            onclick={() => {
-              setSearch('')
-              focused = 0
-            }}
-            class="absolute right-0 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
-            aria-label="ล้างการค้นหา"
-          >
+          <button type="button" onclick={() => { setSearch(''); focused = 0 }} class="absolute right-0 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground" aria-label="ล้างการค้นหา">
             <X class="h-3.5 w-3.5" weight="bold" aria-hidden />
           </button>
         {:else}
-          <span class="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-primary px-2.5 py-1 font-mono text-[10px] text-primary-foreground md:block">⌘K</span>
+          <kbd class="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground md:block">⌘K</kbd>
         {/if}
       </div>
-      <button
-        type="button"
-        onclick={handleRefresh}
-        disabled={refreshing}
-        aria-label="รีเฟรชรายการ"
-        class="grid size-12 shrink-0 place-items-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
-      >
-        <ArrowsClockwise class="h-5 w-5" weight="bold" aria-hidden />
-      </button>
-      <button
-        type="button"
-        onclick={() => (filterOpen = true)}
-        aria-label={filter === FilterKey.All ? 'ตัวกรองรายการ' : `ตัวกรองรายการ: ${FILTER_LABELS[filter]}`}
-        aria-expanded={filterOpen}
-        aria-haspopup="dialog"
-        class="relative grid size-12 shrink-0 place-items-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground {filter === FilterKey.All ? '' : '!border-primary/40 !text-primary'}"
-      >
-        <Funnel class="h-5 w-5" weight={filter === FilterKey.All ? 'regular' : 'fill'} aria-hidden />
-        {#if filter !== FilterKey.All}
-          <span class="absolute right-2 top-2 size-1.5 rounded-full bg-primary" aria-hidden="true"></span>
-        {/if}
+      <button type="button" onclick={handleRefresh} disabled={refreshing} aria-label="รีเฟรชรายการ" class="grid size-12 shrink-0 place-items-center rounded-xl border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50">
+        <ArrowsClockwise class="h-5 w-5 {refreshing ? 'animate-spin' : ''}" weight="bold" aria-hidden />
       </button>
     </div>
 
-    <AppDialog open={filterOpen} onClose={() => (filterOpen = false)} title="ตัวกรองรายการ">
-      <div class="flex flex-col gap-1 p-4">
-        {#each FILTER_CHOICES as choice}
-          <button
-            type="button"
-            onclick={() => {
-              setFilter(choice.key)
-              focused = 0
-              filterOpen = false
-            }}
-            aria-pressed={filter === choice.key}
-            class="flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-left text-sm transition-colors {filter === choice.key ? 'bg-primary/12 font-medium text-primary' : 'text-foreground hover:bg-muted'}"
-          >
-            <span>{FILTER_LABELS[choice.key]}</span>
-            <span class="font-mono text-xs opacity-60">{choice.count()}</span>
-          </button>
-        {/each}
-      </div>
-    </AppDialog>
+    <div class="-mx-3 mt-3 flex shrink-0 gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:px-0" role="group" aria-label="ตัวกรองรายการ">
+      {#each FILTER_CHOICES as choice}
+        <button
+          type="button"
+          onclick={() => { setFilter(choice.key); focused = 0 }}
+          aria-pressed={filter === choice.key}
+          class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors {filter === choice.key ? 'border-foreground bg-foreground text-background' : 'border-border text-foreground hover:bg-muted'}"
+        >
+          {FILTER_LABELS[choice.key]}
+          <span class="font-mono text-xs opacity-80">{choice.count()}</span>
+        </button>
+      {/each}
+    </div>
 
     {#if offline}
-      <p class="mt-3 shrink-0 rounded-xl border border-border bg-muted px-3 py-2 text-center text-xs text-muted-foreground" role="status">อยู่ออฟไลน์ — กำลังแสดงข้อมูลที่บันทึกไว้</p>
+      <p class="mt-3 shrink-0 rounded-[10px] border border-border bg-muted px-3 py-2 text-center text-xs text-muted-foreground" role="status">อยู่ออฟไลน์ — กำลังแสดงข้อมูลที่บันทึกไว้</p>
     {/if}
     {#if error && filtered.length === 0}
-      <div class="mt-3 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+      <div class="mt-3 flex shrink-0 items-center justify-between gap-3 rounded-[10px] border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
         <span>โหลดรายการไม่สำเร็จ</span>
         <button type="button" onclick={retry} class="shrink-0 rounded-full border border-destructive/40 px-3 py-1.5 text-xs hover:bg-destructive/10">ลองใหม่</button>
       </div>
     {/if}
 
-    <div class="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <div class="mt-4 grid min-h-0 flex-1 gap-5 pb-3 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-card">
+      <div class="ledger-colhead hidden shrink-0 items-center gap-3 border-b border-border px-5 py-2.5 sm:flex" aria-hidden="true">
+        <span class="w-11">รูป</span><span class="flex-1">ลูกค้า</span><span class="w-[72px]">ชำระ</span><span class="w-12">มี</span><span class="hidden w-24 text-right md:block">อัปเดต</span><span class="w-11"></span>
+      </div>
       {#if loading && filtered.length === 0}
         <div class="flex h-full items-center justify-center p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดรายการ…</div>
       {:else if filtered.length === 0}
-        <div class="flex h-full items-center justify-center p-8 text-center text-sm opacity-50">{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ — ลองล้างการค้นหาหรือเปลี่ยนตัวกรอง'}</div>
+        <div class="flex h-full items-center justify-center p-8 text-center text-sm text-muted-foreground">{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ — ลองล้างการค้นหาหรือเปลี่ยนตัวกรอง'}</div>
       {:else}
-        <div bind:this={parentRef} class="h-full overflow-auto overscroll-contain">
+        <div bind:this={parentRef} class="min-h-0 flex-1 overflow-auto overscroll-contain">
           <div style="height: {$vstore?.getTotalSize() ?? 0}px; position: relative;">
             {#each $vstore?.getVirtualItems() ?? [] as vi (filtered[vi.index]?.id ?? vi.index)}
               {@const c = filtered[vi.index]}
@@ -227,5 +208,35 @@
           </div>
         </div>
       {/if}
+      <div class="flex shrink-0 items-center justify-between gap-3 border-t border-border px-5 py-2.5 text-xs text-muted-foreground">
+        <span>แสดง {filtered.length.toLocaleString('th-TH')} จาก {counts.total.toLocaleString('th-TH')} รายการ</span>
+        <span class="hidden font-mono sm:block">↑ ↓ เลือก · Enter เปิด</span>
+      </div>
+    </div>
+
+    <aside class="hidden min-h-0 flex-col gap-4 overflow-auto rounded-2xl border border-border bg-card p-5 lg:flex" aria-label="ตัวอย่างระเบียน">
+      {#if current}
+        <div class="flex items-center gap-3">
+          <span aria-hidden="true" class="flex size-14 shrink-0 items-center justify-center rounded-[14px] bg-muted text-xl font-bold text-primary">{(clientTitleValues(current)[0] ?? '?').trim().charAt(0).toUpperCase() || '?'}</span>
+          <div class="min-w-0">
+            <ClientNames client={current} variant="list" titleClassName="truncate text-base font-bold" subClassName="truncate text-sm text-muted-foreground" />
+          </div>
+        </div>
+        <dl class="space-y-3 text-sm">
+          <div><dt class="ledger-eyebrow">ID</dt><dd class="mt-1 break-all font-mono text-xs">{current.id}</dd></div>
+          <div><dt class="ledger-eyebrow">ประเภทชำระ</dt><dd class="mt-1">{current.badge === 'credit' ? 'บัตรเครดิต' : current.badge === 'penpay' ? 'จ่ายในวัน' : '—'}</dd></div>
+          <div><dt class="ledger-eyebrow">โน้ต</dt><dd class="mt-1">{current.hasNotes || current.notes?.trim() ? 'มีโน้ต' : 'ยังไม่มีโน้ต'}</dd></div>
+          <div><dt class="ledger-eyebrow">อัปเดตล่าสุด</dt><dd class="mt-1 font-mono text-xs">{formatDate(current.updatedAt)}</dd></div>
+        </dl>
+        <div class="mt-auto flex flex-col gap-2">
+          <button type="button" onclick={() => push(`/c/${encodeURIComponent(current.id)}`)} class="min-h-11 rounded-[10px] bg-primary px-4 text-sm font-semibold text-primary-foreground">เปิดระเบียน</button>
+          {#if isAdmin}
+            <button type="button" onclick={() => push(`/edit/${encodeURIComponent(current.id)}`)} class="min-h-11 rounded-[10px] border border-border px-4 text-sm font-medium hover:bg-muted">แก้ไข</button>
+          {/if}
+        </div>
+      {:else}
+        <p class="m-auto text-center text-sm text-muted-foreground">เลือกรายการเพื่อดูตัวอย่าง</p>
+      {/if}
+    </aside>
     </div>
   </div>
