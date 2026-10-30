@@ -66,12 +66,12 @@ const CSS_VARS = (p, fonts) => [
 const THEMES = [
   {
     id: 'ledger',
-    label: 'Ledger',
-    description: 'Cream ledger with a forest-green primary — the prototype default.',
-    fonts: { display: 'Noto Sans Thai, sans-serif', body: 'Noto Sans Thai, sans-serif', mono: SYSTEM_MONO },
-    fontUrl: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap',
-    light: { bg: '#f6f6f4', fg: '#2a2a2a', card: '#ffffff', border: '#d8d8d4', muted: '#ececea', mutedFg: '#6b6b69', primary: '#1f6f54', primaryFg: '#ffffff', destructive: '#c0392b', accent: '#e07a3f' },
-    dark:  { bg: '#1a1a1a', fg: '#e8e8e6', card: '#262626', border: '#3a3a3a', muted: '#2e2e2e', mutedFg: '#a0a09e', primary: '#4ecb8f', primaryFg: '#12231d', destructive: '#e74c3c', accent: '#f0a868' },
+    label: 'Ledger V4',
+    description: 'Ruled paper ledger with a deep teal primary — the V4 default.',
+    fonts: { display: "'Instrument Sans', 'Noto Sans Thai', system-ui, sans-serif", body: "'Instrument Sans', 'Noto Sans Thai', system-ui, sans-serif", mono: JETBRAINS },
+    fontUrl: 'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Noto+Sans+Thai&family=JetBrains+Mono:wght@400;500;700&display=swap',
+    light: { bg: '#f3f2ee', fg: '#17191a', card: '#ffffff', border: '#dad8d0', muted: '#e3f0ed', mutedFg: '#5e625f', primary: '#0b6b63', primaryFg: '#ffffff', destructive: '#b3261e', accent: '#7a4a05' },
+    dark:  { bg: '#0d1011', fg: '#ecefee', card: '#151a1b', border: '#283031', muted: '#12302d', mutedFg: '#98a3a1', primary: '#4fd1c0', primaryFg: '#07201c', destructive: '#ff8a80', accent: '#f0c27a' },
   },
   {
     id: 'claude',

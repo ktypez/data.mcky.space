@@ -161,7 +161,7 @@
 </script>
 
 {#snippet shell(children: import('svelte').Snippet)}
-  <div class="mx-auto w-full max-w-2xl px-3 pb-4 pt-6 sm:px-4">{@render children()}</div>
+  <div class="mx-auto w-full max-w-5xl px-3 pb-6 pt-6 sm:px-8">{@render children()}</div>
 {/snippet}
 
 {#if loadedId !== id || (loading && !client)}
@@ -190,47 +190,52 @@
     ['อัปเดต', formatDate(client!.updatedAt)],
   ]}
   <div class="flex items-start justify-between gap-2">
-    <button type="button" onclick={() => push('/')} class="inline-flex min-h-11 items-center gap-1 rounded-md border border-border bg-card px-3 py-2 font-mono text-xs text-foreground hover:bg-muted"><ArrowLeft class="inline h-3 w-3" aria-hidden /> กลับ</button>
+    <button type="button" onclick={() => push('/')} class="inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"><ArrowLeft class="inline h-3 w-3" aria-hidden /> กลับ</button>
     <div class="flex items-center gap-1">
-      <button type="button" onclick={() => void copyLink()} class="inline-flex min-h-11 items-center gap-1 rounded-md border border-border bg-card px-3 py-2 font-mono text-xs text-foreground hover:bg-muted" aria-label="คัดลอกลิงก์">
+      <button type="button" onclick={() => void copyLink()} class="inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted" aria-label="คัดลอกลิงก์">
         {#if copiedLink}<Check weight="bold" class="inline h-3 w-3 text-success" aria-hidden /> คัดลอกแล้ว{:else}<LinkSimple class="inline h-3 w-3" aria-hidden /> ลิงก์{/if}
       </button>
       {#if isAdmin}
-        <button type="button" disabled={!canMutate} onclick={() => push(`/edit/${encodeURIComponent(client!.id)}`)} class="inline-flex min-h-11 items-center gap-1 rounded-md border border-border bg-card px-3 py-2 font-mono text-xs text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"><PencilSimple class="inline h-3 w-3" aria-hidden /> แก้ไข</button>
-        <button type="button" disabled={!canMutate} onclick={() => (confirm = true)} class="inline-flex min-h-11 items-center gap-1 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 font-mono text-xs text-destructive hover:bg-destructive/20 disabled:cursor-not-allowed disabled:opacity-50"><Trash class="inline h-3 w-3" aria-hidden /> ลบ</button>
+        <button type="button" disabled={!canMutate} onclick={() => push(`/edit/${encodeURIComponent(client!.id)}`)} class="inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"><PencilSimple class="inline h-3 w-3" aria-hidden /> แก้ไข</button>
+        <button type="button" disabled={!canMutate} onclick={() => (confirm = true)} class="inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-destructive px-4 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"><Trash class="inline h-3 w-3" aria-hidden /> ลบ</button>
       {/if}
     </div>
   </div>
 
   {#if refreshing || dataState !== 'live'}
-    <p class="mt-4 rounded-xl border border-border bg-muted px-4 py-3 text-sm text-muted-foreground" role="status">
+    <p class="mt-4 rounded-[10px] border border-border bg-muted px-4 py-3 text-sm text-muted-foreground" role="status">
       {refreshing ? 'กำลังตรวจสอบข้อมูลล่าสุด…' : (err ?? 'ข้อมูลนี้อาจไม่ใช่ข้อมูลล่าสุด')}
     </p>
   {/if}
   {#if err && dataState === 'live'}
-    <p role="alert" class="mt-4 rounded-xl border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{err}</p>
+    <p role="alert" class="mt-4 rounded-[10px] border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{err}</p>
   {/if}
 
-  <div class="mt-8 min-w-0">
-    <h1 class="sr-only">รายละเอียดรายการ</h1>
-    <div>
-      <ClientNames client={client!} variant="detail" titleClassName="text-lg font-semibold leading-tight break-words whitespace-normal [overflow-wrap:anywhere]" branchClassName="mt-1 text-sm opacity-60 break-words whitespace-normal [overflow-wrap:anywhere]" subClassName="mt-1 text-sm opacity-60 break-words whitespace-normal [overflow-wrap:anywhere]" />
-    </div>
-    <div class="mt-3 flex flex-wrap items-center gap-2">
-      {#if badgeLabel}
-        <span class="inline-flex rounded-full bg-secondary px-2.5 py-1 font-mono text-xs font-medium text-secondary-foreground ring-1 ring-border">{badgeLabel}</span>
-      {/if}
-      <button type="button" onclick={() => void copyAll()} class="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2 font-mono text-xs text-foreground hover:bg-muted"><Copy class="h-3 w-3" aria-hidden /> {copiedAll ? 'คัดลอกแล้ว' : 'คัดลอกข้อมูล'}</button>
+  <div class="mt-6 flex min-w-0 items-start gap-4">
+    <span aria-hidden="true" class="flex size-[72px] shrink-0 items-center justify-center rounded-[18px] bg-muted text-3xl font-bold text-primary">{(displayName || '?').trim().charAt(0).toUpperCase()}</span>
+    <div class="min-w-0 flex-1">
+      <h1 class="sr-only">รายละเอียดรายการ</h1>
+      <ClientNames client={client!} variant="detail" titleClassName="text-[clamp(22px,6vw,30px)] font-bold leading-tight tracking-tight break-words whitespace-normal [overflow-wrap:anywhere]" branchClassName="mt-1 text-sm text-muted-foreground break-words whitespace-normal [overflow-wrap:anywhere]" subClassName="mt-1 text-sm text-muted-foreground break-words whitespace-normal [overflow-wrap:anywhere]" />
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        {#if badgeLabel}
+          <span class="inline-flex rounded-full bg-muted px-3 py-1 text-xs font-semibold text-primary">{badgeLabel}</span>
+        {/if}
+        <span class="font-mono text-xs text-muted-foreground">#{client!.id.slice(0, 8)} · อัปเดต {formatDate(client!.updatedAt)}</span>
+        <button type="button" onclick={() => void copyAll()} class="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"><Copy class="h-3.5 w-3.5" aria-hidden /> {copiedAll ? 'คัดลอกแล้ว' : 'คัดลอกข้อมูล'}</button>
+      </div>
     </div>
   </div>
 
-  <div class="mt-6 overflow-hidden rounded-xl border border-border bg-card">
-    <table class="w-full border-collapse font-mono text-xs">
+  <div class="mt-6 grid items-start gap-5 lg:grid-cols-2">
+  <div class="min-w-0 space-y-5">
+  <div class="overflow-hidden rounded-2xl border border-border bg-card">
+    <p class="ledger-eyebrow border-b border-border px-4 py-3">รายละเอียด</p>
+    <table class="w-full border-collapse text-sm">
       <tbody>
         {#each rows as [key, value]}
           <tr class="border-b border-border last:border-0">
-            <th scope="row" class="w-28 bg-muted/50 px-3 py-2 text-left font-semibold uppercase opacity-60">{key}</th>
-            <td class="px-3 py-2 leading-5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{value}</td>
+            <th scope="row" class="ledger-colhead w-28 px-4 py-3 text-left align-top font-medium">{key}</th>
+            <td class="px-4 py-3 leading-6 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{value}</td>
           </tr>
         {/each}
       </tbody>
@@ -238,24 +243,26 @@
   </div>
 
   {#if client!.notes}
-    <div class="mt-4 rounded-xl border border-border bg-card p-5">
-      <p class="font-mono text-xs uppercase tracking-wide opacity-40">โน้ต</p>
-      <blockquote class="mt-2 whitespace-pre-wrap break-words border-l-2 border-foreground/20 pl-4 text-[15px] leading-7 [overflow-wrap:anywhere]">“{client!.notes}”</blockquote>
+    <div class="rounded-2xl border border-border bg-card p-5">
+      <p class="ledger-eyebrow">โน้ต</p>
+      <blockquote class="mt-3 max-w-[62ch] whitespace-pre-wrap break-words border-l-[3px] border-primary pl-4 text-[15px] leading-7 [overflow-wrap:anywhere]">“{client!.notes}”</blockquote>
     </div>
   {/if}
 
+  </div>
+  <div class="min-w-0 space-y-5">
   {#if coords}
-    <div class="mt-4 overflow-hidden rounded-xl border border-border bg-card">
+    <div class="overflow-hidden rounded-2xl border border-border bg-card">
       <div class="h-56 overflow-hidden"><MapPreviewDynamic lat={coords.lat} lng={coords.lng} /></div>
       <div class="flex items-center justify-between gap-3 px-4 py-2">
         <span class="font-mono text-xs opacity-50">{coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}</span>
-        <a href={getMapsUrl(coords.lat, coords.lng)} target="_blank" rel="noreferrer" class="min-h-11 py-3 font-mono text-xs underline opacity-70">เปิด Google Maps →</a>
+        <a href={getMapsUrl(coords.lat, coords.lng)} target="_blank" rel="noreferrer" class="min-h-11 py-3 text-sm font-medium text-primary underline">เปิด Google Maps →</a>
       </div>
     </div>
   {/if}
 
   {#if client!.images.length > 0}
-    <div class="mt-4 overflow-hidden rounded-xl border border-border bg-card">
+    <div class="overflow-hidden rounded-2xl border border-border bg-card">
       {#if client!.images.length === 1}
         <button type="button" onclick={() => (lightboxIdx = 0)} class="group aspect-square block w-full overflow-hidden">
           <AppImage src={client!.images[0]} alt="รูปที่ 1" className="h-full w-full object-cover transition-transform group-hover:scale-[1.01]" />
@@ -272,7 +279,10 @@
     </div>
   {/if}
 
-  <p class="mt-4 break-all font-mono text-[10px] uppercase opacity-30">record {client!.id} · created {formatDateTime(client!.createdAt)}</p>
+  </div>
+  </div>
+
+  <p class="mt-6 break-all font-mono text-[10px] uppercase text-muted-foreground">record {client!.id} · created {formatDateTime(client!.createdAt)}</p>
 
   <AppDialog open={lightboxIdx !== null} onClose={() => (lightboxIdx = null)} title="รูปภาพ" showHeader={false} variant="lightbox">
     {#if lightboxIdx !== null && client!.images[lightboxIdx]}
@@ -287,8 +297,8 @@
     <div class="p-6">
       <p class="mt-2 text-sm text-muted-foreground">“{displayName}” จะเข้าถังขยะ</p>
       <div class="mt-6 flex justify-end gap-2">
-        <button type="button" onclick={() => (confirm = false)} disabled={deleting} class="min-h-11 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted disabled:opacity-50">ยกเลิก</button>
-        <button type="button" disabled={deleting} onclick={() => void doDelete()} class="min-h-11 rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground disabled:opacity-50">{deleting ? 'กำลังลบ…' : 'ลบ'}</button>
+        <button type="button" onclick={() => (confirm = false)} disabled={deleting} class="min-h-11 rounded-[10px] border border-border px-4 py-2 text-sm hover:bg-muted disabled:opacity-50">ยกเลิก</button>
+        <button type="button" disabled={deleting} onclick={() => void doDelete()} class="min-h-11 rounded-[10px] bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground disabled:opacity-50">{deleting ? 'กำลังลบ…' : 'ลบ'}</button>
       </div>
     </div>
   </AppDialog>

@@ -30,15 +30,15 @@ describe('locked application viewport', () => {
   it('keeps navigation in flow and fits full-height pages to the main area', () => {
     expect(app).toContain('ledger-bottom-nav relative')
     expect(app).not.toContain('<footer')
-    expect(settings).toContain('DATA Ledger · V3')
+    expect(settings).toContain('DATA Ledger · V4')
     // The catalog is a full-height column with the card filling the rest.
-    expect(catalog).toContain('flex h-full max-w-xl flex-col')
-    expect(maps).toContain('flex h-full max-w-xl flex-col')
+    expect(catalog).toContain('flex h-full max-w-6xl flex-col')
+    expect(maps).toContain('flex h-full max-w-6xl flex-col')
   })
 
   it('keeps the search field and filter button as separate controls', () => {
     expect(catalog).toContain('name="q"')
-    expect(catalog).toContain('aria-haspopup="dialog"')
+    expect(catalog).toContain('aria-pressed={filter === choice.key}')
     expect(catalog).not.toContain('ledger-field')
     expect(catalog).not.toContain('รีเฟรชหน้า')
     // The nav is a full-width bar in flow with its own primary action.

@@ -94,13 +94,39 @@ html:has(.ledger-shell):root body {
   border-radius: calc(var(--radius) - 4px);
 }
 
-/* Proto Surface: a soft drop shadow gives the rounded-2xl cards lift off the
-   grain. Scoped to the shell's main cards only — list rows stay border-only so
-   the virtualized list keeps its crisp divider rhythm. */
+/* V4: flat ruled surfaces — 1px lines, no shadows. Cards are radius 14. */
 .ledger-shell .rounded-2xl {
-  box-shadow: 0 1px 2px 0 color-mix(in srgb, var(--foreground) 6%, transparent),
-    0 2px 6px -2px color-mix(in srgb, var(--foreground) 14%, transparent);
+  border-radius: 14px;
+  box-shadow: none;
 }
+.ledger-shell .shadow-sm,
+.ledger-shell .shadow-lg,
+.ledger-shell .shadow-md { box-shadow: none; }
+
+/* V4 type helpers */
+.ledger-eyebrow {
+  font-family: var(--theme-font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.ledger-colhead {
+  font-family: var(--theme-font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.ledger-wordmark {
+  font-family: var(--theme-font-mono, ui-monospace, monospace);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  font-size: 16px;
+}
+/* Active row: soft fill + 3px primary edge (V4 selected row). */
+.ledger-row-active { background: var(--muted); box-shadow: inset 3px 0 0 var(--primary); }
 
 /* Press feedback — scale near 0.96 */
 .ledger-shell button,
@@ -174,10 +200,10 @@ html:has(.ledger-shell):root body {
 .ledger-more-menu { animation: ledger-menu-in 140ms ease-out; }
 @keyframes ledger-menu-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 /* Top header (ui1 port): from sm up the header nav replaces the bottom bar. */
-.ledger-top-link { border-radius: 8px; padding: 6px 10px; font-size: 12px; color: var(--muted-foreground); text-decoration: none; transition: background-color 0.1s ease; }
+.ledger-top-link { display: inline-flex; align-items: center; min-height: 44px; border-radius: 10px; padding: 0 12px; font-size: 13px; color: var(--muted-foreground); text-decoration: none; transition: background-color 0.1s ease; }
 .ledger-top-link:hover { background: var(--muted); }
-.ledger-top-link.is-active { background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary); font-weight: 500; }
-.ledger-top-add { align-items: center; gap: 4px; height: 36px; padding: 0 12px; border-radius: 10px; background: var(--primary); color: var(--primary-foreground); font-size: 12px; font-weight: 600; text-decoration: none; }
+.ledger-top-link.is-active { background: var(--muted); color: var(--foreground); font-weight: 600; }
+.ledger-top-add { align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 10px; background: var(--primary); color: var(--primary-foreground); font-size: 12px; font-weight: 600; text-decoration: none; }
 .ledger-header { background: color-mix(in srgb, var(--card) 85%, transparent); }
 @media (min-width: 640px) {
   .ledger-bottom-nav { display: none; }

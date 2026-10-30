@@ -256,12 +256,13 @@
 </script>
 
 {#if failed}
-  <section class="mx-auto flex h-full max-w-xl items-center justify-center px-3 pb-4 pt-6 sm:px-4">
+  <section class="mx-auto flex h-full max-w-6xl items-center justify-center px-3 pb-4 pt-6 sm:px-4">
     <p class="text-sm text-muted-foreground">ไม่สามารถโหลดแผนที่ได้</p>
   </section>
 {:else}
-  <section class="mx-auto flex h-full max-w-xl flex-col overflow-hidden px-3 pb-4 pt-6 sm:px-4">
-    <h1 class="sr-only">แผนที่รายการลูกค้า</h1>
+  <section class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pb-4 pt-6 sm:px-8">
+    <p class="ledger-eyebrow">แผนที่</p>
+    <h1 class="mb-3 text-[clamp(22px,6vw,28px)] font-bold tracking-tight">แผนที่รายการลูกค้า</h1>
     {#if loadError}
       <div class="mb-4 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm" role="status">
         <span>{loadError}</span>
@@ -279,7 +280,7 @@
         onblur={() => (inputFocused = false)}
         placeholder="ค้นหาในแผนที่ — ชื่อ ร้าน ที่อยู่…"
         aria-label="ค้นหาในแผนที่"
-        class="h-11 w-full rounded-2xl border border-border bg-card pl-10 pr-10 text-sm shadow-sm outline-none focus:border-foreground/20 focus:ring-4 focus:ring-foreground/5"
+        class="h-12 w-full rounded-xl border border-border bg-card pl-10 pr-10 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
         autocomplete="off"
         spellcheck="false"
       />
@@ -289,7 +290,7 @@
         </button>
       {/if}
       {#if inputFocused && search.trim()}
-        <div class="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
+        <div class="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-border bg-card ">
           {#if searchResults.length > 0}
             {#each searchResults as client}
               <button type="button" onmousedown={(e) => e.preventDefault()} onclick={() => { inputFocused = false; selected = client; map?.setView([client.lat as number, client.lng as number], 15) }} class="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-muted">
@@ -327,12 +328,12 @@
           <MapTrifold size={28} class="opacity-30" aria-hidden />
           <p class="text-sm font-medium">ยังไม่มีหมุด</p>
           <p class="text-xs text-muted-foreground">เพิ่มพิกัดในหน้ารายการ แล้วจะแสดงที่นี่</p>
-          <button type="button" onclick={() => push('/')} class="mt-2 min-h-11 rounded-full bg-primary px-4 py-1.5 text-xs text-primary-foreground">ไปหน้าหลัก</button>
+          <button type="button" onclick={() => push('/')} class="mt-2 min-h-11 rounded-[10px] bg-primary px-5 text-sm font-semibold text-primary-foreground">ไปหน้าหลัก</button>
         </div>
       {/if}
       {#if selected}
         <div class="absolute bottom-3 left-3 right-3 z-20">
-          <div class="rounded-2xl border border-border bg-card p-3 shadow-xl">
+          <div class="rounded-2xl border border-border bg-card p-3 ">
             <div class="flex gap-3">
               {#if selected.images[0] || selected.thumb}
                 <AppImage src={selected.thumb ?? selected.images[0]} fallbackSrc={selected.images[0]} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover border border-border" />
@@ -349,8 +350,8 @@
               <button type="button" onclick={() => (selected = null)} aria-label="ปิดรายละเอียดบนแผนที่" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted/80"><X size={14} weight="bold" aria-hidden /></button>
             </div>
             <div class="mt-3 flex gap-2">
-              <button type="button" onclick={() => push(`/c/${encodeURIComponent(selected!.id)}`)} class="min-h-11 flex-1 rounded-full bg-primary py-2.5 text-xs font-medium text-primary-foreground hover:opacity-90">ดูรายละเอียด →</button>
-              <a href={`https://maps.google.com/?q=${selected.lat},${selected.lng}`} target="_blank" rel="noreferrer" onclick={(e) => e.stopPropagation()} class="inline-flex min-h-11 items-center rounded-full border border-border bg-card px-4 py-2.5 text-xs hover:bg-muted">Google Maps</a>
+              <button type="button" onclick={() => push(`/c/${encodeURIComponent(selected!.id)}`)} class="min-h-11 flex-1 rounded-[10px] bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">ดูรายละเอียด →</button>
+              <a href={`https://maps.google.com/?q=${selected.lat},${selected.lng}`} target="_blank" rel="noreferrer" onclick={(e) => e.stopPropagation()} class="inline-flex min-h-11 items-center rounded-[10px] border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted">Google Maps</a>
             </div>
           </div>
         </div>
@@ -358,7 +359,7 @@
     </div>
     {#if !loading && pins.length > 0}
       <div class="mt-3 flex shrink-0 items-center gap-2 overflow-auto">
-        <button type="button" onclick={() => map?.setView([KHON_KAEN_CENTER[1], KHON_KAEN_CENTER[0]], 11)} class="min-h-11 shrink-0 rounded-full border border-border bg-card px-3 py-1.5 text-xs hover:bg-muted">ทั้งจังหวัด</button>
+        <button type="button" onclick={() => map?.setView([KHON_KAEN_CENTER[1], KHON_KAEN_CENTER[0]], 11)} class="min-h-11 shrink-0 rounded-full border border-border bg-card px-4 text-sm font-medium hover:bg-muted">ทั้งจังหวัด</button>
         <span class="font-mono text-[10px] text-muted-foreground">· ขอนแก่น · ไทยล้วน · รวมกลุ่มอัตโนมัติ</span>
       </div>
     {/if}
