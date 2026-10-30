@@ -20,8 +20,9 @@ Branch: docs/tiniest-bridge-implementation
 - Persistence: Cloudflare D1 and R2 bindings are already used by the Worker.
 - Existing API admin gate validates Clerk JWTs. Do not replace or weaken it as part of the Bridge addition.
 - Existing CORS allow-origin is https://data.mcky.space.
-- The current Worker has unauthenticated GET routes for client data (including list/map/search/detail). The selected preserve policy means these remain unchanged for now; this is an acknowledged exposure, not a security guarantee provided by the new Bridge.
+- The current Worker has unauthenticated GET routes: /api/clients, /api/clients/list, /api/clients/map, /api/clients/count, /api/clients/search, and /api/clients/:id. The selected preserve policy means these remain unchanged for now; this is an acknowledged exposure, not a security guarantee provided by the new Bridge. Admin-gated routes include create/update/delete client, trash operations, profile theme, and photo-request.
 - The frontend has Clerk-specific state and Treaty headers. Do not remove these from the legacy frontend in the Bridge phase.
+- Root scripts provide typecheck, test:run, and build:full. The API workspace has a typecheck script but no dedicated test script in its package manifest.
 
 ## Target architecture
 
@@ -90,7 +91,7 @@ Do not implement all legacy endpoints automatically. Build the minimum surface n
 ## Phased implementation
 
 ### Phase 0 — Baseline and backup (no writes)
-1. Record current default branch SHA and current Worker deployment/version/config.
+1. Record current default branch SHA and current Worker deployment/version/config. Current API Worker config binds D1 database ezzylist-db and R2 bucket ezzylist; do not point staging writes at those production bindings.
 2. Inventory every route, auth macro, D1 query, R2 operation, cache behaviour, and response schema.
 3. Identify all consumers of data-api.fall3n.workers.dev and data.mcky.space.
 4. Confirm D1 backup/export and R2 inventory/restore procedure. Test restore in an isolated environment if possible.
