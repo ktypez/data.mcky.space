@@ -1,4 +1,6 @@
-# DESIGN_PLAN — DATA Ledger V3
+# DESIGN_PLAN — DATA Ledger V4
+
+> V4 (2026-10): flat ruled look — teal `ledger` theme default (Instrument Sans + JetBrains Mono), wordmark top bar, catalog with filter pills, column header and preview panel, two-column record/editor, V4 settings/trash/login chrome. Structure below still applies.
 
 **Status:** Locked and implemented
 **Direction:** Command catalog with dense filter pills, compact records, and shared themes

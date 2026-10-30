@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { replace } from 'svelte-spa-router'
+  import { push, replace } from 'svelte-spa-router'
   import { useAuthStore } from '@/stores/auth-store'
   import { useClientStore } from '@/stores/client-store'
   import { treatyClient, treatyHeaders } from '@/lib/treaty'
@@ -52,6 +52,9 @@
     items.length
     focused = Math.min(focused, Math.max(items.length - 1, 0))
   })
+
+  const TTL_DAYS = 30
+  const daysLeft = (deletedAt: number) => Math.max(0, TTL_DAYS - Math.floor((Date.now() - deletedAt) / 86_400_000))
 
   function focusRow(index: number) {
     focused = index
@@ -117,25 +120,31 @@
 {:else if !isAdmin}
   <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังนำกลับ…</div>
 {:else}
-  <section class="mx-auto max-w-xl px-3 pb-8 pt-6 sm:px-4">
-    <h1 class="sr-only">ถังขยะ</h1>
-    <div class="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
-      <span>{loading ? 'กำลังโหลด…' : `${items.length} รายการ`}</span>
-      <span class="font-mono opacity-60">↑↓ เลือก · Enter กู้คืน</span>
+  <section class="mx-auto max-w-3xl px-3 pb-8 pt-6 sm:px-8">
+    <p class="ledger-eyebrow">ถังขยะ</p>
+    <h1 class="text-[clamp(22px,6vw,28px)] font-bold tracking-tight">ถังขยะ</h1>
+    <p class="mt-1 text-sm text-muted-foreground">รายการที่ลบจะอยู่ที่นี่ 30 วัน แล้วถูกลบถาวร</p>
+    <div class="mb-4 mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+      <span class="font-mono" role="status">{loading ? 'กำลังโหลด…' : `${items.length} รายการ`}</span>
+      <span class="hidden font-mono sm:block">↑↓ เลือก · Enter กู้คืน</span>
     </div>
     {#if error}
       <p role="alert" class="mt-4 rounded-xl border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</p>
     {/if}
 
-    <div role="list" aria-label="รายการถังขยะ" class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <div role="list" aria-label="รายการถังขยะ" class="overflow-hidden rounded-2xl border border-border bg-card">
       {#if loading}
         <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดถังขยะ…</div>
       {:else if items.length === 0 && !error}
-        <div class="p-8 text-center text-sm opacity-50">ถังขยะว่าง</div>
+        <div class="flex flex-col items-center gap-3 border-dashed p-10 text-center">
+          <p class="text-sm font-semibold">ถังขยะว่าง</p>
+          <p class="text-sm text-muted-foreground">รายการที่ลบจะมาอยู่ที่นี่</p>
+          <button type="button" onclick={() => push('/')} class="min-h-11 rounded-[10px] bg-primary px-5 text-sm font-semibold text-primary-foreground">กลับไปหน้ารายการ</button>
+        </div>
       {:else}
         {#each items as item, index (item.id)}
           {@const active = index === focused}
-          <div role="listitem" onmouseenter={() => (focused = index)} class="flex items-center {active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/50'} border-b border-border/30 last:border-b-0">
+          <div role="listitem" onmouseenter={() => (focused = index)} class="flex items-center {active ? 'ledger-row-active' : 'hover:bg-muted/60'} border-b border-border last:border-b-0">
             <button
               bind:this={rowEls[index]}
               type="button"
@@ -146,18 +155,19 @@
               aria-label={`กู้คืน ${item.shopName[0] || item.name[0] || item.id}`}
             >
               {#if item.images[0]}
-                <AppImage src={item.images[0]} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-cover border border-border" />
+                <AppImage src={item.images[0]} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-[10px] object-cover border border-border" />
               {:else}
-                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-mono {active ? 'bg-background text-foreground' : 'bg-muted text-muted-foreground'}">{(item.shopName[0] || item.name[0] || '·').trim().charAt(0).toUpperCase()}</span>
+                <span aria-hidden="true" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-muted text-base font-bold text-primary">{(item.shopName[0] || item.name[0] || '·').trim().charAt(0).toUpperCase()}</span>
               {/if}
               <span class="min-w-0 flex-1">
-                <ClientNames client={item} variant="list" titleClassName="text-sm truncate {active ? 'text-primary-foreground' : 'text-foreground'}" subClassName="text-xs truncate {active ? 'text-primary-foreground/60' : 'opacity-60'}" />
-                <span class="font-mono text-[10px] {active ? 'text-primary-foreground/50' : 'opacity-30'}">ลบเมื่อ {formatDateTime(item.deletedAt)}</span>
+                <ClientNames client={item} variant="list" titleClassName="text-sm font-semibold truncate text-foreground" subClassName="text-xs truncate text-muted-foreground" />
+                <span class="font-mono text-[10px] text-muted-foreground">ลบเมื่อ {formatDateTime(item.deletedAt)}</span>
               </span>
+              <span class="hidden shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold sm:inline-flex {daysLeft(item.deletedAt) <= 7 ? 'bg-warning/15 text-warning' : 'bg-muted text-muted-foreground'}">เหลือ {daysLeft(item.deletedAt)} วัน</span>
             </button>
             <div class="flex shrink-0 items-center gap-1 pr-3">
-              <button type="button" disabled={busyId === item.id} onclick={() => void restore(item.id)} class="min-h-11 rounded-full px-3 text-xs disabled:opacity-50 {active ? 'bg-background text-foreground' : 'border border-border bg-card hover:bg-muted'}">กู้คืน</button>
-              <button type="button" disabled={busyId === item.id} onclick={() => (confirm = item)} aria-label={`ลบ ${item.shopName[0] || item.name[0] || item.id} ถาวร`} class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-[13px] font-bold leading-none transition-colors disabled:opacity-50 {active ? 'border-destructive bg-destructive text-destructive-foreground' : 'border-destructive/30 bg-destructive/10 text-destructive hover:border-destructive hover:bg-destructive hover:text-destructive-foreground'}">×</button>
+              <button type="button" disabled={busyId === item.id} onclick={() => void restore(item.id)} class="min-h-11 rounded-[10px] border border-border bg-card px-4 text-sm font-medium hover:bg-muted disabled:opacity-50">กู้คืน</button>
+              <button type="button" disabled={busyId === item.id} onclick={() => (confirm = item)} aria-label={`ลบ ${item.shopName[0] || item.name[0] || item.id} ถาวร`} class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] border border-destructive text-base font-bold leading-none text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground disabled:opacity-50">×</button>
             </div>
           </div>
         {/each}
@@ -169,8 +179,8 @@
         <div class="p-6">
           <p class="mt-2 text-sm text-muted-foreground">“{confirm.shopName[0] || confirm.name[0] || confirm.id.slice(0, 8)}” จะหายถาวร และไม่สามารถกู้คืนได้</p>
           <div class="mt-6 flex justify-end gap-2">
-            <button type="button" onclick={() => (confirm = null)} disabled={busyId !== null} class="min-h-11 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted disabled:opacity-50">ยกเลิก</button>
-            <button type="button" disabled={busyId !== null} onclick={() => void forceDelete(confirm!.id)} class="min-h-11 rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground disabled:opacity-50">{busyId === confirm.id ? 'กำลังลบ…' : 'ลบถาวร'}</button>
+            <button type="button" onclick={() => (confirm = null)} disabled={busyId !== null} class="min-h-11 rounded-[10px] border border-border px-4 py-2 text-sm hover:bg-muted disabled:opacity-50">ยกเลิก</button>
+            <button type="button" disabled={busyId !== null} onclick={() => void forceDelete(confirm!.id)} class="min-h-11 rounded-[10px] bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground disabled:opacity-50">{busyId === confirm.id ? 'กำลังลบ…' : 'ลบถาวร'}</button>
           </div>
         </div>
       {/if}

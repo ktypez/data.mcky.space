@@ -40,21 +40,22 @@
   }
 </script>
 
-<section class="mx-auto max-w-xl px-3 pb-8 pt-6 sm:px-4">
-  <h1 class="sr-only">เมนูและการตั้งค่า</h1>
+<section class="mx-auto max-w-3xl px-3 pb-8 pt-6 sm:px-8">
+  <p class="ledger-eyebrow">ตั้งค่า</p>
+  <h1 class="mb-5 text-[clamp(22px,6vw,28px)] font-bold tracking-tight">เมนูและการตั้งค่า</h1>
   <div class="space-y-4">
-    <section class="rounded-2xl border border-border bg-card p-4">
-      <h2 class="mb-3 text-sm font-semibold">การซิงค์ข้อมูล</h2>
+    <section class="rounded-2xl border border-border bg-card p-5">
+      <h2 class="ledger-eyebrow mb-4">การซิงค์ข้อมูล</h2>
       <SyncStatus />
     </section>
-    <section class="rounded-2xl border border-border bg-card p-4">
-      <h2 class="mb-3 text-sm font-semibold">ธีม</h2>
+    <section class="rounded-2xl border border-border bg-card p-5">
+      <h2 class="ledger-eyebrow mb-4">ธีม</h2>
       <AppThemePicker themeId={theme.themeId} setThemeId={setThemeId} customPalette={theme.customPalette} setCustomPalette={setCustomPalette} />
     </section>
 
-    <section class="rounded-2xl border border-border bg-card p-4">
+    <section class="rounded-2xl border border-border bg-card p-5">
       <div class="mb-3 flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold">โหมดสี</h2>
+        <h2 class="ledger-eyebrow">โหมดสี</h2>
         <span class="font-mono text-xs text-muted-foreground">{selectedTheme.label}</span>
       </div>
       <div class="grid grid-cols-1 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="เลือกโหมดสี">
@@ -69,7 +70,7 @@
                 : 'พื้นหลังมืด'
             : `ธีมนี้ไม่รองรับ${item === 'light' ? 'สว่าง' : 'มืด'}`}
           {@const active = theme.mode === item || (theme.mode === 'auto' && selectedTheme.modes?.length === 1 && selectedTheme.modes[0] === item)}
-          <button type="button" role="radio" aria-checked={active} onclick={() => setMode(item)} disabled={!supported} aria-label={`ใช้โหมด${label}`} class="flex min-h-[76px] items-center gap-3 rounded-xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-45 sm:block sm:min-h-[92px] {active ? 'border-primary bg-primary/10 text-foreground ring-1 ring-primary' : 'border-border text-muted-foreground hover:border-primary/50 hover:bg-muted hover:text-foreground'}">
+          <button type="button" role="radio" aria-checked={active} onclick={() => setMode(item)} disabled={!supported} aria-label={`ใช้โหมด${label}`} class="flex min-h-[76px] items-center gap-3 rounded-[10px] border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-45 sm:block sm:min-h-[92px] {active ? 'border-primary bg-muted text-foreground ring-1 ring-primary' : 'border-border text-muted-foreground hover:border-primary/50 hover:bg-muted hover:text-foreground'}">
             {#if item === 'auto'}
               <Monitor size={20} weight={active ? 'fill' : 'regular'} class="shrink-0 sm:mb-2" aria-hidden />
             {:else if item === 'light'}
@@ -83,23 +84,23 @@
       </div>
     </section>
 
-    <section class="rounded-2xl border border-border bg-card p-4">
+    <section class="rounded-2xl border border-border bg-card p-5">
       <div class="mb-2 flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold">แอปและบัญชี</h2>
+        <h2 class="ledger-eyebrow">แอปและบัญชี</h2>
         <span class="font-mono text-[10px] uppercase text-muted-foreground">DATA Ledger · V4</span>
       </div>
       <div class="space-y-1">
-        <button type="button" onclick={() => (pwa.isIOS ? undefined : (pwa.canInstall ? void pwa.install() : undefined))} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><DownloadSimple size={18} aria-hidden /> ติดตั้งแอป{#if pwa.isIOS}<span class="ml-auto text-xs text-muted-foreground">ใช้เมนู Share ใน Safari</span>{:else if !pwa.canInstall}<span class="ml-auto text-xs text-muted-foreground">เปิดใน Chrome/Edge เพื่อติดตั้ง</span>{/if}</button>
-        <button type="button" onclick={() => void checkForAppUpdate()} disabled={appUpdateState === 'checking'} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted disabled:opacity-60">
+        <button type="button" onclick={() => (pwa.isIOS ? undefined : (pwa.canInstall ? void pwa.install() : undefined))} class="flex min-h-11 w-full items-center gap-3 rounded-[10px] px-3 text-sm hover:bg-muted"><DownloadSimple size={18} aria-hidden /> ติดตั้งแอป{#if pwa.isIOS}<span class="ml-auto text-xs text-muted-foreground">ใช้เมนู Share ใน Safari</span>{:else if !pwa.canInstall}<span class="ml-auto text-xs text-muted-foreground">เปิดใน Chrome/Edge เพื่อติดตั้ง</span>{/if}</button>
+        <button type="button" onclick={() => void checkForAppUpdate()} disabled={appUpdateState === 'checking'} class="flex min-h-11 w-full items-center gap-3 rounded-[10px] px-3 text-sm hover:bg-muted disabled:opacity-60">
           <ArrowsClockwise size={18} class={appUpdateState === 'checking' ? 'animate-spin' : ''} aria-hidden />
           {appUpdateState === 'checking' ? 'กำลังตรวจหาอัปเดต…' : 'ตรวจหาอัปเดตแอป'}
           {#if appUpdateState === 'latest'}<span class="ml-auto text-xs text-muted-foreground">เป็นเวอร์ชันล่าสุด</span>{/if}
           {#if appUpdateState === 'error'}<span class="ml-auto text-xs text-destructive">ตรวจสอบไม่สำเร็จ</span>{/if}
         </button>
         {#if isSignedIn}
-          <button type="button" onclick={() => void logout()} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><SignOut size={18} aria-hidden /> ออกจากระบบ</button>
+          <button type="button" onclick={() => void logout()} class="flex min-h-11 w-full items-center gap-3 rounded-[10px] px-3 text-sm hover:bg-muted"><SignOut size={18} aria-hidden /> ออกจากระบบ</button>
         {:else}
-          <button type="button" onclick={() => setLoginOpen(true)} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm hover:bg-muted"><LockKey size={18} aria-hidden /> เข้าสู่ระบบ</button>
+          <button type="button" onclick={() => setLoginOpen(true)} class="flex min-h-11 w-full items-center gap-3 rounded-[10px] px-3 text-sm hover:bg-muted"><LockKey size={18} aria-hidden /> เข้าสู่ระบบ</button>
         {/if}
       </div>
     </section>

@@ -33,7 +33,7 @@ describe('locked application viewport', () => {
     expect(settings).toContain('DATA Ledger · V4')
     // The catalog is a full-height column with the card filling the rest.
     expect(catalog).toContain('flex h-full max-w-6xl flex-col')
-    expect(maps).toContain('flex h-full max-w-xl flex-col')
+    expect(maps).toContain('flex h-full max-w-6xl flex-col')
   })
 
   it('keeps the search field and filter button as separate controls', () => {
