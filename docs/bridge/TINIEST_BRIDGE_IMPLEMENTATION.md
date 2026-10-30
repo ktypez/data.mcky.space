@@ -18,7 +18,7 @@ Branch: docs/tiniest-bridge-implementation
 - Frontend: Svelte 5 + Vite.
 - API: Elysia on Cloudflare Workers, currently at https://data-api.fall3n.workers.dev.
 - Persistence: Cloudflare D1 and R2 bindings are already used by the Worker.
-- Existing API admin gate validates Clerk JWTs. Do not replace or weaken it as part of the Bridge addition.
+- Existing API admin gate validates Clerk JWTs. Its current implementation treats any valid Clerk session with a non-empty subject as admin; it does not enforce a separate email/user allowlist. Do not replace or weaken it as part of the Bridge addition, but record this as a legacy authorization risk for a separately approved review.
 - Existing CORS allow-origin is https://data.mcky.space.
 - The current Worker has unauthenticated GET routes: /api/clients, /api/clients/list, /api/clients/map, /api/clients/count, /api/clients/search, and /api/clients/:id. The selected preserve policy means these remain unchanged for now; this is an acknowledged exposure, not a security guarantee provided by the new Bridge. Admin-gated routes include create/update/delete client, trash operations, profile theme, and photo-request.
 - The frontend has Clerk-specific state and Treaty headers. Do not remove these from the legacy frontend in the Bridge phase.
