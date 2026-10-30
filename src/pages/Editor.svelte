@@ -257,12 +257,16 @@
 {:else}
   <div class="pb-4">
     <h1 class="sr-only">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
-    <div class="mx-auto flex w-full max-w-3xl px-3 pb-6 pt-6 sm:px-4">
-      <button type="button" onclick={onBack} class="inline-flex min-h-11 items-center gap-1 rounded-md border border-border bg-card px-3 py-2 font-mono text-xs text-foreground hover:bg-muted"><ArrowLeft class="inline h-3 w-3" aria-hidden /> กลับ</button>
+    <div class="mx-auto flex w-full max-w-5xl flex-wrap items-end justify-between gap-3 px-3 pb-2 pt-6 sm:px-8">
+      <div class="min-w-0">
+        <button type="button" onclick={onBack} class="mb-3 inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"><ArrowLeft class="inline h-3.5 w-3.5" aria-hidden /> กลับ</button>
+        <p class="ledger-eyebrow">{editing ? 'แก้ไขระเบียน' : 'ระเบียนใหม่'}</p>
+        <p class="text-[clamp(22px,6vw,28px)] font-bold tracking-tight" aria-hidden="true">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</p>
+      </div>
     </div>
 
     {#if loadError}
-      <div class="mx-auto mt-4 max-w-3xl px-3 sm:px-4">
+      <div class="mx-auto mt-4 max-w-5xl px-3 sm:px-8">
         <div class="flex items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm" role="status">
           <span>{loadError}</span>
           <button type="button" onclick={() => reloadKey++} class="min-h-11 shrink-0 rounded-full border border-border px-3 text-xs hover:bg-muted">ลองใหม่</button>
@@ -270,9 +274,11 @@
       </div>
     {/if}
 
-    <form onsubmit={handleSubmit} class="mx-auto mt-6 max-w-3xl px-3 sm:px-4" aria-busy={uploading}>
-      <fieldset disabled={readOnly || uploading} class="min-w-0 space-y-6 rounded-2xl border border-border bg-card p-5">
-        <section class="space-y-4">
+    <form onsubmit={handleSubmit} class="mx-auto mt-4 max-w-5xl px-3 sm:px-8" aria-busy={uploading}>
+      <fieldset disabled={readOnly || uploading} class="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <div class="min-w-0 space-y-5">
+        <section class="space-y-4 rounded-2xl border border-border bg-card p-5">
+          <h2 class="ledger-eyebrow">ข้อมูลหลัก</h2>
           <div class="space-y-1">
             <Label>ชื่อร้านค้า</Label>
             <MultiValueInput values={shopName} onChange={(v) => (shopName = v)} placeholder="ชื่อร้านค้า" maxLength={60} addLabel="เพิ่มชื่อร้าน" inlineAdd />
@@ -286,21 +292,25 @@
           <FormBadgeField badge={badge} onChange={(v) => (badge = v)} visible />
         </section>
 
-        <hr class="border-border" />
-
-        <section class="space-y-4">
+        <section class="space-y-4 rounded-2xl border border-border bg-card p-5">
+          <h2 class="ledger-eyebrow">ที่อยู่</h2>
           <div class="space-y-1">
             <Label for="editor-address">ที่อยู่/รายละเอียด</Label>
             <Input syncValue={readAddress} id="editor-address" name="address" autocomplete="off" spellcheck="false" type="text" value={address} oninput={(e) => (address = e.currentTarget.value)} maxlength={120} placeholder="บ้านเลขที่ ถนน ตำบล…" />
           </div>
-          <LocationSection {lat} {lng} onCoordsChange={(nextLat, nextLng) => { lat = nextLat; lng = nextLng }} />
         </section>
 
-        <hr class="border-border" />
-
-        <section class="space-y-4">
+        <section class="space-y-4 rounded-2xl border border-border bg-card p-5">
+          <h2 class="ledger-eyebrow">รูปภาพ</h2>
           <PhotoSection images={images} onImagesChange={(v) => (images = v)} {uploading} {thumbs} onThumbsChange={(v) => (thumbs = v)} />
         </section>
+        </div>
+
+        <div class="min-w-0 space-y-5 lg:sticky lg:top-4">
+          <section class="space-y-4 rounded-2xl border border-border bg-card p-5">
+            <h2 class="ledger-eyebrow">ตำแหน่ง</h2>
+            <LocationSection {lat} {lng} onCoordsChange={(nextLat, nextLng) => { lat = nextLat; lng = nextLng }} />
+          </section>
 
         {#if error}
           <p class="mt-4 text-[13px] font-medium text-destructive" role="alert">{error}</p>
@@ -309,11 +319,12 @@
           <p class="mt-2 font-mono text-xs opacity-60" role="status">อัปโหลด {progress}%</p>
         {/if}
 
-        <div class="flex justify-end border-t border-border pt-4">
-          <Button type="submit" class="min-h-11 px-6" disabled={uploading || readOnly || !canSave}>
+        <div class="flex justify-end">
+          <Button type="submit" class="w-full px-6" disabled={uploading || readOnly || !canSave}>
             {#if editing}<Pencil class="h-4 w-4" aria-hidden />{:else}<Plus class="h-4 w-4" aria-hidden />{/if}
             {uploading ? 'กำลังบันทึก…' : editing ? 'อัปเดตข้อมูล' : 'เพิ่มลูกค้าใหม่'}
           </Button>
+        </div>
         </div>
       </fieldset>
       {#if !canSave}
