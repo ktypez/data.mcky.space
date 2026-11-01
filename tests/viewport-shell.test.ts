@@ -36,15 +36,15 @@ describe('locked application viewport', () => {
     expect(maps).toContain('flex h-full max-w-6xl flex-col')
   })
 
-  it('uses 78% compact density, larger text tokens, and accessible control sizes', () => {
-    expect(shell).toMatch(/html:has\(\.ledger-shell\):root\s*\{[^}]*font-size:\s*78%/s)
+  it('uses 75% compact density, normal text tokens, and accessible touch targets', () => {
+    expect(shell).toMatch(/html:has\(\.ledger-shell\):root\s*\{[^}]*font-size:\s*75%/s)
     expect(shell).toContain(".ledger-shell [role='button'],")
     expect(shell).toContain("[role='tab'] { min-height: 44px; }")
     expect(shell).toContain("select { min-height: 48px; }")
     const indexCss = read('src/index.css')
-    expect(indexCss).toContain('--text-xs: 1rem;')
-    expect(indexCss).toContain('--text-sm: 1.125rem;')
-    expect(indexCss).toContain('--text-base: 1.25rem;')
+    expect(indexCss).toContain('--text-xs: 0.75rem;')
+    expect(indexCss).toContain('--text-sm: 0.875rem;')
+    expect(indexCss).toContain('--text-base: 1rem;')
   })
 
   it('keeps the search field and filter button as separate controls', () => {

@@ -10,8 +10,8 @@ body:has(.ledger-shell) {
 }
 html:has(.ledger-shell):root {
   color-scheme: light;
-  /* Slightly tighter spacing; typography tokens are raised separately for readability. */
-  font-size: 78%;
+  /* Compact spacing while typography tokens retain normal rendered sizes. */
+  font-size: 75%;
 }
 html:has(.ledger-shell[data-mode='dark']):root {
   color-scheme: dark;
