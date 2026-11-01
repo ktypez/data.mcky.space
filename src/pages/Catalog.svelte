@@ -114,12 +114,8 @@
   }
 </script>
 
-<div class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pt-5 sm:px-8 sm:pt-6">
-    <div class="flex shrink-0 items-end justify-between gap-3 pb-3">
-      <div>
-        <p class="ledger-eyebrow">แคตตาล็อก</p>
-        <h1 class="text-[clamp(22px,6vw,28px)] font-bold tracking-tight">รายการลูกค้า</h1>
-      </div>
+<div class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pt-3 sm:px-8 sm:pt-4">
+    <div class="flex shrink-0 items-end justify-end gap-3 pb-3">
       <p class="font-mono text-xs text-muted-foreground" role="status">{counts.total.toLocaleString('th-TH')} รายการ</p>
     </div>
     <div class="flex shrink-0 gap-2">
@@ -175,7 +171,7 @@
       </div>
     {/if}
 
-    <div class="mt-4 grid min-h-0 flex-1 gap-5 pb-3 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div class="mt-4 grid min-h-0 flex-1 gap-4 pb-3 lg:grid-cols-[minmax(0,1fr)_340px]">
     <div class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-card">
       <div class="ledger-colhead hidden shrink-0 items-center gap-3 border-b border-border px-5 py-2.5 sm:flex" aria-hidden="true">
         <span class="w-11">รูป</span><span class="flex-1">ลูกค้า</span><span class="w-[72px]">ชำระ</span><span class="w-12">มี</span><span class="hidden w-24 text-right md:block">อัปเดต</span><span class="w-11"></span>
@@ -217,7 +213,7 @@
       </div>
     </div>
 
-    <aside class="hidden min-h-0 flex-col gap-4 overflow-auto rounded-2xl border border-border bg-card p-5 lg:flex" aria-label="ตัวอย่างระเบียน">
+    <aside class="hidden min-h-0 flex-col gap-4 overflow-auto rounded-2xl border border-border bg-card p-4 lg:flex" aria-label="ตัวอย่างระเบียน">
       {#if current}
         <div class="flex items-center gap-3">
           <span aria-hidden="true" class="flex size-14 shrink-0 items-center justify-center rounded-[14px] bg-muted text-xl font-bold text-primary">{(clientTitleValues(current)[0] ?? '?').trim().charAt(0).toUpperCase() || '?'}</span>

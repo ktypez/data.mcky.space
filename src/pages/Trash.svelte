@@ -120,10 +120,8 @@
 {:else if !isAdmin}
   <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังนำกลับ…</div>
 {:else}
-  <section class="mx-auto max-w-3xl px-3 pb-8 pt-6 sm:px-8">
-    <p class="ledger-eyebrow">ถังขยะ</p>
-    <h1 class="text-[clamp(22px,6vw,28px)] font-bold tracking-tight">ถังขยะ</h1>
-    <p class="mt-1 text-sm text-muted-foreground">รายการที่ลบจะอยู่ที่นี่ 30 วัน แล้วถูกลบถาวร</p>
+  <section class="mx-auto max-w-3xl px-3 pb-6 pt-4 sm:px-8">
+    <p class="mt-0.5 text-sm text-muted-foreground">รายการที่ลบจะอยู่ที่นี่ 30 วัน แล้วถูกลบถาวร</p>
     <div class="mb-4 mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
       <span class="font-mono" role="status">{loading ? 'กำลังโหลด…' : `${items.length} รายการ`}</span>
       <span class="hidden font-mono sm:block">↑↓ เลือก · Enter กู้คืน</span>

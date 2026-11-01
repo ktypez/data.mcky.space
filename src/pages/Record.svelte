@@ -181,7 +181,7 @@
 </script>
 
 {#snippet shell(children: import('svelte').Snippet)}
-  <div class="mx-auto w-full max-w-5xl px-3 pb-6 pt-6 sm:px-8">{@render children()}</div>
+  <div class="mx-auto w-full max-w-5xl px-3 pb-6 pt-4 sm:px-8">{@render children()}</div>
 {/snippet}
 
 {#if loadedId !== id || (loading && !client)}
@@ -231,7 +231,7 @@
     <p role="alert" class="mt-4 rounded-[10px] border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{err}</p>
   {/if}
 
-  <div class="mt-6 flex min-w-0 items-start gap-4">
+  <div class="mt-4 flex min-w-0 items-start gap-4">
     <span aria-hidden="true" class="flex size-[72px] shrink-0 items-center justify-center rounded-[18px] bg-muted text-3xl font-bold text-primary">{(displayName || '?').trim().charAt(0).toUpperCase()}</span>
     <div class="min-w-0 flex-1">
       <h1 class="sr-only">รายละเอียดรายการ</h1>
@@ -246,7 +246,7 @@
     </div>
   </div>
 
-  <div class="mt-6 grid items-start gap-5 lg:grid-cols-2">
+  <div class="mt-4 grid items-start gap-4 lg:grid-cols-2">
   <div class="min-w-0 space-y-5">
   <div class="overflow-hidden rounded-2xl border border-border bg-card">
     <p class="ledger-eyebrow border-b border-border px-4 py-3">รายละเอียด</p>
@@ -263,7 +263,7 @@
   </div>
 
   {#if client!.notes}
-    <div class="rounded-2xl border border-border bg-card p-5">
+    <div class="rounded-2xl border border-border bg-card p-4">
       <p class="ledger-eyebrow">โน้ต</p>
       <blockquote class="mt-3 max-w-[62ch] whitespace-pre-wrap break-words border-l-[3px] border-primary pl-4 text-[15px] leading-7 [overflow-wrap:anywhere]">“{client!.notes}”</blockquote>
     </div>

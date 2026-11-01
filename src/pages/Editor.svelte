@@ -258,11 +258,10 @@
 {:else}
   <div class="pb-4">
     <h1 class="sr-only">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
-    <div class="mx-auto flex w-full max-w-5xl flex-wrap items-end justify-between gap-3 px-3 pb-2 pt-6 sm:px-8">
+    <div class="mx-auto flex w-full max-w-5xl flex-wrap items-end justify-between gap-3 px-3 pb-2 pt-4 sm:px-8">
       <div class="min-w-0">
         <button type="button" onclick={onBack} class="mb-3 inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"><ArrowLeft class="inline h-3.5 w-3.5" aria-hidden /> กลับ</button>
-        <p class="ledger-eyebrow">{editing ? 'แก้ไขระเบียน' : 'ระเบียนใหม่'}</p>
-        <p class="flex flex-wrap items-center gap-2 text-[clamp(22px,6vw,28px)] font-bold tracking-tight"><span aria-hidden="true">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</span>{#if dirty && !readOnly}<span role="status" class="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-medium tracking-normal text-foreground">ยังไม่บันทึก</span>{/if}</p>
+        {#if dirty && !readOnly}<span role="status" class="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-medium text-foreground">ยังไม่บันทึก</span>{/if}
       </div>
     </div>
 
@@ -276,9 +275,9 @@
     {/if}
 
     <form onsubmit={handleSubmit} class="mx-auto mt-4 max-w-5xl px-3 sm:px-8" aria-busy={uploading}>
-      <fieldset disabled={readOnly || uploading} class="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <fieldset disabled={readOnly || uploading} class="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div class="min-w-0 space-y-5">
-        <section class="space-y-4 rounded-2xl border border-border bg-card p-5">
+        <section class="space-y-3 rounded-2xl border border-border bg-card p-4">
           <h2 class="ledger-eyebrow">ข้อมูลหลัก</h2>
           <div class="space-y-1">
             <Label>ชื่อร้านค้า</Label>
@@ -293,7 +292,7 @@
           <FormBadgeField badge={badge} onChange={(v) => (badge = v)} visible />
         </section>
 
-        <section class="space-y-4 rounded-2xl border border-border bg-card p-5">
+        <section class="space-y-3 rounded-2xl border border-border bg-card p-4">
           <h2 class="ledger-eyebrow">ที่อยู่</h2>
           <div class="space-y-1">
             <Label for="editor-address">ที่อยู่/รายละเอียด</Label>
@@ -301,14 +300,14 @@
           </div>
         </section>
 
-        <section class="space-y-4 rounded-2xl border border-border bg-card p-5">
+        <section class="space-y-3 rounded-2xl border border-border bg-card p-4">
           <h2 class="ledger-eyebrow">รูปภาพ</h2>
           <PhotoSection images={images} onImagesChange={(v) => (images = v)} {uploading} {thumbs} onThumbsChange={(v) => (thumbs = v)} />
         </section>
         </div>
 
         <div class="min-w-0 space-y-5 lg:sticky lg:top-4">
-          <section class="space-y-4 rounded-2xl border border-border bg-card p-5">
+          <section class="space-y-3 rounded-2xl border border-border bg-card p-4">
             <h2 class="ledger-eyebrow">ตำแหน่ง</h2>
             <LocationSection {lat} {lng} onCoordsChange={(nextLat, nextLng) => { lat = nextLat; lng = nextLng }} />
           </section>

@@ -260,9 +260,7 @@
     <p class="text-sm text-muted-foreground">ไม่สามารถโหลดแผนที่ได้</p>
   </section>
 {:else}
-  <section class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pb-4 pt-6 sm:px-8">
-    <p class="ledger-eyebrow">แผนที่</p>
-    <h1 class="mb-3 text-[clamp(22px,6vw,28px)] font-bold tracking-tight">แผนที่รายการลูกค้า</h1>
+  <section class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pb-4 pt-4 sm:px-8">
     {#if loadError}
       <div class="mb-4 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm" role="status">
         <span>{loadError}</span>
