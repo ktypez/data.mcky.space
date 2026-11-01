@@ -9,6 +9,8 @@
   import AppImage from '@/components/AppImage.svelte'
   import AppDialog from '@/components/AppDialog.svelte'
   import MapPreviewDynamic from '@/components/MapPreviewDynamic.svelte'
+  import { showToast } from '@/lib/toast'
+  import { treatyClient, treatyHeaders } from '@/lib/treaty'
   import { copyToClipboard, formatDate, formatDateTime, getMapsUrl, hasValidCoords, COPIED_FLASH_MS } from '@/lib/utils'
   import { clientTextWithMaps } from '@/lib/clientText'
   import { clientTitle } from '@/lib/clientNames'
@@ -126,6 +128,7 @@
     const ok = await copyToClipboard(window.location.href)
     if (!ok) return
     copiedLink = true
+    showToast('คัดลอกลิงก์แล้ว')
     setTimeout(() => (copiedLink = false), COPIED_FLASH_MS)
   }
 
@@ -145,10 +148,27 @@
     deleting = true
     err = null
     try {
-      await deleteClient(client.id)
-      useClientStore.getState().removeClient(client.id)
+      const deletedId = client.id
+      const label = clientTitle(client) || deletedId.slice(0, 8)
+      await deleteClient(deletedId)
+      useClientStore.getState().removeClient(deletedId)
       confirm = false
       push('/')
+      showToast(`ย้าย “${label}” ไปถังขยะ`, {
+        actionLabel: 'เลิกทำ',
+        onAction: () => {
+          void (async () => {
+            try {
+              const { error } = await treatyClient.api.clients.trash.post({ id: deletedId }, { query: { action: 'restore' }, headers: await treatyHeaders() })
+              if (error) throw new Error('restore')
+              await useClientStore.getState().refresh().catch(() => undefined)
+              showToast('กู้คืนแล้ว')
+            } catch {
+              showToast('กู้คืนไม่สำเร็จ — ลองจากถังขยะ')
+            }
+          })()
+        },
+      })
     } catch {
       err = 'ลบไม่สำเร็จ'
     } finally {
@@ -288,6 +308,11 @@
     {#if lightboxIdx !== null && client!.images[lightboxIdx]}
       <div class="relative w-fit">
         <img src={client!.images[lightboxIdx]} alt={`รูปที่ ${lightboxIdx + 1}`} class="block max-h-[calc(100dvh-2rem)] max-w-[calc(100vw-2rem)] object-contain" />
+        {#if client!.images.length > 1}
+          <span class="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1.5 font-mono text-xs text-white" aria-live="polite">{lightboxIdx + 1} / {client!.images.length}</span>
+          <button type="button" aria-label="รูปก่อนหน้า" onclick={() => (lightboxIdx = (lightboxIdx! - 1 + client!.images.length) % client!.images.length)} class="absolute left-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/50 text-xl text-white">‹</button>
+          <button type="button" aria-label="รูปถัดไป" onclick={() => (lightboxIdx = (lightboxIdx! + 1) % client!.images.length)} class="absolute right-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/50 text-xl text-white">›</button>
+        {/if}
         <button type="button" onclick={() => (lightboxIdx = null)} class="absolute right-3 top-3 min-h-11 rounded-full bg-white px-4 py-2 text-sm text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">ปิด</button>
       </div>
     {/if}

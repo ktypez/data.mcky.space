@@ -14,6 +14,7 @@ import wrap from 'svelte-spa-router/wrap'
   import { flushClientMutations } from '@/lib/offline-mutations'
   import CommandPalette from '@/components/CommandPalette.svelte'
   import UpdatePrompt from '@/components/UpdatePrompt.svelte'
+  import Toaster from '@/components/Toaster.svelte'
   import '@/styles/ledger.css'
 
   import Login from './pages/Login.svelte'
@@ -194,5 +195,6 @@ import wrap from 'svelte-spa-router/wrap'
     </div>
     <CommandPalette />
     <UpdatePrompt />
+    <Toaster />
   </div>
 {/if}

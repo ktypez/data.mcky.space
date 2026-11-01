@@ -6,12 +6,14 @@
   import { createPwaInstall } from '@/lib/create-pwa-install.svelte'
   import { useAuthStore, logout } from '@/stores/auth-store'
   import { manuallyUpdateApp, getRememberedRegistration } from '@/lib/pwa-update'
+  import { useFilterStore } from '@/stores/filter-store'
   import { getTheme } from '@/lib/design/themes'
   import { appTheme, setMode, setThemeId, setCustomPalette, themeSupportsMode } from '@/lib/app-theme'
 
   let isSignedIn = $derived($useAuthStore.isSignedIn)
   let setLoginOpen = $derived($useAuthStore.setLoginOpen)
   let theme = $derived($appTheme)
+  let recentDays = $derived($useFilterStore.recentDays)
   let selectedTheme = $derived(getTheme(theme.themeId))
 
   const pwa = createPwaInstall()
@@ -59,6 +61,12 @@
   </div>
   <div id="settings-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} class="min-w-0 space-y-4">
     {#if tab === 'data'}
+    <section class="rounded-2xl border border-border bg-card p-5">
+      <div class="flex items-center justify-between gap-3"><label for="recent-days" class="text-[15px] font-bold">ช่วง “ล่าสุด”</label><span class="font-mono text-[13px] text-primary">{recentDays} วัน</span></div>
+      <p class="mb-3 mt-1 text-[13px] text-muted-foreground">ใช้กับตัวกรอง “ล่าสุด” ในหน้ารายการ</p>
+      <input id="recent-days" type="range" min="7" max="120" step="1" value={recentDays} oninput={(e) => $useFilterStore.setRecentDays(Number(e.currentTarget.value))} class="w-full accent-[var(--primary)]" />
+      <div class="mt-1 flex justify-between font-mono text-[10px] text-muted-foreground"><span>7</span><span>120</span></div>
+    </section>
     <section class="rounded-2xl border border-border bg-card p-5">
       <h2 class="ledger-eyebrow mb-4">การซิงค์ข้อมูล</h2>
       <SyncStatus />
