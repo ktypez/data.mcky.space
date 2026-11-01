@@ -42,9 +42,9 @@ describe('locked application viewport', () => {
     expect(shell).toContain("[role='tab'] { min-height: 44px; }")
     expect(shell).toContain("select { min-height: 48px; }")
     const indexCss = read('src/index.css')
-    expect(indexCss).toContain('--text-xs: 0.75rem;')
-    expect(indexCss).toContain('--text-sm: 0.875rem;')
-    expect(indexCss).toContain('--text-base: 1rem;')
+    expect(indexCss).toContain('--text-xs: 12px;')
+    expect(indexCss).toContain('--text-sm: 14px;')
+    expect(indexCss).toContain('--text-base: 16px;')
   })
 
   it('keeps the search field and filter button as separate controls', () => {
