@@ -676,6 +676,19 @@ const app = new Elysia({ adapter: CloudflareAdapter })
     response: t.Array(RawClientShape),
   })
 
+  // --- recent activity (admin only; IP addresses are never returned) ---
+  .get('/api/audit', async () => {
+    const db = createDb()
+    const rows = await db
+      .select({ id: auditLogTable.id, action: auditLogTable.action, target: auditLogTable.target, payload: auditLogTable.payload, createdAt: auditLogTable.createdAt })
+      .from(auditLogTable)
+      .orderBy(desc(auditLogTable.createdAt))
+      .limit(100)
+    return rows
+  }, {
+    admin: true,
+  })
+
   // --- trash list (purges run at most once/day via maybeDailyMaintenance) ---
   .get('/api/clients/trash', async () => {
     const db = createDb()

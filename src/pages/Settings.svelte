@@ -6,10 +6,13 @@
   import { createPwaInstall } from '@/lib/create-pwa-install.svelte'
   import { useAuthStore, logout } from '@/stores/auth-store'
   import { manuallyUpdateApp, getRememberedRegistration } from '@/lib/pwa-update'
+  import { treatyClient, treatyHeaders } from '@/lib/treaty'
+  import { formatDateTime } from '@/lib/utils'
   import { useFilterStore } from '@/stores/filter-store'
   import { getTheme } from '@/lib/design/themes'
   import { appTheme, setMode, setThemeId, setCustomPalette, themeSupportsMode } from '@/lib/app-theme'
 
+  let isAdmin = $derived($useAuthStore.isAdmin)
   let isSignedIn = $derived($useAuthStore.isSignedIn)
   let setLoginOpen = $derived($useAuthStore.setLoginOpen)
   let theme = $derived($appTheme)
@@ -19,13 +22,43 @@
   const pwa = createPwaInstall()
   onMount(() => pwa.init())
 
-  type Tab = 'look' | 'data' | 'account'
+  type Tab = 'look' | 'data' | 'log' | 'account'
   const TABS: { key: Tab; label: string }[] = [
     { key: 'look', label: 'ธีมและการแสดงผล' },
     { key: 'data', label: 'ข้อมูลและซิงก์' },
+    { key: 'log', label: 'บันทึกกิจกรรม' },
     { key: 'account', label: 'แอปและบัญชี' },
   ]
   let tab = $state<Tab>('look')
+
+  interface AuditRow { id: string; action: string; target: string | null; payload: Record<string, unknown> | null; createdAt: number }
+  let audit = $state<AuditRow[]>([])
+  let auditState = $state<'idle' | 'loading' | 'ready' | 'error'>('idle')
+  const AUDIT_LABELS: Record<string, { tag: string; label: string; tone: 'p' | 'a' | 'd' }> = {
+    'client.create': { tag: '+', label: 'เพิ่มระเบียน', tone: 'p' },
+    'client.update': { tag: 'ED', label: 'แก้ไขระเบียน', tone: 'a' },
+    'client.delete': { tag: 'DEL', label: 'ย้ายไปถังขยะ', tone: 'd' },
+    'client.restore': { tag: 'RST', label: 'กู้คืนระเบียน', tone: 'p' },
+    'client.force_delete': { tag: 'DEL', label: 'ลบถาวร', tone: 'd' },
+    'profile.theme.update': { tag: 'TH', label: 'เปลี่ยนธีม', tone: 'a' },
+  }
+  const TONE: Record<'p' | 'a' | 'd', string> = { p: 'bg-primary/10 text-primary', a: 'bg-accent/15 text-foreground', d: 'bg-destructive/10 text-destructive' }
+
+  async function loadAudit() {
+    auditState = 'loading'
+    try {
+      const { data, error } = await treatyClient.api.audit.get({ headers: await treatyHeaders() })
+      if (error || !Array.isArray(data)) throw new Error('audit')
+      audit = data as unknown as AuditRow[]
+      auditState = 'ready'
+    } catch {
+      auditState = 'error'
+    }
+  }
+
+  $effect(() => {
+    if (tab === 'log' && isAdmin && auditState === 'idle') void loadAudit()
+  })
 
   let appUpdateState = $state<'idle' | 'checking' | 'latest' | 'error'>('idle')
   let resetTimer: ReturnType<typeof setTimeout> | null = null
@@ -107,6 +140,29 @@
           </button>
         {/each}
       </div>
+    </section>
+    {/if}
+
+    {#if tab === 'log'}
+    <section class="rounded-2xl border border-border bg-card px-5 py-1">
+      {#if !isAdmin}
+        <p class="py-6 text-center text-sm text-muted-foreground">เฉพาะผู้ดูแลเท่านั้น</p>
+      {:else if auditState === 'loading' || auditState === 'idle'}
+        <p class="py-6 text-center text-sm text-muted-foreground" role="status">กำลังโหลดบันทึกกิจกรรม…</p>
+      {:else if auditState === 'error'}
+        <div class="py-6 text-center text-sm" role="alert"><p class="text-destructive">โหลดบันทึกกิจกรรมไม่สำเร็จ</p><button type="button" onclick={() => void loadAudit()} class="mt-3 min-h-11 rounded-xl border border-border px-4 text-sm hover:bg-muted">ลองใหม่</button></div>
+      {:else if audit.length === 0}
+        <p class="py-6 text-center text-sm text-muted-foreground">ยังไม่มีกิจกรรม</p>
+      {:else}
+        {#each audit as e (e.id)}
+          {@const meta = AUDIT_LABELS[e.action] ?? { tag: '·', label: e.action, tone: 'a' as const }}
+          <div class="flex items-start gap-3 border-b border-border py-3.5 last:border-b-0">
+            <span aria-hidden="true" class="grid size-8 shrink-0 place-items-center rounded-[9px] font-mono text-[10px] font-semibold {TONE[meta.tone]}">{meta.tag}</span>
+            <span class="min-w-0 flex-1"><span class="block text-sm font-semibold">{meta.label}{#if typeof e.payload?.name === 'string' && e.payload.name} · {e.payload.name}{/if}</span><span class="mt-0.5 block truncate font-mono text-xs text-muted-foreground">{e.target ?? '—'}</span></span>
+            <span class="shrink-0 font-mono text-[11px] text-muted-foreground">{formatDateTime(e.createdAt)}</span>
+          </div>
+        {/each}
+      {/if}
     </section>
     {/if}
 
