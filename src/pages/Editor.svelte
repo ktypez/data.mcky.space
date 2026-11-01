@@ -6,6 +6,7 @@
   import { useAuthStore } from '@/stores/auth-store'
   import { addClient, fetchClientByIdResult, updateClient } from '@/lib/storage'
   import { generateId } from '@/lib/utils'
+  import { showToast } from '@/lib/toast'
   import { setFormDirty } from '@/lib/form-dirty'
   import { checkDuplicateName, type DuplicateResult } from '@/lib/duplicate-names'
   import type { Client } from '@/types/index'
@@ -217,6 +218,7 @@
         saved = await addClient(created, (p) => (progress = p), thumbs)
       }
       store.upsertClient(saved)
+      showToast('บันทึกระเบียนแล้ว')
       push(`/c/${encodeURIComponent(saved.id)}`)
     } catch (submitError) {
       error = submitError instanceof Error ? submitError.message : 'บันทึกไม่สำเร็จ'
@@ -261,7 +263,7 @@
       <div class="min-w-0">
         <button type="button" onclick={onBack} class="mb-3 inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"><ArrowLeft class="inline h-3.5 w-3.5" aria-hidden /> กลับ</button>
         <p class="ledger-eyebrow">{editing ? 'แก้ไขระเบียน' : 'ระเบียนใหม่'}</p>
-        <p class="text-[clamp(22px,6vw,28px)] font-bold tracking-tight" aria-hidden="true">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</p>
+        <p class="flex flex-wrap items-center gap-2 text-[clamp(22px,6vw,28px)] font-bold tracking-tight"><span aria-hidden="true">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</span>{#if dirty && !readOnly}<span role="status" class="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-medium tracking-normal text-foreground">ยังไม่บันทึก</span>{/if}</p>
       </div>
     </div>
 
@@ -316,7 +318,7 @@
           <p class="mt-4 text-[13px] font-medium text-destructive" role="alert">{error}</p>
         {/if}
         {#if uploading}
-          <p class="mt-2 font-mono text-xs opacity-60" role="status">อัปโหลด {progress}%</p>
+          <div class="mt-2" role="status"><div class="h-1.5 overflow-hidden rounded-full bg-muted"><div class="h-full rounded-full bg-primary transition-[width]" style="width: {progress}%"></div></div><p class="mt-1 font-mono text-xs text-muted-foreground">อัปโหลด {progress}%</p></div>
         {/if}
 
         <div class="flex justify-end">

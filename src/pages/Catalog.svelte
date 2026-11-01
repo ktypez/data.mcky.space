@@ -182,7 +182,11 @@
         <span class="w-11">รูป</span><span class="flex-1">ลูกค้า</span><span class="w-[72px]">ชำระ</span><span class="w-12">มี</span><span class="hidden w-24 text-right md:block">อัปเดต</span><span class="w-11"></span>
       </div>
       {#if loading && filtered.length === 0}
-        <div class="flex h-full items-center justify-center p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดรายการ…</div>
+        <div role="status" aria-label="กำลังโหลดรายการ" class="p-2">
+          {#each Array(6) as _, i (i)}
+            <div class="flex items-center gap-3 border-b border-border px-3 py-3.5 last:border-b-0"><span class="size-11 shrink-0 animate-pulse rounded-full bg-muted"></span><span class="flex flex-1 flex-col gap-2"><span class="h-3 w-1/2 animate-pulse rounded bg-muted"></span><span class="h-2.5 w-1/3 animate-pulse rounded bg-muted"></span></span><span class="h-5 w-12 animate-pulse rounded bg-muted"></span></div>
+          {/each}
+        </div>
       {:else if filtered.length === 0}
         <div class="flex h-full items-center justify-center p-8 text-center text-sm text-muted-foreground">{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ — ลองล้างการค้นหาหรือเปลี่ยนตัวกรอง'}</div>
       {:else}
