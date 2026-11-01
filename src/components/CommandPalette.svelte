@@ -1,6 +1,8 @@
 <script lang="ts">
   import { push } from 'svelte-spa-router'
-  import { MagnifyingGlass, ArrowRight } from 'phosphor-svelte'
+  import { MagnifyingGlass, ArrowRight, Plus, Moon } from 'phosphor-svelte'
+  import { useAuthStore } from '@/stores/auth-store'
+  import { appTheme, setMode } from '@/lib/app-theme'
   import { useClientStore } from '@/stores/client-store'
   import { clientSearchText, tokenizeQuery } from '@/lib/clientNames'
   import ClientNames from '@/components/ClientNames.svelte'
@@ -17,6 +19,8 @@
   const readQuery = () => query
 
   let clients = $derived($useClientStore.clients)
+  let isAdmin = $derived($useAuthStore.isAdmin)
+  let dark = $derived($appTheme.resolvedMode === 'dark')
   let loading = $derived($useClientStore.loading)
   let error = $derived($useClientStore.error)
 
@@ -74,6 +78,13 @@
     }
   })
 
+  const commands = $derived(
+    [
+      ...(isAdmin ? [{ label: 'เพิ่มระเบียนใหม่', hint: 'N', icon: Plus, run: () => push('/add') }] : []),
+      { label: dark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด', hint: 'D', icon: Moon, run: () => setMode(dark ? 'light' : 'dark') },
+    ].filter((c) => !query.trim() || c.label.includes(query.trim())),
+  )
+
   function onSelect(client: Client) {
     open = false
     push(`/c/${encodeURIComponent(client.id)}`)
@@ -116,15 +127,25 @@
           onfocus={() => (focused = index)}
           onmouseenter={() => (focused = index)}
           onclick={() => onSelect(client)}
-          class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {index === focused ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}"
+          class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {index === focused ? 'bg-primary/12 text-foreground ring-1 ring-primary/30' : 'hover:bg-muted'}"
         >
           {#if client.images[0] || client.thumb}
             <AppImage src={client.thumb ?? client.images[0]} fallbackSrc={client.thumb ? client.images[0] : undefined} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-full object-cover border border-border" />
           {:else}
             <NameAvatar className={index === focused ? 'ring-2 ring-background' : ''} />
           {/if}
-          <span class="min-w-0 flex-1"><ClientNames {client} variant="list" titleClassName="text-sm leading-tight truncate {index === focused ? 'text-primary-foreground' : 'text-foreground'}" subClassName="text-xs truncate {index === focused ? 'text-primary-foreground/60' : 'opacity-60'}" /></span>
-          <ArrowRight size={14} class={index === focused ? 'text-primary-foreground/60' : 'text-muted-foreground/40'} weight="bold" aria-hidden />
+          <span class="min-w-0 flex-1"><ClientNames {client} variant="list" titleClassName="text-sm leading-tight truncate {'text-foreground'}" subClassName="text-xs truncate {'opacity-60'}" /></span>
+          <ArrowRight size={14} class={index === focused ? 'text-primary' : 'text-muted-foreground/40'} weight="bold" aria-hidden />
+        </button>
+      {/each}
+    {/if}
+    {#if commands.length > 0}
+      <p class="px-3 pb-1 pt-3 text-[11px] text-muted-foreground">คำสั่ง</p>
+      {#each commands as cmd}
+        <button type="button" onclick={() => { open = false; cmd.run() }} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm hover:bg-muted">
+          <cmd.icon size={16} aria-hidden class="text-muted-foreground" />
+          <span class="flex-1">{cmd.label}</span>
+          <kbd class="rounded-md border border-border px-1.5 font-mono text-[10px] text-muted-foreground">{cmd.hint}</kbd>
         </button>
       {/each}
     {/if}

@@ -96,6 +96,7 @@ import wrap from 'svelte-spa-router/wrap'
     { to: '/trash', label: 'ถังขยะ', icon: Trash },
     { to: '/settings', label: 'ตั้งค่า', icon: Gear },
   ]
+  let offline = $derived($useClientStore.offline)
   let clientTotal = $derived($useClientStore.clients.length)
   const isActive = (to: string) => (to === '/' ? router.location === '/' : router.location.startsWith(to))
   const isDark = $derived(theme.resolvedMode === 'dark')
@@ -166,6 +167,9 @@ import wrap from 'svelte-spa-router/wrap'
         </div>
       </div>
     </header>
+    {#if offline}
+      <div role="status" class="relative z-30 flex shrink-0 items-center justify-center gap-2 border-b border-accent/40 bg-accent/15 px-4 py-2 text-center text-xs text-foreground"><span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span><b>ออฟไลน์</b> · กำลังแสดงข้อมูลที่บันทึกไว้ การแก้ไขจะส่งเมื่อกลับมาออนไลน์</div>
+    {/if}
     <main id="ledger-main" class="ledger-main min-h-0 flex-1 overflow-y-auto overscroll-contain">
       <svelte:boundary onerror={(e) => console.error(e)}>
         <Router {routes} />

@@ -50,7 +50,7 @@
   color: var(--foreground);
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 18px;
   box-shadow: 0 24px 70px rgb(0 0 0 / .3);
 }
 .app-dialog-header {
