@@ -44,7 +44,6 @@
           'mono': { css: '/themes/mono.css', dark: false },
           'lotus': { css: '/themes/lotus.css', dark: false },
           'terminal': { css: '/themes/terminal.css', dark: false },
-          'custom': { css: '/themes/custom.css', dark: false },
         };
         var id = null;
         try {
@@ -71,17 +70,6 @@
           }
         }
         if (dark) root.classList.add('dark');
-        if (id === 'custom' && data && data.state && data.state.customPalette) {
-          var palette = data.state.customPalette[dark ? 'dark' : 'light'];
-          if (palette) {
-            root.style.setProperty('--custom-background', palette.background);
-            root.style.setProperty('--custom-surface', palette.surface);
-            root.style.setProperty('--custom-text', palette.text);
-            root.style.setProperty('--custom-primary', palette.primary);
-            root.style.setProperty('--custom-primary-foreground', palette.primaryForeground || '#ffffff');
-            root.style.setProperty('--custom-border', palette.border);
-          }
-        }
         var l = document.createElement('link');
         l.id = 'app-theme-stylesheet';
         l.dataset.appTheme = id;

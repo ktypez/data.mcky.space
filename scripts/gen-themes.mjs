@@ -120,44 +120,6 @@ const THEMES = [
   },
 ]
 
-// custom theme: user-defined palette (kept as-is from the original registry).
-const CUSTOM = {
-  id: 'custom',
-  label: 'Custom',
-  description: 'เลือกสีพื้น ตัวอักษร สีหลัก และเส้นขอบเอง',
-  character: 'plain',
-  modes: ['light', 'dark'],
-  staticCss: '/themes/custom.css',
-  light: {
-    '--background': '#ffffff', '--foreground': '#111111', '--card': '#ffffff',
-    '--card-foreground': '#111111', '--popover': '#ffffff', '--popover-foreground': '#111111',
-    '--primary': '#2563eb', '--primary-foreground': '#ffffff', '--secondary': '#f1f5f9',
-    '--secondary-foreground': '#111111', '--muted': '#f1f5f9', '--muted-foreground': '#475569',
-    '--accent': '#2563eb', '--accent-foreground': '#ffffff', '--destructive': '#dc2626',
-    '--destructive-foreground': '#ffffff', '--success': '#15803d', '--success-foreground': '#ffffff',
-    '--warning': '#a16207', '--warning-foreground': '#ffffff', '--info': '#2563eb',
-    '--info-foreground': '#ffffff', '--border': '#d1d5db', '--input': '#d1d5db',
-    '--ring': '#2563eb', '--sidebar': '#f8fafc', '--sidebar-foreground': '#111111',
-    '--sidebar-accent': '#e2e8f0', '--sidebar-accent-foreground': '#111111',
-    '--sidebar-border': '#d1d5db', '--sidebar-ring': '#2563eb', '--radius': '0.625rem',
-    '--pin-color': '#2563eb',
-  },
-  dark: {
-    '--background': '#0b0f19', '--foreground': '#f8fafc', '--card': '#111827',
-    '--card-foreground': '#f8fafc', '--popover': '#111827', '--popover-foreground': '#f8fafc',
-    '--primary': '#a3e635', '--primary-foreground': '#0f172a', '--secondary': '#1e293b',
-    '--secondary-foreground': '#f8fafc', '--muted': '#1e293b', '--muted-foreground': '#cbd5e1',
-    '--accent': '#a3e635', '--accent-foreground': '#0f172a', '--destructive': '#f87171',
-    '--destructive-foreground': '#0f172a', '--success': '#4ade80', '--success-foreground': '#0f172a',
-    '--warning': '#fbbf24', '--warning-foreground': '#0f172a', '--info': '#38bdf8',
-    '--info-foreground': '#0f172a', '--border': '#334155', '--input': '#334155',
-    '--ring': '#a3e635', '--sidebar': '#111827', '--sidebar-foreground': '#f8fafc',
-    '--sidebar-accent': '#1e293b', '--sidebar-accent-foreground': '#f8fafc',
-    '--sidebar-border': '#334155', '--sidebar-ring': '#a3e635', '--radius': '0.625rem',
-    '--pin-color': '#a3e635',
-  },
-}
-
 // ---- emit public/themes/{id}.css -------------------------------------------
 for (const t of THEMES) {
   const light = CSS_VARS(t.light, t.fonts)
@@ -179,8 +141,6 @@ ${dark.map(([k, v]) => `  ${k}: ${v};`).join('\n')}
 `
   writeFileSync(resolve(ROOT, 'public/themes', `${t.id}.css`), css)
 }
-
-// custom.css is hand-maintained; don't overwrite it.
 
 // ---- emit src/lib/design/themes.ts -----------------------------------------
 function toTsVarBlock(vars) {
@@ -208,21 +168,6 @@ ${toTsVarBlock(toVarsObj(t.dark))}
     },
   }`).join(',\n')
 
-const customEntry = `  {
-    id: 'custom',
-    label: 'Custom',
-    description: 'เลือกสีพื้น ตัวอักษร สีหลัก และเส้นขอบเอง',
-    character: 'plain',
-    modes: ['light', 'dark'],
-    staticCss: '/themes/custom.css',
-    light: {
-${toTsVarBlock(CUSTOM.light)}
-    },
-    dark: {
-${toTsVarBlock(CUSTOM.dark)}
-    },
-  }`
-
 const ts = `// =============================================================================
 // themes.ts — data.mcky.space theme registry
 // -----------------------------------------------------------------------------
@@ -232,7 +177,6 @@ const ts = `// =================================================================
 // Each is a "plain" colour theme (no glitch/crt/brut effects), dual-mode
 // (light + dark), applied via a static stylesheet at /themes/{id}.css that the
 // boot script preloads and app-theme.ts swaps at runtime.
-// The trailing 'custom' theme is the user-editable palette.
 // =============================================================================
 import type { Theme, ThemeGroup } from './tokens'
 
@@ -240,7 +184,6 @@ export type { Theme, ThemeGroup, ThemeVars } from './tokens'
 
 export const themes: Theme[] = [
 ${protoEntries},
-${customEntry},
 ]
 
 const defaultTheme: Theme = themes.find((t) => t.id === 'ledger') ?? themes[0]
@@ -275,4 +218,4 @@ export const themeGroups: ThemeGroup[] = GROUPS.filter((g) => themes.some((t) =>
 `
 writeFileSync(resolve(ROOT, 'src/lib/design/themes.ts'), ts)
 
-console.log('Generated themes.ts + ' + THEMES.length + ' CSS files (custom.css untouched)')
+console.log('Generated themes.ts + ' + THEMES.length + ' CSS files')

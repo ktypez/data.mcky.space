@@ -2,7 +2,6 @@
   import { onMount } from 'svelte'
   import { ArrowsClockwise, Check, DownloadSimple, LockKey, Monitor, Moon, SignOut, Sun } from 'phosphor-svelte'
   import SyncStatus from '@/components/SyncStatus.svelte'
-  import AppThemePicker from '@/components/AppThemePicker.svelte'
   import { createPwaInstall } from '@/lib/create-pwa-install.svelte'
   import { useAuthStore, logout } from '@/stores/auth-store'
   import { manuallyUpdateApp, getRememberedRegistration } from '@/lib/pwa-update'
@@ -10,14 +9,14 @@
   import { formatDateTime } from '@/lib/utils'
   import { useFilterStore } from '@/stores/filter-store'
   import { getTheme, themes } from '@/lib/design/themes'
-  import { appTheme, setMode, setThemeId, setCustomPalette, themeSupportsMode } from '@/lib/app-theme'
+  import { appTheme, setMode, setThemeId, themeSupportsMode } from '@/lib/app-theme'
 
   let isAdmin = $derived($useAuthStore.isAdmin)
   let isSignedIn = $derived($useAuthStore.isSignedIn)
   let setLoginOpen = $derived($useAuthStore.setLoginOpen)
   let theme = $derived($appTheme)
   let recentDays = $derived($useFilterStore.recentDays)
-  const PRESETS = themes.filter((t) => t.id !== 'custom')
+  const PRESETS = themes
   let dark = $derived(theme.resolvedMode === 'dark')
   let selectedTheme = $derived(getTheme(theme.themeId))
 
@@ -122,12 +121,6 @@
         {/each}
       </div>
     </section>
-    <section class="rounded-2xl border border-border bg-card p-5">
-      <h2 class="ledger-eyebrow">สีกำหนดเอง</h2>
-      <p class="mb-3 mt-1 text-[13px] text-muted-foreground">ปรับสีพื้นหลัง ตัวอักษร สีหลัก และเส้นขอบเอง พร้อมเตือนเมื่อคอนทราสต์ต่ำ</p>
-      <AppThemePicker variant="custom" themeId={theme.themeId} setThemeId={setThemeId} customPalette={theme.customPalette} setCustomPalette={setCustomPalette} />
-    </section>
-
     <section class="rounded-2xl border border-border bg-card p-5">
       <div class="mb-3 flex items-center justify-between gap-3">
         <h2 class="ledger-eyebrow">โหมดสี</h2>
