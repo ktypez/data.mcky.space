@@ -18,7 +18,6 @@
   let clients = $derived($useClientStore.clients)
   let loading = $derived($useClientStore.loading)
   let error = $derived($useClientStore.error)
-  let offline = $derived($useClientStore.offline)
   let refresh = $derived($useClientStore.refresh)
   let refreshing = $derived($useClientStore.refreshing)
   let search = $derived($useFilterStore.search)
@@ -161,7 +160,7 @@
           type="button"
           onclick={() => { setFilter(choice.key); focused = 0 }}
           aria-pressed={filter === choice.key}
-          class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors {filter === choice.key ? 'border-foreground bg-foreground text-background' : 'border-border text-foreground hover:bg-muted'}"
+          class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors {filter === choice.key ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-foreground hover:bg-muted'}"
         >
           {FILTER_LABELS[choice.key]}
           <span class="font-mono text-xs opacity-80">{choice.count()}</span>
@@ -169,9 +168,6 @@
       {/each}
     </div>
 
-    {#if offline}
-      <p class="mt-3 shrink-0 rounded-[10px] border border-border bg-muted px-3 py-2 text-center text-xs text-muted-foreground" role="status">อยู่ออฟไลน์ — กำลังแสดงข้อมูลที่บันทึกไว้</p>
-    {/if}
     {#if error && filtered.length === 0}
       <div class="mt-3 flex shrink-0 items-center justify-between gap-3 rounded-[10px] border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
         <span>โหลดรายการไม่สำเร็จ</span>

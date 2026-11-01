@@ -118,8 +118,8 @@
 
 {#if variant === 'custom'}
   <button type="button" onclick={open} aria-haspopup="dialog" class="inline-flex min-h-11 items-center gap-3 rounded-xl border border-border bg-card px-4 text-sm font-medium hover:bg-muted">
-    {@render swatches(getTheme('custom'), resolvedMode === 'dark')}
-    ปรับสีเอง{#if themeId === 'custom'}<Check size={14} weight="bold" aria-label="กำลังใช้งาน" />{/if}
+    <span class="w-14 shrink-0">{@render swatches(getTheme('custom'), resolvedMode === 'dark')}</span>
+    <span class="whitespace-nowrap">ปรับสีเอง</span>{#if themeId === 'custom'}<Check size={14} weight="bold" aria-label="กำลังใช้งาน" />{/if}
   </button>
 {:else}
   <button type="button" class="app-theme-trigger" onclick={open} aria-haspopup="dialog">

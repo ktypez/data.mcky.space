@@ -65,7 +65,7 @@
   let appUpdateState = $state<'idle' | 'checking' | 'latest' | 'error'>('idle')
   let resetTimer: ReturnType<typeof setTimeout> | null = null
 
-  const modeItems = ['auto', 'light', 'dark'] as const
+  const modeItems = ['light', 'dark', 'auto'] as const
 
   const finishUpdateCheck = (next: 'latest' | 'error') => {
     appUpdateState = next

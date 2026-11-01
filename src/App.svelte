@@ -148,8 +148,8 @@ import wrap from 'svelte-spa-router/wrap'
     <header class="ledger-header relative z-40 shrink-0 border-b border-border bg-card/85 backdrop-blur">
       <div class="mx-auto flex min-h-16 max-w-6xl items-center gap-2 px-3 sm:px-8">
         <a href="/" use:link onclick={guardNavigation} aria-label="DATA Ledger หน้าแรก" class="flex items-center gap-2">
-          <span class="ledger-wordmark">DATA</span>
-          <span class="font-mono text-xs text-muted-foreground">/ ledger</span>
+          <span class="grid size-8 place-items-center rounded-[9px] bg-primary text-primary-foreground" aria-hidden="true"><ListBullets weight="bold" size={17} /></span>
+          <span class="text-[15px] font-bold tracking-tight">DATA Ledger</span>
           <span class="rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">V4</span>
         </a>
         <nav class="ml-4 hidden items-center gap-1 sm:flex" aria-label="เมนูหลัก">
