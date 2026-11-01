@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import Router, { router, link, push } from 'svelte-spa-router'
 import wrap from 'svelte-spa-router/wrap'
-  import { House, Plus, Gear, MapTrifold, Trash, Sun, Moon, LockKey } from 'phosphor-svelte'
+  import { House, Plus, Gear, MapTrifold, Trash, Sun, Moon, LockKey, ListBullets } from 'phosphor-svelte'
   import { useAuthStore } from '@/stores/auth-store'
   import { useClientStore } from '@/stores/client-store'
   import { useFilterStore } from '@/stores/filter-store'
@@ -91,11 +91,12 @@ import wrap from 'svelte-spa-router/wrap'
   }
 
   const navItems = [
-    { to: '/', label: 'รายการ' },
-    { to: '/maps', label: 'แผนที่' },
-    { to: '/trash', label: 'ถังขยะ' },
-    { to: '/settings', label: 'ตั้งค่า' },
+    { to: '/', label: 'รายการ', icon: ListBullets },
+    { to: '/maps', label: 'แผนที่', icon: MapTrifold },
+    { to: '/trash', label: 'ถังขยะ', icon: Trash },
+    { to: '/settings', label: 'ตั้งค่า', icon: Gear },
   ]
+  let clientTotal = $derived($useClientStore.clients.length)
   const isActive = (to: string) => (to === '/' ? router.location === '/' : router.location.startsWith(to))
   const isDark = $derived(theme.resolvedMode === 'dark')
 
@@ -107,6 +108,37 @@ import wrap from 'svelte-spa-router/wrap'
 {:else}
   <div class="ledger-shell" data-mode={theme.resolvedMode}>
     <a href="#ledger-main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-card focus:px-4 focus:py-3 focus:text-foreground">ข้ามไปเนื้อหา</a>
+    <aside class="ledger-rail" aria-label="แถบนำทาง">
+      <a href="/" use:link onclick={guardNavigation} aria-label="DATA Ledger หน้าแรก" class="ledger-rail-brand">
+        <span class="ledger-rail-logo" aria-hidden="true"><ListBullets weight="bold" size={19} /></span>
+        <span><span class="block text-[15px] font-bold leading-tight tracking-tight">DATA Ledger</span><span class="block font-mono text-[10px] text-muted-foreground">data.mcky.space · V4</span></span>
+      </a>
+      {#if isAdmin}
+        <a href="/add" use:link onclick={guardNavigation} class="ledger-rail-add"><Plus weight="bold" size={17} aria-hidden /> เพิ่มระเบียน</a>
+      {/if}
+      <nav class="flex flex-col gap-0.5" aria-label="เมนูหลัก">
+        {#each navItems as item}
+          <a href={item.to} use:link onclick={guardNavigation} aria-current={isActive(item.to) ? 'page' : undefined} class="ledger-rail-link" class:is-active={isActive(item.to)}>
+            <item.icon size={18} weight={isActive(item.to) ? 'fill' : 'regular'} aria-hidden />
+            {item.label}
+            {#if item.to === '/' && clientTotal > 0}<span class="ml-auto font-mono text-[11px]">{clientTotal.toLocaleString('th-TH')}</span>{/if}
+          </a>
+        {/each}
+      </nav>
+      <div class="mt-auto flex items-center gap-2">
+        {#if !isAdmin && !signedIn}
+          <a href="/login" use:link class="ledger-rail-link flex-1 border border-border bg-card"><LockKey size={17} aria-hidden /> เข้าสู่ระบบ</a>
+        {:else if isAdmin}
+          <span class="ledger-rail-link flex-1 border border-border bg-card"><span class="grid size-[26px] place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary" aria-hidden="true">AD</span> ผู้ดูแล</span>
+        {:else}
+          <span class="flex-1"></span>
+        {/if}
+        <button type="button" onclick={() => setMode(isDark ? 'light' : 'dark')} aria-label={isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'} class="grid size-11 shrink-0 place-items-center rounded-[12px] border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground">
+          {#if isDark}<Sun size={17} aria-hidden />{:else}<Moon size={17} aria-hidden />{/if}
+        </button>
+      </div>
+    </aside>
+    <div class="ledger-col">
     <header class="ledger-header relative z-40 shrink-0 border-b border-border bg-card/85 backdrop-blur">
       <div class="mx-auto flex min-h-16 max-w-6xl items-center gap-2 px-3 sm:px-8">
         <a href="/" use:link onclick={guardNavigation} aria-label="DATA Ledger หน้าแรก" class="flex items-center gap-2">
@@ -155,6 +187,7 @@ import wrap from 'svelte-spa-router/wrap'
         <button type="button" onclick={(e) => { guardNavigation(e); if (!e.defaultPrevented) push('/settings') }} aria-label="เมนูและการตั้งค่า" class="ledger-nav-item" class:is-active={router.location === '/settings'}><Gear size={21} aria-hidden /><span>เมนู</span></button>
       </div>
     </nav>
+    </div>
     <CommandPalette />
     <UpdatePrompt />
   </div>
