@@ -67,11 +67,11 @@ const THEMES = [
   {
     id: 'ledger',
     label: 'Ledger',
-    description: 'โทนเขียวทั้งธีม — กระดาษเขียวอ่อน หมึกเขียวมรกต เขียวอมฟ้าเป็นสีหลัก (ค่าเริ่มต้น)',
+    description: 'โทนเขียวนุ่มสบายตา — กระดาษเขียวนวลหม่น สีหลักเขียวกวางนุ่ม ไม่จัดจ้าน (ค่าเริ่มต้น)',
     fonts: { display: 'Noto Sans Thai, sans-serif', body: 'Noto Sans Thai, sans-serif', mono: SYSTEM_MONO },
     fontUrl: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap',
-    light: { bg: '#e6f1e9', fg: '#0b2417', card: '#f7fbf8', border: '#a3c9b1', muted: '#cfe5d6', mutedFg: '#3d5a49', primary: '#0b7a5c', primaryFg: '#ffffff', destructive: '#b3261e', accent: '#c2410c' },
-    dark:  { bg: '#08160f', fg: '#ddf3e4', card: '#102319', border: '#295540', muted: '#17301f', mutedFg: '#8fbc9f', primary: '#34e08f', primaryFg: '#03150c', destructive: '#f87171', accent: '#fbbf24' },
+    light: { bg: '#e9efe6', fg: '#1e2c22', card: '#f8fbf6', border: '#c6d2c4', muted: '#dde4d9', mutedFg: '#4a5848', primary: '#4a7a5c', primaryFg: '#ffffff', destructive: '#b3261e', accent: '#c2410c' },
+    dark:  { bg: '#101813', fg: '#d4e0d2', card: '#17241c', border: '#33483a', muted: '#1c2a20', mutedFg: '#9bb39a', primary: '#6db38f', primaryFg: '#0a1a12', destructive: '#f87171', accent: '#fbbf24' },
   },
   {
     id: 'claude',
