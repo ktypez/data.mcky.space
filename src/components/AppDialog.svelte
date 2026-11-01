@@ -23,7 +23,7 @@
     dialogClassName?: string
     showHeader?: boolean
     closeLabel?: string
-    variant?: 'dialog' | 'drawer' | 'lightbox'
+    variant?: 'dialog' | 'drawer' | 'lightbox' | 'sheet'
     lockBody?: boolean
   } = $props()
 

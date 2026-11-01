@@ -7,7 +7,7 @@
   import { addClient, fetchClientByIdResult, updateClient } from '@/lib/storage'
   import { generateId } from '@/lib/utils'
   import { showToast } from '@/lib/toast'
-  import { setFormDirty } from '@/lib/form-dirty'
+  import { askLeave, setFormDirty } from '@/lib/form-dirty'
   import { checkDuplicateName, type DuplicateResult } from '@/lib/duplicate-names'
   import type { Client } from '@/types/index'
   import MultiValueInput from '@/components/MultiValueInput.svelte'
@@ -231,8 +231,7 @@
   }
 
   function onBack() {
-    if (dirty && !window.confirm('มีข้อมูลที่ยังไม่บันทึก ต้องการออกจากฟอร์มไหม?')) return
-    push(editClient ? `/c/${encodeURIComponent(editClient.id)}` : '/')
+    askLeave(() => push(editClient ? `/c/${encodeURIComponent(editClient.id)}` : '/'))
   }
 
   $effect(() => {
