@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { ArrowsClockwise, DownloadSimple, LockKey, Monitor, Moon, SignOut, Sun } from 'phosphor-svelte'
+  import { ArrowsClockwise, Check, DownloadSimple, LockKey, Monitor, Moon, SignOut, Sun } from 'phosphor-svelte'
   import SyncStatus from '@/components/SyncStatus.svelte'
   import AppThemePicker from '@/components/AppThemePicker.svelte'
   import { createPwaInstall } from '@/lib/create-pwa-install.svelte'
@@ -9,7 +9,7 @@
   import { treatyClient, treatyHeaders } from '@/lib/treaty'
   import { formatDateTime } from '@/lib/utils'
   import { useFilterStore } from '@/stores/filter-store'
-  import { getTheme } from '@/lib/design/themes'
+  import { getTheme, themes } from '@/lib/design/themes'
   import { appTheme, setMode, setThemeId, setCustomPalette, themeSupportsMode } from '@/lib/app-theme'
 
   let isAdmin = $derived($useAuthStore.isAdmin)
@@ -17,6 +17,8 @@
   let setLoginOpen = $derived($useAuthStore.setLoginOpen)
   let theme = $derived($appTheme)
   let recentDays = $derived($useFilterStore.recentDays)
+  const PRESETS = themes.filter((t) => t.id !== 'custom')
+  let dark = $derived(theme.resolvedMode === 'dark')
   let selectedTheme = $derived(getTheme(theme.themeId))
 
   const pwa = createPwaInstall()
@@ -107,8 +109,23 @@
     {/if}
     {#if tab === 'look'}
     <section class="rounded-2xl border border-border bg-card p-5">
-      <h2 class="ledger-eyebrow mb-4">ธีม</h2>
-      <AppThemePicker themeId={theme.themeId} setThemeId={setThemeId} customPalette={theme.customPalette} setCustomPalette={setCustomPalette} />
+      <h2 class="ledger-eyebrow">ชุดธีม</h2>
+      <p class="mb-3.5 mt-1 text-[13px] text-muted-foreground">{PRESETS.length} ชุดสี พร้อมฟอนต์ที่เข้ากัน</p>
+      <div class="grid grid-cols-2 gap-2.5 min-[900px]:grid-cols-3" role="radiogroup" aria-label="เลือกชุดธีม">
+        {#each PRESETS as t (t.id)}
+          {@const v = dark ? t.dark : t.light}
+          {@const active = theme.themeId === t.id}
+          <button type="button" role="radio" aria-checked={active} onclick={() => setThemeId(t.id)} class="flex flex-col gap-2 rounded-[14px] border-2 p-2 text-left transition-colors {active ? 'border-primary' : 'border-border hover:border-primary/50'}" style="background: {v['--card']}">
+            <span class="flex h-12 overflow-hidden rounded-[9px] border" style="border-color: {v['--border']}"><span class="flex-[3]" style="background: {v['--background']}"></span><span class="flex-[2]" style="background: {v['--primary']}"></span><span class="flex-1" style="background: {v['--accent']}"></span></span>
+            <span class="flex items-center justify-between text-[13px] font-semibold" style="color: {v['--foreground']}">{t.label}{#if active}<Check size={14} weight="bold" style="color: {v['--primary']}" aria-label="ธีมปัจจุบัน" />{/if}</span>
+          </button>
+        {/each}
+      </div>
+    </section>
+    <section class="rounded-2xl border border-border bg-card p-5">
+      <h2 class="ledger-eyebrow">สีกำหนดเอง</h2>
+      <p class="mb-3 mt-1 text-[13px] text-muted-foreground">ปรับสีพื้นหลัง ตัวอักษร สีหลัก และเส้นขอบเอง พร้อมเตือนเมื่อคอนทราสต์ต่ำ</p>
+      <AppThemePicker variant="custom" themeId={theme.themeId} setThemeId={setThemeId} customPalette={theme.customPalette} setCustomPalette={setCustomPalette} />
     </section>
 
     <section class="rounded-2xl border border-border bg-card p-5">
