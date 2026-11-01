@@ -17,6 +17,14 @@
   const pwa = createPwaInstall()
   onMount(() => pwa.init())
 
+  type Tab = 'look' | 'data' | 'account'
+  const TABS: { key: Tab; label: string }[] = [
+    { key: 'look', label: 'ธีมและการแสดงผล' },
+    { key: 'data', label: 'ข้อมูลและซิงก์' },
+    { key: 'account', label: 'แอปและบัญชี' },
+  ]
+  let tab = $state<Tab>('look')
+
   let appUpdateState = $state<'idle' | 'checking' | 'latest' | 'error'>('idle')
   let resetTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -40,14 +48,23 @@
   }
 </script>
 
-<section class="mx-auto max-w-3xl px-3 pb-8 pt-6 sm:px-8">
+<section class="mx-auto max-w-[1000px] px-3 pb-8 pt-6 sm:px-8">
   <p class="ledger-eyebrow">ตั้งค่า</p>
   <h1 class="mb-5 text-[clamp(22px,6vw,28px)] font-bold tracking-tight">เมนูและการตั้งค่า</h1>
-  <div class="space-y-4">
+  <div class="flex flex-col gap-4 min-[900px]:grid min-[900px]:grid-cols-[220px_minmax(0,1fr)] min-[900px]:items-start min-[900px]:gap-6">
+  <div role="tablist" aria-label="หมวดการตั้งค่า" aria-orientation="vertical" class="flex gap-1 overflow-x-auto rounded-[14px] border border-border bg-muted p-1 min-[900px]:flex-col min-[900px]:overflow-visible min-[900px]:border-0 min-[900px]:bg-transparent min-[900px]:p-0">
+    {#each TABS as t}
+      <button type="button" role="tab" id={`tab-${t.key}`} aria-selected={tab === t.key} aria-controls="settings-panel" onclick={() => (tab = t.key)} class="min-h-11 shrink-0 whitespace-nowrap rounded-[11px] px-3.5 text-left text-[13px] font-medium {tab === t.key ? 'bg-card text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}">{t.label}</button>
+    {/each}
+  </div>
+  <div id="settings-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} class="min-w-0 space-y-4">
+    {#if tab === 'data'}
     <section class="rounded-2xl border border-border bg-card p-5">
       <h2 class="ledger-eyebrow mb-4">การซิงค์ข้อมูล</h2>
       <SyncStatus />
     </section>
+    {/if}
+    {#if tab === 'look'}
     <section class="rounded-2xl border border-border bg-card p-5">
       <h2 class="ledger-eyebrow mb-4">ธีม</h2>
       <AppThemePicker themeId={theme.themeId} setThemeId={setThemeId} customPalette={theme.customPalette} setCustomPalette={setCustomPalette} />
@@ -83,7 +100,9 @@
         {/each}
       </div>
     </section>
+    {/if}
 
+    {#if tab === 'account'}
     <section class="rounded-2xl border border-border bg-card p-5">
       <div class="mb-2 flex items-center justify-between gap-3">
         <h2 class="ledger-eyebrow">แอปและบัญชี</h2>
@@ -104,5 +123,7 @@
         {/if}
       </div>
     </section>
+    {/if}
+  </div>
   </div>
 </section>
