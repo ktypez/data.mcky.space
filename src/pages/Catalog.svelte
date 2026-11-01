@@ -161,7 +161,7 @@
           type="button"
           onclick={() => { setFilter(choice.key); focused = 0 }}
           aria-pressed={filter === choice.key}
-          class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors {filter === choice.key ? 'border-foreground bg-foreground text-background' : 'border-border text-foreground hover:bg-muted'}"
+          class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors {filter === choice.key ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-foreground hover:bg-muted'}"
         >
           {FILTER_LABELS[choice.key]}
           <span class="font-mono text-xs opacity-80">{choice.count()}</span>
