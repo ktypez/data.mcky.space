@@ -18,11 +18,13 @@
     setThemeId,
     customPalette,
     setCustomPalette,
+    variant = 'full',
   }: {
     themeId: string
     setThemeId: (themeId: string) => void
     customPalette: CustomPalette
     setCustomPalette: (palette: CustomPalette) => void
+    variant?: 'full' | 'custom'
   } = $props()
 
   const PRESET_THEMES = themes.filter((theme) => theme.id !== 'custom')
@@ -81,7 +83,7 @@
   }
 
   function open() {
-    tab = themeId === 'custom' ? 'custom' : 'themes'
+    tab = variant === 'custom' || themeId === 'custom' ? 'custom' : 'themes'
     draft = customPalette[resolvedMode]
     if (dialogRef && !dialogRef.open) dialogRef.showModal()
   }
@@ -114,14 +116,21 @@
   </span>
 {/snippet}
 
-<button type="button" class="app-theme-trigger" onclick={open} aria-haspopup="dialog">
-  {@render swatches(selected, resolvedMode === 'dark')}
-  <span class="app-theme-trigger-copy">
-    <strong>{selected.label}</strong>
-    <small>{cleanDescription(selected.description)}</small>
-  </span>
-  <CaretDown size={16} weight="bold" aria-hidden />
-</button>
+{#if variant === 'custom'}
+  <button type="button" onclick={open} aria-haspopup="dialog" class="inline-flex min-h-11 items-center gap-3 rounded-xl border border-border bg-card px-4 text-sm font-medium hover:bg-muted">
+    {@render swatches(getTheme('custom'), resolvedMode === 'dark')}
+    ปรับสีเอง{#if themeId === 'custom'}<Check size={14} weight="bold" aria-label="กำลังใช้งาน" />{/if}
+  </button>
+{:else}
+  <button type="button" class="app-theme-trigger" onclick={open} aria-haspopup="dialog">
+    {@render swatches(selected, resolvedMode === 'dark')}
+    <span class="app-theme-trigger-copy">
+      <strong>{selected.label}</strong>
+      <small>{cleanDescription(selected.description)}</small>
+    </span>
+    <CaretDown size={16} weight="bold" aria-hidden />
+  </button>
+{/if}
 
 <dialog
   bind:this={dialogRef}
@@ -141,6 +150,7 @@
     </button>
   </div>
 
+  {#if variant === 'full'}
   <div class="app-theme-tabs" role="tablist" aria-label="หมวดธีม">
     <button
       type="button"
@@ -170,6 +180,7 @@
       Custom
     </button>
   </div>
+  {/if}
 
   <div id="app-theme-panel" role="tabpanel" class="app-theme-dialog-body">
     {#if tab === 'themes'}
