@@ -10,6 +10,8 @@ body:has(.ledger-shell) {
 }
 html:has(.ledger-shell):root {
   color-scheme: light;
+  /* Compact density: scale rem-based spacing and typography to 80%. */
+  font-size: 80%;
 }
 html:has(.ledger-shell[data-mode='dark']):root {
   color-scheme: dark;
@@ -102,6 +104,14 @@ html:has(.ledger-shell):root body {
 .ledger-shell .shadow-sm,
 .ledger-shell .shadow-lg,
 .ledger-shell .shadow-md { box-shadow: none; }
+
+/* Preserve accessible touch/input sizes while the surrounding rem-based UI is compacted. */
+.ledger-shell button,
+.ledger-shell [role='button'],
+.ledger-shell [role='tab'] { min-height: 44px; }
+.ledger-shell input,
+.ledger-shell textarea,
+.ledger-shell select { min-height: 48px; }
 
 /* V4 type helpers */
 .ledger-eyebrow {
