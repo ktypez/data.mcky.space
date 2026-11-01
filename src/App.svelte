@@ -7,13 +7,14 @@ import wrap from 'svelte-spa-router/wrap'
   import { useClientStore } from '@/stores/client-store'
   import { useFilterStore } from '@/stores/filter-store'
   import { FilterKey } from '@/types/index'
-  import { isFormDirty } from '@/lib/form-dirty'
+  import { isFormDirty, askLeave } from '@/lib/form-dirty'
   import { appTheme, initAppTheme, setMode } from '@/lib/app-theme'
   import { initClerk } from '@/lib/clerk'
   import '@/lib/pwa-install'
   import { flushClientMutations } from '@/lib/offline-mutations'
   import CommandPalette from '@/components/CommandPalette.svelte'
   import UpdatePrompt from '@/components/UpdatePrompt.svelte'
+  import LeaveDialog from '@/components/LeaveDialog.svelte'
   import Toaster from '@/components/Toaster.svelte'
   import '@/styles/ledger.css'
 
@@ -44,7 +45,7 @@ import wrap from 'svelte-spa-router/wrap'
   const DOUBLE_TAP_DELAY = 300 // ms
 
   function handleHomeClick(event: MouseEvent) {
-    guardNavigation(event)
+    guardNavigation(event, '/')
     if (event.defaultPrevented) return
 
     const now = Date.now()
@@ -84,11 +85,14 @@ import wrap from 'svelte-spa-router/wrap'
     document.getElementById('ledger-main')?.scrollTo({ top: 0 })
   })
 
-  function guardNavigation(event: MouseEvent): void {
-    if (isFormDirty() && !window.confirm('มีข้อมูลที่ยังไม่บันทึก ต้องการออกจากฟอร์มไหม?')) {
-      event.preventDefault()
-      event.stopPropagation()
-    }
+  function guardNavigation(event: MouseEvent, to?: string): void {
+    if (!isFormDirty()) return
+    event.preventDefault()
+    event.stopPropagation()
+    const target = to ?? (event.currentTarget as HTMLElement | null)?.closest('a')?.getAttribute('href') ?? null
+    askLeave(() => {
+      if (target) push(target)
+    })
   }
 
   const navItems = [
@@ -189,12 +193,13 @@ import wrap from 'svelte-spa-router/wrap'
           <span aria-label="เพิ่มรายการ" aria-disabled="true" class="ledger-add-button opacity-40 grayscale"><Plus weight="bold" size={25} aria-hidden /></span>
         {/if}
         <a href="/trash" use:link onclick={guardNavigation} aria-label="ถังขยะ" class="ledger-nav-item" class:is-active={router.location === '/trash'}><Trash size={21} aria-hidden /><span>ถังขยะ</span></a>
-        <button type="button" onclick={(e) => { guardNavigation(e); if (!e.defaultPrevented) push('/settings') }} aria-label="เมนูและการตั้งค่า" class="ledger-nav-item" class:is-active={router.location === '/settings'}><Gear size={21} aria-hidden /><span>เมนู</span></button>
+        <button type="button" onclick={(e) => { guardNavigation(e, '/settings'); if (!e.defaultPrevented) push('/settings') }} aria-label="เมนูและการตั้งค่า" class="ledger-nav-item" class:is-active={router.location === '/settings'}><Gear size={21} aria-hidden /><span>เมนู</span></button>
       </div>
     </nav>
     </div>
     <CommandPalette />
     <UpdatePrompt />
     <Toaster />
+    <LeaveDialog />
   </div>
 {/if}

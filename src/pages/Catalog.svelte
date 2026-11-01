@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { MagnifyingGlass, X, ArrowsClockwise } from 'phosphor-svelte'
+  import { MagnifyingGlass, X, ArrowsClockwise, FunnelSimple } from 'phosphor-svelte'
   import { push } from 'svelte-spa-router'
   import { createVirtualizer } from '@tanstack/svelte-virtual'
   import { useClientStore } from '@/stores/client-store'
@@ -12,6 +12,7 @@
   import { clientTitleValues } from '@/lib/clientNames'
   import { useAuthStore } from '@/stores/auth-store'
   import { formatDate } from '@/lib/utils'
+  import AppDialog from '@/components/AppDialog.svelte'
   import CatalogRow from '@/components/CatalogRow.svelte'
 
   let clients = $derived($useClientStore.clients)
@@ -33,6 +34,7 @@
     return sortByCreatedDesc(result)
   })
 
+  let sheetOpen = $state(false)
   let focused = $state(0)
   let isAdmin = $derived($useAuthStore.isAdmin)
   let current = $derived(filtered[focused])
@@ -152,7 +154,8 @@
       </button>
     </div>
 
-    <div class="-mx-3 mt-3 flex shrink-0 gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:px-0" role="group" aria-label="ตัวกรองรายการ">
+    <button type="button" onclick={() => (sheetOpen = true)} class="mt-3 inline-flex min-h-11 shrink-0 items-center gap-2 self-start rounded-full border border-border bg-card px-4 text-sm font-medium sm:hidden"><FunnelSimple size={16} aria-hidden /> ตัวกรอง · {FILTER_LABELS[filter]}</button>
+    <div class="-mx-3 mt-3 hidden shrink-0 gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:flex sm:px-0" role="group" aria-label="ตัวกรองรายการ">
       {#each FILTER_CHOICES as choice}
         <button
           type="button"
@@ -244,3 +247,16 @@
     </aside>
     </div>
   </div>
+
+<AppDialog open={sheetOpen} onClose={() => (sheetOpen = false)} title="ตัวกรอง" variant="sheet" showHeader>
+  <div class="p-4 pb-6">
+    <div class="flex flex-wrap gap-2" role="group" aria-label="ตัวกรองรายการ">
+      {#each FILTER_CHOICES as choice}
+        <button type="button" onclick={() => { setFilter(choice.key); focused = 0 }} aria-pressed={filter === choice.key} class="inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-medium {filter === choice.key ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card'}">
+          {FILTER_LABELS[choice.key]}<span class="font-mono text-xs opacity-80">{choice.count()}</span>
+        </button>
+      {/each}
+    </div>
+    <button type="button" onclick={() => (sheetOpen = false)} class="mt-5 min-h-12 w-full rounded-xl bg-primary text-sm font-semibold text-primary-foreground">แสดง {filtered.length.toLocaleString('th-TH')} รายการ</button>
+  </div>
+</AppDialog>
