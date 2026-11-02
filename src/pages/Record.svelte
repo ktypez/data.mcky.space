@@ -222,13 +222,13 @@
   ]}
   <div class="flex flex-wrap items-center justify-between gap-2">
     <Button variant="ghost" onclick={() => push('/')}><ArrowLeft class="inline h-3.5 w-3.5" aria-hidden="true" /> กลับ</Button>
-    <div class="flex flex-wrap items-center gap-2">
+    <div class="flex min-w-0 items-center gap-2 overflow-x-auto scrollbar-none">
       <Button variant="pop" onclick={() => void copyAll()}><Copy class="inline h-3.5 w-3.5" aria-hidden="true" /> {copiedAll ? 'คัดลอกแล้ว' : 'คัดลอกข้อมูล'}</Button>
-      <Button variant="ghost" onclick={() => void copyLink()} aria-label="คัดลอกลิงก์">
+      <Button variant="pop" onclick={() => void copyLink()} aria-label="คัดลอกลิงก์">
         {#if copiedLink}<Check weight="bold" class="inline h-3.5 w-3.5 text-acc" aria-hidden="true" /> คัดลอกแล้ว{:else}<LinkSimple class="inline h-3.5 w-3.5" aria-hidden="true" /> ลิงก์{/if}
       </Button>
       {#if isAdmin}
-        <Button variant="ghost" disabled={!canMutate} onclick={() => push(`/edit/${encodeURIComponent(client!.id)}`)}><PencilSimple class="inline h-3.5 w-3.5" aria-hidden="true" /> แก้ไข</Button>
+        <Button variant="pop" disabled={!canMutate} onclick={() => push(`/edit/${encodeURIComponent(client!.id)}`)}><PencilSimple class="inline h-3.5 w-3.5" aria-hidden="true" /> แก้ไข</Button>
         <Button variant="danger" disabled={!canMutate} onclick={() => (confirm = true)}><Trash class="inline h-3.5 w-3.5" aria-hidden="true" /> ลบ</Button>
       {/if}
     </div>
