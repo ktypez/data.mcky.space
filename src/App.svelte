@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { fade, scale } from 'svelte/transition'
+  import { fade } from 'svelte/transition'
   import Router, { router } from 'svelte-spa-router'
   import wrap from 'svelte-spa-router/wrap'
   import { useAuthStore } from '@/stores/auth-store'
@@ -14,8 +14,6 @@
   import LeaveDialog from '@/components/LeaveDialog.svelte'
   import Toaster from '@/components/Toaster.svelte'
   import TopBar from '@/components/TopBar.svelte'
-  import Asterisk from '@/components/ui/Asterisk.svelte'
-  import Kbd from '@/components/ui/Kbd.svelte'
 
   import Login from './pages/Login.svelte'
 
@@ -40,17 +38,6 @@
   let loginOpen = $derived($useAuthStore.loginOpen)
   let offline = $derived($useClientStore.offline)
 
-  // The app's real keyboard shortcuts (also listed in Settings → คีย์ลัด).
-  const SHORTCUTS: Array<[string[], string]> = [
-    [['/'], 'โฟกัสช่องค้นหา'],
-    [['⌘', 'K'], 'เปิดค้นหาด่วน'],
-    [['↑', '↓'], 'เลื่อนเลือกรายการ'],
-    [['Enter'], 'เปิดระเบียนที่เลือก'],
-    [['Esc'], 'ปิดหน้าต่าง / เลื่อนออกจากช่องค้นหา'],
-  ]
-
-  let helpOpen = $state(false)
-
   onMount(() => {
     initAppTheme()
     void initClerk()
@@ -71,21 +58,6 @@
   $effect(() => {
     void router.location
     window.scrollTo({ top: 0 })
-  })
-
-  // `?` toggles the shortcut sheet, Escape closes it — ignored while typing.
-  $effect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement | null
-      const typing = t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t?.isContentEditable
-      if (e.key === '?' && !typing) {
-        e.preventDefault()
-        helpOpen = !helpOpen
-      }
-      if (e.key === 'Escape') helpOpen = false
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
   })
 
   const wantsLogin = $derived(router.location === '/login' || loginOpen)
@@ -117,52 +89,6 @@
         {/snippet}
       </svelte:boundary>
     </main>
-
-    <footer class="border-t border-dashed border-rule py-2.5">
-      <p class="flex items-center justify-center gap-1.5 whitespace-nowrap px-4 text-center text-[11.5px] font-semibold text-ink-faint">
-        <span>กด</span>
-        <button type="button" class="kbd cursor-pointer hover:text-ink" onclick={() => (helpOpen = true)} aria-label="เปิดคีย์ลัด">?</button>
-        <span>เพื่อดูคีย์ลัด</span>
-      </p>
-    </footer>
-
-    {#if helpOpen}
-      <div
-        class="fixed inset-0 z-[80] grid place-items-center bg-ink/25 p-4 backdrop-blur-[2px]"
-        transition:fade={{ duration: 150 }}
-        onmousedown={(e) => {
-          if (e.target === e.currentTarget) helpOpen = false
-        }}
-        role="presentation"
-      >
-        <div
-          class="sticker pop-dots w-full max-w-xs rounded-3xl p-6"
-          style="box-shadow: 6px 6px 0 0 var(--hard);"
-          role="dialog"
-          tabindex="-1"
-          aria-label="คีย์ลัดของหนังสือ"
-          transition:scale={{ start: 0.9, duration: 220 }}
-          onmousedown={(e) => e.stopPropagation()}
-        >
-          <div class="flex items-center gap-2.5">
-            <Asterisk class="size-4 text-acc" />
-            <h2 class="text-lg font-extrabold text-ink">คีย์ลัดของหนังสือ</h2>
-          </div>
-          <ul class="mt-4 space-y-2.5">
-            {#each SHORTCUTS as [keys, label]}
-              <li class="flex items-center justify-between gap-3">
-                <span class="text-[13px] font-medium text-ink-soft">{label}</span>
-                <span class="flex gap-1">
-                  {#each keys as k}
-                    <Kbd>{k}</Kbd>
-                  {/each}
-                </span>
-              </li>
-            {/each}
-          </ul>
-        </div>
-      </div>
-    {/if}
   </div>
   <CommandPalette />
   <UpdatePrompt />

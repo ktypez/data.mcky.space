@@ -235,10 +235,6 @@
           </div>
         </div>
       {/if}
-      <div class="flex shrink-0 items-center justify-between gap-3 border-t border-rule px-5 py-2.5 text-xs text-ink-faint">
-        <span>แสดง {filtered.length.toLocaleString('th-TH')} จาก {counts.total.toLocaleString('th-TH')} รายการ</span>
-        <span class="hidden font-mono sm:block">↑ ↓ เลือก · Enter เปิด</span>
-      </div>
     </div>
 
     <aside class="hidden min-h-0 flex-col gap-4 overflow-auto lg:flex" aria-label="ตัวอย่างระเบียน">
