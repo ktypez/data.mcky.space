@@ -75,7 +75,11 @@
         <b>ออฟไลน์</b> · กำลังแสดงข้อมูลที่บันทึกไว้ การแก้ไขจะส่งเมื่อกลับมาออนไลน์
       </div>
     {/if}
-    <main id="ledger-main" class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+    <!-- Overscroll chaining must stay at the default here: containing it traps
+         the pull gesture in this scroll box, so the browser never sees the
+         overscroll and its native pull-to-refresh never fires. Keep this
+         element free of any overscroll containment. -->
+    <main id="ledger-main" class="min-h-0 flex-1 overflow-y-auto">
       <svelte:boundary onerror={(e) => console.error(e)}>
         {#key router.location}
           <div class="flex h-full min-h-0 flex-col" transition:fade={{ duration: 180 }}>

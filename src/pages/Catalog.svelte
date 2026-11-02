@@ -213,7 +213,7 @@
           <p class="text-sm text-ink-soft">{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ — ลองล้างการค้นหาหรือเปลี่ยนตัวกรอง'}</p>
         </div>
       {:else}
-        <div bind:this={parentRef} class="min-h-0 flex-1 overflow-auto overscroll-contain">
+        <div bind:this={parentRef} class="min-h-0 flex-1 overflow-auto">
           <div style="height: {$vstore?.getTotalSize() ?? 0}px; position: relative;">
             {#each $vstore?.getVirtualItems() ?? [] as vi (filtered[vi.index]?.id ?? vi.index)}
               {@const c = filtered[vi.index]}

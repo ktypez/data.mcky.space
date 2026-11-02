@@ -19,7 +19,11 @@ describe('locked application viewport', () => {
     expect(shell).toMatch(/body:has\(\.ledger-shell\)\s*\{[^}]*\}/s)
     expect(shell.match(/body:has\(\.ledger-shell\)\s*\{[^}]*\}/s)?.[0]).not.toContain('overflow: hidden')
     expect(shell).toContain('#root:has(.ledger-shell)')
-    expect(app).toContain('flex-1 overflow-y-auto overscroll-contain')
+    // The scroll container must NOT contain overscroll, or the gesture never
+    // chains to the root scroller and the browser's pull-to-refresh dies.
+    expect(app).toContain('flex-1 overflow-y-auto')
+    expect(app).not.toContain('overscroll-contain')
+    expect(catalog).not.toContain('overscroll-contain')
   })
 
   it('fills the dynamic mobile viewport instead of stopping at the smallest one', () => {
