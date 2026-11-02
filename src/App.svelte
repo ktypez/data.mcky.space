@@ -106,8 +106,10 @@
     <main id="ledger-main" class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
       <svelte:boundary onerror={(e) => console.error(e)}>
         {#key router.location}
-          <div transition:fade={{ duration: 180 }}>
-            <Router {routes} />
+          <div class="flex h-full min-h-0 flex-col" transition:fade={{ duration: 180 }}>
+            <div class="min-h-0 flex-1">
+              <Router {routes} />
+            </div>
           </div>
         {/key}
         {#snippet failed(error)}
