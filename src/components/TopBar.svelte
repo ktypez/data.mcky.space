@@ -87,7 +87,7 @@
 
 <header class="sticky top-0 z-50 border-b-[1.5px] border-ink bg-paper">
   <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-    <a href="/" onclick={handleHomeClick} aria-label="DATA Ledger หน้าแรก" class="group flex items-center gap-2.5">
+    <a href="#/" onclick={handleHomeClick} aria-label="DATA Ledger หน้าแรก" class="group flex items-center gap-2.5">
       <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-white transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
         <span class="font-mono text-[13px] font-extrabold tracking-tight">DATA</span>
       </span>
@@ -100,7 +100,7 @@
     <nav class="hidden items-center gap-1 sm:flex" aria-label="เมนูหลัก">
       {#each navItems as item}
         <a
-          href={item.to}
+          href={`#${item.to}`}
           aria-current={isActive(item.to) ? 'page' : undefined}
           onclick={(e) => guard(e, item.to)}
           class="flex items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-semibold whitespace-nowrap transition-all duration-150 {isActive(item.to)
@@ -113,7 +113,7 @@
       {/each}
       {#if isAdmin}
         <a
-          href="/add"
+          href="#/add"
           aria-current={router.location === '/add' ? 'page' : undefined}
           onclick={(e) => guard(e, '/add')}
           class="btn btn-acc ml-1 !px-3.5 !py-2 text-[13px]"
@@ -183,7 +183,7 @@
   <nav class="flex gap-1 overflow-x-auto px-4 pb-2.5 sm:hidden" aria-label="เมนูหลัก">
     {#each navItems as item}
       <a
-        href={item.to}
+        href={`#${item.to}`}
         aria-current={isActive(item.to) ? 'page' : undefined}
         onclick={(e) => guard(e, item.to)}
         class="flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-semibold whitespace-nowrap transition-all duration-150 {isActive(item.to)
@@ -195,7 +195,7 @@
       </a>
     {/each}
     {#if isAdmin}
-      <a href="/add" onclick={(e) => guard(e, '/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-[13px]">
+      <a href="#/add" onclick={(e) => guard(e, '/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-[13px]">
         <Plus size={15} weight="bold" aria-hidden="true" />
         เพิ่มรายการ
       </a>
