@@ -55,9 +55,12 @@
 
   // v5 replaced the `location` store with the runes-backed `router` object, so
   // reset the scroll position in an effect that tracks router.location.
+  // <main> is the real scroller (not the window), so reset it too — otherwise
+  // the catalog re-opens wherever the previous page was scrolled to.
   $effect(() => {
     void router.location
     window.scrollTo({ top: 0 })
+    document.getElementById('ledger-main')?.scrollTo({ top: 0 })
   })
 
   const wantsLogin = $derived(router.location === '/login' || loginOpen)

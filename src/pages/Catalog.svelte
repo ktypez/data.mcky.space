@@ -75,17 +75,70 @@
     { key: FilterKey.Credit, count: () => counts.credit },
   ]
 
+  // The catalog used to scroll inside its own card, which made the page feel
+  // stuck (and swallowed the browser's pull-to-refresh). It now scrolls with
+  // the page: <main id="ledger-main"> is the only scroller, so the virtualiser
+  // has to measure in that coordinate space. `scrollMargin` is the distance
+  // from the top of <main>'s scroll content to this list — i.e. the height of
+  // everything rendered above it (header, chips, sticky search, error).
   let parentRef: HTMLDivElement | undefined = $state()
-  let vstore: ReturnType<typeof createVirtualizer<HTMLDivElement, HTMLDivElement>> | undefined = $state()
+  let topRef: HTMLDivElement | undefined = $state()
+  let barRef: HTMLDivElement | undefined = $state()
+  let vstore: ReturnType<typeof createVirtualizer<HTMLElement, HTMLDivElement>> | undefined = $state()
+  let scrollMargin = $state(0)
+  let appliedMargin = -1
+
+  const scrollRoot = () => document.getElementById('ledger-main')
+
+  function measureScrollMargin() {
+    const scroller = scrollRoot()
+    if (!parentRef || !scroller) return scrollMargin
+    const offset = parentRef.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop
+    return Math.max(0, Math.round(offset))
+  }
 
   $effect(() => {
-    if (!parentRef || vstore) return
-    vstore = createVirtualizer<HTMLDivElement, HTMLDivElement>({
+    const scroller = scrollRoot()
+    if (!parentRef || !scroller) return
+    if (vstore) {
+      if (appliedMargin !== scrollMargin) {
+        appliedMargin = scrollMargin
+        get(vstore).setOptions({ scrollMargin })
+      }
+      return
+    }
+    appliedMargin = scrollMargin
+    vstore = createVirtualizer<HTMLElement, HTMLDivElement>({
       count: filtered.length,
-      getScrollElement: () => parentRef!,
+      getScrollElement: () => scroller,
+      scrollMargin,
+      // Keep keyboard-driven scrollToIndex clear of the sticky search bar.
+      scrollPaddingStart: 76,
       estimateSize: () => 64,
       overscan: 10,
     })
+  })
+
+  // Anything above the list can change height — the header wraps on narrow
+  // screens, the chip row only exists from `sm`, the sticky bar grows with the
+  // font — so track those boxes instead of measuring once.
+  const syncMargin = () => {
+    const next = measureScrollMargin()
+    if (next !== scrollMargin) scrollMargin = next
+  }
+
+  $effect(() => {
+    const boxes = [topRef, barRef].filter((n): n is HTMLDivElement => !!n)
+    if (!boxes.length || !parentRef) return
+    const ro = new ResizeObserver(syncMargin)
+    for (const box of boxes) ro.observe(box)
+    return () => ro.disconnect()
+  })
+
+  // The error banner adds height without resizing a tracked box.
+  $effect(() => {
+    void error
+    syncMargin()
   })
 
   $effect(() => {
@@ -93,8 +146,12 @@
     if (vstore) get(vstore).setOptions({ count })
   })
 
+  // Only follow the focused row when the keyboard drove the change — doing it
+  // on mount scrolled the page down before the user touched anything.
+  let keyboardNav = $state(false)
+
   $effect(() => {
-    if (filtered.length === 0 || !vstore) return
+    if (!keyboardNav || filtered.length === 0 || !vstore) return
     try {
       get(vstore).scrollToIndex(focused, { align: 'auto' })
     } catch {
@@ -103,6 +160,7 @@
   })
 
   function onKeyDown(e: KeyboardEvent) {
+    keyboardNav = true
     if (e.key === 'ArrowDown' && filtered.length > 0) {
       e.preventDefault()
       focused = Math.min(focused + 1, filtered.length - 1)
@@ -123,7 +181,7 @@
   }
 </script>
 
-<div class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pt-3 sm:px-8 sm:pt-5">
+<div class="mx-auto flex max-w-6xl flex-col px-3 pb-8 pt-3 sm:px-8 sm:pt-5">
   <div class="flex shrink-0 flex-wrap items-end justify-between gap-3 pb-4">
     <div class="min-w-0">
       <div class="flex flex-wrap items-center gap-3">
@@ -133,14 +191,35 @@
       <Squiggle class="mt-2 h-[6px] w-36 text-acc" />
       <p class="mt-2 text-sm text-ink-soft">ทุกรายการในสมุดทะเบียน — ค้นหา กรอง เปิด และคัดลอก</p>
     </div>
-    {#if isAdmin}
-      <button type="button" onclick={() => push('/add')} class="btn btn-acc shrink-0">
-        <Plus size={17} weight="bold" aria-hidden="true" /> เพิ่มรายการ
-      </button>
-    {/if}
+    <div class="ml-auto flex flex-wrap items-center justify-end gap-2">
+      <button type="button" onclick={() => (sheetOpen = true)} class="btn btn-pop shrink-0 sm:hidden"><FunnelSimple size={16} aria-hidden="true" /> ตัวกรอง · {FILTER_LABELS[filter]}</button>
+      <div class="seg shrink-0" role="group" aria-label="เรียงลำดับรายการ">
+        <button type="button" class="seg-item" aria-pressed={sort === 'updated'} onclick={() => (sort = 'updated')}><Clock size={13} class="mr-1 inline -translate-y-px" weight="bold" aria-hidden="true" /> ล่าสุด</button>
+        <button type="button" class="seg-item" aria-pressed={sort === 'name'} onclick={() => (sort = 'name')}><TextAa size={13} class="mr-1 inline -translate-y-px" weight="bold" aria-hidden="true" /> ชื่อ</button>
+      </div>
+      {#if isAdmin}
+        <button type="button" onclick={() => push('/add')} class="btn btn-acc shrink-0">
+          <Plus size={17} weight="bold" aria-hidden="true" /> เพิ่มรายการ
+        </button>
+      {/if}
+    </div>
   </div>
 
-  <div class="flex shrink-0 gap-2">
+  <div bind:this={topRef} class="-mx-3 hidden gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:flex sm:px-0" role="group" aria-label="ตัวกรองรายการ">
+    {#each FILTER_CHOICES as choice}
+      <Chip
+        active={filter === choice.key}
+        count={choice.count()}
+        onclick={() => { setFilter(choice.key); focused = 0 }}
+      >{FILTER_LABELS[choice.key]}</Chip>
+    {/each}
+  </div>
+
+  <!-- Sticky: the list scrolls with the page, so the search field has to stay
+       reachable instead of scrolling away with the header. It is a direct
+       child of the page column — nesting it inside a short wrapper would cap
+       how far it can stick. -->
+  <div bind:this={barRef} class="sticky top-0 z-20 -mx-3 mt-3 flex gap-2 border-b border-rule/70 bg-paper px-3 py-2.5 sm:-mx-8 sm:px-8">
     <div class="relative min-w-0 flex-1">
       <MagnifyingGlass class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" aria-hidden="true" />
       <input
@@ -171,33 +250,15 @@
     </button>
   </div>
 
-  <div class="flex shrink-0 items-center gap-2 pt-3">
-    <button type="button" onclick={() => (sheetOpen = true)} class="btn btn-pop shrink-0 sm:hidden"><FunnelSimple size={16} aria-hidden="true" /> ตัวกรอง · {FILTER_LABELS[filter]}</button>
-    <div class="seg ml-auto shrink-0" role="group" aria-label="เรียงลำดับรายการ">
-      <button type="button" class="seg-item" aria-pressed={sort === 'updated'} onclick={() => (sort = 'updated')}><Clock size={13} class="mr-1 inline -translate-y-px" weight="bold" aria-hidden="true" /> ล่าสุด</button>
-      <button type="button" class="seg-item" aria-pressed={sort === 'name'} onclick={() => (sort = 'name')}><TextAa size={13} class="mr-1 inline -translate-y-px" weight="bold" aria-hidden="true" /> ชื่อ</button>
-    </div>
-  </div>
-
-  <div class="-mx-3 mt-3 hidden shrink-0 gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:flex sm:px-0" role="group" aria-label="ตัวกรองรายการ">
-    {#each FILTER_CHOICES as choice}
-      <Chip
-        active={filter === choice.key}
-        count={choice.count()}
-        onclick={() => { setFilter(choice.key); focused = 0 }}
-      >{FILTER_LABELS[choice.key]}</Chip>
-    {/each}
-  </div>
-
   {#if error && filtered.length === 0}
-    <div class="mt-3 flex shrink-0 items-center justify-between gap-3 rounded-[10px] border-[1.5px] border-danger bg-danger-tint px-3 py-2 text-sm text-danger-ink" role="alert">
+    <div class="mt-3 flex items-center justify-between gap-3 rounded-[10px] border-[1.5px] border-danger bg-danger-tint px-3 py-2 text-sm text-danger-ink" role="alert">
       <span>โหลดรายการไม่สำเร็จ</span>
       <button type="button" onclick={retry} class="btn btn-danger shrink-0 !px-3.5 !py-2 text-xs">ลองใหม่</button>
     </div>
   {/if}
 
-  <div class="mt-4 grid min-h-0 flex-1 gap-4 pb-3 lg:grid-cols-[minmax(0,1fr)_340px]">
-    <div class="card flex min-h-0 flex-col overflow-hidden">
+  <div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div class="card overflow-hidden">
       <div class="hidden shrink-0 items-center gap-3 border-b border-rule bg-paper-2/50 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-ink-faint sm:flex" aria-hidden="true">
         <span class="w-11">รูป</span><span class="flex-1">ลูกค้า</span><span class="w-[72px]">ชำระ</span><span class="w-12">มี</span><span class="hidden w-24 text-right md:block">อัปเดต</span><span class="w-11"></span>
       </div>
@@ -208,12 +269,12 @@
           {/each}
         </div>
       {:else if filtered.length === 0}
-        <div class="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
+        <div class="flex flex-col items-center justify-center gap-3 px-8 py-20 text-center">
           <Squiggle class="h-1.5 w-24 text-rule-2" />
           <p class="text-sm text-ink-soft">{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ — ลองล้างการค้นหาหรือเปลี่ยนตัวกรอง'}</p>
         </div>
       {:else}
-        <div bind:this={parentRef} class="min-h-0 flex-1 overflow-auto">
+        <div bind:this={parentRef} class="relative">
           <div style="height: {$vstore?.getTotalSize() ?? 0}px; position: relative;">
             {#each $vstore?.getVirtualItems() ?? [] as vi (filtered[vi.index]?.id ?? vi.index)}
               {@const c = filtered[vi.index]}
@@ -228,7 +289,7 @@
                   onOpen={() => push(`/c/${encodeURIComponent(c.id)}`)}
                   onFocus={() => (focused = vi.index)}
                   measureElement={(node) => vstore && get(vstore).measureElement(node)}
-                  style="position: absolute; left: 0; top: 0; width: 100%; transform: translateY({vi.start}px);"
+                  style="position: absolute; left: 0; top: 0; width: 100%; transform: translateY({vi.start - scrollMargin}px);"
                 />
               {/if}
             {/each}
@@ -237,7 +298,7 @@
       {/if}
     </div>
 
-    <aside class="hidden min-h-0 flex-col gap-4 overflow-auto lg:flex" aria-label="ตัวอย่างระเบียน">
+    <aside class="hidden flex-col gap-4 overflow-y-auto lg:sticky lg:top-2 lg:flex lg:max-h-[calc(100dvh-1rem)] lg:self-start" aria-label="ตัวอย่างระเบียน">
       {#if current}
         <div class="sticker overflow-hidden rounded-3xl">
           {#if current.images[0]}
