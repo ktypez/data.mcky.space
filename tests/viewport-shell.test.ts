@@ -22,11 +22,18 @@ describe('locked application viewport', () => {
     expect(app).toContain('flex-1 overflow-y-auto overscroll-contain')
   })
 
-  it('never sizes the shell past the smallest viewport so the top bar stays on screen', () => {
-    // dvh grows when the browser chrome collapses, which pushed the bottom nav
-    // off screen on reload. The shell must stay capped at the svh height.
-    expect(shell).toMatch(/\.ledger-shell\s*\{[^}]*max-height:\s*100svh/s)
+  it('fills the dynamic mobile viewport instead of stopping at the smallest one', () => {
+    // 100dvh tracks the visible viewport, so the shell grows back when the
+    // mobile browser chrome hides. Capping at 100svh used to leave a dead strip
+    // at the bottom on phones (the app looked letterboxed).
     expect(shell).toMatch(/\.ledger-shell\s*\{[^}]*height:\s*100dvh/s)
+    expect(shell).not.toMatch(/\.ledger-shell\s*\{[^}]*max-height:\s*100s?vh/s)
+    // Standalone PWA paints edge to edge (viewport-fit=cover) and insets the
+    // shell so content stays clear of the notch / home indicator.
+    expect(app.length).toBeGreaterThan(0)
+    expect(read('index.html')).toContain('viewport-fit=cover')
+    expect(shell).toMatch(/\.ledger-shell\s*\{[^}]*safe-area-inset-bottom/s)
+    expect(shell).toMatch(/\.ledger-shell\s*\{[^}]*safe-area-inset-top/s)
   })
 
   it('keeps navigation in flow and fits full-height pages to the main area', () => {

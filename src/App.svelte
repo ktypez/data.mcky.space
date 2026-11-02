@@ -118,21 +118,11 @@
       </svelte:boundary>
     </main>
 
-    <footer class="border-t border-dashed border-rule py-8">
-      <p class="flex flex-wrap items-center justify-center gap-2 px-4 text-center text-[11.5px] font-semibold text-ink-faint">
-        <Asterisk class="size-3 text-acc" />
-        <span>DATA Ledger · Paper Pop — สมุดทะเบียนลูกค้า</span>
-        <a
-          href="https://github.com/ktypez/data.mcky.space"
-          target="_blank"
-          rel="noreferrer"
-          class="underline decoration-dotted underline-offset-2 hover:text-acc-ink"
-        >
-          github
-        </a>
+    <footer class="border-t border-dashed border-rule py-2.5">
+      <p class="flex items-center justify-center gap-1.5 whitespace-nowrap px-4 text-center text-[11.5px] font-semibold text-ink-faint">
+        <span>กด</span>
         <button type="button" class="kbd cursor-pointer hover:text-ink" onclick={() => (helpOpen = true)} aria-label="เปิดคีย์ลัด">?</button>
-        <span>สำหรับคีย์ลัด</span>
-        <Asterisk class="size-3 text-pop" />
+        <span>เพื่อดูคีย์ลัด</span>
       </p>
     </footer>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { ArrowsClockwise, Check, DownloadSimple, Keyboard, LockKey, Monitor, Moon, Rows, SignOut, Sun } from 'phosphor-svelte'
+  import { ArrowsClockwise, Check, DownloadSimple, LockKey, Monitor, Moon, Rows, SignOut, Sun } from 'phosphor-svelte'
   import SyncStatus from '@/components/SyncStatus.svelte'
   import { createPwaInstall } from '@/lib/create-pwa-install.svelte'
   import { useAuthStore, logout } from '@/stores/auth-store'
@@ -12,7 +12,6 @@
   import { appTheme, setMode, setPalette, setDensity, setTexture, themeSupportsMode } from '@/lib/app-theme'
   import CountSticker from '@/components/ui/CountSticker.svelte'
   import Squiggle from '@/components/ui/Squiggle.svelte'
-  import Kbd from '@/components/ui/Kbd.svelte'
 
   let isAdmin = $derived($useAuthStore.isAdmin)
   let isSignedIn = $derived($useAuthStore.isSignedIn)
@@ -22,15 +21,6 @@
   let selectedTheme = $derived(getTheme(theme.themeId))
   let density = $derived(theme.density)
   let texture = $derived(theme.texture)
-
-  // The app's real keyboard shortcuts (also listed in the “?” sheet).
-  const SHORTCUTS: Array<[string[], string]> = [
-    [['/'], 'โฟกัสช่องค้นหา'],
-    [['⌘', 'K'], 'เปิดค้นหาด่วน'],
-    [['↑', '↓'], 'เลื่อนเลือกรายการ'],
-    [['Enter'], 'เปิดระเบียนที่เลือก'],
-    [['Esc'], 'ปิดหน้าต่าง / เลื่อนออกจากช่องค้นหา'],
-  ]
 
   const pwa = createPwaInstall()
   onMount(() => pwa.init())
@@ -294,26 +284,6 @@
             </button>
           {/if}
         </div>
-      </section>
-
-      <section class="card card-pad">
-        <div class="flex items-center justify-between gap-3">
-          <h2 class="label !mb-0">คีย์ลัด</h2>
-          <Keyboard size={15} class="text-ink-faint" aria-hidden="true" />
-        </div>
-        <ul class="mt-4 space-y-2.5">
-          {#each SHORTCUTS as [keys, label]}
-            <li class="flex items-center justify-between gap-3">
-              <span class="text-[13px] font-medium text-ink-soft">{label}</span>
-              <span class="flex gap-1">
-                {#each keys as k}<Kbd>{k}</Kbd>{/each}
-              </span>
-            </li>
-          {/each}
-        </ul>
-        <p class="mt-5 border-t border-dashed border-rule pt-4 text-[11px] leading-relaxed text-ink-faint">
-          DATA Ledger · Paper Pop — สมุดทะเบียนลูกค้า · กด <Kbd>?</Kbd> เพื่อเปิดคีย์ลัดได้จากทุกหน้า
-        </p>
       </section>
     {/if}
   </div>

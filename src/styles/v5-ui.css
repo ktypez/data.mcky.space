@@ -55,17 +55,23 @@ html:has(.ledger-shell):root { color-scheme: light; }
 html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
 
 .ledger-shell {
+  /* Fill the *visible* viewport. 100dvh tracks the dynamic viewport, so the
+     shell grows back when mobile browser chrome hides and no dead strip is
+     left at the bottom. Do NOT cap this at 100svh: svh is the height with the
+     chrome always shown, so on a phone the shell stopped short of the screen
+     edge and the app looked letterboxed. */
+  height: 100%;
   height: 100dvh;
-  /* dvh grows the moment the browser chrome collapses, so a reload that lands
-     mid-transition sizes the shell taller than the visible area and pushes the
-     sticky top bar off screen. svh is the height with the chrome always shown,
-     so capping there keeps the bar pinned; browsers without svh drop the
-     declaration and keep the 100dvh behaviour. */
-  max-height: 100svh;
   min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* viewport-fit=cover lets the page paint under the notch/home indicator;
+     these insets keep the shell content out from under them. */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
   /* Transparent so the dotted paper on body::before shows through the gutters. */
   background-color: transparent;
   color: var(--ink);
