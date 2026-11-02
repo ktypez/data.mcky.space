@@ -191,14 +191,14 @@
       <Squiggle class="mt-2 h-[6px] w-36 text-acc" />
       <p class="mt-2 text-sm text-ink-soft">ทุกรายการในสมุดทะเบียน — ค้นหา กรอง เปิด และคัดลอก</p>
     </div>
-    <div class="ml-auto flex flex-wrap items-center justify-end gap-2">
+    <div class="ml-auto flex min-w-0 items-center gap-2 overflow-x-auto scrollbar-none">
       <button type="button" onclick={() => (sheetOpen = true)} class="btn btn-pop shrink-0 sm:hidden"><FunnelSimple size={16} aria-hidden="true" /> ตัวกรอง · {FILTER_LABELS[filter]}</button>
       <div class="seg shrink-0" role="group" aria-label="เรียงลำดับรายการ">
         <button type="button" class="seg-item" aria-pressed={sort === 'updated'} onclick={() => (sort = 'updated')}><Clock size={13} class="mr-1 inline -translate-y-px" weight="bold" aria-hidden="true" /> ล่าสุด</button>
         <button type="button" class="seg-item" aria-pressed={sort === 'name'} onclick={() => (sort = 'name')}><TextAa size={13} class="mr-1 inline -translate-y-px" weight="bold" aria-hidden="true" /> ชื่อ</button>
       </div>
       {#if isAdmin}
-        <button type="button" onclick={() => push('/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-xs">
+        <button type="button" onclick={() => push('/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-xs sm:hidden">
           <Plus size={15} weight="bold" aria-hidden="true" /> เพิ่ม
         </button>
       {/if}
@@ -213,6 +213,11 @@
         onclick={() => { setFilter(choice.key); focused = 0 }}
       >{FILTER_LABELS[choice.key]}</Chip>
     {/each}
+    {#if isAdmin}
+      <button type="button" onclick={() => push('/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-xs">
+        <Plus size={15} weight="bold" aria-hidden="true" /> เพิ่ม
+      </button>
+    {/if}
   </div>
 
   <!-- Sticky: the list scrolls with the page, so the search field has to stay
