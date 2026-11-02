@@ -33,7 +33,11 @@
   let storeClients = $derived($useClientStore.clients)
 
   let containerRef = $state<HTMLDivElement>()
-  let map: InstanceType<LL['Map']> | null = null
+  // MUST stay $state: Leaflet loads asynchronously, so the map effects below
+  // have to re-run once the map instance finally exists. As a plain `let` the
+  // effect runs once at mount (map still null), never again — no pan, no pins,
+  // while other readouts still update. Guarded by scripts/map-e2e.mjs.
+  let map = $state<InstanceType<LL['Map']> | null>(null)
   let layer: InstanceType<LL['TileLayer']> | null = null
   let lib: LL | null = null
   let markers: InstanceType<LL['Marker']>[] = []

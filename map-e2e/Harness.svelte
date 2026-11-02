@@ -1,6 +1,7 @@
 <script lang="ts">
   import LocationSection from '@/components/LocationSection.svelte'
-  import '@/styles/ledger.css'
+  import '@/styles/v5-tokens.css'
+  import '@/styles/v5-ui.css'
 
   // null initially so the harness starts clean on every reload
   let lat = $state<number | null>(null)
