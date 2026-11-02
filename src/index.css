@@ -1,48 +1,80 @@
 @import 'tailwindcss';
+@import './styles/v5-tokens.css';
+@import './styles/v5-ui.css';
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* ——— V5 “paper pop” tokens as Tailwind utilities ——— */
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
   --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-info: var(--info);
-  --color-info-foreground: var(--info-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-rule: var(--rule);
+  --color-rule-2: var(--rule-2);
+  --color-acc: var(--acc);
+  --color-acc-strong: var(--acc-strong);
+  --color-tint: var(--acc-tint);
+  --color-acc-ink: var(--acc-ink);
+  --color-pop: var(--pop);
+  --color-pop-tint: var(--pop-tint);
+  --color-pop-ink: var(--pop-ink);
+  --color-credit: var(--credit);
+  --color-credit-tint: var(--credit-tint);
+  --color-credit-ink: var(--credit-ink);
+  --color-pen: var(--penpay);
+  --color-pen-tint: var(--penpay-tint);
+  --color-pen-ink: var(--penpay-ink);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+  --color-danger-ink: var(--danger-ink);
+  --color-banana: var(--banana);
+  --color-sky: var(--sky);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-mono);
+
+  /* ——— legacy shadcn-ish aliases (spec §2) ———
+     Nothing breaks mid-port: leaflet/pwa/photo CSS and older class names
+     keep resolving while the V5 classes roll out. */
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --color-card-foreground: var(--ink);
+  --color-popover: var(--card);
+  --color-popover-foreground: var(--ink);
+  --color-primary: var(--acc);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--paper-2);
+  --color-secondary-foreground: var(--ink);
+  --color-muted: var(--paper-2);
+  --color-muted-foreground: var(--ink-soft);
+  --color-accent: var(--pop);
+  --color-accent-foreground: var(--pop-ink);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: #ffffff;
+  --color-success: var(--acc);
+  --color-success-foreground: #ffffff;
+  --color-warning: var(--banana);
+  --color-warning-foreground: var(--ink);
+  --color-info: var(--sky);
+  --color-info-foreground: #ffffff;
+  --color-border: var(--rule);
+  --color-input: var(--rule);
+  --color-ring: var(--acc);
+  --color-sidebar: var(--card);
+  --color-sidebar-foreground: var(--ink);
+  --color-sidebar-accent: var(--paper-2);
+  --color-sidebar-accent-foreground: var(--ink);
+  --color-sidebar-border: var(--rule);
+  --color-sidebar-ring: var(--acc);
   --color-pin: var(--pin-color);
-  --font-sans: var(--theme-font-body);
-  --font-serif: var(--theme-font-body);
-  --font-mono: var(--theme-font-mono);
+  --font-serif: var(--font-ui);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Preserve normal absolute text sizes while rem-based spacing is compacted. */
+  /* Preserve normal absolute text sizes. */
   --text-xs: 12px;
   --text-sm: 14px;
   --text-base: 16px;
@@ -52,11 +84,7 @@
 }
 
 :root {
-  /* Base shadows. Themes may override these in their own stylesheet
-     (bubblegum / brut / mcky define hard-offset shadows).
-     Theme colors + fonts are NOT defined here anymore — every theme ships
-     a full static stylesheet that the pre-paint boot script always loads
-     (defaults to claude), so the app is never unstyled. */
+  /* Base shadows (Tailwind shadow-* utilities resolve against these). */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
@@ -78,11 +106,11 @@
   --scroll-indicator-radius: 999px;
   --scroll-indicator-glow: none;
   --scroll-progress-color: var(--primary);
+  --scroll-progress-glow: none;
 
   /* Prevent iOS Safari from auto-zooming into inputs on focus */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  --scroll-progress-glow: none;
 
   /* Frame border-radius — themes override for square vs rounded */
   --frame-radius: 0.5rem;
@@ -93,7 +121,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-muted text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased;
   }
   button:focus-visible,
   a:focus-visible,
@@ -110,26 +138,6 @@
   ::selection {
     background: color-mix(in oklch, var(--primary) 20%, transparent);
   }
-}
-
-/* Hard-shadow / brutalist themes: disable lift+scale "premium press" because the
-   theme's own press language (collapse hard offset shadow) is the right metaphor. */
-[data-theme='brut'] button:hover,
-[data-theme='mcky'] button:hover,
-[data-theme='bubblegum'] button:hover,
-[data-theme='brut'] [role='button']:hover,
-[data-theme='mcky'] [role='button']:hover,
-[data-theme='bubblegum'] [role='button']:hover {
-  transform: none !important;
-}
-[data-theme='brut'] button:active,
-[data-theme='mcky'] button:active,
-[data-theme='bubblegum'] button:active,
-[data-theme='brut'] [role='button']:active,
-[data-theme='mcky'] [role='button']:active,
-[data-theme='bubblegum'] [role='button']:active {
-  transform: translate(2px, 2px) !important;
-  scale: 1 !important;
 }
 
 @utility font-display {
@@ -160,9 +168,6 @@
 
 /* ---------------------------------------------------------------------------
    Press feedback for interactive elements (e.g. the list copy button).
-   Base: a gentle sink so clicks always feel tactile even before any theme
-   overrides. Themes layer their own character on top via
-   `[data-theme='x'] .copy-press:active`.
    --------------------------------------------------------------------------- */
 .copy-press {
   transition:
@@ -176,13 +181,6 @@
   transform: translateY(1px) scale(0.97);
 }
 
-/* App viewport + frame = bearnie-style canvas with header OUTSIDE the border.
-   The viewport is a position:fixed container filling the viewport with 8px
-   inset on all sides. The header sits inside the viewport as a non-scrolling
-   element at the top (no border). The frame sits below the header: bordered,
-   scrollable (overflow-y:auto), flex-1 to fill remaining space. At 2xl the
-   viewport centers at max-width 1400px with a subtle glow. Flat (no
-   border-radius). All popovers are portaled to <body>, so nothing is clipped. */
 @utility app-viewport {
   @apply mx-auto flex flex-col gap-1.5;
   position: fixed;
@@ -297,35 +295,6 @@
   }
 }
 
-/* Leaflet raster fallback (no-WebGL devices). */
-.leaflet-container {
-  background: var(--muted);
-  font-family: inherit;
-}
-.leaflet-control-zoom a {
-  background: var(--card) !important;
-  color: var(--foreground) !important;
-  border-color: var(--border) !important;
-}
-/* Tighter, theme-tinted map attribution (proto language). */
-.leaflet-control-attribution {
-  font-size: 9px !important;
-  background: color-mix(in srgb, var(--card) 80%, transparent) !important;
-  color: var(--muted-foreground) !important;
-}
-/* Ledger map pin — rotated square, card-ringed, primary fill. */
-.ledger-pin {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 99px 99px 99px 2px;
-  transform: rotate(-45deg);
-  background: var(--primary);
-  border: 2px solid var(--card);
-  box-shadow: 0 4px 10px rgb(0 0 0 / 0.3);
-}
-
 /* Pull-to-refresh indicator */
 .ptr-indicator {
   position: absolute;
@@ -375,4 +344,3 @@
     animation: none !important;
   }
 }
-

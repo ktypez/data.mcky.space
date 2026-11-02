@@ -9,22 +9,27 @@
 
 {#if visible}
   <fieldset class="space-y-2">
-    <legend class="text-sm font-medium">ประเภทชำระ</legend>
-    <div class="flex gap-2">
+    <legend class="label !mb-0">ประเภทชำระ</legend>
+    <div class="seg w-full" role="group" aria-label="ประเภทชำระ">
       {#each options as opt}
         {@const active = badge === opt.value}
         <button
           type="button"
           aria-pressed={active}
           onclick={() => onChange(active ? null : opt.value)}
-          class="flex-1 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors {active ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted'}"
+          class="seg-item flex-1"
         >
+          {#if opt.value === 'credit'}
+            <span class="mr-1.5 inline-block size-2 rounded-full align-middle bg-credit" aria-hidden="true"></span>
+          {:else if opt.value === 'penpay'}
+            <span class="mr-1.5 inline-block size-2 rounded-full align-middle bg-pen" aria-hidden="true"></span>
+          {/if}
           {opt.label}
         </button>
       {/each}
     </div>
     {#if badge}
-      <p class="text-xs opacity-60">เลือก “{options.find((o) => o.value === badge)?.label}” — กดอีกครั้งเพื่อเอาออก</p>
+      <p class="text-xs text-ink-faint">เลือก “{options.find((o) => o.value === badge)?.label}” — กดอีกครั้งเพื่อเอาออก</p>
     {/if}
   </fieldset>
 {/if}

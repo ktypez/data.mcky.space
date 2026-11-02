@@ -8,42 +8,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#15151d" />
+    <meta name="theme-color" content="#f6f2e9" />
     <title>DATA Ledger</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://data-api.fall3n.workers.dev" />
     <link rel="dns-prefetch" href="https://pub-462db07575b84a13b83ba0f2632f6ec2.r2.dev" />
-    <!-- App chrome fonts load without blocking the first paint. -->
+    <!-- V5 “paper pop” fonts load without blocking the first paint.
+         Noto Sans Thai stays in the stack so Thai glyphs never fall back
+         to a Latin-only font. -->
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@500;700&display=swap"
       onload="this.onload=null;this.rel='stylesheet'"
     />
     <noscript>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..1000&family=Noto+Sans+Thai:wght@100..900&family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Noto+Sans+Thai:wght@100..900&family=JetBrains+Mono:wght@500;700&display=swap"
       />
     </noscript>
     <!-- NOTE: leaflet is NOT loaded globally. MapPreview and
       MapPicker import the npm bundle (shared `map` chunk) only
       on pages that render a map, so the catalog pays zero map cost. -->
     <script>
-      // Pre-paint theme boot: ALWAYS load a full theme stylesheet before
-      // React mounts (saved theme, else the default = portal), so the app is
-      // never unstyled and the :root/.dark fallback vars are unnecessary.
-      // Keep THEMES in sync with src/lib/design/themes.ts (id + staticCss +
-      // dark-only flag). Fonts load lazily via ThemeInjector, not here.
+      // Pre-paint theme boot: ALWAYS load the V5 token stylesheet before the
+      // app mounts (saved palette, else the default = matcha), so the app is
+      // never unstyled and there is no flash of the wrong palette.
+      // Keep THEMES in sync with src/lib/design/themes.ts (id + staticCss).
+      // Density/texture come from the data-ledger-v5 key. Fonts load from
+      // the head links above, not here.
       (function () {
         var THEMES = {
-          'ledger': { css: '/themes/ledger.css', dark: false },
-          'claude': { css: '/themes/claude.css', dark: false },
-          'blueprint': { css: '/themes/blueprint.css', dark: false },
-          'mono': { css: '/themes/mono.css', dark: false },
-          'lotus': { css: '/themes/lotus.css', dark: false },
-          'terminal': { css: '/themes/terminal.css', dark: false },
+          'matcha': { css: '/themes/paper-pop.css', dark: false },
+          'coral': { css: '/themes/paper-pop.css', dark: false },
+          'blueberry': { css: '/themes/paper-pop.css', dark: false },
+          'butter': { css: '/themes/paper-pop.css', dark: false },
         };
         var id = null;
         try {
@@ -53,12 +54,12 @@
             if (data && data.state && typeof data.state.theme === 'string') id = data.state.theme;
           }
         } catch (e) {}
-        // No legacy migration — the 6 adopted themes are all fresh; any stale
-        // saved id falls through to the Ledger default below.
-        if (!THEMES[id]) id = 'ledger'; // invalid/stale id → default theme
+        // Stale pre-V5 ids (ledger/claude/…) migrate to the matcha default.
+        if (!THEMES[id]) id = 'matcha';
         var t = THEMES[id];
         var root = document.documentElement;
         root.setAttribute('data-theme', id);
+        root.setAttribute('data-palette', id);
         // dark-only themes force .dark; light-only themes always stay light;
         // dual themes respect saved mode/system.
         var dark = t.dark;
@@ -70,6 +71,19 @@
           }
         }
         if (dark) root.classList.add('dark');
+        root.setAttribute('data-mode', dark ? 'dark' : 'light');
+        // density + texture (data-ledger-v5) — no flash of the wrong density.
+        var density = 'cozy';
+        var texture = 'on';
+        try {
+          var v5 = JSON.parse(localStorage.getItem('data-ledger-v5') || '{}');
+          if (v5 && v5.state) {
+            if (v5.state.density === 'compact' || v5.state.density === 'cozy') density = v5.state.density;
+            if (v5.state.texture === false) texture = 'off';
+          }
+        } catch (e) {}
+        root.setAttribute('data-density', density);
+        root.setAttribute('data-texture', texture);
         var l = document.createElement('link');
         l.id = 'app-theme-stylesheet';
         l.dataset.appTheme = id;

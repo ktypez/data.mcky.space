@@ -65,7 +65,7 @@
       <div class="app-dialog-header">
         <h2 id={titleId}>{title}</h2>
         <button type="button" class="app-dialog-close" onclick={onClose} aria-label={closeLabel}>
-          <X size={16} weight="bold" aria-hidden />
+          <X size={16} weight="bold" aria-hidden="true" />
         </button>
       </div>
     {:else}

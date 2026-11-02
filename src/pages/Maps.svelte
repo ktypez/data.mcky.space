@@ -13,6 +13,10 @@
   import type { Client } from '@/types/index'
   import ClientNames from '@/components/ClientNames.svelte'
   import AppImage from '@/components/AppImage.svelte'
+  import CountSticker from '@/components/ui/CountSticker.svelte'
+  import Squiggle from '@/components/ui/Squiggle.svelte'
+  import Monogram from '@/components/ui/Monogram.svelte'
+  import Button from '@/components/ui/Button.svelte'
 
   type LL = typeof import('leaflet')
   async function loadLeaflet(): Promise<LL> {
@@ -20,10 +24,10 @@
     return (m.default ?? m) as LL
   }
   function clusterHtml(count: number, size: number): string {
-    return `<div style="width:${size}px;height:${size}px;border-radius:999px;background:var(--primary);color:var(--primary-foreground);display:flex;align-items:center;justify-content:center;font-size:${size > 40 ? 13 : 12}px;font-weight:700;border:2px solid var(--card);box-shadow:0 2px 8px rgba(0,0,0,0.25);">${count}</div>`
+    return `<div style="width:${size}px;height:${size}px;border-radius:999px;background:var(--acc);color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:${size > 40 ? 13 : 12}px;font-weight:800;border:2px solid var(--ink);box-shadow:2px 2px 0 0 var(--hard);">${count}</div>`
   }
   function dotHtml(): string {
-    return `<div style="width:12px;height:12px;border-radius:999px;background:var(--primary);border:2px solid var(--card);box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>`
+    return `<div style="width:12px;height:12px;border-radius:999px;background:var(--acc);border:2px solid var(--ink);box-shadow:1px 1px 0 0 var(--hard);"></div>`
   }
 
   let storeClients = $derived($useClientStore.clients)
@@ -56,6 +60,13 @@
     })
   })
   let searchResults = $derived(filteredForMap.slice(0, 5))
+
+  // Legend counts for the paper-pop chip row (credit / pay-daily / other).
+  let legendCounts = $derived({
+    credit: pins.filter((c) => c.badge === 'credit').length,
+    penpay: pins.filter((c) => c.badge === 'penpay').length,
+    other: pins.filter((c) => c.badge !== 'credit' && c.badge !== 'penpay').length,
+  })
 
   $effect(() => {
     darkRef = dark
@@ -257,19 +268,36 @@
 
 {#if failed}
   <section class="mx-auto flex h-full max-w-6xl items-center justify-center px-3 pb-4 pt-6 sm:px-4">
-    <p class="text-sm text-muted-foreground">ไม่สามารถโหลดแผนที่ได้</p>
+    <div class="card card-pad flex flex-col items-center gap-3 text-center">
+      <MapTrifold class="size-9 text-ink-faint" aria-hidden="true" />
+      <p class="text-base font-bold text-ink">ไม่สามารถโหลดแผนที่ได้</p>
+      <p class="text-sm text-ink-soft">ลองรีเฟรชหน้าใหม่</p>
+    </div>
   </section>
 {:else}
   <section class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pb-4 pt-4 sm:px-8">
     {#if loadError}
-      <div class="mb-4 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm" role="status">
+      <div class="mb-4 flex shrink-0 items-center justify-between gap-3 rounded-[10px] border-[1.5px] border-banana/60 bg-banana/15 px-3 py-2 text-sm text-ink" role="status">
         <span>{loadError}</span>
-        <button type="button" onclick={() => reloadKey++} class="min-h-11 shrink-0 rounded-full border border-border px-3 text-xs hover:bg-muted">ลองใหม่</button>
+        <button type="button" onclick={() => reloadKey++} class="min-h-11 shrink-0 rounded-full border-[1.5px] border-banana/60 px-3 text-xs hover:bg-banana/25">ลองใหม่</button>
       </div>
     {/if}
 
+      <div class="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">แผนที่</h1>
+          <CountSticker n={pins.length.toLocaleString('th-TH')} label="หมุด" />
+          <Squiggle class="hidden h-1 w-24 text-acc sm:block" />
+        </div>
+        <div class="flex flex-wrap items-center gap-2" role="group" aria-label="คำอธิบายสัญลักษณ์">
+          <span class="chip border-credit-ink/20 bg-credit-tint text-credit-ink"><span class="size-2 rounded-full bg-credit" aria-hidden="true"></span>บัตรเครดิต · {legendCounts.credit}</span>
+          <span class="chip border-pen-ink/20 bg-pen-tint text-pen-ink"><span class="size-2 rounded-full bg-pen" aria-hidden="true"></span>จ่ายในวัน · {legendCounts.penpay}</span>
+          <span class="chip border-rule bg-paper-2/60 text-ink-faint"><span class="size-2 rounded-full bg-acc" aria-hidden="true"></span>อื่นๆ · {legendCounts.other}</span>
+        </div>
+      </div>
+
     <div class="relative mb-4 shrink-0">
-      <MagnifyingGlass class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" aria-hidden />
+      <MagnifyingGlass class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" aria-hidden="true" />
       <input
         use:trackField={readSearch}
         value={search}
@@ -278,39 +306,39 @@
         onblur={() => (inputFocused = false)}
         placeholder="ค้นหาในแผนที่ — ชื่อ ร้าน ที่อยู่…"
         aria-label="ค้นหาในแผนที่"
-        class="h-12 w-full rounded-xl border border-border bg-card pl-10 pr-10 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+        class="field !py-3 !pl-11 !pr-12 shadow-[2.5px_2.5px_0_0_var(--rule)]"
         autocomplete="off"
         spellcheck="false"
       />
       {#if search}
-        <button type="button" onclick={() => (search = '')} class="absolute right-0 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground" aria-label="ล้างการค้นหา">
-          <X class="h-3.5 w-3.5" weight="bold" aria-hidden />
+        <button type="button" onclick={() => (search = '')} class="absolute right-1 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-ink-faint hover:bg-paper-2 hover:text-ink" aria-label="ล้างการค้นหา">
+          <X class="h-3.5 w-3.5" weight="bold" aria-hidden="true" />
         </button>
       {/if}
       {#if inputFocused && search.trim()}
-        <div class="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-border bg-card ">
+        <div class="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border-[1.5px] border-ink bg-card shadow-[4px_4px_0_0_var(--hard)]">
           {#if searchResults.length > 0}
             {#each searchResults as client}
-              <button type="button" onmousedown={(e) => e.preventDefault()} onclick={() => { inputFocused = false; selected = client; map?.setView([client.lat as number, client.lng as number], 15) }} class="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-muted">
+              <button type="button" onmousedown={(e) => e.preventDefault()} onclick={() => { inputFocused = false; selected = client; map?.setView([client.lat as number, client.lng as number], 15) }} class="flex w-full items-center gap-3 border-b border-dashed border-rule px-4 py-2.5 text-left last:border-b-0 hover:bg-paper-2">
                 {#if client.images[0] || client.thumb}
-                  <AppImage src={client.thumb ?? client.images[0]} fallbackSrc={client.thumb ? client.images[0] : undefined} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-cover border border-border" />
+                  <AppImage src={client.thumb ?? client.images[0]} fallbackSrc={client.thumb ? client.images[0] : undefined} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-cover border-[1.5px] border-rule-2" />
                 {:else}
-                  <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground font-mono text-xs">{(client.shopName[0] || client.name[0] || '·').trim().charAt(0).toUpperCase()}</div>
+                  <Monogram name={client.shopName[0] || client.name[0] || '·'} size={28} />
                 {/if}
-                <span class="min-w-0 flex-1"><ClientNames client={client} variant="list" titleClassName="text-sm leading-tight truncate" subClassName="text-xs truncate opacity-60" /></span>
+                <span class="min-w-0 flex-1"><ClientNames client={client} variant="list" titleClassName="text-sm leading-tight font-bold truncate text-ink" subClassName="text-xs truncate text-ink-faint" /></span>
               </button>
             {/each}
           {:else}
-            <div class="px-4 py-6 text-center text-sm text-muted-foreground">ไม่พบ “{search}”</div>
+            <div class="px-4 py-6 text-center text-sm text-ink-soft">ไม่พบ “{search}”</div>
           {/if}
           {#if filteredForMap.length > 5}
-            <div class="px-4 py-2 text-center font-mono text-[10px] text-muted-foreground">+ {filteredForMap.length - 5} รายการที่ซ่อน — พิมพ์ให้เจาะจงขึ้น</div>
+            <div class="border-t border-dashed border-rule bg-paper-2/50 px-4 py-2 text-center font-mono text-[10px] text-ink-faint">+ {filteredForMap.length - 5} รายการที่ซ่อน — พิมพ์ให้เจาะจงขึ้น</div>
           {/if}
         </div>
       {/if}
     </div>
 
-    <div class="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-border">
+    <div class="relative min-h-0 flex-1 overflow-hidden rounded-2xl border-[1.5px] border-ink shadow-[4px_4px_0_0_var(--hard)]">
       <div bind:this={containerRef} class="h-full w-full z-0"></div>
       <div class="absolute bottom-1 right-1 z-[400] flex items-center gap-1">
         {#if attrOpen}
@@ -319,37 +347,37 @@
         <button type="button" onclick={(e) => { e.stopPropagation(); attrOpen = !attrOpen }} aria-label={attrOpen ? 'ซ่อนเครดิต' : 'แสดงเครดิต'} class="flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-[10px] font-bold text-white backdrop-blur hover:bg-black/70">©</button>
       </div>
       {#if loading}
-        <div class="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[2px]"><span class="rounded-full bg-card px-4 py-2 text-xs shadow" role="status">กำลังโหลดแผนที่…</span></div>
+        <div class="absolute inset-0 z-10 flex items-center justify-center bg-paper/60 backdrop-blur-[2px]"><span class="chip border-[1.5px] border-ink bg-card px-4 py-2 text-xs font-bold text-ink shadow-[2px_2px_0_0_var(--hard)]" role="status">กำลังโหลดแผนที่…</span></div>
       {/if}
       {#if !loading && pins.length === 0 && !loadError}
-        <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-card/80 p-6 text-center">
-          <MapTrifold size={28} class="opacity-30" aria-hidden />
-          <p class="text-sm font-medium">ยังไม่มีหมุด</p>
-          <p class="text-xs text-muted-foreground">เพิ่มพิกัดในหน้ารายการ แล้วจะแสดงที่นี่</p>
-          <button type="button" onclick={() => push('/')} class="mt-2 min-h-11 rounded-[10px] bg-primary px-5 text-sm font-semibold text-primary-foreground">ไปหน้าหลัก</button>
+        <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-card/85 p-6 text-center">
+          <MapTrifold size={28} class="text-ink-faint" aria-hidden="true" />
+          <p class="text-base font-bold text-ink">ยังไม่มีหมุด</p>
+          <p class="text-xs text-ink-soft">เพิ่มพิกัดในหน้ารายการ แล้วจะแสดงที่นี่</p>
+          <button type="button" onclick={() => push('/')} class="btn btn-acc mt-2 !py-2.5 text-[13px]">ไปหน้ารายการ</button>
         </div>
       {/if}
       {#if selected}
         <div class="absolute bottom-3 left-3 right-3 z-20">
-          <div class="rounded-2xl border border-border bg-card p-3 ">
+          <div class="sticker rounded-2xl p-3" style="box-shadow: 4px 4px 0 0 var(--hard);">
             <div class="flex gap-3">
               {#if selected.images[0] || selected.thumb}
-                <AppImage src={selected.thumb ?? selected.images[0]} fallbackSrc={selected.images[0]} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover border border-border" />
+                <AppImage src={selected.thumb ?? selected.images[0]} fallbackSrc={selected.images[0]} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover border-[1.5px] border-ink" />
               {:else}
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground font-mono text-xs">{(selected.shopName[0] || selected.name[0] || '·').trim().charAt(0).toUpperCase()}</div>
+                <Monogram name={selected.shopName[0] || selected.name[0] || '·'} size={48} />
               {/if}
               <div class="min-w-0 flex-1">
-                <ClientNames client={selected} variant="list" titleClassName="text-sm font-medium leading-tight truncate" subClassName="text-xs truncate opacity-60" />
+                <ClientNames client={selected} variant="list" titleClassName="text-sm font-extrabold leading-tight truncate text-ink" subClassName="text-xs truncate text-ink-soft" />
                 {#if selected.address}
-                  <p class="mt-0.5 truncate text-xs text-muted-foreground">{selected.address}</p>
+                  <p class="mt-0.5 truncate text-xs text-ink-soft">{selected.address}</p>
                 {/if}
-                <p class="font-mono text-[10px] text-muted-foreground/60">{selected.lat?.toFixed(4)}, {selected.lng?.toFixed(4)}</p>
+                <p class="font-mono text-[10px] text-ink-faint">{selected.lat?.toFixed(4)}, {selected.lng?.toFixed(4)}</p>
               </div>
-              <button type="button" onclick={() => (selected = null)} aria-label="ปิดรายละเอียดบนแผนที่" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted/80"><X size={14} weight="bold" aria-hidden /></button>
+              <button type="button" onclick={() => (selected = null)} aria-label="ปิดรายละเอียดบนแผนที่" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-paper-2 text-ink-faint hover:text-ink"><X size={14} weight="bold" aria-hidden="true" /></button>
             </div>
             <div class="mt-3 flex gap-2">
-              <button type="button" onclick={() => push(`/c/${encodeURIComponent(selected!.id)}`)} class="min-h-11 flex-1 rounded-[10px] bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">ดูรายละเอียด →</button>
-              <a href={`https://maps.google.com/?q=${selected.lat},${selected.lng}`} target="_blank" rel="noreferrer" onclick={(e) => e.stopPropagation()} class="inline-flex min-h-11 items-center rounded-[10px] border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted">Google Maps</a>
+              <button type="button" onclick={() => push(`/c/${encodeURIComponent(selected!.id)}`)} class="btn btn-acc min-h-11 flex-1 !py-2.5 text-[13px]">ดูรายละเอียด →</button>
+              <a href={`https://maps.google.com/?q=${selected.lat},${selected.lng}`} target="_blank" rel="noreferrer" onclick={(e) => e.stopPropagation()} class="btn btn-pop min-h-11 !py-2.5 text-[13px]">Google Maps</a>
             </div>
           </div>
         </div>
@@ -357,8 +385,8 @@
     </div>
     {#if !loading && pins.length > 0}
       <div class="mt-3 flex shrink-0 items-center gap-2 overflow-auto">
-        <button type="button" onclick={() => map?.setView([KHON_KAEN_CENTER[1], KHON_KAEN_CENTER[0]], 11)} class="min-h-11 shrink-0 rounded-full border border-border bg-card px-4 text-sm font-medium hover:bg-muted">ทั้งจังหวัด</button>
-        <span class="font-mono text-[10px] text-muted-foreground">· ขอนแก่น · ไทยล้วน · รวมกลุ่มอัตโนมัติ</span>
+        <Button variant="ghost" onclick={() => map?.setView([KHON_KAEN_CENTER[1], KHON_KAEN_CENTER[0]], 11)}>ทั้งจังหวัด</Button>
+        <span class="font-mono text-[10px] text-ink-faint">· ขอนแก่น · ไทยล้วน · รวมกลุ่มอัตโนมัติ</span>
       </div>
     {/if}
   </section>

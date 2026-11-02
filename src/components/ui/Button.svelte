@@ -4,43 +4,43 @@
   import type { Snippet } from 'svelte'
   import type { HTMLButtonAttributes } from 'svelte/elements'
 
+  // V5 “paper pop” button: hard-shadow pill. Legacy variant names
+  // (default/outline/secondary/destructive/link) stay accepted as aliases
+  // so older call sites keep working.
   const buttonVariants = cva(
-    `inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap select-none outline-none
-     transition-[transform,background-color,border-color,color,box-shadow] duration-150 ease-out
-    
-     active:translate-y-0 active:scale-[0.97] active:duration-75
-     focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background
-     disabled:pointer-events-none disabled:opacity-50 disabled:saturate-50
-     [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4`,
+    `btn`,
     {
       variants: {
         variant: {
-          default: 'bg-primary font-semibold text-primary-foreground hover:bg-primary/90',
-          outline: 'border-border bg-background text-foreground shadow-xs hover:bg-muted hover:text-foreground hover:shadow-sm aria-expanded:bg-muted',
-          secondary: 'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 hover:shadow-sm',
-          ghost: 'hover:bg-muted hover:text-foreground aria-expanded:bg-muted shadow-none hover:shadow-none',
-          destructive: 'bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/20 hover:border-destructive/40',
-          link: 'text-primary shadow-none underline-offset-4 hover:!translate-y-0 hover:shadow-none hover:underline active:!scale-100',
+          acc: 'btn-acc',
+          pop: 'btn-pop',
+          ghost: 'btn-ghost',
+          danger: 'btn-danger',
+          // legacy aliases
+          default: 'btn-acc',
+          outline: 'btn-pop',
+          secondary: 'btn-pop',
+          destructive: 'btn-danger',
+          link: 'btn-ghost',
         },
         size: {
-          default: 'h-11 gap-1.5 px-4',
-          xs: 'h-6 gap-1 rounded-md px-2 text-xs',
-          sm: 'h-7 gap-1 rounded-md px-2.5 text-[0.8rem]',
-          lg: 'h-12 gap-1.5 px-5',
-          icon: 'size-8',
-          'icon-xs': 'size-6 rounded-md',
-          'icon-sm': 'size-7 rounded-md',
-          'icon-lg': 'size-9',
+          default: '',
+          sm: '!px-3.5 !py-2 text-[13px]',
+          xs: '!px-3 !py-1.5 text-[12.5px]',
+          lg: '!px-5 !py-3',
+          icon: '!p-0 size-11',
+          'icon-sm': '!p-0 size-9',
+          'icon-xs': '!p-0 size-7',
         },
       },
-      defaultVariants: { variant: 'default', size: 'default' },
+      defaultVariants: { variant: 'acc', size: 'default' },
     },
   )
 
   let {
     class: className,
-    variant = 'default',
-    size = 'default',
+    variant,
+    size,
     children,
     ...rest
   }: HTMLButtonAttributes & VariantProps<typeof buttonVariants> & { children?: Snippet } = $props()
@@ -49,6 +49,3 @@
 <button data-slot="button" class={cn(buttonVariants({ variant, size, className }))} {...rest}>
   {@render children?.()}
 </button>
-
-<style>
-</style>

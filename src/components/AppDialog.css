@@ -1,15 +1,17 @@
+/* V5 “paper pop” dialog skin — sticker panel, hard shadow, dashed rules.
+   Variants: dialog (default) · drawer · lightbox · sheet. */
 .app-dialog {
   width: min(32rem, calc(100vw - 2rem));
   max-width: none;
   margin: auto;
   padding: 0;
-  color: var(--foreground);
+  color: var(--ink);
   background: transparent;
   border: 0;
   overflow: visible;
 }
 .app-dialog::backdrop {
-  background: rgb(0 0 0 / .58);
+  background: color-mix(in srgb, var(--ink) 25%, transparent);
   backdrop-filter: blur(2px);
 }
 .app-dialog--drawer {
@@ -47,11 +49,11 @@
   max-height: min(48rem, calc(100dvh - 2rem));
   overflow: auto;
   overscroll-behavior: contain;
-  color: var(--foreground);
+  color: var(--ink);
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  box-shadow: 0 24px 70px rgb(0 0 0 / .3);
+  border: var(--border-w) solid var(--hard);
+  border-radius: var(--r3);
+  box-shadow: 6px 6px 0 0 var(--hard);
 }
 .app-dialog-header {
   min-height: 56px;
@@ -60,7 +62,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px dashed var(--rule);
 }
 .app-dialog-header h2 {
   font-size: 1rem;
@@ -71,15 +73,15 @@
   height: 44px;
   display: grid;
   place-items: center;
-  color: var(--foreground);
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  color: var(--ink-soft);
+  background: var(--paper-2);
+  border: var(--border-w) solid var(--hard);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 0 var(--hard);
 }
 .app-dialog-close:hover {
-  color: var(--foreground);
-  background: var(--muted);
-  border-color: var(--primary);
+  color: var(--acc-ink);
+  background: var(--acc-tint);
 }
 @media (max-width: 560px) {
   .app-dialog {
@@ -87,7 +89,7 @@
   }
   .app-dialog-panel {
     max-height: calc(100dvh - 1rem);
-    border-radius: 12px;
+    border-radius: var(--r2);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -103,7 +105,7 @@
   margin: 0;
 }
 .app-dialog--sheet .app-dialog-panel {
-  border-radius: 22px 22px 0 0;
+  border-radius: var(--r4) var(--r4) 0 0;
   border-bottom: 0;
   max-height: 85dvh;
 }

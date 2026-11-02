@@ -108,10 +108,10 @@
 </script>
 
 <AppDialog {open} onClose={handleClose} title="เพิ่มรูปร้านค้า" showHeader={false} panelClassName="max-w-sm">
-  <div class="w-12 h-12 mx-auto rounded-full bg-primary/20 flex items-center justify-center mt-4">
-    <Camera class="w-5 h-5 text-primary" />
+  <div class="w-12 h-12 mx-auto rounded-full bg-tint flex items-center justify-center mt-4">
+    <Camera class="w-5 h-5 text-acc-ink" />
   </div>
-  <h3 class="text-lg font-bold text-foreground text-center mt-3">เพิ่มรูปร้านค้า</h3>
+  <h3 class="text-lg font-extrabold text-ink text-center mt-3">เพิ่มรูปร้านค้า</h3>
   <div class="p-6">
     {#if !dataUrl && !compressing}
       <div class="space-y-3">
@@ -120,12 +120,12 @@
           ondrop={handleDrop}
           ondragover={(e) => { e.preventDefault(); dragOver = true }}
           ondragleave={() => (dragOver = false)}
-          class="flex cursor-pointer flex-col items-center gap-3 rounded-lg border-2 border-dashed p-8 transition-colors {dragOver ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}"
+          class="flex cursor-pointer flex-col items-center gap-3 rounded-lg border-2 border-dashed p-8 transition-colors {dragOver ? 'border-acc bg-tint' : 'border-rule-2 hover:border-ink'}"
         >
-          <Upload class="w-8 h-8 text-muted-foreground" />
+          <Upload class="w-8 h-8 text-ink-faint" />
           <div class="text-center">
-            <p class="text-sm font-medium text-foreground">ลากมาวาง หรือแตะเพื่อเลือกรูป</p>
-            <p class="mt-1 text-xs text-muted-foreground">JPEG, PNG</p>
+            <p class="text-sm font-bold text-ink">ลากมาวาง หรือแตะเพื่อเลือกรูป</p>
+            <p class="mt-1 text-xs text-ink-faint">JPEG, PNG</p>
           </div>
         </label>
         <input
@@ -136,21 +136,21 @@
           onchange={(e) => { const f = e.currentTarget.files?.[0]; if (f) void handleFile(f); e.currentTarget.value = '' }}
         />
         {#if error}
-          <p class="text-sm text-destructive text-center">{error}</p>
+          <p class="text-sm font-semibold text-danger-ink text-center">{error}</p>
         {/if}
       </div>
     {:else if compressing}
       <div class="flex flex-col items-center gap-3 py-8">
-        <Spinner class="w-8 h-8 animate-spin text-primary" />
-        <p class="text-sm text-muted-foreground">กำลังบีบอัดรูป…</p>
+        <Spinner class="spin h-8 w-8 text-acc-ink" />
+        <p class="text-sm text-ink-soft">กำลังบีบอัดรูป…</p>
       </div>
     {:else if done}
       <div class="space-y-3">
         <div class="flex flex-col items-center gap-3 py-4">
-          <div class="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
-            <Check class="w-5 h-5 text-success" />
+          <div class="w-10 h-10 rounded-full bg-acc-tint flex items-center justify-center">
+            <Check class="w-5 h-5 text-acc-ink" />
           </div>
-          <p class="text-sm text-muted-foreground">เพิ่มรูปสำเร็จ!</p>
+          <p class="text-sm text-ink-soft">เพิ่มรูปสำเร็จ!</p>
         </div>
         <Button type="button" class="w-full" onclick={handleClose}>ตกลง</Button>
       </div>
@@ -159,9 +159,9 @@
         {#if previewUrl}
           <img src={previewUrl} alt="ตัวอย่างรูปที่อัปโหลด" class="w-full h-48 object-cover rounded-lg" />
         {/if}
-        <div class="flex items-center gap-3 rounded-lg border border-border p-3">
+        <div class="flex items-center gap-3 rounded-xl border-[1.5px] border-rule p-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs text-muted-foreground">
+            <p class="text-xs text-ink-faint">
               {#if originalSize !== compressedSize}
                 <span class="line-through">{formatSize(originalSize)}</span> → {formatSize(compressedSize)}
               {:else}
@@ -174,7 +174,7 @@
           </Button>
         </div>
         {#if error}
-          <p class="text-sm text-destructive text-center">{error}</p>
+          <p class="text-sm font-semibold text-danger-ink text-center">{error}</p>
         {/if}
         <div class="flex gap-2">
           <Button type="button" variant="secondary" class="flex-1" onclick={handleClose}>ยกเลิก</Button>

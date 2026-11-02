@@ -1,0 +1,247 @@
+/* ————————————————————————————————————————————————
+   DATA Ledger — V5 “paper pop” component classes
+   Ported from design/v5/src/index.css (@layer components block,
+   keyframes, leaflet overrides) plus the spec §2 class vocabulary:
+   .card .sticker .btn .btn-acc .btn-pop .chip .kbd .field .label
+   .seg .seg-item .count-sticker .squiggle .row .row:hover .mono .pop-dots
+   Also carries the V5 shell layout that replaces styles/ledger.css.
+   ———————————————————————————————————————————————— */
+
+html { scrollbar-width: thin; scrollbar-color: var(--rule-2) transparent; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* dotted ledger paper */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(var(--rule) 1.1px, transparent 1.1px);
+  background-size: 22px 22px;
+  opacity: 0.8;
+  pointer-events: none;
+}
+:root[data-texture="off"] body::before { opacity: 0; }
+
+::selection { background: var(--acc); color: #fff; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* soft theme switching */
+body, .card, .sticker, .seg, .field {
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease;
+}
+
+/* ——— V5 shell (replaces the V4 rail + header + bottom nav) ——— */
+html:has(.ledger-shell),
+body:has(.ledger-shell) {
+  height: 100%;
+  overscroll-behavior-y: auto;
+}
+#root:has(.ledger-shell) {
+  height: 100%;
+  overflow: hidden;
+}
+html:has(.ledger-shell):root { color-scheme: light; }
+html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
+
+.ledger-shell {
+  height: 100dvh;
+  /* dvh grows the moment the browser chrome collapses, so a reload that lands
+     mid-transition sizes the shell taller than the visible area and pushes the
+     sticky top bar off screen. svh is the height with the chrome always shown,
+     so capping there keeps the bar pinned; browsers without svh drop the
+     declaration and keep the 100dvh behaviour. */
+  max-height: 100svh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Transparent so the dotted paper on body::before shows through the gutters. */
+  background-color: transparent;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+.ledger-shell ::selection { background: var(--acc); color: #fff; }
+.ledger-shell h1,
+.ledger-shell h2,
+.ledger-shell h3,
+.ledger-shell h4,
+.ledger-shell [role='heading'] {
+  text-wrap: balance;
+}
+.ledger-shell p,
+.ledger-shell blockquote {
+  text-wrap: pretty;
+}
+
+/* ≥44px touch targets survive the V5 look; dense stickers opt out. */
+.ledger-shell :is(button, a[href], [role='button'], [role='tab'], [role='option'], [role='switch'], input, textarea, select) {
+  -webkit-tap-highlight-color: transparent;
+}
+.ledger-shell :is(button, a[href], [role='button'], [role='tab'], [role='option'], [role='switch']):not(.chip):not(.kbd):not(.seg-item):not(.count-sticker):not(.btn-inline):not(.squiggle):not(.v5-switch) {
+  min-height: 44px;
+}
+.ledger-shell .seg-item { min-height: 36px; }
+.ledger-shell input,
+.ledger-shell textarea,
+.ledger-shell select { min-height: 44px; font-size: 14px; }
+@media (max-width: 767px) {
+  .ledger-shell input,
+  .ledger-shell textarea,
+  .ledger-shell select {
+    font-size: 16px !important;
+  }
+}
+
+/* ——— shared primitives ——— */
+@layer components {
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: var(--r3);
+    box-shadow: var(--sh-sm);
+  }
+  .card-pad { padding: var(--pad-card); }
+
+  .sticker {
+    background: var(--card);
+    border: var(--border-w) solid var(--hard);
+    border-radius: var(--r2);
+    box-shadow: var(--shadow-pop);
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-weight: 600; font-size: 14px; line-height: 1;
+    padding: 10px 18px; border-radius: 999px;
+    border: var(--border-w) solid transparent; cursor: pointer; user-select: none;
+    transition: transform .16s ease, box-shadow .16s ease, background .16s ease, color .16s ease, border-color .16s ease;
+  }
+  .btn-acc { background: var(--acc); color: #fff; border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
+  .btn-acc:hover { background: var(--acc-strong); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--hard); }
+  .btn-acc:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--hard); }
+  .btn-pop, .btn-line { background: var(--card); color: var(--ink); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
+  .btn-pop:hover, .btn-line:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--hard); }
+  .btn-pop:active, .btn-line:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--hard); }
+  .btn-ghost { color: var(--ink-soft); border-color: transparent; }
+  .btn-ghost:hover { background: var(--acc-tint); color: var(--acc-ink); }
+  .btn-danger { background: var(--card); color: var(--danger-ink); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--danger); }
+  .btn-danger:hover { background: var(--danger-tint); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--danger); }
+  .btn-danger:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--danger); }
+  .btn[disabled] { opacity: .5; pointer-events: none; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 11px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; line-height: 1.2;
+    border: 1px solid transparent; white-space: nowrap;
+  }
+
+  .kbd {
+    font-family: var(--font-mono); font-size: 11px; line-height: 1;
+    padding: 4px 6px; border-radius: 6px;
+    border: 1px solid var(--rule-2); border-bottom-width: 2px;
+    background: var(--card); color: var(--ink-soft);
+    display: inline-flex; align-items: center;
+  }
+
+  .field {
+    width: 100%; background: var(--card); color: var(--ink);
+    border: var(--border-w) solid var(--rule-2); border-radius: var(--r2);
+    padding: 10px 14px; font-size: 14px; font-family: inherit;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .field::placeholder { color: var(--ink-faint); }
+  .field:focus { outline: none; border-color: var(--acc); box-shadow: 0 0 0 3px var(--ring); }
+
+  .label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
+
+  .seg {
+    display: inline-flex; gap: 4px; padding: 4px;
+    background: var(--paper-2); border: 1px solid var(--rule);
+    border-radius: 999px;
+  }
+  .seg > button, .seg-item {
+    padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    color: var(--ink-soft); cursor: pointer; transition: all .15s ease;
+  }
+  .seg > button:hover, .seg-item:hover { color: var(--ink); }
+  .seg > button[aria-pressed="true"], .seg-item[aria-pressed="true"] { background: var(--card); color: var(--ink); border: var(--border-w) solid var(--hard); box-shadow: 2px 2px 0 0 var(--hard); }
+
+  .count-sticker {
+    display: inline-flex; align-items: baseline; gap: 6px;
+    background: var(--card); border: var(--border-w) solid var(--hard);
+    border-radius: var(--r2); box-shadow: var(--shadow-pop);
+    padding: 6px 12px;
+  }
+  .count-sticker > .count-sticker-n { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--acc-ink); }
+  .count-sticker > .count-sticker-l { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--ink-soft); text-transform: uppercase; }
+
+  .squiggle { display: block; }
+
+  .row {
+    display: grid; width: 100%; align-items: center; gap: 12px;
+    min-height: var(--rowh);
+    border-bottom: 1px dashed var(--rule);
+    text-align: left;
+    transition: background-color .1s ease, box-shadow .1s ease;
+  }
+  .row:last-child { border-bottom: 0; }
+  .row:hover { background: color-mix(in srgb, var(--paper-2) 45%, transparent); }
+  .row.is-active { background: color-mix(in srgb, var(--acc-tint) 60%, transparent); box-shadow: inset 3px 0 0 0 var(--acc); }
+
+  .mono { font-family: var(--font-mono); }
+
+  .spin { animation: lspin 1s linear infinite; }
+  .pop-dots { animation: pop-dots .5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .floaty { animation: floaty 3.6s ease-in-out infinite; }
+}
+
+@keyframes lspin { to { transform: rotate(360deg); } }
+@keyframes floaty { 0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); } 50% { transform: translateY(-7px) rotate(var(--rot, 0deg)); } }
+@keyframes pop-dots { 0% { opacity: 0; transform: scale(.6); } 100% { opacity: 1; transform: scale(1); } }
+
+/* ——— leaflet : paper-pop theme ——— */
+.leaflet-container { background: var(--paper-2); font: inherit; color: var(--ink); }
+.leaflet-control-attribution { background: color-mix(in srgb, var(--card) 82%, transparent) !important; color: var(--ink-faint) !important; font-size: 10px !important; }
+.leaflet-control-attribution a { color: var(--ink-soft) !important; }
+.leaflet-bar { border: var(--border-w) solid var(--hard) !important; border-radius: 10px !important; box-shadow: 2.5px 2.5px 0 0 var(--hard) !important; overflow: hidden; }
+.leaflet-bar a { background: var(--card) !important; color: var(--ink) !important; border-bottom: 1px solid var(--rule) !important; width: 30px !important; height: 30px !important; line-height: 28px !important; }
+.leaflet-bar a:hover { background: var(--acc-tint) !important; color: var(--acc-ink) !important; }
+
+.lp {
+  width: 24px; height: 24px;
+  background: var(--pin, var(--acc));
+  border: 2px solid #fff;
+  border-radius: 999px 999px 999px 3px;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 5px rgb(20 20 30 / .35), 0 0 0 1px rgb(20 20 30 / .1);
+  transition: transform .15s ease;
+}
+.lp::after { content: ""; position: absolute; inset: 6.5px; border-radius: 999px; background: #fff; }
+.lp:hover { transform: rotate(-45deg) scale(1.18); }
+
+.ledger-pop .leaflet-popup-content-wrapper {
+  background: var(--card); color: var(--ink);
+  border: var(--border-w) solid var(--hard); border-radius: 14px;
+  box-shadow: var(--shadow-pop);
+}
+.ledger-pop .leaflet-popup-tip { background: var(--card); border: var(--border-w) solid var(--hard); }
+.ledger-pop .leaflet-popup-content { margin: 12px 14px; font-family: var(--font-ui); font-size: 13px; line-height: 1.45; }
+.ledger-pop .leaflet-popup-close-button { color: var(--ink-soft) !important; font-size: 16px !important; padding: 6px 8px 0 0 !important; }
+.pop-open {
+  color: var(--acc-ink); background: var(--acc-tint); border-radius: 999px;
+  padding: 4px 10px; font-weight: 700; font-size: 12px; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
+}

@@ -4,8 +4,9 @@
   import type { HTMLLabelAttributes } from 'svelte/elements'
   import type { Snippet } from 'svelte'
 
-  const labelVariants = cva('text-[14px] font-semibold text-muted-foreground', {
-    variants: { required: { true: 'after:content-["*"] after:text-destructive after:ml-0.5' } },
+  // V5 `.label` — small bold uppercase eyebrow above a control.
+  const labelVariants = cva('label', {
+    variants: { required: { true: 'after:content-["*"] after:text-danger after:ml-0.5' } },
     defaultVariants: { required: false },
   })
 

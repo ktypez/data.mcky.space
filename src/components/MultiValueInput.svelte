@@ -52,29 +52,29 @@
         name={i === 0 ? placeholder : `${placeholder}-${i}`}
       />
       {#if values.length > 1}
-        <Button type="button" variant="ghost" size="icon" class="shrink-0 text-muted-foreground" onclick={() => remove(i)} aria-label="ลบช่องนี้">
+        <Button type="button" variant="ghost" size="icon" class="shrink-0 text-ink-faint hover:text-danger-ink" onclick={() => remove(i)} aria-label="ลบช่องนี้">
           <X class="w-4 h-4" />
         </Button>
       {:else if showInline && i === 0}
-        <Button type="button" onclick={add} aria-label={addLabel} class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button type="button" size="icon" class="shrink-0" onclick={add} aria-label={addLabel}>
           <Plus class="h-4 w-4" weight="bold" />
         </Button>
       {/if}
       {#if showInline && values.length > 1 && i === values.length - 1}
-        <Button type="button" onclick={add} aria-label={addLabel} class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button type="button" size="icon" class="shrink-0" onclick={add} aria-label={addLabel}>
           <Plus class="h-4 w-4" weight="bold" />
         </Button>
       {/if}
     </div>
   {/each}
   {#if !inlineAdd}
-    <Button type="button" variant="outline" size="sm" class="w-full border-dashed" onclick={add}>
+    <Button type="button" variant="pop" size="sm" class="w-full border-dashed" onclick={add}>
       <Plus class="w-3.5 h-3.5" />
       {addLabel}
     </Button>
   {/if}
   {#if inlineAdd && values.length === 0}
-    <Button type="button" onclick={add} aria-label={addLabel} class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+    <Button type="button" size="icon" onclick={add} aria-label={addLabel}>
       <Plus class="h-4 w-4" weight="bold" />
     </Button>
   {/if}

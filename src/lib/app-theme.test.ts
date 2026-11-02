@@ -2,14 +2,17 @@ import { describe, expect, it } from 'vitest'
 import { getTheme, themeGroups, themes } from '@/lib/design/themes'
 import { normaliseAppMode, resolveThemeMode, themeSupportsMode } from '@/lib/app-theme'
 
-const PRESET_IDS = ['ledger', 'claude', 'blueprint', 'mono', 'lotus', 'terminal']
+const PRESET_IDS = ['matcha', 'coral', 'blueberry', 'butter']
 
 describe('shared app theme mode', () => {
-  it('registers exactly the 6 presets, with no custom theme', () => {
+  it('registers exactly the 4 V5 palettes, with no custom theme', () => {
     expect(new Set(themes.map(theme => theme.id)).size).toBe(themes.length)
     expect(themes.map(theme => theme.id)).toEqual(PRESET_IDS)
-    expect(getTheme('custom').id).toBe('ledger')
-    expect(getTheme('nope').id).toBe('ledger')
+    expect(getTheme('custom').id).toBe('matcha')
+    expect(getTheme('nope').id).toBe('matcha')
+    // Stale pre-V5 preset ids migrate to the matcha default.
+    expect(getTheme('ledger').id).toBe('matcha')
+    expect(getTheme('terminal').id).toBe('matcha')
   })
 
   it('partitions every preset into exactly one mode group', () => {
@@ -26,7 +29,7 @@ describe('shared app theme mode', () => {
 
   it('buckets by supported mode, not by a hand-assigned field', () => {
     const bucket = (id: string) => themeGroups.find(group => group.matches(getTheme(id)))?.id
-    // All 6 adopted themes are dual-mode.
+    // All 4 V5 palettes are dual-mode.
     for (const id of PRESET_IDS) {
       expect(bucket(id)).toBe('dual')
       expect(getTheme(id).modes).toEqual(['light', 'dark'])
@@ -42,10 +45,10 @@ describe('shared app theme mode', () => {
   })
 
   it('resolves auto from the operating system for dual themes', () => {
-    const ledger = getTheme('ledger')
-    expect(resolveThemeMode(ledger, 'auto', false)).toBe('light')
-    expect(resolveThemeMode(ledger, 'auto', true)).toBe('dark')
-    expect(resolveThemeMode(ledger, 'light', true)).toBe('light')
-    expect(resolveThemeMode(ledger, 'dark', false)).toBe('dark')
+    const matcha = getTheme('matcha')
+    expect(resolveThemeMode(matcha, 'auto', false)).toBe('light')
+    expect(resolveThemeMode(matcha, 'auto', true)).toBe('dark')
+    expect(resolveThemeMode(matcha, 'light', true)).toBe('light')
+    expect(resolveThemeMode(matcha, 'dark', false)).toBe('dark')
   })
 })

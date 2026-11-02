@@ -17,6 +17,6 @@
     maxlength={1000}
     rows={3}
     placeholder="เพิ่มรายละเอียด…"
-    class="w-full resize-y rounded-[6px] border border-border bg-card px-3 py-2 font-sans text-[16px] text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring"
+    class="field w-full resize-y"
   ></textarea>
 </div>

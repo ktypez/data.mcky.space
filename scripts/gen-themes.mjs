@@ -1,192 +1,171 @@
 // =============================================================================
 // scripts/gen-themes.mjs
 // -----------------------------------------------------------------------------
-// Single source of truth for the 6 adopted design-prototype themes (+ custom).
+// Single source of truth for the V5 “paper pop” palettes.
 // Emits:
-//   - src/lib/design/themes.ts   (Theme metadata + ThemeVars for picker/swatches)
-//   - public/themes/{id}.css     (the actual CSS-var definitions, pre-paint)
+//   - public/themes/paper-pop.css  (byte-copy of src/styles/v5-tokens.css —
+//     the whole V5 token block, all 4 palettes × light/dark, so the pre-paint
+//     boot script and the bundled copy can never drift)
+//   - src/lib/design/themes.ts     (Theme metadata + ThemeVars + V5_PALETTES)
 //
-// Proto palette (10 colours) is mapped into the app's full ThemeVars shape so
-// index.css / ledger.css / every component keep working unchanged. Run:
+// The prototype drives colour with data-palette (matcha · coral · blueberry ·
+// butter) × .dark. The app keeps its data-theme + .dark mechanism; the theme
+// id IS the palette id, and every entry points staticCss at the one shared
+// stylesheet. Fonts ship from index.html, so no fontUrl is emitted.
+// Run:
 //   node scripts/gen-themes.mjs
 // =============================================================================
-import { writeFileSync, mkdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync, rmSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 
-const SYSTEM_MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-const JETBRAINS = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+const SORA = '"Sora", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif'
+const JETBRAINS = '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace'
 
-const PALETTE_TO_VARS = (p) => [
-  ['--background', p.bg],
-  ['--foreground', p.fg],
-  ['--card', p.card],
-  ['--card-foreground', p.fg],
-  ['--popover', p.card],
-  ['--popover-foreground', p.fg],
-  ['--primary', p.primary],
-  ['--primary-foreground', p.primaryFg],
-  ['--secondary', p.muted],
-  ['--secondary-foreground', p.fg],
-  ['--muted', p.muted],
-  ['--muted-foreground', p.mutedFg],
-  ['--accent', p.accent],
-  ['--accent-foreground', p.fg],
-  ['--destructive', p.destructive],
-  ['--destructive-foreground', p.primaryFg],
-  ['--success', p.primary],
-  ['--success-foreground', p.primaryFg],
-  ['--warning', p.accent],
-  ['--warning-foreground', p.primaryFg],
-  ['--info', p.primary],
-  ['--info-foreground', p.primaryFg],
-  ['--border', p.border],
-  ['--input', p.border],
-  ['--ring', p.primary],
-  ['--sidebar', p.card],
-  ['--sidebar-foreground', p.fg],
-  ['--sidebar-accent', p.muted],
-  ['--sidebar-accent-foreground', p.fg],
-  ['--sidebar-border', p.border],
-  ['--sidebar-ring', p.primary],
-  ['--radius', '0.625rem'],
-  ['--pin-color', p.primary],
-]
-
-const CSS_VARS = (p, fonts) => [
-  ...PALETTE_TO_VARS(p),
-  ['--theme-font-display', fonts.display],
-  ['--theme-font-body', fonts.body],
-  ['--theme-font-mono', fonts.mono],
-]
-
-const THEMES = [
+// ——— the 4 V5 palettes (ids/labels/hues = design/v5 PALETTES) ————————
+const PALETTES = [
   {
-    id: 'ledger',
-    label: 'Ledger',
-    description: 'โทนเขียวนุ่มสบายตา — กระดาษเขียวนวลหม่น สีหลักเขียวกวางนุ่ม ไม่จัดจ้าน (ค่าเริ่มต้น)',
-    fonts: { display: 'Noto Sans Thai, sans-serif', body: 'Noto Sans Thai, sans-serif', mono: SYSTEM_MONO },
-    fontUrl: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap',
-    light: { bg: '#e9efe6', fg: '#1e2c22', card: '#f8fbf6', border: '#c6d2c4', muted: '#dde4d9', mutedFg: '#4a5848', primary: '#4a7a5c', primaryFg: '#ffffff', destructive: '#b3261e', accent: '#c2410c' },
-    dark:  { bg: '#101813', fg: '#d4e0d2', card: '#17241c', border: '#33483a', muted: '#1c2a20', mutedFg: '#9bb39a', primary: '#6db38f', primaryFg: '#0a1a12', destructive: '#f87171', accent: '#fbbf24' },
+    id: 'matcha',
+    label: 'Matcha',
+    description: 'กระดาษอุ่นโทนชามัทฉะ — เขียวขี้มังกรเป็นสีหลัก ส้มพีชเป็นสีป๊อป (ค่าเริ่มต้น)',
+    light: { acc: '#158068', accStrong: '#0f6652', accTint: '#e2f2e8', accInk: '#0c5b44', pop: '#f2593f', popTint: '#fde6e0', popInk: '#b23a24' },
+    dark: { acc: '#35c49c', accStrong: '#4ad3ac', accTint: '#163c31', accInk: '#8ae0c2', pop: '#ff7a63', popTint: '#42241f', popInk: '#ffa695' },
   },
   {
-    id: 'claude',
-    label: 'Claude',
-    description: 'กระดาษพาร์ชเมนต์อุ่น ตัวอักษรเซริฟ สีหลักทองอำพันเข้ม',
-    fonts: { display: "'Noto Serif Thai', Georgia, serif", body: 'Noto Sans Thai, sans-serif', mono: JETBRAINS },
-    fontUrl: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Thai&family=Noto+Sans+Thai&family=JetBrains+Mono&display=swap',
-    light: { bg: '#f7f0e0', fg: '#241a07', card: '#fffbf2', border: '#d6bf93', muted: '#eee0c4', mutedFg: '#5c4a24', primary: '#96610a', primaryFg: '#ffffff', destructive: '#a3341f', accent: '#9a3412' },
-    dark:  { bg: '#1a1408', fg: '#f2e8d2', card: '#26200f', border: '#4d4127', muted: '#332a15', mutedFg: '#c2ab7d', primary: '#e0a52a', primaryFg: '#201603', destructive: '#e06a4a', accent: '#c2410c' },
+    id: 'coral',
+    label: 'Coral',
+    description: 'คอรัลส้มแดงเป็นสีหลัก ทีลเข้มเป็นสีป๊อป — อบอุ่นและสดใส',
+    light: { acc: '#e8503a', accStrong: '#c93b27', accTint: '#fce7e1', accInk: '#a93a27', pop: '#17918c', popTint: '#dff2f1', popInk: '#0e5f5b' },
+    dark: { acc: '#ff6b52', accStrong: '#ff8570', accTint: '#40211c', accInk: '#ffa18d', pop: '#2bb5af', popTint: '#153b3a', popInk: '#7fd8d3' },
   },
   {
-    id: 'blueprint',
-    label: 'Blueprint',
-    description: 'กระดาษเทคนิคโทนฟ้าเย็น สีหลักโคบอลต์เข้มจัด',
-    fonts: { display: 'Noto Sans Thai, monospace', body: 'Noto Sans Thai, monospace', mono: SYSTEM_MONO },
-    fontUrl: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap',
-    light: { bg: '#e4edfb', fg: '#081c39', card: '#f5f9ff', border: '#93b4e6', muted: '#c9daf7', mutedFg: '#2f4a70', primary: '#1852d6', primaryFg: '#ffffff', destructive: '#c0392b', accent: '#0891b2' },
-    dark:  { bg: '#060f1f', fg: '#dce9fb', card: '#0d1a30', border: '#1e3b63', muted: '#132742', mutedFg: '#93b3dd', primary: '#5c9bff', primaryFg: '#04122a', destructive: '#f87171', accent: '#22d3ee' },
+    id: 'blueberry',
+    label: 'Blueberry',
+    description: 'บลูเบอร์รีน้ำเงินเป็นสีหลัก หมักเขียวเป็นสีป๊อป — เย็นและมั่นคง',
+    light: { acc: '#3e63dd', accStrong: '#2f4fc0', accTint: '#e7ecfc', accInk: '#2b49ae', pop: '#f2a93b', popTint: '#fbefd7', popInk: '#8f5a08' },
+    dark: { acc: '#7c97f4', accStrong: '#93abf7', accTint: '#1f2a4e', accInk: '#a9bcf8', pop: '#f5b84d', popTint: '#40311a', popInk: '#f6ce85' },
   },
   {
-    id: 'mono',
-    label: 'Mono',
-    description: 'ขาวดำล้วน ไม่มีสี hue — ดำ ขาว และกราไฟต์ ตลอดทั้งธีม',
-    fonts: { display: JETBRAINS, body: JETBRAINS, mono: JETBRAINS },
-    fontUrl: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap',
-    light: { bg: '#f2f2f2', fg: '#111111', card: '#fbfbfb', border: '#c4c4c4', muted: '#e2e2e2', mutedFg: '#4d4d4d', primary: '#1a1a1a', primaryFg: '#fafafa', destructive: '#b3261e', accent: '#737373' },
-    dark:  { bg: '#0d0d0d', fg: '#f2f2f2', card: '#1a1a1a', border: '#3d3d3d', muted: '#262626', mutedFg: '#a3a3a3', primary: '#fafafa', primaryFg: '#111111', destructive: '#f87171', accent: '#a3a3a3' },
-  },
-  {
-    id: 'lotus',
-    label: 'Lotus',
-    description: 'กระดาษลาเวนเดอร์ สีหลักม่วงไวโอเลตจัดจ้าน เน้นชมพูฮอตพิงก์',
-    fonts: { display: 'Noto Sans Thai, sans-serif', body: 'Noto Sans Thai, sans-serif', mono: SYSTEM_MONO },
-    fontUrl: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap',
-    light: { bg: '#f4eaf8', fg: '#240e2e', card: '#fdf8ff', border: '#c9a4d8', muted: '#e7d3ef', mutedFg: '#543a63', primary: '#7c22ce', primaryFg: '#ffffff', destructive: '#c0392b', accent: '#db2777' },
-    dark:  { bg: '#160a1c', fg: '#f0e2f6', card: '#221228', border: '#452a52', muted: '#2f1a36', mutedFg: '#c0a0cc', primary: '#c084fc', primaryFg: '#1c0725', destructive: '#f87171', accent: '#f472b6' },
-  },
-  {
-    id: 'terminal',
-    label: 'Terminal',
-    description: 'จอ CRT เขียวกรด — เขียวฟอสเฟอร์สว่างบนดำสนิท',
-    fonts: { display: 'Noto Sans Thai, monospace', body: 'Noto Sans Thai, monospace', mono: JETBRAINS },
-    fontUrl: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&family=JetBrains+Mono&display=swap',
-    light: { bg: '#f0f8e6', fg: '#14260a', card: '#fafff4', border: '#b8e08a', muted: '#dcedbf', mutedFg: '#425a1c', primary: '#3d7d12', primaryFg: '#ffffff', destructive: '#c62828', accent: '#5c8f0a' },
-    dark:  { bg: '#04120a', fg: '#b8ffd0', card: '#0a1f10', border: '#1c5230', muted: '#0f2c16', mutedFg: '#6ee7a0', primary: '#22ff88', primaryFg: '#001a08', destructive: '#ff5555', accent: '#a3e635' },
+    id: 'butter',
+    label: 'Butter',
+    description: 'เนยส้มทองเป็นสีหลัก ม่วงไอริสเป็นสีป๊อป — นุ่มละมุน',
+    light: { acc: '#c77d0a', accStrong: '#a56607', accTint: '#faedd3', accInk: '#8f5a08', pop: '#6d5bd0', popTint: '#eae7fb', popInk: '#4a3c9e' },
+    dark: { acc: '#f2a93f', accStrong: '#f6bc5f', accTint: '#42331a', accInk: '#f6cb7f', pop: '#9b8bf5', popTint: '#2a2450', popInk: '#c4bafb' },
   },
 ]
 
-// ---- emit public/themes/{id}.css -------------------------------------------
-for (const t of THEMES) {
-  const light = CSS_VARS(t.light, t.fonts)
-  const dark = CSS_VARS(t.dark, t.fonts)
-  const css = `/* ============================================================================
-   ${t.id}.css — data.mcky.space theme (${t.label})
-   -----------------------------------------------------------------------------
-   GENERATED by scripts/gen-themes.mjs — do not edit by hand.
-   ${t.description}
-   Light = [data-theme='${t.id}']  ·  Dark = .dark[data-theme='${t.id}']
-   ============================================================================ */
-[data-theme='${t.id}'] {
-${light.map(([k, v]) => `  ${k}: ${v};`).join('\n')}
+// ——— shared base (identical in every palette; mirrors v5-tokens.css) ————
+const BASE = {
+  light: { paper: '#f6f2e9', paper2: '#eee9db', card: '#fffdf6', ink: '#28251d', inkSoft: '#6f685b', rule: '#e6dfcc' },
+  dark: { paper: '#17181d', paper2: '#131419', card: '#1f2128', ink: '#ede9dd', inkSoft: '#a4aab6', rule: '#2e313b' },
+  banana: '#f2b63d',
+  sky: '#57a7e0',
 }
 
-.dark[data-theme='${t.id}'] {
-${dark.map(([k, v]) => `  ${k}: ${v};`).join('\n')}
-}
-`
-  writeFileSync(resolve(ROOT, 'public/themes', `${t.id}.css`), css)
+const PALETTE_TO_VARS = (mode, p) => {
+  const b = BASE[mode]
+  return [
+    ['--background', b.paper],
+    ['--foreground', b.ink],
+    ['--card', b.card],
+    ['--card-foreground', b.ink],
+    ['--popover', b.card],
+    ['--popover-foreground', b.ink],
+    ['--primary', p.acc],
+    ['--primary-foreground', '#ffffff'],
+    ['--secondary', b.paper2],
+    ['--secondary-foreground', b.ink],
+    ['--muted', b.paper2],
+    ['--muted-foreground', b.inkSoft],
+    ['--accent', p.pop],
+    ['--accent-foreground', p.popInk],
+    ['--destructive', mode === 'light' ? '#d9453a' : '#f26d60'],
+    ['--destructive-foreground', '#ffffff'],
+    ['--success', p.acc],
+    ['--success-foreground', '#ffffff'],
+    ['--warning', BASE.banana],
+    ['--warning-foreground', b.ink],
+    ['--info', BASE.sky],
+    ['--info-foreground', '#ffffff'],
+    ['--border', b.rule],
+    ['--input', b.rule],
+    ['--ring', p.acc],
+    ['--sidebar', b.card],
+    ['--sidebar-foreground', b.ink],
+    ['--sidebar-accent', b.paper2],
+    ['--sidebar-accent-foreground', b.ink],
+    ['--sidebar-border', b.rule],
+    ['--sidebar-ring', p.acc],
+    ['--radius', '0.625rem'],
+    ['--pin-color', p.acc],
+  ]
 }
 
-// ---- emit src/lib/design/themes.ts -----------------------------------------
 function toTsVarBlock(vars) {
   return Object.entries(vars).map(([k, v]) => `      '${k}': ${JSON.stringify(v)},`).join('\n')
 }
 
-function toVarsObj(p) {
-  return Object.fromEntries(PALETTE_TO_VARS(p))
+// ——— emit public/themes/paper-pop.css ---------------------------------------
+// Byte-copy of the bundled token file: the pre-paint stylesheet and the app
+// bundle can never drift apart.
+const tokensCss = readFileSync(resolve(ROOT, 'src/styles/v5-tokens.css'), 'utf8')
+mkdirSync(resolve(ROOT, 'public/themes'), { recursive: true })
+writeFileSync(resolve(ROOT, 'public/themes/paper-pop.css'), tokensCss)
+
+// Retire the 6 pre-V5 theme stylesheets — nothing references them anymore.
+const themesDir = resolve(ROOT, 'public/themes')
+for (const file of readdirSync(themesDir)) {
+  if (file !== 'paper-pop.css' && file.endsWith('.css')) rmSync(resolve(themesDir, file))
 }
 
-const protoEntries = THEMES.map((t) => `  {
-    id: '${t.id}',
-    label: '${t.label}',
-    description: '${t.description}',
+// ——— emit src/lib/design/themes.ts -----------------------------------------
+const themeEntries = PALETTES.map((p) => `  {
+    id: '${p.id}',
+    label: '${p.label}',
+    description: '${p.description}',
     character: 'plain',
     modes: ['light', 'dark'],
-    fonts: { display: ${JSON.stringify(t.fonts.display)}, body: ${JSON.stringify(t.fonts.body)}, mono: ${JSON.stringify(t.fonts.mono)} },
-    fontUrl: '${t.fontUrl}',
-    staticCss: '/themes/${t.id}.css',
+    fonts: { display: ${JSON.stringify(SORA)}, body: ${JSON.stringify(SORA)}, mono: ${JSON.stringify(JETBRAINS)} },
+    staticCss: '/themes/paper-pop.css',
     light: {
-${toTsVarBlock(toVarsObj(t.light))}
+${toTsVarBlock(Object.fromEntries(PALETTE_TO_VARS('light', p.light)))}
     },
     dark: {
-${toTsVarBlock(toVarsObj(t.dark))}
+${toTsVarBlock(Object.fromEntries(PALETTE_TO_VARS('dark', p.dark)))}
     },
   }`).join(',\n')
+
+const swatchEntries = PALETTES.map(
+  (p) => `  { key: '${p.id}', name: '${p.label}', acc: '${p.light.acc}', pop: '${p.light.pop}', tint: '${p.light.accTint}' },`,
+).join('\n')
 
 const ts = `// =============================================================================
 // themes.ts — data.mcky.space theme registry
 // -----------------------------------------------------------------------------
 // GENERATED by scripts/gen-themes.mjs — do not edit by hand.
 //
-// The 6 themes below are adopted from the Ledger design prototype (React).
-// Each is a "plain" colour theme (no glitch/crt/brut effects), dual-mode
-// (light + dark), applied via a static stylesheet at /themes/{id}.css that the
-// boot script preloads and app-theme.ts swaps at runtime.
+// The 4 V5 “paper pop” palettes below replace the 6 pre-V5 presets. Each is a
+// dual-mode colour palette applied via the one shared static stylesheet at
+// /themes/paper-pop.css that the boot script preloads and app-theme.ts keeps
+// active. The theme id IS the palette id (matcha is the default).
 // =============================================================================
 import type { Theme, ThemeGroup } from './tokens'
 
 export type { Theme, ThemeGroup, ThemeVars } from './tokens'
 
 export const themes: Theme[] = [
-${protoEntries},
+${themeEntries},
 ]
 
-const defaultTheme: Theme = themes.find((t) => t.id === 'ledger') ?? themes[0]
+/** Swatch metadata for the Settings palette picker (light-mode hues). */
+export const V5_PALETTES: Array<{ key: string; name: string; acc: string; pop: string; tint: string }> = [
+${swatchEntries}
+]
+
+const defaultTheme: Theme = themes.find((t) => t.id === 'matcha') ?? themes[0]
 
 export function getTheme(id: string | undefined | null): Theme {
   return themes.find((t) => t.id === id) ?? defaultTheme
@@ -218,4 +197,4 @@ export const themeGroups: ThemeGroup[] = GROUPS.filter((g) => themes.some((t) =>
 `
 writeFileSync(resolve(ROOT, 'src/lib/design/themes.ts'), ts)
 
-console.log('Generated themes.ts + ' + THEMES.length + ' CSS files')
+console.log('Generated themes.ts + paper-pop.css (' + PALETTES.length + ' palettes)')

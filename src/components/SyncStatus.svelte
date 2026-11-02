@@ -34,11 +34,11 @@
 </script>
 
 {#if !online}
-  <div class="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground" role="status"><CloudArrowDown size={14} aria-hidden /> ออฟไลน์</div>
+  <div class="chip bg-paper-2 text-ink-soft" role="status"><CloudArrowDown size={14} aria-hidden="true" /> ออฟไลน์</div>
 {:else if failed > 0}
-  <div class="flex items-center gap-1.5 rounded-full bg-destructive/10 px-2.5 py-1 text-xs text-destructive" role="status"><WarningCircle size={14} aria-hidden /> ซิงก์ล้มเหลว {failed}</div>
+  <div class="chip bg-danger-tint text-danger-ink" role="status"><WarningCircle size={14} aria-hidden="true" /> ซิงก์ล้มเหลว {failed}</div>
 {:else if pending > 0}
-  <div class="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs text-amber-700 dark:text-amber-300" role="status"><CloudArrowDown size={14} aria-hidden /> รอซิงก์ {pending}</div>
+  <div class="chip bg-pen-tint text-pen-ink" role="status"><CloudArrowDown size={14} aria-hidden="true" /> รอซิงก์ {pending}</div>
 {:else}
-  <div class="flex items-center gap-1.5 text-xs text-muted-foreground" role="status"><CloudCheck size={14} aria-hidden /> ซิงก์แล้ว</div>
+  <div class="flex items-center gap-1.5 text-xs font-semibold text-ink-soft" role="status"><CloudCheck size={14} aria-hidden="true" /> ซิงก์แล้ว</div>
 {/if}

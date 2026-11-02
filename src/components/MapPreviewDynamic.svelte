@@ -29,6 +29,6 @@
   {#if near}
     <MapPreview {lat} {lng} />
   {:else}
-    <div class="w-full h-full rounded-xl border border-border bg-card flex items-center justify-center text-muted-foreground text-xs" style="min-height: 160px">กำลังโหลดแผนที่…</div>
+    <div class="flex h-full w-full items-center justify-center rounded-2xl border-[1.5px] border-dashed border-rule-2 bg-paper-2/50 text-xs font-semibold text-ink-faint" style="min-height: 160px">กำลังโหลดแผนที่…</div>
   {/if}
 </div>

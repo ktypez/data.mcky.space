@@ -37,19 +37,19 @@
   <Label id="photo-section-label">รูปร้านค้า</Label>
   <div class="flex flex-wrap gap-2">
     {#each images as src, i}
-      <div class="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
+      <div class="sticker relative size-20 overflow-hidden rounded-xl p-0.5">
         {#if src.startsWith('data:image') || src.startsWith('http')}
-          <AppImage {src} alt={`รูปที่ ${i + 1}`} className="w-full h-full object-cover" />
+          <AppImage {src} alt={`รูปที่ ${i + 1}`} className="size-full rounded-lg object-cover" />
         {:else}
-          <div class="w-full h-full bg-card flex items-center justify-center text-xs text-muted-foreground">?</div>
+          <div class="flex size-full items-center justify-center rounded-lg bg-paper-2 text-xs text-ink-faint">?</div>
         {/if}
-        <Button type="button" variant="default" size="icon" class="absolute right-0.5 top-0.5 !h-11 !w-11 rounded-full" onclick={() => handleRemove(i)} disabled={uploading} aria-label="ลบรูปภาพ">
-          <X class="w-3 h-3" aria-hidden />
+        <Button type="button" variant="danger" size="icon-xs" class="absolute right-1 top-1 rounded-full" onclick={() => handleRemove(i)} disabled={uploading} aria-label="ลบรูปภาพ">
+          <X class="w-3 h-3" aria-hidden="true" />
         </Button>
       </div>
     {/each}
     {#if images.length < MAX_IMAGES}
-      <Button type="button" variant="outline" class="w-20 h-20 rounded-lg border-dashed flex flex-col gap-1" onclick={() => (photoModalOpen = true)}>
+      <Button type="button" variant="pop" class="size-20 flex-col gap-1 rounded-xl border-dashed" onclick={() => (photoModalOpen = true)}>
         <Camera class="w-5 h-5" />
         <span class="text-[10px] font-semibold">{images.length}/{MAX_IMAGES}</span>
       </Button>

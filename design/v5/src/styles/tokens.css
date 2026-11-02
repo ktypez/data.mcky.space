@@ -1,0 +1,120 @@
+/* ————————————————————————————————————————————————
+   DATA Ledger — Design Tokens  (data.mcky.space v5 “paper pop”)
+   Minimal clean base · warm paper · playful stickers & confetti.
+   Port straight to Svelte: set data-mode / data-palette /
+   data-density / data-texture on <html> and every token follows.
+   ———————————————————————————————————————————————— */
+
+:root {
+  /* type */
+  --font-ui: "Sora", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* radii */
+  --r1: 10px;
+  --r2: 14px;
+  --r3: 20px;
+  --r4: 28px;
+
+  /* density */
+  --rowh: 58px;
+  --pad-card: 20px;
+
+  /* confetti (fixed brights, work in both modes) */
+  --banana: #f2b63d;
+  --sky: #57a7e0;
+}
+:root[data-density="compact"] { --rowh: 46px; --pad-card: 14px; }
+
+/* ——— light · warm paper ——— */
+:root {
+  --paper: #f6f2e9;
+  --paper-2: #eee9db;
+  --card: #fffdf6;
+  --ink: #28251d;
+  --ink-soft: #6f685b;
+  --ink-faint: #a29a89;
+  --rule: #e6dfcc;
+  --rule-2: #cfc5a9;
+
+  --danger: #d9453a;
+  --danger-tint: #fbe7e4;
+  --danger-ink: #a52c23;
+
+  --sh-sm: 0 1px 0 rgb(40 35 22 / 0.04), 0 1px 2px rgb(40 35 22 / 0.07);
+  --sh-md: 0 22px 48px -26px rgb(40 35 22 / 0.28), 0 2px 6px rgb(40 35 22 / 0.05);
+  --hard: var(--ink);
+  --ring: color-mix(in srgb, var(--acc) 28%, transparent);
+}
+
+/* ——— dark · chalk night ——— */
+:root[data-mode="dark"] {
+  --paper: #17181d;
+  --paper-2: #131419;
+  --card: #1f2128;
+  --ink: #ede9dd;
+  --ink-soft: #a4aab6;
+  --ink-faint: #6c727f;
+  --rule: #2e313b;
+  --rule-2: #3c404c;
+
+  --danger: #f26d60;
+  --danger-tint: #421f1d;
+  --danger-ink: #ff9d92;
+
+  --sh-sm: 0 1px 0 rgb(0 0 0 / 0.3), 0 1px 2px rgb(0 0 0 / 0.4);
+  --sh-md: 0 22px 48px -24px rgb(0 0 0 / 0.65), 0 2px 6px rgb(0 0 0 / 0.4);
+}
+
+/* ——— palettes ——— */
+:root[data-palette="matcha"] {
+  --acc: #158068; --acc-strong: #0f6652; --acc-tint: #e2f2e8; --acc-ink: #0c5b44;
+  --pop: #f2593f; --pop-tint: #fde6e0; --pop-ink: #b23a24;
+  --credit: #3e63dd; --credit-tint: #e8edfb; --credit-ink: #2b49ae;
+  --penpay: #c77e0a; --penpay-tint: #f7ecd2; --penpay-ink: #8f5a08;
+}
+:root[data-mode="dark"][data-palette="matcha"] {
+  --acc: #35c49c; --acc-strong: #4ad3ac; --acc-tint: #163c31; --acc-ink: #8ae0c2;
+  --pop: #ff7a63; --pop-tint: #42241f; --pop-ink: #ffa695;
+  --credit: #8aa2f6; --credit-tint: #222c4c; --credit-ink: #b3c3fa;
+  --penpay: #e8a93f; --penpay-tint: #3b3018; --penpay-ink: #f2c879;
+}
+
+:root[data-palette="coral"] {
+  --acc: #e8503a; --acc-strong: #c93b27; --acc-tint: #fce7e1; --acc-ink: #a93a27;
+  --pop: #17918c; --pop-tint: #dff2f1; --pop-ink: #0e5f5b;
+  --credit: #3e63dd; --credit-tint: #e8edfb; --credit-ink: #2b49ae;
+  --penpay: #c77e0a; --penpay-tint: #f7ecd2; --penpay-ink: #8f5a08;
+}
+:root[data-mode="dark"][data-palette="coral"] {
+  --acc: #ff6b52; --acc-strong: #ff8570; --acc-tint: #40211c; --acc-ink: #ffa18d;
+  --pop: #2bb5af; --pop-tint: #153b3a; --pop-ink: #7fd8d3;
+  --credit: #8aa2f6; --credit-tint: #222c4c; --credit-ink: #b3c3fa;
+  --penpay: #e8a93f; --penpay-tint: #3b3018; --penpay-ink: #f2c879;
+}
+
+:root[data-palette="blueberry"] {
+  --acc: #3e63dd; --acc-strong: #2f4fc0; --acc-tint: #e7ecfc; --acc-ink: #2b49ae;
+  --pop: #f2a93b; --pop-tint: #fbefd7; --pop-ink: #8f5a08;
+  --credit: #3e63dd; --credit-tint: #e8edfb; --credit-ink: #2b49ae;
+  --penpay: #c77e0a; --penpay-tint: #f7ecd2; --penpay-ink: #8f5a08;
+}
+:root[data-mode="dark"][data-palette="blueberry"] {
+  --acc: #7c97f4; --acc-strong: #93abf7; --acc-tint: #1f2a4e; --acc-ink: #a9bcf8;
+  --pop: #f5b84d; --pop-tint: #40311a; --pop-ink: #f6ce85;
+  --credit: #8aa2f6; --credit-tint: #222c4c; --credit-ink: #b3c3fa;
+  --penpay: #e8a93f; --penpay-tint: #3b3018; --penpay-ink: #f2c879;
+}
+
+:root[data-palette="butter"] {
+  --acc: #c77d0a; --acc-strong: #a56607; --acc-tint: #faedd3; --acc-ink: #8f5a08;
+  --pop: #6d5bd0; --pop-tint: #eae7fb; --pop-ink: #4a3c9e;
+  --credit: #3e63dd; --credit-tint: #e8edfb; --credit-ink: #2b49ae;
+  --penpay: #c77e0a; --penpay-tint: #f7ecd2; --penpay-ink: #8f5a08;
+}
+:root[data-mode="dark"][data-palette="butter"] {
+  --acc: #f2a93b; --acc-strong: #f6bc5f; --acc-tint: #42331a; --acc-ink: #f6cb7f;
+  --pop: #9b8bf5; --pop-tint: #2a2450; --pop-ink: #c4bafb;
+  --credit: #8aa2f6; --credit-tint: #222c4c; --credit-ink: #b3c3fa;
+  --penpay: #e8a93f; --penpay-tint: #3b3018; --penpay-ink: #f2c879;
+}

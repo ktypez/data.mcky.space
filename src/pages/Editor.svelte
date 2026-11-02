@@ -1,7 +1,7 @@
 <script lang="ts">
   import { push, replace } from 'svelte-spa-router'
   import { untrack } from 'svelte'
-  import { ArrowLeft, Plus, Pencil } from 'phosphor-svelte'
+  import { ArrowLeft, Plus, Pencil, Crosshair } from 'phosphor-svelte'
   import { useClientStore } from '@/stores/client-store'
   import { useAuthStore } from '@/stores/auth-store'
   import { addClient, fetchClientByIdResult, updateClient } from '@/lib/storage'
@@ -19,6 +19,7 @@
   import Input from '@/components/ui/Input.svelte'
   import Label from '@/components/ui/Label.svelte'
   import Button from '@/components/ui/Button.svelte'
+  import Squiggle from '@/components/ui/Squiggle.svelte'
 
   let { params }: { params?: { id?: string } } = $props()
   let id = $derived(params?.id ?? '')
@@ -240,95 +241,135 @@
 </script>
 
 {#if checking}
-  <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังตรวจสิทธิ์…</div>
+  <div class="mx-auto w-full max-w-3xl px-4 py-16 text-center" role="status">
+    <p class="text-sm text-ink-soft">กำลังตรวจสิทธิ์…</p>
+  </div>
 {:else if !isAdmin}
-  <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังนำกลับ…</div>
+  <div class="mx-auto w-full max-w-3xl px-4 py-16 text-center" role="status">
+    <p class="text-sm text-ink-soft">กำลังนำกลับ…</p>
+  </div>
 {:else if hydrating || (id && loadedId !== id)}
-  <div class="p-8 text-center text-sm text-muted-foreground" role="status">กำลังโหลดข้อมูลสำหรับแก้ไข…</div>
+  <div class="mx-auto w-full max-w-3xl px-4 py-16 text-center" role="status">
+    <p class="text-sm text-ink-soft">กำลังโหลดข้อมูลสำหรับแก้ไข…</p>
+  </div>
 {:else if id && !editClient}
-  <div class="mx-auto max-w-3xl px-3 pb-6 pt-6 sm:px-4">
-    <div class="rounded-2xl border border-border bg-card p-6 text-center">
-      <p class="text-sm text-destructive" role="alert">{loadError ?? 'ไม่พบรายการ'}</p>
-      <div class="mt-5 flex justify-center gap-2">
-        <button type="button" onclick={() => reloadKey++} class="min-h-11 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted">ลองใหม่</button>
-        <button type="button" onclick={() => push('/')} class="min-h-11 rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground">กลับ</button>
+  <div class="mx-auto w-full max-w-3xl px-4 py-16">
+    <div class="card card-pad text-center">
+      <p class="text-sm font-semibold text-danger-ink" role="alert">{loadError ?? 'ไม่พบรายการ'}</p>
+      <div class="mt-5 flex flex-wrap justify-center gap-2">
+        <button type="button" onclick={() => reloadKey++} class="btn btn-pop">ลองใหม่</button>
+        <button type="button" onclick={() => push('/')} class="btn btn-acc">กลับ</button>
       </div>
     </div>
   </div>
 {:else}
-  <div class="pb-4">
+  <div class="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:px-6">
     <h1 class="sr-only">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
-    <div class="mx-auto flex w-full max-w-5xl flex-wrap items-end justify-between gap-3 px-3 pb-2 pt-4 sm:px-8">
-      <div class="min-w-0">
-        <button type="button" onclick={onBack} class="mb-3 inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"><ArrowLeft class="inline h-3.5 w-3.5" aria-hidden /> กลับ</button>
-        {#if dirty && !readOnly}<span role="status" class="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-medium text-foreground">ยังไม่บันทึก</span>{/if}
-      </div>
+    <button type="button" onclick={onBack} class="btn btn-ghost -ml-2 !px-3 text-[13px]"><ArrowLeft class="inline h-3.5 w-3.5" aria-hidden="true" /> กลับ</button>
+
+    <div class="mt-4 flex flex-wrap items-center gap-3">
+      <h2 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{editing ? 'แก้ไขรายการ' : 'รายการใหม่'}</h2>
+      {#if dirty && !readOnly}<span role="status" class="chip border-pop-ink/20 bg-pop-tint text-pop-ink">ยังไม่บันทึก</span>{/if}
     </div>
+    <Squiggle class="mt-2 h-[6px] w-32 text-acc" />
+    <p class="mt-2 text-[13px] leading-relaxed text-ink-soft">
+      {#if editing}กำลังแก้ไขระเบียนนี้ — ระบบเก็บข้อมูลเดิมไว้{:else}บรรทัดใหม่ในสมุดทะเบียน — โคดจะถูกกำหนดตอนบันทึก{/if}
+    </p>
 
     {#if loadError}
-      <div class="mx-auto mt-4 max-w-5xl px-3 sm:px-8">
-        <div class="flex items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm" role="status">
-          <span>{loadError}</span>
-          <button type="button" onclick={() => reloadKey++} class="min-h-11 shrink-0 rounded-full border border-border px-3 text-xs hover:bg-muted">ลองใหม่</button>
-        </div>
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[10px] border-[1.5px] border-banana/60 bg-banana/15 px-4 py-3 text-sm text-ink" role="status">
+        <span>{loadError}</span>
+        <button type="button" onclick={() => reloadKey++} class="btn btn-pop !px-3.5 !py-2 text-[12.5px]">ลองใหม่</button>
       </div>
     {/if}
 
-    <form onsubmit={handleSubmit} class="mx-auto mt-4 max-w-5xl px-3 sm:px-8" aria-busy={uploading}>
-      <fieldset disabled={readOnly || uploading} class="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <div class="min-w-0 space-y-5">
-        <section class="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <h2 class="ledger-eyebrow">ข้อมูลหลัก</h2>
-          <div class="space-y-1">
-            <Label>ชื่อร้านค้า</Label>
-            <MultiValueInput values={shopName} onChange={(v) => (shopName = v)} placeholder="ชื่อร้านค้า" maxLength={60} addLabel="เพิ่มชื่อร้าน" inlineAdd />
-          </div>
-          <div class="space-y-1">
-            <Label for="editor-branch">สาขา</Label>
-            <Input syncValue={readBranch} id="editor-branch" name="branch" autocomplete="off" spellcheck="false" type="text" value={branch} oninput={(e) => (branch = e.currentTarget.value)} maxlength={60} placeholder="สาขา…" />
-          </div>
-          <FormNameField values={name} onChange={(v) => (name = v)} {dupResult} inlineAdd />
-          <FormNotesField value={notes} onChange={(v) => (notes = v)} />
-          <FormBadgeField badge={badge} onChange={(v) => (badge = v)} visible />
-        </section>
-
-        <section class="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <h2 class="ledger-eyebrow">ที่อยู่</h2>
-          <div class="space-y-1">
-            <Label for="editor-address">ที่อยู่/รายละเอียด</Label>
-            <Input syncValue={readAddress} id="editor-address" name="address" autocomplete="off" spellcheck="false" type="text" value={address} oninput={(e) => (address = e.currentTarget.value)} maxlength={120} placeholder="บ้านเลขที่ ถนน ตำบล…" />
+    <form onsubmit={handleSubmit} class="mt-6" aria-busy={uploading}>
+      <fieldset disabled={readOnly || uploading} class="min-w-0 space-y-5">
+        <!--——— ข้อมูลหลัก ———-->
+        <section class="card card-pad">
+          <h3 class="label !mb-4">ข้อมูลหลัก</h3>
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <Label>ชื่อร้านค้า</Label>
+              <MultiValueInput values={shopName} onChange={(v) => (shopName = v)} placeholder="ชื่อร้านค้า" maxLength={60} addLabel="เพิ่มชื่อร้าน" inlineAdd />
+            </div>
+            <div>
+              <Label for="editor-branch">สาขา</Label>
+              <Input syncValue={readBranch} id="editor-branch" name="branch" autocomplete="off" spellcheck="false" type="text" value={branch} oninput={(e) => (branch = e.currentTarget.value)} maxlength={60} placeholder="สาขา…" />
+            </div>
+            <div>
+              <FormBadgeField badge={badge} onChange={(v) => (badge = v)} visible />
+            </div>
+            <div class="sm:col-span-2">
+              <FormNameField values={name} onChange={(v) => (name = v)} {dupResult} inlineAdd />
+            </div>
           </div>
         </section>
 
-        <section class="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <h2 class="ledger-eyebrow">รูปภาพ</h2>
-          <PhotoSection images={images} onImagesChange={(v) => (images = v)} {uploading} {thumbs} onThumbsChange={(v) => (thumbs = v)} />
+        <!--——— รูปภาพ ———-->
+        <section class="card card-pad">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="label !mb-0">รูปภาพ</h3>
+            <span class="text-[11px] font-semibold text-ink-faint">สูงสุด 2 รูป</span>
+          </div>
+          <div class="mt-4">
+            <PhotoSection images={images} onImagesChange={(v) => (images = v)} {uploading} {thumbs} onThumbsChange={(v) => (thumbs = v)} />
+          </div>
         </section>
+
+        <!--——— ที่อยู่และโน้ต ———-->
+        <section class="card card-pad">
+          <h3 class="label !mb-4">ที่อยู่และโน้ต</h3>
+          <div class="space-y-5">
+            <div>
+              <Label for="editor-address">ที่อยู่/รายละเอียด</Label>
+              <Input syncValue={readAddress} id="editor-address" name="address" autocomplete="off" spellcheck="false" type="text" value={address} oninput={(e) => (address = e.currentTarget.value)} maxlength={120} placeholder="บ้านเลขที่ ถนน ตำบล…" />
+            </div>
+            <FormNotesField value={notes} onChange={(v) => (notes = v)} />
+          </div>
+        </section>
+
+        <!--——— ปักหมุดบนแผนที่ ———-->
+        <section class="card overflow-hidden">
+          <div class="card-pad flex flex-wrap items-center justify-between gap-3 border-b border-rule">
+            <div>
+              <h3 class="label !mb-0">ปักหมุดบนแผนที่</h3>
+              <p class="mt-2 flex items-center gap-1.5 text-[12px] text-ink-faint">
+                <Crosshair class="size-3.5" aria-hidden="true" /> แตะบนแผนที่เพื่อวางหมุด
+              </p>
+            </div>
+            {#if lat !== null && lng !== null}
+              <span class="chip border-rule bg-tint font-mono text-acc-ink">{lat.toFixed(4)}, {lng.toFixed(4)}</span>
+            {/if}
+          </div>
+          <LocationSection {lat} {lng} onCoordsChange={(nextLat, nextLng) => { lat = nextLat; lng = nextLng }} />
+        </section>
+      </fieldset>
+
+      {#if error}
+        <p class="mt-4 text-[13px] font-semibold text-danger-ink" role="alert">{error}</p>
+      {/if}
+      {#if uploading}
+        <div class="mt-4" role="status">
+          <div class="h-1.5 overflow-hidden rounded-full bg-paper-2"><div class="h-full rounded-full bg-acc transition-[width]" style="width: {progress}%"></div></div>
+          <p class="mt-1 font-mono text-xs text-ink-faint">อัปโหลด {progress}%</p>
         </div>
+      {/if}
 
-        <div class="min-w-0 space-y-5 lg:sticky lg:top-4">
-          <section class="space-y-3 rounded-2xl border border-border bg-card p-4">
-            <h2 class="ledger-eyebrow">ตำแหน่ง</h2>
-            <LocationSection {lat} {lng} onCoordsChange={(nextLat, nextLng) => { lat = nextLat; lng = nextLng }} />
-          </section>
-
-        {#if error}
-          <p class="mt-4 text-[13px] font-medium text-destructive" role="alert">{error}</p>
-        {/if}
-        {#if uploading}
-          <div class="mt-2" role="status"><div class="h-1.5 overflow-hidden rounded-full bg-muted"><div class="h-full rounded-full bg-primary transition-[width]" style="width: {progress}%"></div></div><p class="mt-1 font-mono text-xs text-muted-foreground">อัปโหลด {progress}%</p></div>
-        {/if}
-
-        <div class="flex justify-end">
-          <Button type="submit" class="w-full px-6" disabled={uploading || readOnly || !canSave}>
-            {#if editing}<Pencil class="h-4 w-4" aria-hidden />{:else}<Plus class="h-4 w-4" aria-hidden />{/if}
-            {uploading ? 'กำลังบันทึก…' : editing ? 'อัปเดตข้อมูล' : 'เพิ่มลูกค้าใหม่'}
+      <!--Sticky action bar — cancel stays reachable while the form is read-only.-->
+      <div class="sticky bottom-4 z-20 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-[1.5px] border-ink bg-paper/90 p-3 backdrop-blur-md" style="box-shadow: 4px 4px 0 0 var(--hard);">
+        <button type="button" class="btn btn-ghost" onclick={onBack}>ยกเลิก</button>
+        <div class="flex flex-wrap items-center gap-3">
+          {#if dirty && !readOnly}<span class="chip border-pop-ink/20 bg-pop-tint text-pop-ink">ยังไม่บันทึก</span>{/if}
+          <Button type="submit" disabled={uploading || readOnly || !canSave}>
+            {#if editing}<Pencil class="h-4 w-4" aria-hidden="true" />{:else}<Plus class="h-4 w-4" aria-hidden="true" />{/if}
+            {uploading ? 'กำลังบันทึก…' : editing ? 'บันทึก' : 'เพิ่มในระเบียน'}
           </Button>
         </div>
-        </div>
-      </fieldset>
+      </div>
+
       {#if !canSave}
-        <p class="mt-2 text-center text-xs opacity-60">ต้องกรอกชื่อร้านหรือชื่อลูกค้าอย่างน้อย 1 ช่อง</p>
+        <p class="mt-3 text-center text-xs text-ink-faint">ต้องกรอกชื่อร้านหรือชื่อลูกค้าอย่างน้อย 1 ช่อง</p>
       {/if}
     </form>
   </div>

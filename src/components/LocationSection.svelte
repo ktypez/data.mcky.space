@@ -91,7 +91,7 @@
 
 <div class="space-y-1.5">
   <Label for="location-query" class="flex items-center gap-1">
-    <MapPin class="w-3.5 h-3.5" aria-hidden /> ตำแหน่ง
+    <MapPin class="w-3.5 h-3.5" aria-hidden="true" /> ตำแหน่ง
   </Label>
   <MapPicker {lat} {lng} onChange={(la, ln) => onCoordsChange(la, ln)} />
   <div class="flex gap-1.5">
@@ -118,13 +118,18 @@
     </Button>
   </div>
   {#if locFeedback}
-    <p role="status" class="text-[13px] {locFeedback.ok ? 'text-success' : 'text-destructive'}">{locFeedback.msg}</p>
+    <p role="status" class="text-[13px] {locFeedback.ok ? 'text-acc-ink' : 'text-danger-ink'}">{locFeedback.msg}</p>
   {/if}
-  <div class="flex items-center gap-2">
-    <Button type="button" variant="ghost" size="sm" class="h-auto p-0 text-[13px] font-semibold text-accent hover:text-accent/80" onclick={handleGetCurrentLocation} disabled={geo.locating}>
-      <Crosshair class="w-3.5 h-3.5" />
+  <div class="flex flex-wrap items-center gap-2">
+    <button
+      type="button"
+      class="inline-flex items-center gap-1.5 text-[13px] font-bold text-acc-ink hover:underline"
+      onclick={handleGetCurrentLocation}
+      disabled={geo.locating}
+    >
+      <Crosshair class="w-3.5 h-3.5" aria-hidden="true" />
       {geo.locating ? 'กำลังค้นหา…' : 'ใช้ตำแหน่งปัจจุบัน'}
-    </Button>
-    <span class="text-[13px] text-muted-foreground/60">หรือแตะบนแผนที่</span>
+    </button>
+    <span class="text-[13px] text-ink-faint">หรือแตะบนแผนที่</span>
   </div>
 </div>

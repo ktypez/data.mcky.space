@@ -52,7 +52,7 @@
         }).setView([lat, lng], 15)
         layer = L.tileLayer(getTileUrl(dark), { maxZoom: TILE_MAX_ZOOM, detectRetina: true, attribution: TILE_ATTRIBUTION }).addTo(m)
         const dot = document.createElement('div')
-        dot.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
+        dot.className = 'w-3 h-3 rounded-full bg-acc border-2 border-card shadow-sm'
         marker = L.marker([lat, lng], { icon: L.divIcon({ html: dot, className: '', iconSize: [12, 12], iconAnchor: [6, 6] }), interactive: false }).addTo(m)
         map = m
         applyTileDarkMode(m, dark)
@@ -78,13 +78,13 @@
     map.flyTo([lat, lng], 15, { duration: 0.5 })
     marker?.remove()
     const dot = document.createElement('div')
-    dot.className = 'w-3 h-3 rounded-full bg-primary border-2 border-card shadow-sm'
+    dot.className = 'w-3 h-3 rounded-full bg-acc border-2 border-card shadow-sm'
     marker = lib.marker([lat, lng], { icon: lib.divIcon({ html: dot, className: '', iconSize: [12, 12], iconAnchor: [6, 6] }), interactive: false }).addTo(map)
   })
 </script>
 
 {#if failed}
-  <div class="relative flex h-full w-full items-center justify-center bg-muted font-mono text-xs text-muted-foreground" style="min-height: 160px">{lat.toFixed(6)}, {lng.toFixed(6)}</div>
+  <div class="relative flex h-full w-full items-center justify-center bg-paper-2 font-mono text-xs text-ink-faint" style="min-height: 160px">{lat.toFixed(6)}, {lng.toFixed(6)}</div>
 {:else}
   <div class="relative h-full w-full">
     <div bind:this={containerRef} class="h-full w-full z-0" style="min-height: 160px"></div>

@@ -99,7 +99,7 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="fixed inset-0 z-[10000] grid place-items-center bg-foreground/45 px-4 backdrop-blur-[2px]"
+    class="fixed inset-0 z-[10000] grid place-items-center bg-ink/25 px-4 backdrop-blur-[2px]"
     onclick={(e) => {
       if (e.target === e.currentTarget && !applying) dismiss()
     }}
@@ -110,21 +110,22 @@
       aria-modal="true"
       aria-labelledby="update-title"
       aria-describedby="update-body"
-      class="w-full max-w-[20rem] rounded-3xl border border-border bg-card p-6 text-center shadow-2xl shadow-black/20"
+      class="sticker pop-dots w-full max-w-[20rem] rounded-3xl p-6 text-center"
+      style="box-shadow: 6px 6px 0 0 var(--hard);"
     >
-      <span class="mx-auto grid size-10 place-items-center rounded-full bg-primary/12 text-primary">
-        <ArrowClockwise class="size-5" weight="bold" aria-hidden />
+      <span class="mx-auto grid size-11 place-items-center rounded-full border-[1.5px] border-ink bg-tint text-acc-ink shadow-[2.5px_2.5px_0_0_var(--acc)]">
+        <ArrowClockwise class="size-5" weight="bold" aria-hidden="true" />
       </span>
-      <h2 id="update-title" class="mt-3 text-base font-semibold text-foreground">มีเวอร์ชันใหม่</h2>
-      <p id="update-body" class="mt-1 text-sm text-muted-foreground">บันทึกงานที่ค้างไว้ก่อน</p>
+      <h2 id="update-title" class="mt-3 text-lg font-extrabold tracking-tight text-ink">มีเวอร์ชันใหม่</h2>
+      <p id="update-body" class="mt-1 text-[13px] text-ink-soft">บันทึกงานที่ค้างไว้ก่อน</p>
 
       {#if error}
-        <p class="mt-3 text-xs text-destructive" role="alert">อัปเดตไม่สำเร็จ ลองใหม่เมื่อมีอินเทอร์เน็ต</p>
+        <p class="mt-3 text-xs font-semibold text-danger-ink" role="alert">อัปเดตไม่สำเร็จ ลองใหม่เมื่อมีอินเทอร์เน็ต</p>
       {/if}
 
       <div class="mt-5 flex gap-2">
         <Button class="flex-1" variant="ghost" onclick={dismiss} disabled={applying}>ภายหลัง</Button>
-        <Button data-autofocus data-update-apply class="flex-1" variant="default" onclick={apply} disabled={applying}>
+        <Button data-autofocus data-update-apply class="flex-1" variant="acc" onclick={apply} disabled={applying}>
           {applying ? 'กำลังอัปเดต…' : 'อัปเดต'}
         </Button>
       </div>

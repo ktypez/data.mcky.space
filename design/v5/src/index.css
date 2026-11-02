@@ -1,0 +1,181 @@
+@import "./styles/tokens.css";
+@import "tailwindcss";
+
+/* map design tokens -> tailwind utilities */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper2: var(--paper-2);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-soft: var(--ink-soft);
+  --color-faint: var(--ink-faint);
+  --color-rule: var(--rule);
+  --color-rule2: var(--rule-2);
+  --color-acc: var(--acc);
+  --color-accstrong: var(--acc-strong);
+  --color-tint: var(--acc-tint);
+  --color-accink: var(--acc-ink);
+  --color-pop: var(--pop);
+  --color-poptint: var(--pop-tint);
+  --color-popink: var(--pop-ink);
+  --color-credit: var(--credit);
+  --color-credittint: var(--credit-tint);
+  --color-creditink: var(--credit-ink);
+  --color-pen: var(--penpay);
+  --color-pentint: var(--penpay-tint);
+  --color-penink: var(--penpay-ink);
+  --color-danger: var(--danger);
+  --color-dangertint: var(--danger-tint);
+  --color-dangerink: var(--danger-ink);
+  --color-banana: var(--banana);
+  --color-sky: var(--sky);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-mono);
+}
+
+html { scrollbar-width: thin; scrollbar-color: var(--rule-2) transparent; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* dotted ledger paper */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(var(--rule) 1.1px, transparent 1.1px);
+  background-size: 22px 22px;
+  opacity: 0.8;
+  pointer-events: none;
+}
+:root[data-texture="off"] body::before { opacity: 0; }
+
+::selection { background: var(--acc); color: #fff; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* soft theme switching */
+body, .card, .sticker, .seg, .field {
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease;
+}
+
+/* ——— shared primitives ——— */
+@layer components {
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: var(--r3);
+    box-shadow: var(--sh-sm);
+  }
+  .card-pad { padding: var(--pad-card); }
+
+  .sticker {
+    background: var(--card);
+    border: 1.5px solid var(--hard);
+    border-radius: var(--r2);
+    box-shadow: 3px 3px 0 0 var(--hard);
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-weight: 600; font-size: 14px; line-height: 1;
+    padding: 10px 18px; border-radius: 999px;
+    border: 1.5px solid transparent; cursor: pointer; user-select: none;
+    transition: transform .16s ease, box-shadow .16s ease, background .16s ease, color .16s ease, border-color .16s ease;
+  }
+  .btn-acc { background: var(--acc); color: #fff; border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
+  .btn-acc:hover { background: var(--acc-strong); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--hard); }
+  .btn-acc:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--hard); }
+  .btn-line { background: var(--card); color: var(--ink); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
+  .btn-line:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--hard); }
+  .btn-line:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--hard); }
+  .btn-ghost { color: var(--ink-soft); border-color: transparent; }
+  .btn-ghost:hover { background: var(--acc-tint); color: var(--acc-ink); }
+  .btn[disabled] { opacity: .5; pointer-events: none; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 11px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; line-height: 1.2;
+    border: 1px solid transparent; white-space: nowrap;
+  }
+
+  .kbd {
+    font-family: var(--font-mono); font-size: 11px; line-height: 1;
+    padding: 4px 6px; border-radius: 6px;
+    border: 1px solid var(--rule-2); border-bottom-width: 2px;
+    background: var(--card); color: var(--ink-soft);
+    display: inline-flex; align-items: center;
+  }
+
+  .field {
+    width: 100%; background: var(--card); color: var(--ink);
+    border: 1.5px solid var(--rule-2); border-radius: var(--r2);
+    padding: 10px 14px; font-size: 14px; font-family: inherit;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .field::placeholder { color: var(--ink-faint); }
+  .field:focus { outline: none; border-color: var(--acc); box-shadow: 0 0 0 3px var(--ring); }
+
+  .label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
+
+  .seg {
+    display: inline-flex; gap: 4px; padding: 4px;
+    background: var(--paper-2); border: 1px solid var(--rule);
+    border-radius: 999px;
+  }
+  .seg > button {
+    padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    color: var(--ink-soft); cursor: pointer; transition: all .15s ease;
+  }
+  .seg > button:hover { color: var(--ink); }
+  .seg > button[aria-pressed="true"] { background: var(--card); color: var(--ink); border: 1.5px solid var(--hard); box-shadow: 2px 2px 0 0 var(--hard); }
+
+  .spin { animation: lspin 1s linear infinite; }
+}
+
+@keyframes lspin { to { transform: rotate(360deg); } }
+@keyframes floaty { 0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); } 50% { transform: translateY(-7px) rotate(var(--rot, 0deg)); } }
+@keyframes pop-dots { 0% { opacity: 0; transform: scale(.6); } 100% { opacity: 1; transform: scale(1); } }
+
+/* ——— leaflet : paper-pop theme ——— */
+.leaflet-container { background: var(--paper-2); font: inherit; color: var(--ink); }
+.leaflet-control-attribution { background: color-mix(in srgb, var(--card) 82%, transparent) !important; color: var(--ink-faint) !important; font-size: 10px !important; }
+.leaflet-control-attribution a { color: var(--ink-soft) !important; }
+.leaflet-bar { border: 1.5px solid var(--hard) !important; border-radius: 10px !important; box-shadow: 2.5px 2.5px 0 0 var(--hard) !important; overflow: hidden; }
+.leaflet-bar a { background: var(--card) !important; color: var(--ink) !important; border-bottom: 1px solid var(--rule) !important; width: 30px !important; height: 30px !important; line-height: 28px !important; }
+.leaflet-bar a:hover { background: var(--acc-tint) !important; color: var(--acc-ink) !important; }
+
+.lp {
+  width: 24px; height: 24px;
+  background: var(--pin, var(--acc));
+  border: 2px solid #fff;
+  border-radius: 999px 999px 999px 3px;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 5px rgb(20 20 30 / .35), 0 0 0 1px rgb(20 20 30 / .1);
+  transition: transform .15s ease;
+}
+.lp::after { content: ""; position: absolute; inset: 6.5px; border-radius: 999px; background: #fff; }
+.lp:hover { transform: rotate(-45deg) scale(1.18); }
+
+.ledger-pop .leaflet-popup-content-wrapper {
+  background: var(--card); color: var(--ink);
+  border: 1.5px solid var(--hard); border-radius: 14px;
+  box-shadow: 3px 3px 0 0 var(--hard);
+}
+.ledger-pop .leaflet-popup-tip { background: var(--card); border: 1.5px solid var(--hard); }
+.ledger-pop .leaflet-popup-content { margin: 12px 14px; font-family: var(--font-ui); font-size: 13px; line-height: 1.45; }
+.ledger-pop .leaflet-popup-close-button { color: var(--ink-soft) !important; font-size: 16px !important; padding: 6px 8px 0 0 !important; }
+.pop-open {
+  color: var(--acc-ink); background: var(--acc-tint); border-radius: 999px;
+  padding: 4px 10px; font-weight: 700; font-size: 12px; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
+}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { push } from 'svelte-spa-router'
-  import { ArrowLeft, PencilSimple, Copy, Check, LinkSimple, Trash } from 'phosphor-svelte'
+  import { ArrowLeft, PencilSimple, Copy, Check, LinkSimple, Trash, Clock } from 'phosphor-svelte'
   import { useClientStore } from '@/stores/client-store'
   import { useAuthStore } from '@/stores/auth-store'
   import { deleteClient, fetchClientByIdResult, peekClientById } from '@/lib/storage'
@@ -14,6 +14,11 @@
   import { copyToClipboard, formatDate, formatDateTime, getMapsUrl, hasValidCoords, COPIED_FLASH_MS } from '@/lib/utils'
   import { clientTextWithMaps } from '@/lib/clientText'
   import { clientTitle } from '@/lib/clientNames'
+  import Squiggle from '@/components/ui/Squiggle.svelte'
+  import Badge from '@/components/ui/Badge.svelte'
+  import Monogram from '@/components/ui/Monogram.svelte'
+  import Button from '@/components/ui/Button.svelte'
+  import Asterisk from '@/components/ui/Asterisk.svelte'
 
   let { params }: { params: { id: string } } = $props()
   let id = $derived(params?.id ?? '')
@@ -177,7 +182,6 @@
   }
 
   let displayName = $derived(client ? clientTitle(client) || client.id.slice(0, 8) : '')
-  let badgeLabel = $derived(client?.badge === 'penpay' ? 'จ่ายในวัน' : client?.badge === 'credit' ? 'บัตรเครดิต' : null)
 </script>
 
 {#snippet shell(children: import('svelte').Snippet)}
@@ -193,13 +197,20 @@
 {/if}
 
 {#snippet shellInner()}
-  <p class="font-mono text-sm text-muted-foreground" role="status">กำลังโหลด…</p>
+  <div class="card card-pad" role="status" aria-label="กำลังโหลด">
+        <div class="flex flex-col gap-3">
+          <span class="h-7 w-1/2 animate-pulse rounded bg-paper-2"></span>
+          <span class="h-4 w-1/3 animate-pulse rounded bg-paper-2"></span>
+          <span class="h-24 w-full animate-pulse rounded bg-paper-2"></span>
+        </div>
+      </div>
 {/snippet}
 
 {#snippet noData()}
-  <div class="flex min-h-[240px] flex-col items-center justify-center rounded-2xl border border-dashed border-border p-6 text-center">
-    <p class="font-mono text-xs text-destructive">{err ?? 'ไม่พบข้อมูล'}</p>
-    <button type="button" onclick={() => push('/')} class="mt-6 min-h-11 rounded-full border border-border px-4 py-2 text-sm hover:bg-card">กลับ</button>
+  <div class="card card-pad flex min-h-[240px] flex-col items-center justify-center border-dashed text-center">
+    <Asterisk class="size-10 text-ink-faint" />
+    <p class="mt-3 text-base font-bold text-ink">{err ?? 'ไม่พบข้อมูล'}</p>
+    <button type="button" onclick={() => push('/')} class="btn btn-pop mt-5">กลับหน้ารายการ</button>
   </div>
 {/snippet}
 
@@ -209,53 +220,61 @@
     ['สร้างเมื่อ', formatDate(client!.createdAt)],
     ['อัปเดต', formatDate(client!.updatedAt)],
   ]}
-  <div class="flex items-start justify-between gap-2">
-    <button type="button" onclick={() => push('/')} class="inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"><ArrowLeft class="inline h-3 w-3" aria-hidden /> กลับ</button>
-    <div class="flex items-center gap-1">
-      <button type="button" onclick={() => void copyLink()} class="inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted" aria-label="คัดลอกลิงก์">
-        {#if copiedLink}<Check weight="bold" class="inline h-3 w-3 text-success" aria-hidden /> คัดลอกแล้ว{:else}<LinkSimple class="inline h-3 w-3" aria-hidden /> ลิงก์{/if}
-      </button>
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <Button variant="ghost" onclick={() => push('/')}><ArrowLeft class="inline h-3.5 w-3.5" aria-hidden="true" /> กลับ</Button>
+    <div class="flex flex-wrap items-center gap-2">
+      <Button variant="pop" onclick={() => void copyAll()}><Copy class="inline h-3.5 w-3.5" aria-hidden="true" /> {copiedAll ? 'คัดลอกแล้ว' : 'คัดลอกข้อมูล'}</Button>
+      <Button variant="ghost" onclick={() => void copyLink()} aria-label="คัดลอกลิงก์">
+        {#if copiedLink}<Check weight="bold" class="inline h-3.5 w-3.5 text-acc" aria-hidden="true" /> คัดลอกแล้ว{:else}<LinkSimple class="inline h-3.5 w-3.5" aria-hidden="true" /> ลิงก์{/if}
+      </Button>
       {#if isAdmin}
-        <button type="button" disabled={!canMutate} onclick={() => push(`/edit/${encodeURIComponent(client!.id)}`)} class="inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"><PencilSimple class="inline h-3 w-3" aria-hidden /> แก้ไข</button>
-        <button type="button" disabled={!canMutate} onclick={() => (confirm = true)} class="inline-flex min-h-11 items-center gap-1 rounded-[10px] border border-destructive px-4 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"><Trash class="inline h-3 w-3" aria-hidden /> ลบ</button>
+        <Button variant="ghost" disabled={!canMutate} onclick={() => push(`/edit/${encodeURIComponent(client!.id)}`)}><PencilSimple class="inline h-3.5 w-3.5" aria-hidden="true" /> แก้ไข</Button>
+        <Button variant="danger" disabled={!canMutate} onclick={() => (confirm = true)}><Trash class="inline h-3.5 w-3.5" aria-hidden="true" /> ลบ</Button>
       {/if}
     </div>
   </div>
 
   {#if refreshing || dataState !== 'live'}
-    <p class="mt-4 rounded-[10px] border border-border bg-muted px-4 py-3 text-sm text-muted-foreground" role="status">
+    <p class="mt-4 rounded-[10px] border-[1.5px] border-rule bg-paper-2/60 px-4 py-3 text-sm text-ink-soft" role="status">
       {refreshing ? 'กำลังตรวจสอบข้อมูลล่าสุด…' : (err ?? 'ข้อมูลนี้อาจไม่ใช่ข้อมูลล่าสุด')}
     </p>
   {/if}
   {#if err && dataState === 'live'}
-    <p role="alert" class="mt-4 rounded-[10px] border border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">{err}</p>
+    <p role="alert" class="mt-4 rounded-[10px] border-[1.5px] border-danger bg-danger-tint px-4 py-3 text-sm text-danger-ink">{err}</p>
   {/if}
 
-  <div class="mt-4 flex min-w-0 items-start gap-4">
-    <span aria-hidden="true" class="flex size-[72px] shrink-0 items-center justify-center rounded-[18px] bg-muted text-3xl font-bold text-primary">{(displayName || '?').trim().charAt(0).toUpperCase()}</span>
+  <div class="sticker mt-4 flex min-w-0 items-start gap-4 rounded-3xl p-5" style="box-shadow: 5px 5px 0 0 var(--hard);">
+    <div class="shrink-0">
+      {#if client!.thumb ?? client!.images[0]}
+        <div class="size-[72px] overflow-hidden rounded-[18px] border-[1.5px] border-ink">
+          <AppImage src={client!.thumb ?? client!.images[0]} fallbackSrc={client!.thumb ? client!.images[0] : undefined} alt="" className="size-full object-cover" />
+        </div>
+      {:else}
+        <Monogram name={displayName || '?'} size={72} />
+      {/if}
+    </div>
     <div class="min-w-0 flex-1">
       <h1 class="sr-only">รายละเอียดรายการ</h1>
-      <ClientNames client={client!} variant="detail" titleClassName="text-[clamp(22px,6vw,30px)] font-bold leading-tight tracking-tight break-words whitespace-normal [overflow-wrap:anywhere]" branchClassName="mt-1 text-sm text-muted-foreground break-words whitespace-normal [overflow-wrap:anywhere]" subClassName="mt-1 text-sm text-muted-foreground break-words whitespace-normal [overflow-wrap:anywhere]" />
+      <ClientNames client={client!} variant="detail" titleClassName="text-[clamp(22px,6vw,30px)] font-extrabold leading-tight tracking-tight text-ink break-words whitespace-normal [overflow-wrap:anywhere]" branchClassName="mt-1 text-sm text-ink-soft break-words whitespace-normal [overflow-wrap:anywhere]" subClassName="mt-1 text-sm text-ink-soft break-words whitespace-normal [overflow-wrap:anywhere]" />
       <div class="mt-3 flex flex-wrap items-center gap-2">
-        {#if badgeLabel}
-          <span class="inline-flex rounded-full bg-muted px-3 py-1 text-xs font-semibold text-primary">{badgeLabel}</span>
-        {/if}
-        <span class="font-mono text-xs text-muted-foreground">#{client!.id.slice(0, 8)} · อัปเดต {formatDate(client!.updatedAt)}</span>
-        <button type="button" onclick={() => void copyAll()} class="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"><Copy class="h-3.5 w-3.5" aria-hidden /> {copiedAll ? 'คัดลอกแล้ว' : 'คัดลอกข้อมูล'}</button>
+        <Badge badge={client!.badge} />
+        <span class="chip border-rule bg-paper-2/60 font-mono text-ink-soft">#{client!.id.slice(0, 8)}</span>
+        <span class="chip border-rule bg-paper-2/60 text-ink-faint"><Clock size={12} aria-hidden="true" /> อัปเดต {formatDate(client!.updatedAt)}</span>
       </div>
+      <Squiggle class="mt-3 h-1 w-24 text-rule-2" />
     </div>
   </div>
 
   <div class="mt-4 grid items-start gap-4 lg:grid-cols-2">
   <div class="min-w-0 space-y-5">
-  <div class="overflow-hidden rounded-2xl border border-border bg-card">
-    <p class="ledger-eyebrow border-b border-border px-4 py-3">รายละเอียด</p>
+  <div class="card overflow-hidden">
+    <p class="label !mb-0 border-b border-rule px-4 py-3">รายละเอียด</p>
     <table class="w-full border-collapse text-sm">
       <tbody>
         {#each rows as [key, value]}
-          <tr class="border-b border-border last:border-0">
-            <th scope="row" class="ledger-colhead w-28 px-4 py-3 text-left align-top font-medium">{key}</th>
-            <td class="px-4 py-3 leading-6 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{value}</td>
+          <tr class="border-b border-dashed border-rule last:border-0">
+            <th scope="row" class="mono w-28 px-4 py-3 text-left align-top text-[11px] font-bold tracking-[0.08em] text-ink-faint uppercase">{key}</th>
+            <td class="px-4 py-3 leading-6 whitespace-pre-wrap break-words text-ink-soft [overflow-wrap:anywhere]">{value}</td>
           </tr>
         {/each}
       </tbody>
@@ -263,34 +282,36 @@
   </div>
 
   {#if client!.notes}
-    <div class="rounded-2xl border border-border bg-card p-4">
-      <p class="ledger-eyebrow">โน้ต</p>
-      <blockquote class="mt-3 max-w-[62ch] whitespace-pre-wrap break-words border-l-[3px] border-primary pl-4 text-[15px] leading-7 [overflow-wrap:anywhere]">“{client!.notes}”</blockquote>
+    <div class="card card-pad">
+      <p class="label !mb-0">โน้ต</p>
+      <blockquote class="mt-3 max-w-[62ch] whitespace-pre-wrap break-words border-l-[3px] border-acc pl-4 text-[15px] leading-7 text-ink-soft italic [overflow-wrap:anywhere]">“{client!.notes}”</blockquote>
     </div>
   {/if}
 
   </div>
   <div class="min-w-0 space-y-5">
   {#if coords}
-    <div class="overflow-hidden rounded-2xl border border-border bg-card">
-      <div class="h-56 overflow-hidden"><MapPreviewDynamic lat={coords.lat} lng={coords.lng} /></div>
-      <div class="flex items-center justify-between gap-3 px-4 py-2">
-        <span class="font-mono text-xs opacity-50">{coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}</span>
-        <a href={getMapsUrl(coords.lat, coords.lng)} target="_blank" rel="noreferrer" class="min-h-11 py-3 text-sm font-medium text-primary underline">เปิด Google Maps →</a>
+    <div class="card overflow-hidden">
+      <p class="label !mb-0 border-b border-rule px-4 py-3">พิกัด</p>
+      <div class="h-56 overflow-hidden border-b border-rule"><MapPreviewDynamic lat={coords.lat} lng={coords.lng} /></div>
+      <div class="flex items-center justify-between gap-3 px-4 py-3">
+        <span class="font-mono text-xs text-ink-faint">{coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}</span>
+        <a href={getMapsUrl(coords.lat, coords.lng)} target="_blank" rel="noreferrer" class="text-sm font-bold text-acc-ink underline">เปิด Google Maps →</a>
       </div>
     </div>
   {/if}
 
   {#if client!.images.length > 0}
-    <div class="overflow-hidden rounded-2xl border border-border bg-card">
+    <div class="card overflow-hidden">
+      <p class="label !mb-0 border-b border-rule px-4 py-3">รูปภาพ · {client!.images.length}</p>
       {#if client!.images.length === 1}
         <button type="button" onclick={() => (lightboxIdx = 0)} class="group aspect-square block w-full overflow-hidden">
           <AppImage src={client!.images[0]} alt="รูปที่ 1" className="h-full w-full object-cover transition-transform group-hover:scale-[1.01]" />
         </button>
       {:else}
-        <div class="grid grid-cols-2 gap-px bg-border sm:grid-cols-3">
+        <div class="grid grid-cols-2 gap-px bg-rule-2 sm:grid-cols-3">
           {#each client!.images as src, index}
-            <button type="button" onclick={() => (lightboxIdx = index)} class="group aspect-square overflow-hidden bg-card">
+            <button type="button" onclick={() => (lightboxIdx = index)} class="group aspect-square overflow-hidden bg-paper-2">
               <AppImage {src} alt={`รูปที่ ${index + 1}`} className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]" />
             </button>
           {/each}
@@ -302,7 +323,10 @@
   </div>
   </div>
 
-  <p class="mt-6 break-all font-mono text-[10px] uppercase text-muted-foreground">record {client!.id} · created {formatDateTime(client!.createdAt)}</p>
+  <div class="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-dashed border-rule pt-4 text-[10.5px] font-bold tracking-[0.14em] text-ink-faint uppercase">
+    <span class="break-all font-mono">record {client!.id} · created {formatDateTime(client!.createdAt)}</span>
+    <Squiggle class="h-1 w-16 text-rule-2" />
+  </div>
 
   <AppDialog open={lightboxIdx !== null} onClose={() => (lightboxIdx = null)} title="รูปภาพ" showHeader={false} variant="lightbox">
     {#if lightboxIdx !== null && client!.images[lightboxIdx]}
@@ -320,10 +344,10 @@
 
   <AppDialog open={confirm} onClose={() => { if (!deleting) confirm = false }} title="ลบรายการ">
     <div class="p-6">
-      <p class="mt-2 text-sm text-muted-foreground">“{displayName}” จะเข้าถังขยะ</p>
+      <p class="mt-2 text-sm text-ink-soft">“{displayName}” จะเข้าถังขยะ</p>
       <div class="mt-6 flex justify-end gap-2">
-        <button type="button" onclick={() => (confirm = false)} disabled={deleting} class="min-h-11 rounded-[10px] border border-border px-4 py-2 text-sm hover:bg-muted disabled:opacity-50">ยกเลิก</button>
-        <button type="button" disabled={deleting} onclick={() => void doDelete()} class="min-h-11 rounded-[10px] bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground disabled:opacity-50">{deleting ? 'กำลังลบ…' : 'ลบ'}</button>
+        <Button variant="ghost" onclick={() => (confirm = false)} disabled={deleting}>ยกเลิก</Button>
+        <Button variant="danger" disabled={deleting} onclick={() => void doDelete()}>{deleting ? 'กำลังลบ…' : 'ลบ'}</Button>
       </div>
     </div>
   </AppDialog>

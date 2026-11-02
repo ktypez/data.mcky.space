@@ -26,7 +26,7 @@
   <Label>ชื่อลูกค้า</Label>
   <MultiValueInput {values} {onChange} placeholder="ชื่อลูกค้า" maxLength={40} addLabel="เพิ่มชื่อ" variant={hasConflict ? 'error' : 'default'} {autoFocus} {inlineAdd} />
   {#if hasConflict}
-    <div class="flex items-start gap-2 py-2 px-3 rounded-[6px] bg-destructive/10 border border-destructive/40 text-[13px] text-destructive">
+    <div class="flex items-start gap-2 rounded-xl border-[1.5px] border-danger/40 bg-danger-tint px-3 py-2 text-[13px] font-medium text-danger-ink">
       <Warning class="w-3.5 h-3.5 shrink-0 mt-0.5" />
       <span class="leading-relaxed">
         {#if dupResult.exact}
