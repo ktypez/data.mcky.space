@@ -198,8 +198,8 @@
         <button type="button" class="seg-item" aria-pressed={sort === 'name'} onclick={() => (sort = 'name')}><TextAa size={13} class="mr-1 inline -translate-y-px" weight="bold" aria-hidden="true" /> ชื่อ</button>
       </div>
       {#if isAdmin}
-        <button type="button" onclick={() => push('/add')} class="btn btn-acc shrink-0">
-          <Plus size={17} weight="bold" aria-hidden="true" /> เพิ่มรายการ
+        <button type="button" onclick={() => push('/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-xs">
+          <Plus size={15} weight="bold" aria-hidden="true" /> เพิ่ม
         </button>
       {/if}
     </div>
