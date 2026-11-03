@@ -78,10 +78,9 @@
         <b>ออฟไลน์</b> · กำลังแสดงข้อมูลที่บันทึกไว้ การแก้ไขจะส่งเมื่อกลับมาออนไลน์
       </div>
     {/if}
-    <!-- Overscroll chaining must stay at the default here: containing it traps
-         the pull gesture in this scroll box, so the browser never sees the
-         overscroll and its native pull-to-refresh never fires. Keep this
-         element free of any overscroll containment. -->
+    <!-- Keep <main> as the scroll container so position:sticky in child pages
+         (e.g. the catalog search bar) sticks to that viewport rather than
+         being clipped by an ancestor. -->
     <main id="ledger-main" class="min-h-0 flex-1 overflow-y-auto">
       <svelte:boundary onerror={(e) => console.error(e)}>
         {#key router.location}

@@ -65,7 +65,8 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* sticky inside <main> needs the nearest scrolling ancestor to not clip.
+     <main id=ledger-main> is the scroller itself. */
   /* viewport-fit=cover lets the page paint under the notch/home indicator;
      these insets keep the shell content out from under them. */
   padding-top: env(safe-area-inset-top, 0px);

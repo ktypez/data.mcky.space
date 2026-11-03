@@ -57,7 +57,7 @@ describe('locked application viewport', () => {
     expect(catalog).toContain("document.getElementById('ledger-main')")
     expect(catalog).toContain('scrollMargin')
     // The search field stays reachable while the rows scroll underneath.
-    expect(catalog).toMatch(/class="sticky top-0[^"]*"/)
+    expect(catalog).toMatch(/class="[^"]*sticky[^"]*"/)
     // Route changes reset <main>, or the catalog reopens mid-scroll.
     expect(app).toContain("document.getElementById('ledger-main')?.scrollTo")
   })

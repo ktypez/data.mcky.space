@@ -224,7 +224,7 @@
        reachable instead of scrolling away with the header. It is a direct
        child of the page column — nesting it inside a short wrapper would cap
        how far it can stick. -->
-  <div bind:this={barRef} class="sticky top-0 z-20 -mx-3 mt-3 flex gap-2 border-b border-rule/70 bg-paper px-3 py-2.5 sm:-mx-8 sm:px-8">
+  <div bind:this={barRef} class="relative sticky top-0 z-20 -mx-3 mt-3 flex gap-2 border-b border-rule/70 bg-paper px-3 py-2.5 [transform:translateZ(0)] before:pointer-events-none before:absolute before:-left-[50vw] before:-right-[50vw] before:bottom-full before:h-[100vh] before:bg-paper before:content-[''] sm:-mx-8 sm:px-8">
     <div class="relative min-w-0 flex-1">
       <MagnifyingGlass class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" aria-hidden="true" />
       <input
