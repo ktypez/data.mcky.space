@@ -94,6 +94,8 @@ export function clientNameValues(c: Pick<Client, 'name' | 'shopName'>): string[]
   return names.filter((n) => n !== title)
 }
 
+const titleValuesCache = new WeakMap<object, string[]>()
+
 /**
  * Values for the compact list title: the first shop name with the branch glued
  * on ("shop - สาขา"), then any further shop names.
@@ -102,14 +104,24 @@ export function clientNameValues(c: Pick<Client, 'name' | 'shopName'>): string[]
  * to "+N", so the branch has to sit ahead of the extra shop names to survive
  * a narrow row. The branch keeps its own wording here (no label): a list row
  * has no room for one.
+ *
+ * Memoised per client object: the title is rendered for every visible row and
+ * in the preview pane, so re-running shop/branch coercion each render wastes.
  */
 export function clientTitleValues(
   c: Pick<Client, 'name' | 'shopName'> & { branch?: string },
 ): string[] {
+  const cached = titleValuesCache.get(c as object)
+  if (cached) return cached
   const [primary, ...restShops] = clientShopNames(c)
-  if (!primary) return []
+  if (!primary) {
+    titleValuesCache.set(c as object, [])
+    return []
+  }
   const branch = (c.branch ?? '').trim()
-  return [branch ? `${primary} - ${branch}` : primary, ...restShops]
+  const value = [branch ? `${primary} - ${branch}` : primary, ...restShops]
+  titleValuesCache.set(c as object, value)
+  return value
 }
 
 /**
@@ -153,15 +165,22 @@ export function shopNameValue(shopName: string | null | undefined): string {
   return stripLeadingLabel(value, 'ร้าน') || value
 }
 
+const searchTextCache = new WeakMap<object, string>()
+
 /**
  * Full searchable text for one client, lowercased: every name/shop value,
  * branch, address, id, notes — space-joined. Used by keyword search so a
  * token can hit any field (AND across tokens is done by the caller).
+ *
+ * Memoised per client object: the same record is searched repeatedly while
+ * typing/filtering, so re-joining + lowercasing on every keystroke is wasted.
  */
 export function clientSearchText(
   c: Pick<Client, 'name' | 'shopName'> & Partial<Pick<Client, 'branch' | 'address' | 'id' | 'notes'>>,
 ): string {
-  return [
+  const cached = searchTextCache.get(c as object)
+  if (cached !== undefined) return cached
+  const value = [
     ...coerceStringArray(c.name),
     ...coerceStringArray(c.shopName),
     c.branch ?? '',
@@ -169,6 +188,8 @@ export function clientSearchText(
     c.id ?? '',
     c.notes ?? '',
   ].join(' ').toLowerCase()
+  searchTextCache.set(c as object, value)
+  return value
 }
 
 /** Split a raw search input into lowercased, non-empty keyword tokens on any whitespace. */
@@ -190,4 +211,21 @@ export function clientMatchesQuery(
     coerceStringArray(c.shopName).some((n) => n.toLowerCase().includes(q)) ||
     (c.branch ?? '').toLowerCase().includes(q)
   )
+}
+
+const listTitleCache = new WeakMap<object, string>()
+
+/**
+ * Memoised first value of `clientTitleValues` — the key used to sort the
+ * catalog by name. Avoids re-running shop/branch coercion + string concat
+ * on every comparison.
+ */
+export function clientListTitle(
+  c: Pick<Client, 'name' | 'shopName'> & { branch?: string },
+): string {
+  const cached = listTitleCache.get(c as object)
+  if (cached !== undefined) return cached
+  const value = clientTitleValues(c)[0] ?? ''
+  listTitleCache.set(c as object, value)
+  return value
 }

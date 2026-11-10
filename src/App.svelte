@@ -9,10 +9,6 @@
   import { initClerk } from '@/lib/clerk'
   import '@/lib/pwa-install'
   import { flushClientMutations } from '@/lib/offline-mutations'
-  import CommandPalette from '@/components/CommandPalette.svelte'
-  import UpdatePrompt from '@/components/UpdatePrompt.svelte'
-  import LeaveDialog from '@/components/LeaveDialog.svelte'
-  import Toaster from '@/components/Toaster.svelte'
   import TopBar from '@/components/TopBar.svelte'
 
   import Login from './pages/Login.svelte'
@@ -96,8 +92,16 @@
       </svelte:boundary>
     </main>
   </div>
-  <CommandPalette />
-  <UpdatePrompt />
-  <Toaster />
-  <LeaveDialog />
+  {#await import('./components/CommandPalette.svelte') then { default: CommandPalette }}
+    <CommandPalette />
+  {/await}
+  {#await import('./components/UpdatePrompt.svelte') then { default: UpdatePrompt }}
+    <UpdatePrompt />
+  {/await}
+  {#await import('./components/Toaster.svelte') then { default: Toaster }}
+    <Toaster />
+  {/await}
+  {#await import('./components/LeaveDialog.svelte') then { default: LeaveDialog }}
+    <LeaveDialog />
+  {/await}
 {/if}

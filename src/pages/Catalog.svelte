@@ -9,7 +9,7 @@
   import { get } from 'svelte/store'
   import { trackField } from '@/lib/restore-field'
   import ClientNames from '@/components/ClientNames.svelte'
-  import { clientTitleValues } from '@/lib/clientNames'
+  import { clientTitleValues, clientListTitle } from '@/lib/clientNames'
   import { useAuthStore } from '@/stores/auth-store'
   import { formatDate } from '@/lib/utils'
   import AppDialog from '@/components/AppDialog.svelte'
@@ -37,7 +37,7 @@
   let filtered = $derived.by(() => {
     const result = applyFilter(clients, query, filter, recentCutoff)
     if (sort === 'name') {
-      return [...result].sort((a, b) => (clientTitleValues(a)[0] ?? '').localeCompare(clientTitleValues(b)[0] ?? '', 'th'))
+      return [...result].sort((a, b) => clientListTitle(a).localeCompare(clientListTitle(b), 'th'))
     }
     return sortByCreatedDesc(result)
   })

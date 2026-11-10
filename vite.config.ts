@@ -29,7 +29,7 @@ export default defineConfig({
         // it would triple the install-time cache for a bundle that only
         // matters once a session exists, so it is excluded here and picked up
         // by the CacheFirst runtime cache below instead.
-        globIgnores: ['assets/clerk-*.js'],
+        globIgnores: ['assets/clerk-*.js', 'assets/map-*.js'],
         // Only known app navigations receive the shell; never API/auth/assets.
         navigateFallbackAllowlist: [/^\/$/, /^\/(?:add|trash|maps|settings)\/?$/, /^\/(?:c|edit)\/[^/]+\/?$/],
         importScripts: ['sw-cleanup.js'],
@@ -42,6 +42,18 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'clerk-sdk',
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 90 },
+            },
+          },
+          {
+            // The map chunk (~145KB) is only needed on map views. Cache it on
+            // first use instead of precaching it for everyone, so the install
+            // payload stays small for users who never open a map.
+            urlPattern: /\/assets\/map-[^/]+\.js$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'map-chunk',
               cacheableResponse: { statuses: [0, 200] },
               expiration: { maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 90 },
             },
