@@ -1,2 +1,7 @@
 packages:
   - api
+allowBuilds:
+  browser-tabs-lock: true
+  core-js: true
+  esbuild: true
+  workerd: true
