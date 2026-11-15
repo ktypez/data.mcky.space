@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { fade } from 'svelte/transition'
   import Router, { router } from 'svelte-spa-router'
   import wrap from 'svelte-spa-router/wrap'
   import { useAuthStore } from '@/stores/auth-store'
@@ -83,7 +82,7 @@
     <main id="ledger-main" class="min-h-0 flex-1 overflow-y-auto">
       <svelte:boundary onerror={(e) => console.error(e)}>
         {#key router.location}
-          <div class="flex h-full min-h-0 flex-col" transition:fade={{ duration: 180 }}>
+          <div class="flex h-full min-h-0 flex-col">
             <div class="min-h-0 flex-1">
               <Router {routes} />
             </div>
