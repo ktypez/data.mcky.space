@@ -4,7 +4,7 @@
   import type { HTMLLabelAttributes } from 'svelte/elements'
   import type { Snippet } from 'svelte'
 
-  // V6 `.label` — small bold uppercase eyebrow above a control.
+  // V5 `.label` — small bold uppercase eyebrow above a control.
   const labelVariants = cva('label', {
     variants: { required: { true: 'after:content-["*"] after:text-danger after:ml-0.5' } },
     defaultVariants: { required: false },
@@ -16,3 +16,4 @@
 <label class={cn(labelVariants({ required, className }))} {...rest}>
   {@render children?.()}
 </label>
+[exit status 0]
