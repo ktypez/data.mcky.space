@@ -296,4 +296,3 @@ export function setTexture(texture: boolean): void {
     window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: next }))
   }
 }
-[exit status 0]
