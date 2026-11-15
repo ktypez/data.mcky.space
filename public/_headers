@@ -11,6 +11,7 @@
 
 /manifest.webmanifest
   Content-Type: application/manifest+json
+  Cache-Control: no-cache, no-store, must-revalidate
 
 /index.html
   Cache-Control: no-cache, no-store, must-revalidate
@@ -21,5 +22,3 @@
 /workbox-*.js
   Cache-Control: no-cache, no-store, must-revalidate
 
-/manifest.webmanifest
-  Cache-Control: no-cache, no-store, must-revalidate
