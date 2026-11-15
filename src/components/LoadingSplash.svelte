@@ -1,84 +1,174 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
+  const shapes = ['star', 'hexagon', 'circle', 'triangle'] as const
+  let shape = $state<(typeof shapes)[number]>('circle')
   let visible = $state(true)
-  let sweeping = $state(false)
+  let reducedMotion = false
 
   onMount(() => {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const begin = window.setTimeout(() => (sweeping = true), reducedMotion ? 200 : 650)
-    const dismiss = window.setTimeout(() => (visible = false), reducedMotion ? 260 : 1950)
-    return () => {
-      window.clearTimeout(begin)
-      window.clearTimeout(dismiss)
-    }
+    // Pick once per full page entry; never change shape during the animation.
+    shape = shapes[Math.floor(Math.random() * shapes.length)]
+    reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    const duration = reducedMotion ? 100 : 2810
+    const timer = window.setTimeout(() => (visible = false), duration)
+    return () => window.clearTimeout(timer)
   })
 </script>
 
 {#if visible}
   <div
-    class="loading-splash"
-    class:sweeping
-    role="status"
-    aria-label="กำลังเปิด DATA Ledger"
+    class="entry-reveal"
+    class:reduced={reducedMotion}
+    aria-hidden="true"
   >
-    <div class="halftone-sheet" aria-hidden="true"></div>
+    <div class="mascot">
+      <svg viewBox="0 0 96 96" role="presentation">
+        <path class="mascot-antenna" d="M48 17V9" />
+        <circle class="mascot-tip" cx="48" cy="7" r="4" />
+        <rect class="mascot-body" x="17" y="22" width="62" height="58" rx="21" />
+        <circle class="mascot-eye" cx="37" cy="47" r="4" />
+        <circle class="mascot-eye" cx="59" cy="47" r="4" />
+        <path class="mascot-mouth" d="M39 61Q48 69 57 61" />
+        <path class="mascot-foot" d="M31 79v5M65 79v5" />
+      </svg>
+    </div>
+
+    <div
+      class="geometry"
+      class:shape-star={shape === 'star'}
+      class:shape-hexagon={shape === 'hexagon'}
+      class:shape-circle={shape === 'circle'}
+      class:shape-triangle={shape === 'triangle'}
+    ></div>
   </div>
 {/if}
 
 <style>
-  .loading-splash {
+  .entry-reveal {
+    --entry-color: var(--acc, #158068);
     position: fixed;
     inset: 0;
     z-index: 10000;
     overflow: hidden;
     pointer-events: none;
+    isolation: isolate;
+    contain: strict;
     background: var(--paper, #f6f2e9);
-    --reveal: 100%;
+    animation: overlay-exit 360ms ease-in 2450ms both;
   }
 
-  .halftone-sheet {
+  /* Let the mascot establish the center before the shape grows from it. */
+  .mascot {
     position: absolute;
-    inset: 0;
-    background-color: var(--paper, #f6f2e9);
-    background-image:
-      radial-gradient(circle, color-mix(in srgb, var(--ink, #20231f) 82%, transparent) 0.85px, transparent 1.15px),
-      linear-gradient(90deg,
-        color-mix(in srgb, var(--ink, #20231f) 10%, transparent),
-        transparent 32% 68%,
-        color-mix(in srgb, var(--ink, #20231f) 10%, transparent));
-    background-size: 5px 5px, 100% 100%;
-    background-position: center, center;
-    -webkit-mask-image: linear-gradient(90deg,
-      #000 0%, #000 var(--reveal, 100%), transparent calc(var(--reveal, 100%) + 8%), transparent 100%);
-    mask-image: linear-gradient(90deg,
-      #000 0%, #000 var(--reveal, 100%), transparent calc(var(--reveal, 100%) + 8%), transparent 100%);
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    will-change: -webkit-mask-image, mask-image, background-position;
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    width: clamp(76px, 18vw, 112px);
+    aspect-ratio: 1;
+    color: var(--entry-color);
+    transform: translate(-50%, -50%);
+    animation:
+      mascot-intro 620ms cubic-bezier(.22, 1, .36, 1) both,
+      mascot-exit 260ms cubic-bezier(.4, 0, .2, 1) 620ms both;
   }
 
-  @property --reveal {
-    syntax: '<percentage>';
-    inherits: true;
-    initial-value: 100%;
+  .mascot svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
   }
 
-  .loading-splash.sweeping .halftone-sheet {
-    animation: halftone-run 1300ms linear both, grain-drift 1300ms linear both;
+  .mascot-body {
+    fill: var(--entry-color);
   }
 
-  @keyframes halftone-run {
-    0% { --reveal: 100%; }
-    100% { --reveal: 0%; }
+  .mascot-antenna,
+  .mascot-foot,
+  .mascot-mouth {
+    fill: none;
+    stroke: var(--entry-color);
+    stroke-width: 5;
+    stroke-linecap: round;
   }
 
-  @keyframes grain-drift {
-    0% { background-position: center, center; }
-    100% { background-position: 48px 0, center; }
+  .mascot-tip {
+    fill: var(--entry-color);
+  }
+
+  .mascot-eye {
+    fill: var(--paper, #f6f2e9);
+  }
+
+  .mascot-mouth {
+    stroke: var(--paper, #f6f2e9);
+    stroke-width: 3.5;
+  }
+
+  .geometry {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    width: 150vmax;
+    height: 150vmax;
+    background: var(--entry-color);
+    transform: translate(-50%, -50%) scale(.001);
+    transform-origin: center;
+    will-change: transform;
+    animation: shape-expand 1500ms cubic-bezier(.22, 1, .36, 1) 620ms both;
+  }
+
+  /* Exactly one solid-color shape, randomly chosen once per page entry. */
+  .shape-star {
+    clip-path: polygon(
+      50% 0, 61% 35%, 98% 35%, 68% 57%,
+      79% 94%, 50% 72%, 21% 94%, 32% 57%,
+      2% 35%, 39% 35%
+    );
+  }
+
+  .shape-hexagon {
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  }
+
+  .shape-circle {
+    border-radius: 50%;
+  }
+
+  .shape-triangle {
+    clip-path: polygon(50% 0, 93.3% 75%, 6.7% 75%);
+  }
+
+  @keyframes mascot-intro {
+    0% { opacity: 0; transform: translate(-50%, -44%) scale(.78); }
+    72% { opacity: 1; transform: translate(-50%, -51%) scale(1.04); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  @keyframes mascot-exit {
+    to { opacity: 0; transform: translate(-50%, -50%) scale(.9); }
+  }
+
+  @keyframes shape-expand {
+    0% { transform: translate(-50%, -50%) scale(.001); }
+    100% { transform: translate(-50%, -50%) scale(1.5); }
+  }
+
+  @keyframes overlay-exit {
+    to { opacity: 0; visibility: hidden; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .loading-splash.sweeping .halftone-sheet { animation-duration: 40ms; }
+    .entry-reveal.reduced {
+      animation: none;
+      opacity: 0;
+    }
+    .entry-reveal.reduced .mascot,
+    .entry-reveal.reduced .geometry {
+      animation: none;
+    }
   }
 </style>
