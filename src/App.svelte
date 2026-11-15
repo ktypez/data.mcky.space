@@ -97,9 +97,6 @@
   {#await import('./components/CommandPalette.svelte') then { default: CommandPalette }}
     <CommandPalette />
   {/await}
-  {#await import('./components/UpdatePrompt.svelte') then { default: UpdatePrompt }}
-    <UpdatePrompt />
-  {/await}
   {#await import('./components/Toaster.svelte') then { default: Toaster }}
     <Toaster />
   {/await}
@@ -107,3 +104,7 @@
     <LeaveDialog />
   {/await}
 {/if}
+
+  {#await import('./components/UpdatePrompt.svelte') then { default: UpdatePrompt }}
+    <UpdatePrompt />
+  {/await}

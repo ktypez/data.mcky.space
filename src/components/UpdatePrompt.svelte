@@ -11,6 +11,7 @@
   let cardRef: HTMLDivElement | undefined = $state()
 
   const { needRefresh, updateServiceWorker } = useRegisterSW({
+    immediate: true,
     onRegisteredSW(_url: string, reg: ServiceWorkerRegistration | undefined) {
       registration = reg
       if (reg) rememberRegistration(reg)
@@ -78,8 +79,9 @@
     try {
       await acceptUpdate(
         async () => {
-          await updateServiceWorker(true)
-          await awaitControllerChange(3000)
+          const activation = awaitControllerChange(4000)
+          await updateServiceWorker(false)
+          await activation
           window.location.reload()
         },
         // Only interrupt when a form actually holds unsaved edits; otherwise
