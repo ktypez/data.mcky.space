@@ -11,6 +11,7 @@
   let cardRef: HTMLDivElement | undefined = $state()
 
   const { needRefresh, updateServiceWorker } = useRegisterSW({
+    immediate: true,
     onRegisteredSW(_url: string, reg: ServiceWorkerRegistration | undefined) {
       registration = reg
       if (reg) rememberRegistration(reg)
