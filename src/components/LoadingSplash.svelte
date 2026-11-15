@@ -4,7 +4,7 @@
   const shapes = ['star', 'hexagon', 'circle', 'triangle'] as const
   let shape = $state<(typeof shapes)[number]>('circle')
   let visible = $state(true)
-  let reducedMotion = $state(false)
+  let reducedMotion = false
 
   onMount(() => {
     // Pick once per full page entry; never change shape during the animation.
@@ -47,7 +47,7 @@
 
 <style>
   .entry-reveal {
-    --entry-color: var(--acc, #090909);
+    --entry-color: var(--acc, #158068);
     position: fixed;
     inset: 0;
     z-index: 10000;
@@ -55,7 +55,7 @@
     pointer-events: none;
     isolation: isolate;
     contain: strict;
-    background: var(--paper, #ffffff);
+    background: var(--paper, #f6f2e9);
     /* Fade begins before the shape finishes expanding: no pause at full size. */
     animation: overlay-whoosh 250ms ease-in 950ms both;
   }
@@ -99,11 +99,11 @@
   }
 
   .mascot-eye {
-    fill: var(--paper, #ffffff);
+    fill: var(--paper, #f6f2e9);
   }
 
   .mascot-mouth {
-    stroke: var(--paper, #ffffff);
+    stroke: var(--paper, #f6f2e9);
     stroke-width: 3.5;
   }
 
@@ -172,3 +172,4 @@
     }
   }
 </style>
+[exit status 0]
