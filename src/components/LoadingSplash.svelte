@@ -2,25 +2,28 @@
   import { onMount } from 'svelte'
 
   let visible = $state(true)
-  let exiting = $state(false)
+  let sweeping = $state(false)
 
   onMount(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const dismiss = window.setTimeout(() => {
-      exiting = true
-      window.setTimeout(() => (visible = false), reducedMotion ? 40 : 1000)
-    }, reducedMotion ? 250 : 750)
-    return () => window.clearTimeout(dismiss)
+    const begin = window.setTimeout(() => (sweeping = true), reducedMotion ? 200 : 650)
+    const dismiss = window.setTimeout(() => (visible = false), reducedMotion ? 260 : 1950)
+    return () => {
+      window.clearTimeout(begin)
+      window.clearTimeout(dismiss)
+    }
   })
 </script>
 
 {#if visible}
   <div
     class="loading-splash"
+    class:sweeping
     role="status"
     aria-label="กำลังเปิด DATA Ledger"
-    class:sheet-fade={exiting}
-  ></div>
+  >
+    <div class="halftone-sheet" aria-hidden="true"></div>
+  </div>
 {/if}
 
 <style>
@@ -31,36 +34,51 @@
     overflow: hidden;
     pointer-events: none;
     background: var(--paper, #f6f2e9);
+    --reveal: 100%;
   }
 
-  .loading-splash::before {
+  .halftone-sheet {
     position: absolute;
     inset: 0;
     background-color: var(--paper, #f6f2e9);
     background-image:
-      radial-gradient(color-mix(in srgb, var(--ink, #20231f) 52%, transparent) 0.65px, transparent 0.9px),
+      radial-gradient(circle, color-mix(in srgb, var(--ink, #20231f) 82%, transparent) 0.85px, transparent 1.15px),
       linear-gradient(90deg,
-        color-mix(in srgb, var(--ink, #20231f) 7%, transparent),
-        transparent 30% 70%,
-        color-mix(in srgb, var(--ink, #20231f) 7%, transparent));
-    background-size: 4px 4px, 100% 100%;
-    content: '';
+        color-mix(in srgb, var(--ink, #20231f) 10%, transparent),
+        transparent 32% 68%,
+        color-mix(in srgb, var(--ink, #20231f) 10%, transparent));
+    background-size: 5px 5px, 100% 100%;
+    background-position: center, center;
+    -webkit-mask-image: linear-gradient(90deg,
+      #000 0%, #000 var(--reveal, 100%), transparent calc(var(--reveal, 100%) + 8%), transparent 100%);
+    mask-image: linear-gradient(90deg,
+      #000 0%, #000 var(--reveal, 100%), transparent calc(var(--reveal, 100%) + 8%), transparent 100%);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    will-change: -webkit-mask-image, mask-image, background-position;
   }
 
-  .loading-splash.sheet-fade::before {
-    animation: grain-sheet-fade 1000ms steps(18, end) both;
+  @property --reveal {
+    syntax: '<percentage>';
+    inherits: true;
+    initial-value: 100%;
   }
 
-  @keyframes grain-sheet-fade {
-    0% { opacity: 1; filter: contrast(1.25); }
-    35% { opacity: 0.92; filter: contrast(1.5); }
-    100% { opacity: 0; filter: contrast(1); }
+  .loading-splash.sweeping .halftone-sheet {
+    animation: halftone-run 1300ms linear both, grain-drift 1300ms linear both;
+  }
+
+  @keyframes halftone-run {
+    0% { --reveal: 100%; }
+    100% { --reveal: 0%; }
+  }
+
+  @keyframes grain-drift {
+    0% { background-position: center, center; }
+    100% { background-position: 48px 0, center; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .loading-splash.sheet-fade::before {
-      animation-duration: 40ms;
-      animation-timing-function: linear;
-    }
+    .loading-splash.sweeping .halftone-sheet { animation-duration: 40ms; }
   }
 </style>
