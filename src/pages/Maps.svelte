@@ -279,7 +279,7 @@
     </div>
   </section>
 {:else}
-  <section class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pb-4 pt-4 sm:px-8">
+  <section class="v6-page v6-maps mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pb-4 pt-4 sm:px-8">
     {#if loadError}
       <div class="mb-4 flex shrink-0 items-center justify-between gap-3 rounded-[10px] border-[1.5px] border-banana/60 bg-banana/15 px-3 py-2 text-sm text-ink" role="status">
         <span>{loadError}</span>
