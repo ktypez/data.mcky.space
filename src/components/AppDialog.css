@@ -1,4 +1,4 @@
-/* V6 monochrome dialog skin — neutral surface, thin border, restrained shadow.
+/* V5 “paper pop” dialog skin — sticker panel, hard shadow, dashed rules.
    Variants: dialog (default) · drawer · lightbox · sheet. */
 .app-dialog {
   width: min(32rem, calc(100vw - 2rem));
@@ -53,7 +53,7 @@
   background: var(--card);
   border: var(--border-w) solid var(--hard);
   border-radius: var(--r3);
-  box-shadow: var(--ui-shadow-md);
+  box-shadow: 6px 6px 0 0 var(--hard);
 }
 .app-dialog-header {
   min-height: 56px;
@@ -62,7 +62,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px dashed var(--rule);
 }
 .app-dialog-header h2 {
   font-size: 1rem;
@@ -77,7 +77,7 @@
   background: var(--paper-2);
   border: var(--border-w) solid var(--hard);
   border-radius: 999px;
-  box-shadow: var(--ui-shadow-sm);
+  box-shadow: 2px 2px 0 0 var(--hard);
 }
 .app-dialog-close:hover {
   color: var(--acc-ink);
@@ -109,3 +109,4 @@
   border-bottom: 0;
   max-height: 85dvh;
 }
+[exit status 0]
