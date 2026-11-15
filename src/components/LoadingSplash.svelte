@@ -7,15 +7,12 @@
   let reducedMotion = false
 
   onMount(() => {
+    // Pick once per full page entry; never change shape during the animation.
     shape = shapes[Math.floor(Math.random() * shapes.length)]
     reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    if (reducedMotion) {
-      const timer = window.setTimeout(() => (visible = false), 100)
-      return () => window.clearTimeout(timer)
-    }
-
-    const timer = window.setTimeout(() => (visible = false), 1580)
+    const duration = reducedMotion ? 100 : 1740
+    const timer = window.setTimeout(() => (visible = false), duration)
     return () => window.clearTimeout(timer)
   })
 </script>
@@ -26,6 +23,18 @@
     class:reduced={reducedMotion}
     aria-hidden="true"
   >
+    <div class="mascot">
+      <svg viewBox="0 0 96 96" role="presentation">
+        <path class="mascot-antenna" d="M48 17V9" />
+        <circle class="mascot-tip" cx="48" cy="7" r="4" />
+        <rect class="mascot-body" x="17" y="22" width="62" height="58" rx="21" />
+        <circle class="mascot-eye" cx="37" cy="47" r="4" />
+        <circle class="mascot-eye" cx="59" cy="47" r="4" />
+        <path class="mascot-mouth" d="M39 61Q48 69 57 61" />
+        <path class="mascot-foot" d="M31 79v5M65 79v5" />
+      </svg>
+    </div>
+
     <div
       class="geometry"
       class:shape-star={shape === 'star'}
@@ -33,40 +42,86 @@
       class:shape-circle={shape === 'circle'}
       class:shape-triangle={shape === 'triangle'}
     ></div>
-    <div class="negative-flash"></div>
   </div>
 {/if}
 
 <style>
   .entry-reveal {
+    --entry-color: var(--acc, #158068);
     position: fixed;
     inset: 0;
     z-index: 10000;
     overflow: hidden;
     pointer-events: none;
     isolation: isolate;
-    background: var(--acc, #158068);
-    animation: overlay-exit 260ms ease-in 1290ms both;
     contain: strict;
+    background: var(--paper, #f6f2e9);
+    animation: overlay-exit 220ms ease-in 1520ms both;
+  }
+
+  /* The mascot is the first and only focal point before the shape appears. */
+  .mascot {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    width: clamp(76px, 18vw, 112px);
+    aspect-ratio: 1;
+    color: var(--entry-color);
+    transform: translate(-50%, -50%);
+    animation: mascot-intro 420ms cubic-bezier(.2, .8, .2, 1) both,
+      mascot-exit 180ms ease-out 430ms both;
+  }
+
+  .mascot svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .mascot-body {
+    fill: var(--entry-color);
+  }
+
+  .mascot-antenna,
+  .mascot-foot,
+  .mascot-mouth {
+    fill: none;
+    stroke: var(--entry-color);
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+
+  .mascot-tip {
+    fill: var(--entry-color);
+  }
+
+  .mascot-eye {
+    fill: var(--paper, #f6f2e9);
+  }
+
+  .mascot-mouth {
+    stroke: var(--paper, #f6f2e9);
+    stroke-width: 3.5;
   }
 
   .geometry {
     position: absolute;
     z-index: 1;
-    width: 120vmax;
-    height: 120vmax;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%) scale(0.001) rotate(-18deg);
+    width: 150vmax;
+    height: 150vmax;
+    background: var(--entry-color);
+    transform: translate(-50%, -50%) scale(0.001) rotate(-12deg);
     transform-origin: center;
     will-change: transform;
-    background: var(--pop, #f2593f);
-    animation: geometry-zoom 1180ms cubic-bezier(0.12, 0.82, 0.18, 1) both;
+    animation: shape-expand 900ms cubic-bezier(.12, .82, .18, 1) 430ms both;
   }
 
-  /* Exactly one randomly selected shape per page entry. */
+  /* Exactly one solid-color shape, randomly chosen once per page entry. */
   .shape-star {
-    background: var(--pop, #f2593f);
     clip-path: polygon(
       50% 0, 61% 35%, 98% 35%, 68% 57%,
       79% 94%, 50% 72%, 21% 94%, 32% 57%,
@@ -75,48 +130,31 @@
   }
 
   .shape-hexagon {
-    background: var(--paper, #f6f2e9);
     clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
   }
 
   .shape-circle {
-    background: var(--ink, #28251d);
     border-radius: 50%;
   }
 
   .shape-triangle {
-    background: var(--paper, #f6f2e9);
-    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    clip-path: polygon(50% 0, 93.3% 75%, 6.7% 75%);
   }
 
-  .negative-flash {
-    position: absolute;
-    z-index: 2;
-    inset: 0;
-    background: #fff;
-    mix-blend-mode: difference;
-    opacity: 0;
-    animation: negative-hit 420ms steps(2, end) both;
+  @keyframes mascot-intro {
+    0% { opacity: 0; transform: translate(-50%, -42%) scale(.72); }
+    68% { opacity: 1; transform: translate(-50%, -53%) scale(1.08); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   }
 
-  @keyframes geometry-zoom {
-    0% {
-      transform: translate(-50%, -50%) scale(0.001) rotate(-18deg);
-    }
-    72% {
-      transform: translate(-50%, -50%) scale(1.18) rotate(8deg);
-    }
-    100% {
-      transform: translate(-50%, -50%) scale(1.65) rotate(0deg);
-    }
+  @keyframes mascot-exit {
+    to { opacity: 0; transform: translate(-50%, -50%) scale(.82); }
   }
 
-  @keyframes negative-hit {
-    0% { opacity: 0; }
-    10% { opacity: 0.9; }
-    24% { opacity: 0.2; }
-    38% { opacity: 0.65; }
-    100% { opacity: 0; }
+  @keyframes shape-expand {
+    0% { transform: translate(-50%, -50%) scale(.001) rotate(-12deg); }
+    76% { transform: translate(-50%, -50%) scale(1.12) rotate(5deg); }
+    100% { transform: translate(-50%, -50%) scale(1.5) rotate(0deg); }
   }
 
   @keyframes overlay-exit {
@@ -128,8 +166,8 @@
       animation: none;
       opacity: 0;
     }
-    .entry-reveal.reduced .geometry,
-    .entry-reveal.reduced .negative-flash {
+    .entry-reveal.reduced .mascot,
+    .entry-reveal.reduced .geometry {
       animation: none;
     }
   }
