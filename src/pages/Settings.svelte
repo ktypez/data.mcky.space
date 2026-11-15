@@ -89,7 +89,7 @@
   }
 </script>
 
-<section class="mx-auto w-full max-w-4xl px-4 pb-16 pt-8 sm:px-6">
+<section class="v6-page v6-settings mx-auto w-full max-w-4xl px-4 pb-16 pt-8 sm:px-6">
   <div class="flex flex-wrap items-center gap-4">
     <h1 class="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">ตั้งค่า</h1>
     <CountSticker n="6.0" label="monochrome" rot={2} />
