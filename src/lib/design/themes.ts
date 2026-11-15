@@ -368,4 +368,3 @@ const GROUPS: ThemeGroup[] = [
 ]
 
 export const themeGroups: ThemeGroup[] = GROUPS.filter((g) => themes.some((t) => g.matches(t)))
-[exit status 0]
