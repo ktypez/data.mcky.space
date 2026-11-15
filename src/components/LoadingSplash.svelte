@@ -11,7 +11,7 @@
     shape = shapes[Math.floor(Math.random() * shapes.length)]
     reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    const duration = reducedMotion ? 100 : 1740
+    const duration = reducedMotion ? 100 : 2810
     const timer = window.setTimeout(() => (visible = false), duration)
     return () => window.clearTimeout(timer)
   })
@@ -56,10 +56,10 @@
     isolation: isolate;
     contain: strict;
     background: var(--paper, #f6f2e9);
-    animation: overlay-exit 220ms ease-in 1520ms both;
+    animation: overlay-exit 360ms ease-in 2450ms both;
   }
 
-  /* The mascot is the first and only focal point before the shape appears. */
+  /* Let the mascot establish the center before the shape grows from it. */
   .mascot {
     position: absolute;
     z-index: 2;
@@ -69,8 +69,9 @@
     aspect-ratio: 1;
     color: var(--entry-color);
     transform: translate(-50%, -50%);
-    animation: mascot-intro 420ms cubic-bezier(.2, .8, .2, 1) both,
-      mascot-exit 180ms ease-out 430ms both;
+    animation:
+      mascot-intro 620ms cubic-bezier(.22, 1, .36, 1) both,
+      mascot-exit 260ms cubic-bezier(.4, 0, .2, 1) 620ms both;
   }
 
   .mascot svg {
@@ -114,10 +115,10 @@
     width: 150vmax;
     height: 150vmax;
     background: var(--entry-color);
-    transform: translate(-50%, -50%) scale(0.001) rotate(-12deg);
+    transform: translate(-50%, -50%) scale(.001);
     transform-origin: center;
     will-change: transform;
-    animation: shape-expand 900ms cubic-bezier(.12, .82, .18, 1) 430ms both;
+    animation: shape-expand 1500ms cubic-bezier(.22, 1, .36, 1) 620ms both;
   }
 
   /* Exactly one solid-color shape, randomly chosen once per page entry. */
@@ -142,19 +143,18 @@
   }
 
   @keyframes mascot-intro {
-    0% { opacity: 0; transform: translate(-50%, -42%) scale(.72); }
-    68% { opacity: 1; transform: translate(-50%, -53%) scale(1.08); }
+    0% { opacity: 0; transform: translate(-50%, -44%) scale(.78); }
+    72% { opacity: 1; transform: translate(-50%, -51%) scale(1.04); }
     100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   }
 
   @keyframes mascot-exit {
-    to { opacity: 0; transform: translate(-50%, -50%) scale(.82); }
+    to { opacity: 0; transform: translate(-50%, -50%) scale(.9); }
   }
 
   @keyframes shape-expand {
-    0% { transform: translate(-50%, -50%) scale(.001) rotate(-12deg); }
-    76% { transform: translate(-50%, -50%) scale(1.12) rotate(5deg); }
-    100% { transform: translate(-50%, -50%) scale(1.5) rotate(0deg); }
+    0% { transform: translate(-50%, -50%) scale(.001); }
+    100% { transform: translate(-50%, -50%) scale(1.5); }
   }
 
   @keyframes overlay-exit {
