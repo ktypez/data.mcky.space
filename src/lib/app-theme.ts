@@ -10,7 +10,7 @@ export interface AppThemeState {
   themeId: string
   mode: AppMode
   resolvedMode: ResolvedMode
-  /** V5 palette id — mirrors themeId (matcha · coral · blueberry · butter). */
+  /** V6 visual theme id; legacy palette IDs are normalized to monochrome. */
   palette: string
   density: Density
   texture: boolean
@@ -18,7 +18,7 @@ export interface AppThemeState {
 
 const THEME_STORE_KEY = 'data-ledger-ui'
 const MODE_KEY = 'data-ledger-mode'
-const V5_KEY = 'data-ledger-v5'
+const DENSITY_KEY = 'data-ledger-v5'
 const STYLESHEET_ID = 'app-theme-stylesheet'
 const FONT_LINK_ID = 'app-theme-fonts'
 const listeners = new Set<() => void>()
@@ -58,8 +58,7 @@ function readPersistedThemeId(): unknown {
   }
 }
 
-// A stale/unknown id (including the 6 pre-V5 preset ids) falls back to the
-// default palette inside getTheme() — i.e. stale ids migrate to matcha.
+// Previously saved V5 palette IDs are normalized to the V6 monochrome theme.
 function readThemeId(value?: unknown): string {
   return typeof value === 'string' ? getTheme(value).id : getTheme(null).id
 }
@@ -72,7 +71,7 @@ function readMode(): AppMode {
 function readDensity(): Density {
   if (typeof localStorage === 'undefined') return 'cozy'
   try {
-    const saved = JSON.parse(localStorage.getItem(V5_KEY) ?? '{}') as { state?: { density?: unknown } }
+    const saved = JSON.parse(localStorage.getItem(DENSITY_KEY) ?? '{}') as { state?: { density?: unknown } }
     return saved.state?.density === 'compact' ? 'compact' : 'cozy'
   } catch {
     return 'cozy'
@@ -80,13 +79,8 @@ function readDensity(): Density {
 }
 
 function readTexture(): boolean {
-  if (typeof localStorage === 'undefined') return true
-  try {
-    const saved = JSON.parse(localStorage.getItem(V5_KEY) ?? '{}') as { state?: { texture?: unknown } }
-    return saved.state?.texture !== false
-  } catch {
-    return true
-  }
+  // V6 has no decorative paper texture; retained only for old persisted state compatibility.
+  return false
 }
 
 function makeState(themeId: string, mode: AppMode): AppThemeState {
@@ -146,14 +140,14 @@ function persist(state: AppThemeState): void {
   }
 }
 
-function persistV5(state: AppThemeState): void {
+function persistDensity(state: AppThemeState): void {
   if (typeof localStorage === 'undefined') return
   try {
-    const saved = JSON.parse(localStorage.getItem(V5_KEY) ?? '{}') as Record<string, unknown>
+    const saved = JSON.parse(localStorage.getItem(DENSITY_KEY) ?? '{}') as Record<string, unknown>
     const savedState = typeof saved.state === 'object' && saved.state !== null
       ? saved.state as Record<string, unknown>
       : {}
-    localStorage.setItem(V5_KEY, JSON.stringify({
+    localStorage.setItem(DENSITY_KEY, JSON.stringify({
       ...saved,
       state: { ...savedState, density: state.density, texture: state.texture },
     }))
@@ -171,6 +165,8 @@ function commitDom(theme: Theme, state: AppThemeState): void {
   root.dataset.texture = state.texture ? 'on' : 'off'
   root.classList.toggle('dark', state.resolvedMode === 'dark')
   root.style.colorScheme = state.resolvedMode
+  const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+  if (themeColor) themeColor.content = state.resolvedMode === 'dark' ? '#0b0b0b' : '#ffffff'
   window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: state }))
 }
 
@@ -252,7 +248,7 @@ export function initAppTheme(): void {
     if (latest.mode === 'auto') applyAppTheme(latest.themeId, 'auto', false)
   }
   const onStorage = (event: StorageEvent) => {
-    if (![THEME_STORE_KEY, MODE_KEY, V5_KEY].includes(event.key ?? '')) return
+    if (![THEME_STORE_KEY, MODE_KEY, DENSITY_KEY].includes(event.key ?? '')) return
     applyAppTheme(readThemeId(readPersistedThemeId()), readMode(), false)
   }
   media.addEventListener('change', onSystemChange)
@@ -266,7 +262,7 @@ export function setThemeId(themeId: string): void {
   applyAppTheme(theme.id, mode, true)
 }
 
-/** V5 palette selection — the palette id IS the theme id. */
+/** Legacy API retained for compatibility; all values resolve to Monochrome V6. */
 export function setPalette(palette: string): void {
   setThemeId(palette)
 }
@@ -279,7 +275,7 @@ export function setDensity(density: Density): void {
   const current = getSnapshot()
   const next: AppThemeState = { ...current, density }
   setActiveState(next)
-  persistV5(next)
+  persistDensity(next)
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.density = next.density
     window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: next }))
@@ -290,7 +286,7 @@ export function setTexture(texture: boolean): void {
   const current = getSnapshot()
   const next: AppThemeState = { ...current, texture }
   setActiveState(next)
-  persistV5(next)
+  persistDensity(next)
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.texture = next.texture ? 'on' : 'off'
     window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: next }))

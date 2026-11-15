@@ -4,9 +4,9 @@ import path from 'node:path'
 
 const read = (file: string) => readFileSync(path.resolve(import.meta.dirname, '..', file), 'utf8')
 const app = read('src/App.svelte')
-// V5 “paper pop” replaced the V4 ledger.css shell (rail + header + bottom nav)
-// with the component classes in v5-ui.css; the shell rules live there now.
-const shell = read('src/styles/v5-ui.css')
+// V6 monochrome shell replaces the previous V4 ledger.css shell (rail + header + bottom nav)
+// with the component classes in v6-primitives.css; the shell rules live there now.
+const shell = read('src/styles/v6-primitives.css')
 const catalog = read('src/pages/Catalog.svelte')
 const maps = read('src/pages/Maps.svelte')
 const settings = read('src/pages/Settings.svelte')
@@ -63,7 +63,7 @@ describe('locked application viewport', () => {
   })
 
   it('uses px type tokens and ≥44px touch targets', () => {
-    // V5 dropped the 75% root font-size: sizing is px-based via the text-*
+    // V6 keeps the 75% root font-size removed: sizing is px-based via the text-*
     // tokens in index.css, so the touch-target floor is stated in px too.
     expect(shell).toContain(".ledger-shell :is(button, a[href], [role='button'], [role='tab'], [role='option'], [role='switch'])")
     expect(shell).toMatch(/min-height:\s*44px/)

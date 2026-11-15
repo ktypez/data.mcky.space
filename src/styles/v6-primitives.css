@@ -1,10 +1,10 @@
 /* ————————————————————————————————————————————————
-   DATA Ledger — V5 “paper pop” component classes
+   DATA Ledger — V6 monochrome component primitives
    Ported from design/v5/src/index.css (@layer components block,
    keyframes, leaflet overrides) plus the spec §2 class vocabulary:
    .card .sticker .btn .btn-acc .btn-pop .chip .kbd .field .label
    .seg .seg-item .count-sticker .squiggle .row .row:hover .mono .pop-dots
-   Also carries the V5 shell layout that replaces styles/ledger.css.
+   Also carries the shared shell layout that replaces styles/ledger.css.
    ———————————————————————————————————————————————— */
 
 html { scrollbar-width: thin; scrollbar-color: var(--rule-2) transparent; }
@@ -16,18 +16,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* dotted ledger paper */
+/* Decorative paper texture is intentionally disabled in V6. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: radial-gradient(var(--rule) 1.1px, transparent 1.1px);
-  background-size: 22px 22px;
-  opacity: 0.8;
+  background-image: none;
+  opacity: 0;
   pointer-events: none;
 }
-:root[data-texture="off"] body::before { opacity: 0; }
+:root body::before { opacity: 0; }
 
 ::selection { background: var(--acc); color: #fff; }
 :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 4px; }
@@ -41,7 +40,7 @@ body, .card, .sticker, .seg, .field {
   transition: background-color .3s ease, border-color .3s ease, color .3s ease;
 }
 
-/* ——— V5 shell (replaces the V4 rail + header + bottom nav) ——— */
+/* ——— app shell (replaces the V4 rail + header + bottom nav) ——— */
 html:has(.ledger-shell),
 body:has(.ledger-shell) {
   height: 100%;
@@ -73,7 +72,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
   padding-right: env(safe-area-inset-right, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   padding-left: env(safe-area-inset-left, 0px);
-  /* Transparent so the dotted paper on body::before shows through the gutters. */
+  /* Transparent shell gutters preserve the page canvas. */
   background-color: transparent;
   color: var(--ink);
   font-family: var(--font-ui);
@@ -92,11 +91,11 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
   text-wrap: pretty;
 }
 
-/* ≥44px touch targets survive the V5 look; dense stickers opt out. */
+/* ≥44px touch targets survive the V6 visual language; dense stickers opt out. */
 .ledger-shell :is(button, a[href], [role='button'], [role='tab'], [role='option'], [role='switch'], input, textarea, select) {
   -webkit-tap-highlight-color: transparent;
 }
-.ledger-shell :is(button, a[href], [role='button'], [role='tab'], [role='option'], [role='switch']):not(.chip):not(.kbd):not(.seg-item):not(.count-sticker):not(.btn-inline):not(.squiggle):not(.v5-switch) {
+.ledger-shell :is(button, a[href], [role='button'], [role='tab'], [role='option'], [role='switch']):not(.chip):not(.kbd):not(.seg-item):not(.count-sticker):not(.btn-inline):not(.squiggle) {
   min-height: 44px;
 }
 .ledger-shell .seg-item { min-height: 36px; }
@@ -125,7 +124,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
     background: var(--card);
     border: var(--border-w) solid var(--hard);
     border-radius: var(--r2);
-    box-shadow: var(--shadow-pop);
+    box-shadow: var(--ui-shadow-sm);
   }
 
   .btn {
@@ -135,16 +134,16 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
     border: var(--border-w) solid transparent; cursor: pointer; user-select: none;
     transition: transform .16s ease, box-shadow .16s ease, background .16s ease, color .16s ease, border-color .16s ease;
   }
-  .btn-acc { background: var(--acc); color: #fff; border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
-  .btn-acc:hover { background: var(--acc-strong); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--hard); }
-  .btn-acc:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--hard); }
-  .btn-pop, .btn-line { background: var(--card); color: var(--ink); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
-  .btn-pop:hover, .btn-line:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--hard); }
-  .btn-pop:active, .btn-line:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--hard); }
+  .btn-acc { background: var(--acc); color: #fff; border-color: var(--hard); box-shadow: var(--ui-shadow-sm); }
+  .btn-acc:hover { background: var(--acc-strong); transform: translate(-1px, -1px); box-shadow: var(--ui-shadow-md); }
+  .btn-acc:active { transform: translate(2px, 2px); box-shadow: none; }
+  .btn-pop, .btn-line { background: var(--card); color: var(--ink); border-color: var(--hard); box-shadow: var(--ui-shadow-sm); }
+  .btn-pop:hover, .btn-line:hover { transform: translate(-1px, -1px); box-shadow: var(--ui-shadow-md); }
+  .btn-pop:active, .btn-line:active { transform: translate(2px, 2px); box-shadow: none; }
   .btn-ghost { color: var(--ink-soft); border-color: transparent; }
   .btn-ghost:hover { background: var(--acc-tint); color: var(--acc-ink); }
-  .btn-danger { background: var(--card); color: var(--danger-ink); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--danger); }
-  .btn-danger:hover { background: var(--danger-tint); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--danger); }
+  .btn-danger { background: var(--card); color: var(--danger-ink); border-color: var(--hard); box-shadow: var(--ui-shadow-sm); }
+  .btn-danger:hover { background: var(--danger-tint); transform: translate(-1px, -1px); box-shadow: var(--ui-shadow-md); }
   .btn-danger:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--danger); }
   .btn[disabled] { opacity: .5; pointer-events: none; }
 
@@ -184,12 +183,12 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
     color: var(--ink-soft); cursor: pointer; transition: all .15s ease;
   }
   .seg > button:hover, .seg-item:hover { color: var(--ink); }
-  .seg > button[aria-pressed="true"], .seg-item[aria-pressed="true"] { background: var(--card); color: var(--ink); border: var(--border-w) solid var(--hard); box-shadow: 2px 2px 0 0 var(--hard); }
+  .seg > button[aria-pressed="true"], .seg-item[aria-pressed="true"] { background: var(--card); color: var(--ink); border: var(--border-w) solid var(--hard); box-shadow: var(--ui-shadow-sm); }
 
   .count-sticker {
     display: inline-flex; align-items: baseline; gap: 6px;
     background: var(--card); border: var(--border-w) solid var(--hard);
-    border-radius: var(--r2); box-shadow: var(--shadow-pop);
+    border-radius: var(--r2); box-shadow: var(--ui-shadow-sm);
     padding: 6px 12px;
   }
   .count-sticker > .count-sticker-n { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--acc-ink); }
@@ -200,7 +199,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
   .row {
     display: grid; width: 100%; align-items: center; gap: 12px;
     min-height: var(--rowh);
-    border-bottom: 1px dashed var(--rule);
+    border-bottom: 1px solid var(--rule);
     text-align: left;
     transition: background-color .1s ease, box-shadow .1s ease;
   }
@@ -219,7 +218,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
 @keyframes floaty { 0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); } 50% { transform: translateY(-7px) rotate(var(--rot, 0deg)); } }
 @keyframes pop-dots { 0% { opacity: 0; transform: scale(.6); } 100% { opacity: 1; transform: scale(1); } }
 
-/* ——— leaflet : paper-pop theme ——— */
+/* ——— leaflet : monochrome theme ——— */
 .leaflet-container { background: var(--paper-2); font: inherit; color: var(--ink); }
 .leaflet-control-attribution { background: color-mix(in srgb, var(--card) 82%, transparent) !important; color: var(--ink-faint) !important; font-size: 10px !important; }
 .leaflet-control-attribution a { color: var(--ink-soft) !important; }
@@ -242,7 +241,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
 .ledger-pop .leaflet-popup-content-wrapper {
   background: var(--card); color: var(--ink);
   border: var(--border-w) solid var(--hard); border-radius: 14px;
-  box-shadow: var(--shadow-pop);
+  box-shadow: var(--ui-shadow-sm);
 }
 .ledger-pop .leaflet-popup-tip { background: var(--card); border: var(--border-w) solid var(--hard); }
 .ledger-pop .leaflet-popup-content { margin: 12px 14px; font-family: var(--font-ui); font-size: 13px; line-height: 1.45; }
