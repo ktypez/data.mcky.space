@@ -65,7 +65,7 @@
   })
   let searchResults = $derived(filteredForMap.slice(0, 5))
 
-  // Legend counts for the paper-pop chip row (credit / pay-daily / other).
+  // Legend counts for the monochrome chip row (credit / pay-daily / other).
   let legendCounts = $derived({
     credit: pins.filter((c) => c.badge === 'credit').length,
     penpay: pins.filter((c) => c.badge === 'penpay').length,

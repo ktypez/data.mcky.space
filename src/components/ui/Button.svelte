@@ -4,7 +4,7 @@
   import type { Snippet } from 'svelte'
   import type { HTMLButtonAttributes } from 'svelte/elements'
 
-  // V5 “paper pop” button: hard-shadow pill. Legacy variant names
+  // V6 monochrome button with neutral surfaces and restrained feedback. Legacy variant names
   // (default/outline/secondary/destructive/link) stay accepted as aliases
   // so older call sites keep working.
   const buttonVariants = cva(
