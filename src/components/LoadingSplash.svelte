@@ -11,7 +11,7 @@
     shape = shapes[Math.floor(Math.random() * shapes.length)]
     reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    const duration = reducedMotion ? 100 : 2810
+    const duration = reducedMotion ? 100 : 1200
     const timer = window.setTimeout(() => (visible = false), duration)
     return () => window.clearTimeout(timer)
   })
@@ -56,10 +56,10 @@
     isolation: isolate;
     contain: strict;
     background: var(--paper, #f6f2e9);
-    animation: overlay-exit 360ms ease-in 2450ms both;
+    /* Fade begins before the shape finishes expanding: no pause at full size. */
+    animation: overlay-whoosh 250ms ease-in 950ms both;
   }
 
-  /* Let the mascot establish the center before the shape grows from it. */
   .mascot {
     position: absolute;
     z-index: 2;
@@ -70,8 +70,8 @@
     color: var(--entry-color);
     transform: translate(-50%, -50%);
     animation:
-      mascot-intro 620ms cubic-bezier(.22, 1, .36, 1) both,
-      mascot-exit 260ms cubic-bezier(.4, 0, .2, 1) 620ms both;
+      mascot-intro 350ms cubic-bezier(.22, 1, .36, 1) both,
+      mascot-exit 200ms cubic-bezier(.4, 0, .2, 1) 350ms both;
   }
 
   .mascot svg {
@@ -118,10 +118,10 @@
     transform: translate(-50%, -50%) scale(.001);
     transform-origin: center;
     will-change: transform;
-    animation: shape-expand 1500ms cubic-bezier(.22, 1, .36, 1) 620ms both;
+    /* Quick, eased expansion starts as the mascot exits and runs into the fade. */
+    animation: shape-whoosh 850ms cubic-bezier(.16, 1, .3, 1) 350ms both;
   }
 
-  /* Exactly one solid-color shape, randomly chosen once per page entry. */
   .shape-star {
     clip-path: polygon(
       50% 0, 61% 35%, 98% 35%, 68% 57%,
@@ -152,12 +152,12 @@
     to { opacity: 0; transform: translate(-50%, -50%) scale(.9); }
   }
 
-  @keyframes shape-expand {
+  @keyframes shape-whoosh {
     0% { transform: translate(-50%, -50%) scale(.001); }
     100% { transform: translate(-50%, -50%) scale(1.5); }
   }
 
-  @keyframes overlay-exit {
+  @keyframes overlay-whoosh {
     to { opacity: 0; visibility: hidden; }
   }
 
