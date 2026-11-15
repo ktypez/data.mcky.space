@@ -185,7 +185,7 @@
 </script>
 
 {#snippet shell(children: import('svelte').Snippet)}
-  <div class="mx-auto w-full max-w-5xl px-3 pb-6 pt-4 sm:px-8">{@render children()}</div>
+  <div class="v6-page v6-record mx-auto w-full max-w-5xl px-3 pb-6 pt-4 sm:px-8">{@render children()}</div>
 {/snippet}
 
 {#if loadedId !== id || (loading && !client)}
