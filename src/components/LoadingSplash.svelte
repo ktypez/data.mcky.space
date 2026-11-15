@@ -1,84 +1,129 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
+  type RevealShape = {
+    x: number
+    y: number
+    path: string
+    delay: number
+    scale: number
+  }
+
   let visible = $state(true)
-  let sweeping = $state(false)
+  let shapes = $state<RevealShape[]>([])
+
+  function createBlobPath(radius: number): string {
+    const points = Array.from({ length: 12 }, (_, index) => {
+      const angle = (Math.PI * 2 * index) / 12
+      const wobble = 0.76 + Math.random() * 0.42
+      return {
+        x: Math.cos(angle) * radius * wobble,
+        y: Math.sin(angle) * radius * wobble,
+      }
+    })
+
+    const midpoint = (a: (typeof points)[number], b: (typeof points)[number]) => ({
+      x: (a.x + b.x) / 2,
+      y: (a.y + b.y) / 2,
+    })
+
+    let path = ''
+    const first = midpoint(points[points.length - 1], points[0])
+    path += `M ${first.x} ${first.y} `
+
+    for (let index = 0; index < points.length; index += 1) {
+      const current = points[index]
+      const next = points[(index + 1) % points.length]
+      const end = midpoint(current, next)
+      path += `Q ${current.x} ${current.y} ${end.x} `
+    }
+
+    return path + 'Z'
+  }
 
   onMount(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const begin = window.setTimeout(() => (sweeping = true), reducedMotion ? 200 : 650)
-    const dismiss = window.setTimeout(() => (visible = false), reducedMotion ? 260 : 1950)
-    return () => {
-      window.clearTimeout(begin)
-      window.clearTimeout(dismiss)
+
+    if (reducedMotion) {
+      const timer = window.setTimeout(() => (visible = false), 90)
+      return () => window.clearTimeout(timer)
     }
+
+    // A loose 3×3 field makes the reveal cover the whole viewport while
+    // keeping each organic mask shape independently timed and positioned.
+    const anchors = [0, 50, 100]
+    shapes = anchors.flatMap((anchorY) =>
+      anchors.map((anchorX) => ({
+        x: Math.max(0, Math.min(100, anchorX + (Math.random() - 0.5) * 13)),
+        y: Math.max(0, Math.min(100, anchorY + (Math.random() - 0.5) * 13)),
+        path: createBlobPath(8.5 + Math.random() * 3.5),
+        delay: Math.round(Math.random() * 360),
+        scale: 8.5 + Math.random() * 2.5,
+      })),
+    )
+
+    const dismiss = window.setTimeout(() => (visible = false), 2050)
+    return () => window.clearTimeout(dismiss)
   })
 </script>
 
 {#if visible}
-  <div
-    class="loading-splash"
-    class:sweeping
-    role="status"
-    aria-label="กำลังเปิด DATA Ledger"
-  >
-    <div class="halftone-sheet" aria-hidden="true"></div>
+  <div class="entry-reveal" aria-hidden="true">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+      <defs>
+        <linearGradient id="entry-reveal-surface" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="var(--paper, #f6f2e9)" />
+          <stop offset="100%" stop-color="var(--paper-2, #eee9dd)" />
+        </linearGradient>
+        <mask id="entry-reveal-mask" x="0" y="0" width="100" height="100" maskUnits="userSpaceOnUse">
+          <rect width="100" height="100" fill="white" />
+          {#each shapes as shape, index (index)}
+            <g transform="translate({shape.x} {shape.y})">
+              <path
+                class="reveal-blob"
+                d={shape.path}
+                fill="black"
+                style={`--reveal-delay: ${shape.delay}ms; --reveal-scale: ${shape.scale};`}
+              />
+            </g>
+          {/each}
+        </mask>
+      </defs>
+      <rect width="100" height="100" fill="url(#entry-reveal-surface)" mask="url(#entry-reveal-mask)" />
+    </svg>
   </div>
 {/if}
 
 <style>
-  .loading-splash {
+  .entry-reveal {
     position: fixed;
     inset: 0;
     z-index: 10000;
     overflow: hidden;
     pointer-events: none;
     background: var(--paper, #f6f2e9);
-    --reveal: 100%;
+    contain: strict;
   }
 
-  .halftone-sheet {
-    position: absolute;
-    inset: 0;
-    background-color: var(--paper, #f6f2e9);
-    background-image:
-      radial-gradient(circle, color-mix(in srgb, var(--ink, #20231f) 82%, transparent) 0.85px, transparent 1.15px),
-      linear-gradient(90deg,
-        color-mix(in srgb, var(--ink, #20231f) 10%, transparent),
-        transparent 32% 68%,
-        color-mix(in srgb, var(--ink, #20231f) 10%, transparent));
-    background-size: 5px 5px, 100% 100%;
-    background-position: center, center;
-    -webkit-mask-image: linear-gradient(90deg,
-      #000 0%, #000 var(--reveal, 100%), transparent calc(var(--reveal, 100%) + 8%), transparent 100%);
-    mask-image: linear-gradient(90deg,
-      #000 0%, #000 var(--reveal, 100%), transparent calc(var(--reveal, 100%) + 8%), transparent 100%);
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    will-change: -webkit-mask-image, mask-image, background-position;
+  .entry-reveal svg {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
-  @property --reveal {
-    syntax: '<percentage>';
-    inherits: true;
-    initial-value: 100%;
+  .reveal-blob {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: organic-reveal 1450ms cubic-bezier(0.2, 0.72, 0.18, 1) var(--reveal-delay) both;
+    will-change: transform;
   }
 
-  .loading-splash.sweeping .halftone-sheet {
-    animation: halftone-run 1300ms linear both, grain-drift 1300ms linear both;
-  }
-
-  @keyframes halftone-run {
-    0% { --reveal: 100%; }
-    100% { --reveal: 0%; }
-  }
-
-  @keyframes grain-drift {
-    0% { background-position: center, center; }
-    100% { background-position: 48px 0, center; }
+  @keyframes organic-reveal {
+    from { transform: scale(0.01) rotate(-12deg); }
+    to { transform: scale(var(--reveal-scale)) rotate(18deg); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .loading-splash.sweeping .halftone-sheet { animation-duration: 40ms; }
+    .reveal-blob { animation: none; }
   }
 </style>
