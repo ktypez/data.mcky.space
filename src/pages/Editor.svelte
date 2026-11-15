@@ -263,7 +263,7 @@
     </div>
   </div>
 {:else}
-  <div class="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:px-6">
+  <div class="v6-page v6-editor mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:px-6">
     <h1 class="sr-only">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
     <button type="button" onclick={onBack} class="btn btn-ghost -ml-2 !px-3 text-[13px]"><ArrowLeft class="inline h-3.5 w-3.5" aria-hidden="true" /> กลับ</button>
 
