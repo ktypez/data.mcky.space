@@ -2,12 +2,20 @@
   import { onMount } from 'svelte'
   import { fade } from 'svelte/transition'
 
+  const pixelTiles = Array.from({ length: 240 }, (_, i) => ({
+    x: (i % 20) * 5,
+    y: Math.floor(i / 20) * 9,
+    delay: ((i * 37 + (i % 7) * 19) % 260) / 1000,
+  }))
+
   let visible = $state(true)
+  let exiting = $state(false)
   let canvas = $state<HTMLCanvasElement>()
 
   onMount(() => {
     let disposed = false
     let frame = 0
+    let exitStarted = 0
     let renderer: import('three').WebGLRenderer | undefined
     let observer: ResizeObserver | undefined
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -39,16 +47,30 @@
         group.add(ringInner)
 
         const points = new THREE.BufferGeometry()
-        const positions = new Float32Array(180 * 3)
-        for (let i = 0; i < 180; i++) {
+        const speckCount = 360
+        const positions = new Float32Array(speckCount * 3)
+        const velocities = new Float32Array(speckCount * 3)
+        const sizes = new Float32Array(speckCount)
+        for (let i = 0; i < speckCount; i++) {
           const theta = Math.random() * Math.PI * 2
-          const radius = 1.35 + Math.random() * 1.2
+          const radius = 1.3 + Math.random() * 1.6
           positions[i * 3] = Math.cos(theta) * radius
           positions[i * 3 + 1] = Math.sin(theta) * radius
-          positions[i * 3 + 2] = (Math.random() - 0.5) * 1.4
+          positions[i * 3 + 2] = (Math.random() - 0.5) * 1.6
+          velocities[i * 3] = Math.cos(theta) * (0.35 + Math.random() * 0.8)
+          velocities[i * 3 + 1] = Math.sin(theta) * (0.35 + Math.random() * 0.8)
+          velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.8
+          sizes[i] = Math.random() > 0.82 ? 0.045 : 0.018
         }
         points.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-        group.add(new THREE.Points(points, new THREE.PointsMaterial({ color: 0x158068, size: 0.018, transparent: true, opacity: 0.45 })))
+        points.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1))
+        const particleMaterial = new THREE.ShaderMaterial({
+          transparent: true, depthWrite: false,
+          uniforms: { uColor: { value: new THREE.Color(0x158068) }, uOpacity: { value: 0.5 } },
+          vertexShader: 'attribute float aSize; varying float vAlpha; void main(){ vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionMatrix*mv; gl_PointSize=aSize*min(180.0, 520.0/-mv.z); vAlpha=0.4+0.6*fract(sin(dot(position.xy,vec2(12.9898,78.233)))*43758.5453); }',
+          fragmentShader: 'uniform vec3 uColor; uniform float uOpacity; varying float vAlpha; void main(){ vec2 p=gl_PointCoord-0.5; if(max(abs(p.x),abs(p.y))>0.42) discard; gl_FragColor=vec4(uColor,uOpacity*vAlpha); }',
+        })
+        group.add(new THREE.Points(points, particleMaterial))
 
         const resize = () => {
           if (!canvas || !renderer) return
@@ -68,6 +90,20 @@
           if (!reducedMotion) {
             group.rotation.y = time * 0.00012
             group.rotation.x = Math.sin(time * 0.00018) * 0.07
+            if (exitStarted) {
+              const progress = Math.min((time - exitStarted) / 920, 1)
+              const position = points.getAttribute('position') as import('three').BufferAttribute
+              for (let i = 0; i < speckCount; i++) {
+                position.array[i * 3] += velocities[i * 3] * 0.016 * progress
+                position.array[i * 3 + 1] += velocities[i * 3 + 1] * 0.016 * progress
+                position.array[i * 3 + 2] += velocities[i * 3 + 2] * 0.016 * progress
+              }
+              position.needsUpdate = true
+              particleMaterial.uniforms.uOpacity.value = 0.5 * (1 - progress)
+              ring.material.opacity = 0.48 * (1 - progress)
+              ringInner.material.opacity = 0.28 * (1 - progress)
+              if (progress >= 1) group.visible = false
+            }
           }
           renderer.render(scene, camera)
           if (!reducedMotion) frame = requestAnimationFrame(animate)
@@ -80,7 +116,11 @@
       // The splash remains useful without the optional 3D animation.
     })
 
-    const dismiss = window.setTimeout(() => (visible = false), reducedMotion ? 450 : 1250)
+    const dismiss = window.setTimeout(() => {
+      exiting = true
+      if (!reducedMotion) exitStarted = performance.now()
+      window.setTimeout(() => (visible = false), reducedMotion ? 0 : 980)
+    }, reducedMotion ? 360 : 900)
     return () => {
       disposed = true
       window.clearTimeout(dismiss)
@@ -92,8 +132,13 @@
 </script>
 
 {#if visible}
-  <div class="loading-splash" role="status" aria-label="กำลังเปิด DATA Ledger" transition:fade={{ duration: 260 }}>
+  <div class="loading-splash" role="status" aria-label="กำลังเปิด DATA Ledger" class:pixel-exit={exiting} transition:fade={{ duration: 180 }}>
     <canvas bind:this={canvas} class="loading-splash-canvas" aria-hidden="true"></canvas>
+    <div class="loading-splash-pixels" aria-hidden="true">
+      {#each pixelTiles as tile}
+        <i style={`--x:${tile.x}%;--y:${tile.y}%;--delay:${tile.delay}s`}></i>
+      {/each}
+    </div>
     <div class="loading-splash-content">
       <span class="loading-splash-mark" aria-hidden="true">D</span>
       <span class="loading-splash-name">DATA<span> / </span>LEDGER</span>
@@ -112,17 +157,26 @@
     place-items: center;
     overflow: hidden;
     background: var(--paper, #f6f2e9);
+    transition: opacity 120ms linear;
     color: var(--ink, #20231f);
   }
   .loading-splash::before {
     position: absolute;
     inset: 0;
+    background-color: var(--paper, #f6f2e9);
     background-image: radial-gradient(var(--rule, #d7d2c8) 0.7px, transparent 0.7px);
     background-size: 22px 22px;
-    opacity: 0.24;
+    opacity: 1;
     content: '';
   }
-  .loading-splash-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .loading-splash-canvas { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 500ms ease; }
+  .loading-splash-pixels { position: absolute; inset: 0; pointer-events: none; }
+  .loading-splash-pixels i { position: absolute; left: var(--x); top: var(--y); width: 5.1%; height: 9.2%; opacity: 0; background: var(--paper, #f6f2e9); }
+  .loading-splash.pixel-exit { pointer-events: none; }
+  .loading-splash.pixel-exit .loading-splash-content { animation: mark-dissolve 380ms ease-in forwards; }
+  .loading-splash.pixel-exit .loading-splash-canvas { opacity: 0; }
+  .loading-splash.pixel-exit::before { animation: paper-reveal 980ms steps(16, end) both; }
+  .loading-splash.pixel-exit .loading-splash-pixels i { animation: pixel-fade 620ms steps(5, end) var(--delay) both; }
   .loading-splash-content {
     position: relative;
     display: flex;
@@ -172,6 +226,9 @@
     background: var(--acc, #158068);
     animation: splash-progress 1.1s ease-in-out infinite;
   }
+  @keyframes paper-reveal { 0% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes pixel-fade { 0% { opacity: 1; transform: scale(1); } 68% { opacity: 1; transform: scale(1.04); } 100% { opacity: 0; transform: scale(.7); } }
+  @keyframes mark-dissolve { to { opacity: 0; transform: scale(1.08); filter: blur(5px); } }
   @keyframes splash-mark-in {
     from { opacity: 0; transform: translateY(8px) scale(.92); }
     to { opacity: 1; transform: translateY(0) scale(1); }
@@ -182,5 +239,6 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .loading-splash-mark, .loading-splash-progress i { animation: none; }
+    .loading-splash.pixel-exit .loading-splash-pixels i { animation: none; opacity: 0; }
   }
 </style>
