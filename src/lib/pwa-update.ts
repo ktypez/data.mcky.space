@@ -22,14 +22,17 @@ export function startUpdateChecks(registration: ServiceWorkerRegistration): () =
     try { await registration.update() } catch { /* offline/server failure: retry later */ }
     finally { busy = false }
   }
-  const timer = window.setInterval(() => { void check() }, 10 * 60_000)
+  // Check immediately, then periodically and whenever the app returns to the foreground.
+  const timer = window.setInterval(() => { void check() }, 5 * 60_000)
   window.addEventListener('online', check)
+  window.addEventListener('pageshow', check)
   document.addEventListener('visibilitychange', check)
   void check()
   return () => {
     stopped = true
     window.clearInterval(timer)
     window.removeEventListener('online', check)
+    window.removeEventListener('pageshow', check)
     document.removeEventListener('visibilitychange', check)
   }
 }
