@@ -19,6 +19,14 @@ describe('V6 monochrome integration', () => {
     expect(css).not.toMatch(/#[0-9a-fA-F]{6}/)
   })
 
+  it('honors explicit light and dark mode state from the shared tokens', () => {
+    const shared = readFileSync(resolve(process.cwd(), 'node_modules/@mcky/ui/src/styles/tokens.css'), 'utf8')
+    expect(shared).toContain('[data-mode=\"dark\"]')
+    expect(shared).toContain('[data-mode=\"light\"]')
+    expect(shared).toContain('.dark')
+    expect(shared).toContain(':not([data-mode])')
+  })
+
   it('removes the V5 stylesheet and paper texture', () => {
     const html = read('../index.html')
     const primitives = read('styles/v6-primitives.css')
