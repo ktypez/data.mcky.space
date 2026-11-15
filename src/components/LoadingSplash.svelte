@@ -1,142 +1,43 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { fade } from 'svelte/transition'
 
-  const pixelTiles = Array.from({ length: 240 }, (_, i) => ({
-    x: (i % 20) * 5,
-    y: Math.floor(i / 20) * 9,
-    delay: ((i * 37 + (i % 7) * 19) % 260) / 1000,
-  }))
+  const pixelTiles = Array.from({ length: 192 }, (_, i) => {
+    const column = i % 16
+    const row = Math.floor(i / 16)
+    // A seeded shuffle spreads the dissolve across the whole screen, not as a wipe.
+    const seed = ((i * 73 + row * 29 + column * 47) % 191) / 191
+    return {
+      x: column * 6.25,
+      y: row * 8.333,
+      delay: seed * 0.42,
+      driftX: ((i * 17) % 31) - 15,
+      driftY: ((i * 23) % 37) - 18,
+      grain: i % 3 === 0,
+      shade: Math.abs(column - 7.5) / 7.5,
+    }
+  })
 
   let visible = $state(true)
   let exiting = $state(false)
-  let canvas = $state<HTMLCanvasElement>()
 
   onMount(() => {
-    let disposed = false
-    let frame = 0
-    let exitStarted = 0
-    let renderer: import('three').WebGLRenderer | undefined
-    let observer: ResizeObserver | undefined
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    void import('three').then((THREE) => {
-      if (disposed || !canvas) return
-      try {
-        renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
-        renderer.setClearColor(0x000000, 0)
-        const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 50)
-        camera.position.z = 6
-        const group = new THREE.Group()
-        scene.add(group)
-
-        const ring = new THREE.Mesh(
-          new THREE.TorusGeometry(1.12, 0.012, 8, 120),
-          new THREE.MeshBasicMaterial({ color: 0x158068, transparent: true, opacity: 0.48 }),
-        )
-        ring.rotation.set(0.72, 0.24, -0.4)
-        group.add(ring)
-
-        const ringInner = new THREE.Mesh(
-          new THREE.TorusGeometry(0.78, 0.009, 8, 100),
-          new THREE.MeshBasicMaterial({ color: 0x158068, transparent: true, opacity: 0.28 }),
-        )
-        ringInner.rotation.set(1.18, -0.35, 0.2)
-        group.add(ringInner)
-
-        const points = new THREE.BufferGeometry()
-        const speckCount = 360
-        const positions = new Float32Array(speckCount * 3)
-        const velocities = new Float32Array(speckCount * 3)
-        const sizes = new Float32Array(speckCount)
-        for (let i = 0; i < speckCount; i++) {
-          const theta = Math.random() * Math.PI * 2
-          const radius = 1.3 + Math.random() * 1.6
-          positions[i * 3] = Math.cos(theta) * radius
-          positions[i * 3 + 1] = Math.sin(theta) * radius
-          positions[i * 3 + 2] = (Math.random() - 0.5) * 1.6
-          velocities[i * 3] = Math.cos(theta) * (0.35 + Math.random() * 0.8)
-          velocities[i * 3 + 1] = Math.sin(theta) * (0.35 + Math.random() * 0.8)
-          velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.8
-          sizes[i] = Math.random() > 0.82 ? 0.045 : 0.018
-        }
-        points.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-        points.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1))
-        const particleMaterial = new THREE.ShaderMaterial({
-          transparent: true, depthWrite: false,
-          uniforms: { uColor: { value: new THREE.Color(0x158068) }, uOpacity: { value: 0.5 } },
-          vertexShader: 'attribute float aSize; varying float vAlpha; void main(){ vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionMatrix*mv; gl_PointSize=aSize*min(180.0, 520.0/-mv.z); vAlpha=0.4+0.6*fract(sin(dot(position.xy,vec2(12.9898,78.233)))*43758.5453); }',
-          fragmentShader: 'uniform vec3 uColor; uniform float uOpacity; varying float vAlpha; void main(){ vec2 p=gl_PointCoord-0.5; if(max(abs(p.x),abs(p.y))>0.42) discard; gl_FragColor=vec4(uColor,uOpacity*vAlpha); }',
-        })
-        group.add(new THREE.Points(points, particleMaterial))
-
-        const resize = () => {
-          if (!canvas || !renderer) return
-          const { width, height } = canvas.getBoundingClientRect()
-          if (!width || !height) return
-          renderer.setSize(width, height, false)
-          camera.aspect = width / height
-          camera.updateProjectionMatrix()
-          renderer.render(scene, camera)
-        }
-        observer = new ResizeObserver(resize)
-        observer.observe(canvas)
-        resize()
-
-        const animate = (time: number) => {
-          if (disposed || !renderer) return
-          if (!reducedMotion) {
-            group.rotation.y = time * 0.00012
-            group.rotation.x = Math.sin(time * 0.00018) * 0.07
-            if (exitStarted) {
-              const progress = Math.min((time - exitStarted) / 920, 1)
-              const position = points.getAttribute('position') as import('three').BufferAttribute
-              for (let i = 0; i < speckCount; i++) {
-                position.array[i * 3] += velocities[i * 3] * 0.016 * progress
-                position.array[i * 3 + 1] += velocities[i * 3 + 1] * 0.016 * progress
-                position.array[i * 3 + 2] += velocities[i * 3 + 2] * 0.016 * progress
-              }
-              position.needsUpdate = true
-              particleMaterial.uniforms.uOpacity.value = 0.5 * (1 - progress)
-              ring.material.opacity = 0.48 * (1 - progress)
-              ringInner.material.opacity = 0.28 * (1 - progress)
-              if (progress >= 1) group.visible = false
-            }
-          }
-          renderer.render(scene, camera)
-          if (!reducedMotion) frame = requestAnimationFrame(animate)
-        }
-        if (!reducedMotion) frame = requestAnimationFrame(animate)
-      } catch {
-        // Keep the typographic splash usable when WebGL is unavailable.
-      }
-    }).catch(() => {
-      // The splash remains useful without the optional 3D animation.
-    })
-
     const dismiss = window.setTimeout(() => {
       exiting = true
-      if (!reducedMotion) exitStarted = performance.now()
-      window.setTimeout(() => (visible = false), reducedMotion ? 0 : 980)
-    }, reducedMotion ? 360 : 900)
-    return () => {
-      disposed = true
-      window.clearTimeout(dismiss)
-      cancelAnimationFrame(frame)
-      observer?.disconnect()
-      renderer?.dispose()
-    }
+      window.setTimeout(() => (visible = false), reducedMotion ? 40 : 900)
+    }, reducedMotion ? 300 : 850)
+    return () => window.clearTimeout(dismiss)
   })
 </script>
 
 {#if visible}
-  <div class="loading-splash" role="status" aria-label="กำลังเปิด DATA Ledger" class:pixel-exit={exiting} transition:fade={{ duration: 180 }}>
-    <canvas bind:this={canvas} class="loading-splash-canvas" aria-hidden="true"></canvas>
-    <div class="loading-splash-pixels" aria-hidden="true">
+  <div class="loading-splash" role="status" aria-label="กำลังเปิด DATA Ledger" class:pixel-exit={exiting}>
+    <div class="loading-splash-tiles" aria-hidden="true">
       {#each pixelTiles as tile}
-        <i style={`--x:${tile.x}%;--y:${tile.y}%;--delay:${tile.delay}s`}></i>
+        <i
+          class:grain={tile.grain}
+          style={`--x:${tile.x}%;--y:${tile.y}%;--delay:${tile.delay}s;--dx:${tile.driftX}px;--dy:${tile.driftY}px;--shade:${tile.shade}`}
+        ></i>
       {/each}
     </div>
     <div class="loading-splash-content">
@@ -157,26 +58,33 @@
     place-items: center;
     overflow: hidden;
     background: var(--paper, #f6f2e9);
-    transition: opacity 120ms linear;
     color: var(--ink, #20231f);
   }
-  .loading-splash::before {
+  .loading-splash-tiles { position: absolute; inset: 0; }
+  .loading-splash-tiles i {
     position: absolute;
-    inset: 0;
-    background-color: var(--paper, #f6f2e9);
-    background-image: radial-gradient(var(--rule, #d7d2c8) 0.7px, transparent 0.7px);
-    background-size: 22px 22px;
-    opacity: 1;
-    content: '';
+    left: var(--x);
+    top: var(--y);
+    width: 6.3%;
+    height: 8.4%;
+    border: 1px solid color-mix(in srgb, var(--rule, #d7d2c8) 40%, transparent);
+    background-color: color-mix(in srgb, var(--paper, #f6f2e9) calc(88% + var(--shade) * 12%), var(--acc, #158068));
+    background-image: radial-gradient(color-mix(in srgb, var(--ink, #20231f) 38%, transparent) 0.65px, transparent 0.9px);
+    background-size: 4px 4px;
+    opacity: 0;
+    will-change: opacity, transform;
   }
-  .loading-splash-canvas { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 500ms ease; }
-  .loading-splash-pixels { position: absolute; inset: 0; pointer-events: none; }
-  .loading-splash-pixels i { position: absolute; left: var(--x); top: var(--y); width: 5.1%; height: 9.2%; opacity: 0; background: var(--paper, #f6f2e9); }
-  .loading-splash.pixel-exit { pointer-events: none; }
-  .loading-splash.pixel-exit .loading-splash-content { animation: mark-dissolve 380ms ease-in forwards; }
-  .loading-splash.pixel-exit .loading-splash-canvas { opacity: 0; }
-  .loading-splash.pixel-exit::before { animation: paper-reveal 980ms steps(16, end) both; }
-  .loading-splash.pixel-exit .loading-splash-pixels i { animation: pixel-fade 620ms steps(5, end) var(--delay) both; }
+  .loading-splash-tiles i.grain {
+    background-size: 3px 3px;
+  }
+  .loading-splash.pixel-exit { background: transparent; pointer-events: none; }
+  .loading-splash.pixel-exit .loading-splash-tiles i {
+    opacity: 1;
+    animation: pixel-break 700ms steps(7, end) var(--delay) both;
+  }
+  .loading-splash.pixel-exit .loading-splash-content {
+    animation: mark-break 350ms ease-in forwards;
+  }
   .loading-splash-content {
     position: relative;
     display: flex;
@@ -226,9 +134,12 @@
     background: var(--acc, #158068);
     animation: splash-progress 1.1s ease-in-out infinite;
   }
-  @keyframes paper-reveal { 0% { opacity: 1; } 100% { opacity: 0; } }
-  @keyframes pixel-fade { 0% { opacity: 1; transform: scale(1); } 68% { opacity: 1; transform: scale(1.04); } 100% { opacity: 0; transform: scale(.7); } }
-  @keyframes mark-dissolve { to { opacity: 0; transform: scale(1.08); filter: blur(5px); } }
+  @keyframes pixel-break {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    55% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.35); }
+  }
+  @keyframes mark-break { to { opacity: 0; transform: scale(1.08); filter: blur(5px); } }
   @keyframes splash-mark-in {
     from { opacity: 0; transform: translateY(8px) scale(.92); }
     to { opacity: 1; transform: translateY(0) scale(1); }
@@ -239,6 +150,6 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .loading-splash-mark, .loading-splash-progress i { animation: none; }
-    .loading-splash.pixel-exit .loading-splash-pixels i { animation: none; opacity: 0; }
+    .loading-splash.pixel-exit .loading-splash-tiles i { animation-duration: 40ms; animation-delay: 0ms; }
   }
 </style>
