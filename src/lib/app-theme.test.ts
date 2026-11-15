@@ -52,4 +52,3 @@ describe('shared app theme mode', () => {
     expect(resolveThemeMode(matcha, 'dark', false)).toBe('dark')
   })
 })
-[exit status 0]
