@@ -10,6 +10,7 @@
   import '@/lib/pwa-install'
   import { flushClientMutations } from '@/lib/offline-mutations'
   import TopBar from '@/components/TopBar.svelte'
+  import LoadingSplash from '@/components/LoadingSplash.svelte'
 
   import Login from './pages/Login.svelte'
 
@@ -61,6 +62,8 @@
 
   const wantsLogin = $derived(router.location === '/login' || loginOpen)
 </script>
+
+<LoadingSplash />
 
 {#if wantsLogin && !checking && !signedIn}
   <Login />
