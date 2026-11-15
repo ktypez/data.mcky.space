@@ -1,10 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
+  const shapes = ['star', 'hexagon', 'circle', 'triangle'] as const
+  let shape = $state<(typeof shapes)[number]>('circle')
   let visible = $state(true)
   let reducedMotion = false
 
   onMount(() => {
+    shape = shapes[Math.floor(Math.random() * shapes.length)]
     reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     if (reducedMotion) {
@@ -23,10 +26,13 @@
     class:reduced={reducedMotion}
     aria-hidden="true"
   >
-    <div class="geometry geometry--circle"></div>
-    <div class="geometry geometry--diamond"></div>
-    <div class="geometry geometry--burst"></div>
-    <div class="geometry geometry--ring"></div>
+    <div
+      class="geometry"
+      class:shape-star={shape === 'star'}
+      class:shape-hexagon={shape === 'hexagon'}
+      class:shape-circle={shape === 'circle'}
+      class:shape-triangle={shape === 'triangle'}
+    ></div>
     <div class="negative-flash"></div>
   </div>
 {/if}
@@ -46,6 +52,7 @@
 
   .geometry {
     position: absolute;
+    z-index: 1;
     width: 120vmax;
     height: 120vmax;
     left: 50%;
@@ -53,59 +60,43 @@
     transform: translate(-50%, -50%) scale(0.001) rotate(-18deg);
     transform-origin: center;
     will-change: transform;
+    background: var(--pop, #f2593f);
     animation: geometry-zoom 1180ms cubic-bezier(0.12, 0.82, 0.18, 1) both;
   }
 
-  /* Bright theme/negative contrast: each shape bursts from the exact center. */
-  .geometry--circle {
-    z-index: 1;
-    border-radius: 50%;
-    background: var(--paper, #f6f2e9);
-    animation-delay: 0ms;
-  }
-
-  .geometry--diamond {
-    z-index: 2;
-    background: var(--ink, #28251d);
-    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-    animation-delay: 65ms;
-    animation-duration: 1220ms;
-    transform: translate(-50%, -50%) scale(0.001) rotate(0deg);
-  }
-
-  .geometry--burst {
-    z-index: 3;
+  /* Exactly one randomly selected shape per page entry. */
+  .shape-star {
     background: var(--pop, #f2593f);
     clip-path: polygon(
-      50% 0, 61% 34%, 88% 12%, 72% 43%,
-      100% 50%, 70% 61%, 88% 88%, 58% 72%,
-      50% 100%, 39% 70%, 12% 88%, 28% 58%,
-      0 50%, 30% 39%, 12% 12%, 42% 28%
+      50% 0, 61% 35%, 98% 35%, 68% 57%,
+      79% 94%, 50% 72%, 21% 94%, 32% 57%,
+      2% 35%, 39% 35%
     );
-    animation-delay: 125ms;
-    animation-duration: 1260ms;
-    transform: translate(-50%, -50%) scale(0.001) rotate(-24deg);
   }
 
-  .geometry--ring {
-    z-index: 4;
-    width: 76vmax;
-    height: 76vmax;
-    border: clamp(18px, 4vmin, 54px) solid var(--danger, #d9453a);
+  .shape-hexagon {
+    background: var(--paper, #f6f2e9);
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  }
+
+  .shape-circle {
+    background: var(--ink, #28251d);
     border-radius: 50%;
-    animation-delay: 190ms;
-    animation-duration: 1120ms;
-    transform: translate(-50%, -50%) scale(0.001) rotate(0);
+  }
+
+  .shape-triangle {
+    background: var(--paper, #f6f2e9);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
   }
 
   .negative-flash {
     position: absolute;
-    z-index: 5;
+    z-index: 2;
     inset: 0;
     background: #fff;
     mix-blend-mode: difference;
     opacity: 0;
-    animation: negative-hit 420ms steps(2, end) 0ms both;
+    animation: negative-hit 420ms steps(2, end) both;
   }
 
   @keyframes geometry-zoom {
