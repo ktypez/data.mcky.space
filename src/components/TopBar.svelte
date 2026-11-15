@@ -7,7 +7,6 @@
   import { useFilterStore } from '@/stores/filter-store'
   import { FilterKey } from '@/types/index'
   import { isFormDirty, askLeave } from '@/lib/form-dirty'
-  import Squiggle from '@/components/ui/Squiggle.svelte'
 
   let theme = $derived($appTheme)
   let isAdmin = $derived($useAuthStore.isAdmin)
@@ -85,120 +84,51 @@
   const monogram = $derived((account.name || '?').trim().charAt(0).toUpperCase() || '?')
 </script>
 
-<header class="sticky top-0 z-50 border-b-[1.5px] border-ink bg-paper">
-  <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-    <a href="#/" onclick={handleHomeClick} aria-label="DATA Ledger หน้าแรก" class="group flex items-center gap-2.5">
-      <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-white transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
-        <span class="font-mono text-[13px] font-extrabold tracking-tight">DATA</span>
-      </span>
-      <span class="flex flex-col leading-none">
-        <span class="text-[15px] font-bold tracking-tight text-ink">Ledger</span>
-        <Squiggle class="mt-1 h-[5px] w-[54px] text-acc" />
-      </span>
-    </a>
-
-    <nav class="hidden items-center gap-1 sm:flex" aria-label="เมนูหลัก">
-      {#each navItems as item}
-        <a
-          href={`#${item.to}`}
-          aria-current={isActive(item.to) ? 'page' : undefined}
-          onclick={(e) => guard(e, item.to)}
-          class="flex items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-semibold whitespace-nowrap transition-all duration-150 {isActive(item.to)
-            ? 'border-[1.5px] border-ink bg-acc-tint text-acc-ink shadow-[2.5px_2.5px_0_0_var(--acc)]'
-            : 'text-ink-soft hover:bg-paper-2 hover:text-ink'}"
-        >
-          <item.icon size={15} weight="bold" aria-hidden="true" />
-          {item.label}
-        </a>
-      {/each}
-      {#if isAdmin}
-        <a
-          href="#/add"
-          aria-current={router.location === '/add' ? 'page' : undefined}
-          onclick={(e) => guard(e, '/add')}
-          class="btn btn-acc ml-1 !px-3.5 !py-2 text-[13px]"
-        >
-          <Plus size={15} weight="bold" aria-hidden="true" />
-          เพิ่มรายการ
-        </a>
-      {/if}
-    </nav>
-
-    <div class="flex items-center gap-2.5">
-      <button
-        type="button"
-        onclick={() => setMode(isDark ? 'light' : 'dark')}
-        aria-label={isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'}
-        class="grid size-11 shrink-0 place-items-center rounded-full border-[1.5px] border-ink bg-card text-ink-soft shadow-[2px_2px_0_0_var(--hard)] transition-all hover:-translate-y-px hover:text-ink"
-      >
-        {#if isDark}<Sun size={17} weight="bold" aria-hidden="true" />{:else}<Moon size={17} weight="bold" aria-hidden="true" />{/if}
-      </button>
-
-      {#if signedIn}
-        <div class="relative" bind:this={menuRef}>
-          <button
-            type="button"
-            onclick={() => (menuOpen = !menuOpen)}
-            class="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border-[1.5px] border-ink bg-acc font-mono text-[14px] font-bold text-white shadow-[2px_2px_0_0_var(--hard)] transition-transform hover:-translate-y-px"
-            aria-label="เมนูบัญชี"
-            aria-expanded={menuOpen}
-            aria-haspopup="menu"
-          >
-            {monogram}
-          </button>
-          {#if menuOpen}
-            <div
-              role="menu"
-              aria-label="เมนูบัญชี"
-              class="sticker pop-dots absolute right-0 mt-2.5 w-56 rounded-2xl p-2"
-            >
-              <div class="border-b border-dashed border-rule px-3 pt-2 pb-3">
-                <p class="text-sm font-bold text-ink">{account.name}</p>
-                {#if account.email}<p class="mt-0.5 truncate font-mono text-[11px] text-ink-faint">{account.email}</p>{/if}
-                {#if isAdmin}<span class="chip mt-1.5 bg-tint text-acc-ink">ผู้ดูแล</span>{/if}
-              </div>
-              <button
-                type="button"
-                class="mt-2 flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-tint"
-                onclick={() => {
-                  menuOpen = false
-                  void logout()
-                }}
-              >
-                <SignOut size={15} weight="bold" aria-hidden="true" />
-                ออกจากระบบ
-              </button>
-            </div>
-          {/if}
-        </div>
-      {:else}
-        <button type="button" class="btn btn-pop !px-4 !py-2 text-[13px]" onclick={() => push('/login')}>
-          <SignIn size={15} weight="bold" aria-hidden="true" />
-          เข้าสู่ระบบ
-        </button>
-      {/if}
-    </div>
-  </div>
-
-  <nav class="flex gap-1 overflow-x-auto px-4 pb-2.5 sm:hidden" aria-label="เมนูหลัก">
+<aside class="v6-sidebar" aria-label="แถบนำทางหลัก">
+  <a href="#/" onclick={handleHomeClick} aria-label="DATA Ledger หน้าแรก" class="v6-brand">
+    <span class="v6-brand-mark">D</span>
+    <span><strong>DATA</strong><small>LEDGER / WORKSPACE</small></span>
+  </a>
+  <div class="v6-nav-caption">WORKSPACE</div>
+  <nav class="v6-nav" aria-label="เมนูหลัก">
     {#each navItems as item}
-      <a
-        href={`#${item.to}`}
-        aria-current={isActive(item.to) ? 'page' : undefined}
-        onclick={(e) => guard(e, item.to)}
-        class="flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-semibold whitespace-nowrap transition-all duration-150 {isActive(item.to)
-          ? 'border-[1.5px] border-ink bg-acc-tint text-acc-ink shadow-[2.5px_2.5px_0_0_var(--acc)]'
-          : 'text-ink-soft hover:bg-paper-2 hover:text-ink'}"
-      >
-        <item.icon size={15} weight="bold" aria-hidden="true" />
-        {item.label}
+      <a href={`#${item.to}`} aria-current={isActive(item.to) ? 'page' : undefined} onclick={(e) => guard(e, item.to)} class:active={isActive(item.to)}>
+        <item.icon size={19} weight="regular" aria-hidden="true" /><span>{item.label}</span>
+        {#if isActive(item.to)}<span class="v6-nav-indicator"></span>{/if}
       </a>
     {/each}
-    {#if isAdmin}
-      <a href="#/add" onclick={(e) => guard(e, '/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-[13px]">
-        <Plus size={15} weight="bold" aria-hidden="true" />
-        เพิ่มรายการ
-      </a>
-    {/if}
   </nav>
+  {#if isAdmin}
+    <a href="#/add" onclick={(e) => guard(e, '/add')} class="v6-create"><Plus size={18} weight="bold" /> เพิ่มรายการใหม่</a>
+  {/if}
+  <div class="v6-sidebar-spacer"></div>
+  <div class="v6-sidebar-bottom">
+    <button type="button" class="v6-theme" onclick={() => setMode(isDark ? 'light' : 'dark')} aria-label={isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'}>
+      {#if isDark}<Sun size={18} />{:else}<Moon size={18} />{/if}<span>{isDark ? 'โหมดมืด' : 'โหมดสว่าง'}</span>
+    </button>
+    {#if signedIn}
+      <div class="v6-account" bind:this={menuRef}>
+        <button type="button" class="v6-account-trigger" onclick={() => (menuOpen = !menuOpen)} aria-expanded={menuOpen} aria-haspopup="menu">
+          <span class="v6-avatar">{monogram}</span><span class="v6-account-copy"><strong>{account.name || 'บัญชีผู้ใช้'}</strong><small>{isAdmin ? 'Administrator' : 'Signed in'}</small></span><span class="v6-account-more">···</span>
+        </button>
+        {#if menuOpen}<div role="menu" class="v6-account-menu">{#if account.email}<p>{account.email}</p>{/if}<button type="button" role="menuitem" onclick={() => { menuOpen = false; void logout() }}><SignOut size={16} /> ออกจากระบบ</button></div>{/if}
+      </div>
+    {:else}
+      <button type="button" class="v6-login" onclick={() => push('/login')}><SignIn size={17} /> เข้าสู่ระบบ</button>
+    {/if}
+  </div>
+</aside>
+<header class="v6-mobile-header">
+  <a href="#/" onclick={handleHomeClick} class="v6-mobile-brand"><span class="v6-brand-mark">D</span><span><strong>DATA</strong><small>LEDGER</small></span></a>
+  <div class="v6-mobile-actions">
+    <button type="button" class="v6-icon-button" onclick={() => setMode(isDark ? 'light' : 'dark')} aria-label="เปลี่ยนธีม">{#if isDark}<Sun size={19} />{:else}<Moon size={19} />{/if}</button>
+    {#if isAdmin}<a href="#/add" class="v6-mobile-add" onclick={(e) => guard(e, '/add')} aria-label="เพิ่มรายการ"><Plus size={20} /></a>{/if}
+    {#if signedIn}<button type="button" class="v6-avatar" onclick={() => push('/settings')} aria-label="ไปยังการตั้งค่า">{monogram}</button>{:else}<button type="button" class="v6-icon-button" onclick={() => push('/login')} aria-label="เข้าสู่ระบบ"><SignIn size={19} /></button>{/if}
+  </div>
 </header>
+<nav class="v6-bottom-nav" aria-label="เมนูหลัก">
+  {#each navItems as item}
+    <a href={`#${item.to}`} aria-current={isActive(item.to) ? 'page' : undefined} onclick={(e) => guard(e, item.to)} class:active={isActive(item.to)}><item.icon size={20} weight="regular" /><span>{item.label}</span></a>
+  {/each}
+</nav>
+[exit status 0]
