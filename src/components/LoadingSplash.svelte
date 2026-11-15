@@ -1,84 +1,107 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  let visible = $state(true)
-  let sweeping = $state(false)
+  let canvas: HTMLCanvasElement
 
   onMount(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const begin = window.setTimeout(() => (sweeping = true), reducedMotion ? 200 : 650)
-    const dismiss = window.setTimeout(() => (visible = false), reducedMotion ? 260 : 1950)
+    const context = canvas.getContext('2d', { alpha: true })
+    if (!context) return
+
+    let frame = 0
+    let width = 0
+    let height = 0
+    let dpr = 1
+    let cells: Array<{ x: number; y: number; delay: number; drift: number; hue: number; lightness: number }> = []
+    let startedAt = 0
+    let disposed = false
+
+    const cellSize = 14
+    const duration = reducedMotion ? 220 : 1480
+    const cornerX = () => width + 24
+    const cornerY = () => -24
+
+    function buildGrid() {
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+      width = window.innerWidth
+      height = window.innerHeight
+      canvas.width = Math.round(width * dpr)
+      canvas.height = Math.round(height * dpr)
+      canvas.style.width = width + 'px'
+      canvas.style.height = height + 'px'
+      context!.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+      cells = []
+      for (let y = 0; y < height; y += cellSize) {
+        for (let x = 0; x < width; x += cellSize) {
+          const nx = x / Math.max(width, 1)
+          const ny = y / Math.max(height, 1)
+          const hash = Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1
+          cells.push({
+            x,
+            y,
+            delay: hash * 0.24,
+            drift: 0.82 + hash * 0.5,
+            hue: 218 + nx * 48 - ny * 10,
+            lightness: 30 + ny * 28 + nx * 8,
+          })
+        }
+      }
+    }
+
+    function draw(now: number) {
+      if (disposed) return
+      if (!startedAt) startedAt = now
+      const progress = Math.min(1, (now - startedAt) / duration)
+
+      context!.clearRect(0, 0, width, height)
+      for (const cell of cells) {
+        const local = Math.max(0, Math.min(1, (progress - cell.delay) / (1 - cell.delay)))
+        const eased = local * local * (3 - 2 * local)
+        const x = cell.x + (cornerX() - cell.x) * eased * cell.drift
+        const y = cell.y + (cornerY() - cell.y) * eased * cell.drift
+        const size = cellSize * (1 - eased * 0.94)
+        const alpha = 1 - eased
+        if (alpha <= 0.015) continue
+
+        context!.globalAlpha = alpha
+        context!.fillStyle = `hsl(${cell.hue} 48% ${cell.lightness}%)`
+        context!.fillRect(x, y, size, size)
+      }
+      context!.globalAlpha = 1
+
+      if (progress < 1) frame = requestAnimationFrame(draw)
+      else canvas.remove()
+    }
+
+    buildGrid()
+    const resize = () => {
+      cancelAnimationFrame(frame)
+      buildGrid()
+      startedAt = performance.now() - Math.min(duration * 0.35, 420)
+      frame = requestAnimationFrame(draw)
+    }
+    window.addEventListener('resize', resize, { passive: true })
+    frame = requestAnimationFrame(draw)
+
     return () => {
-      window.clearTimeout(begin)
-      window.clearTimeout(dismiss)
+      disposed = true
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', resize)
     }
   })
 </script>
 
-{#if visible}
-  <div
-    class="loading-splash"
-    class:sweeping
-    role="status"
-    aria-label="กำลังเปิด DATA Ledger"
-  >
-    <div class="halftone-sheet" aria-hidden="true"></div>
-  </div>
-{/if}
+<canvas bind:this={canvas} class="pixel-transition" aria-hidden="true" />
 
 <style>
-  .loading-splash {
+  .pixel-transition {
     position: fixed;
     inset: 0;
     z-index: 10000;
-    overflow: hidden;
+    display: block;
     pointer-events: none;
-    background: var(--paper, #f6f2e9);
-    --reveal: 100%;
-  }
-
-  .halftone-sheet {
-    position: absolute;
-    inset: 0;
-    background-color: var(--paper, #f6f2e9);
-    background-image:
-      radial-gradient(circle, color-mix(in srgb, var(--ink, #20231f) 82%, transparent) 0.85px, transparent 1.15px),
-      linear-gradient(90deg,
-        color-mix(in srgb, var(--ink, #20231f) 10%, transparent),
-        transparent 32% 68%,
-        color-mix(in srgb, var(--ink, #20231f) 10%, transparent));
-    background-size: 5px 5px, 100% 100%;
-    background-position: center, center;
-    -webkit-mask-image: linear-gradient(90deg,
-      #000 0%, #000 var(--reveal, 100%), transparent calc(var(--reveal, 100%) + 8%), transparent 100%);
-    mask-image: linear-gradient(90deg,
-      #000 0%, #000 var(--reveal, 100%), transparent calc(var(--reveal, 100%) + 8%), transparent 100%);
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    will-change: -webkit-mask-image, mask-image, background-position;
-  }
-
-  @property --reveal {
-    syntax: '<percentage>';
-    inherits: true;
-    initial-value: 100%;
-  }
-
-  .loading-splash.sweeping .halftone-sheet {
-    animation: halftone-run 1300ms linear both, grain-drift 1300ms linear both;
-  }
-
-  @keyframes halftone-run {
-    0% { --reveal: 100%; }
-    100% { --reveal: 0%; }
-  }
-
-  @keyframes grain-drift {
-    0% { background-position: center, center; }
-    100% { background-position: 48px 0, center; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .loading-splash.sweeping .halftone-sheet { animation-duration: 40ms; }
+    image-rendering: pixelated;
+    contain: strict;
   }
 </style>
