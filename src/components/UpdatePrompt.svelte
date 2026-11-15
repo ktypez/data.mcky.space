@@ -78,8 +78,9 @@
     try {
       await acceptUpdate(
         async () => {
+          const activation = awaitControllerChange(4000)
           await updateServiceWorker(false)
-          await awaitControllerChange(4000)
+          await activation
           window.location.reload()
         },
         // Only interrupt when a form actually holds unsaved edits; otherwise
