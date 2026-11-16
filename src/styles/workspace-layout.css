@@ -33,7 +33,7 @@
 .v6-account-menu button,.v6-login { display:flex; align-items:center; gap:9px; width:100%; min-height:40px; padding:0 10px; border-radius:8px; color:var(--ink); font-size:13px; }
 .v6-account-menu button:hover,.v6-login:hover { background:var(--paper-2); }
 .v6-mobile-header,.v6-bottom-nav { display:none; }
-.v6-workspace { margin-left:248px; background:var(--paper); }
+.v6-workspace { margin-left:0; background:transparent; }
 .v6-page { width:min(100%, 1320px); padding:36px clamp(22px,4vw,64px) 56px; }
 .v6-page h1 { font-size:clamp(26px,3vw,34px); font-weight:720; letter-spacing:-.045em; }
 .v6-page > p { color:var(--ink-soft); }
@@ -109,9 +109,9 @@
   .v6-editor form > fieldset > section:first-child,.v6-editor form > fieldset > section:last-of-type { grid-column:auto; }
   .v6-maps { padding:14px 12px 16px; }
 }
-@media (min-width:681px) { .ledger-shell > [role='status'] { margin-left:248px; } }
+@media (min-width:681px) { .ledger-shell > [role='status'] { margin-left:0; } }
 .v6-create { text-decoration:none; }
-@media (max-width:900px) and (min-width:681px) { .ledger-shell > [role='status'] { margin-left:218px; } }
+@media (max-width:900px) and (min-width:681px) { .ledger-shell > [role='status'] { margin-left:0; } }
 
 /* Keep the V5 Paper Pop personality in the new workspace navigation. */
 .v6-brand-mark { background:var(--acc); color:#fff; box-shadow:2px 2px 0 var(--hard); }
@@ -290,3 +290,110 @@ body::before {
   }
 }
 
+
+
+/* V5 Paper Pop — navigation and top-bar finishing details. */
+.v6-brand,
+.v6-mobile-brand {
+  transition: color .18s ease, transform .18s ease;
+}
+.v6-brand:hover,
+.v6-mobile-brand:hover {
+  color: var(--acc-ink);
+}
+.v6-brand-mark {
+  transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease;
+}
+.v6-brand:hover .v6-brand-mark,
+.v6-mobile-brand:hover .v6-brand-mark {
+  transform: translate(-1px,-1px) rotate(-3deg);
+  box-shadow: 4px 4px 0 var(--hard);
+}
+.v6-nav a,
+.v6-bottom-nav a {
+  transition:
+    color .16s ease,
+    background-color .16s ease,
+    border-color .16s ease,
+    box-shadow .16s ease,
+    transform .16s ease;
+}
+.v6-nav a:active,
+.v6-bottom-nav a:active {
+  transform: scale(.98);
+}
+.v6-theme,
+.v6-account-trigger,
+.v6-login,
+.v6-icon-button {
+  transition: background-color .16s ease, color .16s ease, border-color .16s ease, transform .16s ease;
+}
+.v6-account-trigger {
+  border: 1.5px solid transparent;
+}
+.v6-account-trigger:hover {
+  border-color: var(--rule-2);
+}
+.v6-account-menu {
+  background: var(--card);
+  color: var(--ink);
+}
+.v6-account-menu button {
+  transition: background-color .15s ease, color .15s ease;
+}
+.v6-mobile-header {
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--hard) 7%, transparent);
+}
+.v6-icon-button {
+  border: 1.5px solid var(--hard);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 2px 2px 0 var(--hard);
+}
+.v6-icon-button:hover {
+  background: var(--pop-tint);
+  color: var(--pop-ink);
+  transform: translate(-1px,-1px);
+  box-shadow: 3px 3px 0 var(--hard);
+}
+.v6-mobile-add {
+  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+.v6-mobile-actions .v6-avatar {
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.v6-mobile-actions .v6-avatar:hover {
+  transform: translate(-1px,-1px);
+  box-shadow: 3px 3px 0 var(--hard);
+}
+@media (max-width: 680px) {
+  .v6-mobile-header {
+    min-height: 62px;
+    padding-inline: 16px;
+    border-bottom: 1.5px solid var(--hard);
+  }
+  .v6-mobile-brand .v6-brand-mark {
+    width: 34px;
+    height: 34px;
+  }
+  .v6-bottom-nav a.active {
+    transform: translateY(-1px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v6-brand,
+  .v6-mobile-brand,
+  .v6-brand-mark,
+  .v6-nav a,
+  .v6-bottom-nav a,
+  .v6-theme,
+  .v6-account-trigger,
+  .v6-login,
+  .v6-icon-button,
+  .v6-mobile-add,
+  .v6-mobile-actions .v6-avatar {
+    transition: none !important;
+  }
+}
