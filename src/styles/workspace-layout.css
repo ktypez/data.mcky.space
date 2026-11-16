@@ -122,4 +122,3 @@
 .v6-theme:hover,.v6-account-trigger:hover,.v6-account-menu button:hover,.v6-login:hover { background:var(--acc-tint); color:var(--acc-ink); }
 .v6-bottom-nav a.active { background:var(--acc-tint); color:var(--acc-ink); }
 .v6-avatar { background:var(--pop-tint); color:var(--pop-ink); border-color:var(--pop); }
-[exit status 0]
