@@ -252,4 +252,3 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
   padding: 4px 10px; font-weight: 700; font-size: 12px; text-decoration: none;
   display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
 }
-[exit status 0]
