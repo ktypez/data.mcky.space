@@ -131,4 +131,3 @@
     <a href={`#${item.to}`} aria-current={isActive(item.to) ? 'page' : undefined} onclick={(e) => guard(e, item.to)} class:active={isActive(item.to)}><item.icon size={20} weight="regular" /><span>{item.label}</span></a>
   {/each}
 </nav>
-[exit status 0]
