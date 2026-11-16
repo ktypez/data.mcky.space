@@ -352,4 +352,3 @@
     <button type="button" onclick={() => (sheetOpen = false)} class="btn btn-acc mt-5 w-full">แสดง {filtered.length.toLocaleString('th-TH')} รายการ</button>
   </div>
 </AppDialog>
-[exit status 0]
