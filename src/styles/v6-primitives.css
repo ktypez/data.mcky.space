@@ -365,4 +365,3 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
 @media (min-width:681px) { .ledger-shell > [role='status'] { margin-left:248px; } }
 .v6-create { text-decoration:none; }
 @media (max-width:900px) and (min-width:681px) { .ledger-shell > [role='status'] { margin-left:218px; } }
-[exit status 0]
