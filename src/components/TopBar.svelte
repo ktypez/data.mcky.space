@@ -183,7 +183,7 @@
   <nav class="flex gap-1 overflow-x-auto px-4 pb-2.5 sm:hidden" aria-label="เมนูหลัก">
     {#each navItems as item}
       <a
-        href={item.to}
+        href={`#${item.to}`}
         aria-current={isActive(item.to) ? 'page' : undefined}
         onclick={(e) => guard(e, item.to)}
         class="flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-semibold whitespace-nowrap transition-all duration-150 {isActive(item.to)
@@ -195,7 +195,7 @@
       </a>
     {/each}
     {#if isAdmin}
-      <a href="/add" onclick={(e) => guard(e, '/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-[13px]">
+      <a href="#/add" onclick={(e) => guard(e, '/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-[13px]">
         <Plus size={15} weight="bold" aria-hidden="true" />
         เพิ่มรายการ
       </a>
