@@ -108,4 +108,3 @@
   {#await import('./components/UpdatePrompt.svelte') then { default: UpdatePrompt }}
     <UpdatePrompt />
   {/await}
-[exit status 0]
