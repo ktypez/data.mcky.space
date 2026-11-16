@@ -4,7 +4,7 @@
   import { trackField } from '@/lib/restore-field'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
-  // V6 `.field` — neutral surface, thin border, monochrome focus ring.
+  // V5 `.field` — card fill, hard rule border, accent focus ring.
   const inputVariants = cva('field', {
     variants: {
       variant: { default: '', error: '!border-danger' },

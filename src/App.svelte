@@ -79,7 +79,7 @@
     <!-- Keep <main> as the scroll container so position:sticky in child pages
          (e.g. the catalog search bar) sticks to that viewport rather than
          being clipped by an ancestor. -->
-    <main id="ledger-main" class="min-h-0 flex-1 overflow-y-auto">
+    <main id="ledger-main" class="v6-workspace min-h-0 flex-1 overflow-y-auto">
       <svelte:boundary onerror={(e) => console.error(e)}>
         {#key router.location}
           <div class="flex h-full min-h-0 flex-col">

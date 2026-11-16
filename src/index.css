@@ -1,11 +1,11 @@
 @import 'tailwindcss';
-@import '@mcky/ui/core.css';
-@import './styles/v6-compat.css';
-@import './styles/v6-primitives.css';
+@import './styles/v5-tokens.css';
+@import './styles/v5-ui.css';
+@import './styles/workspace-layout.css';
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* ——— V6 monochrome compatibility tokens as Tailwind utilities ——— */
+  /* ——— V5 “paper pop” tokens as Tailwind utilities ——— */
   --color-paper: var(--paper);
   --color-paper-2: var(--paper-2);
   --color-card: var(--card);
@@ -37,7 +37,7 @@
 
   /* ——— legacy shadcn-ish aliases (spec §2) ———
      Nothing breaks mid-port: leaflet/pwa/photo CSS and older class names
-     keep resolving while legacy component classes are migrated. */
+     keep resolving while the V5 classes roll out. */
   --color-background: var(--paper);
   --color-foreground: var(--ink);
   --color-card-foreground: var(--ink);

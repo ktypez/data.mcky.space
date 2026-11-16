@@ -181,7 +181,7 @@
   }
 </script>
 
-<div class="mx-auto flex max-w-6xl flex-col px-3 pb-8 pt-3 sm:px-8 sm:pt-5">
+<div class="v6-page v6-catalog mx-auto flex max-w-6xl flex-col px-3 pb-8 pt-3 sm:px-8 sm:pt-5">
   <div class="flex shrink-0 flex-wrap items-end justify-between gap-3 pb-4">
     <div class="min-w-0">
       <div class="flex flex-wrap items-center gap-3">
@@ -352,3 +352,4 @@
     <button type="button" onclick={() => (sheetOpen = false)} class="btn btn-acc mt-5 w-full">แสดง {filtered.length.toLocaleString('th-TH')} รายการ</button>
   </div>
 </AppDialog>
+[exit status 0]
