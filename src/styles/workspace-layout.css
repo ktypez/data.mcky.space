@@ -122,3 +122,171 @@
 .v6-theme:hover,.v6-account-trigger:hover,.v6-account-menu button:hover,.v6-login:hover { background:var(--acc-tint); color:var(--acc-ink); }
 .v6-bottom-nav a.active { background:var(--acc-tint); color:var(--acc-ink); }
 .v6-avatar { background:var(--pop-tint); color:var(--pop-ink); border-color:var(--pop); }
+
+/* --------------------------------------------------------------------------
+   V5 Paper Pop visual pass — override the neutral V6 shell primitives.
+   Keep the responsive geometry above; restore V5 surfaces and controls.
+   -------------------------------------------------------------------------- */
+
+/* Keep the ledger canvas visible behind the workspace instead of painting
+   an opaque page rectangle over the dotted paper layer. */
+body { background: var(--paper); }
+body::before {
+  z-index: 0;
+  opacity: .72;
+  background-image: radial-gradient(color-mix(in srgb, var(--rule-2) 72%, transparent) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+:root[data-texture="off"] body::before { opacity: 0; }
+#root:has(.ledger-shell) { position: relative; z-index: 1; }
+.ledger-shell { position: relative; z-index: 1; background: transparent; }
+.v6-workspace { background: transparent !important; }
+
+/* V5 page rhythm and hand-crafted paper surfaces. */
+.v6-page { color: var(--ink); }
+.v6-page .squiggle { display: block; }
+.v6-page .card {
+  border: 1px solid var(--rule) !important;
+  border-radius: var(--r3) !important;
+  background: var(--card);
+  box-shadow: var(--sh-sm) !important;
+}
+.v6-page .sticker {
+  border: 1.5px solid var(--hard) !important;
+  border-radius: var(--r2) !important;
+  box-shadow: 3px 3px 0 var(--hard) !important;
+}
+.v6-page .field {
+  border: 1.5px solid var(--rule-2) !important;
+  border-radius: var(--r2) !important;
+  box-shadow: none;
+}
+.v6-page .btn,
+.v6-page button.btn {
+  border-radius: 999px;
+}
+.v6-page .btn-acc {
+  border: 1.5px solid var(--hard);
+  box-shadow: 2.5px 2.5px 0 var(--hard);
+}
+.v6-page .btn-line,
+.v6-page .btn-pop {
+  border: 1.5px solid var(--hard);
+  box-shadow: 2.5px 2.5px 0 var(--hard);
+}
+
+/* Desktop navigation: warm paper panel, active marker as a V5 sticker. */
+.v6-sidebar {
+  background: var(--card);
+  border-right: 1.5px solid var(--hard);
+  box-shadow: 3px 0 0 color-mix(in srgb, var(--hard) 10%, transparent);
+}
+.v6-brand-mark {
+  border: 1.5px solid var(--hard);
+  border-radius: 12px;
+  background: var(--acc);
+  color: #fff;
+  box-shadow: 2.5px 2.5px 0 var(--hard);
+}
+.v6-nav { gap: 7px; }
+.v6-nav a {
+  min-height: 44px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  padding-inline: 14px;
+}
+.v6-nav a:hover { background: var(--acc-tint); color: var(--acc-ink); }
+.v6-nav a.active {
+  background: var(--acc-tint);
+  color: var(--acc-ink);
+  border-color: var(--hard);
+  box-shadow: 2px 2px 0 var(--hard);
+}
+.v6-nav-indicator { display: none; }
+.v6-create,.v6-mobile-add {
+  min-height: 46px;
+  border: 1.5px solid var(--hard);
+  border-radius: 999px;
+  background: var(--acc);
+  color: #fff;
+  box-shadow: 2.5px 2.5px 0 var(--hard);
+}
+.v6-create:hover,.v6-mobile-add:hover {
+  background: var(--acc-strong);
+  transform: translate(-1px,-1px);
+  box-shadow: 4px 4px 0 var(--hard);
+}
+.v6-theme,.v6-login {
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+}
+.v6-theme:hover,.v6-login:hover,.v6-account-trigger:hover {
+  background: var(--acc-tint);
+  color: var(--acc-ink);
+}
+
+/* The account avatar remains circular, but gets the V5 outlined sticker
+   treatment so it no longer looks like a generic flat profile badge. */
+.v6-avatar {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--hard);
+  border-radius: 50%;
+  background: var(--pop-tint);
+  color: var(--pop-ink);
+  box-shadow: 2px 2px 0 var(--hard);
+  font: 800 13px var(--font-ui);
+}
+.v6-account-trigger { border-radius: 14px; }
+.v6-account { border-top: 1.5px dashed var(--rule-2); }
+.v6-account-menu {
+  border: 1.5px solid var(--hard);
+  border-radius: var(--r2);
+  box-shadow: 3px 3px 0 var(--hard);
+}
+
+/* Mobile tabbar: floating paper capsule, not a flat full-width V6 strip. */
+@media (max-width: 680px) {
+  .v6-mobile-header {
+    background: color-mix(in srgb, var(--card) 94%, transparent);
+    border-bottom: 1.5px solid var(--rule);
+    backdrop-filter: blur(12px);
+  }
+  .v6-mobile-brand .v6-brand-mark {
+    border: 1.5px solid var(--hard);
+    border-radius: 10px;
+    background: var(--acc);
+    color: #fff;
+    box-shadow: 2px 2px 0 var(--hard);
+  }
+  .v6-bottom-nav {
+    inset: auto 12px calc(8px + env(safe-area-inset-bottom,0px));
+    width: auto;
+    padding: 6px;
+    gap: 4px;
+    border: 1.5px solid var(--hard);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--card) 96%, transparent);
+    box-shadow: 3px 3px 0 var(--hard);
+    backdrop-filter: blur(16px);
+  }
+  .v6-bottom-nav a {
+    min-height: 48px;
+    border: 1.5px solid transparent;
+    border-radius: 999px;
+    color: var(--ink-soft);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .v6-bottom-nav a.active {
+    background: var(--acc-tint);
+    color: var(--acc-ink);
+    border-color: var(--hard);
+    box-shadow: 2px 2px 0 var(--hard);
+  }
+  .v6-mobile-actions .v6-avatar {
+    width: 36px;
+    height: 36px;
+  }
+}
+
