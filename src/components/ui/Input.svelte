@@ -27,4 +27,3 @@
   use:trackField={syncValue}
   {...rest}
 />
-[exit status 0]
