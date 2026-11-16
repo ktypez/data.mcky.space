@@ -16,4 +16,3 @@
 <label class={cn(labelVariants({ required, className }))} {...rest}>
   {@render children?.()}
 </label>
-[exit status 0]
