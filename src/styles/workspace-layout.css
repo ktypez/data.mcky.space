@@ -33,7 +33,7 @@
 .v6-account-menu button,.v6-login { display:flex; align-items:center; gap:9px; width:100%; min-height:40px; padding:0 10px; border-radius:8px; color:var(--ink); font-size:13px; }
 .v6-account-menu button:hover,.v6-login:hover { background:var(--paper-2); }
 .v6-mobile-header,.v6-bottom-nav { display:none; }
-.v6-workspace { margin-left:248px; background:var(--paper); }
+.v6-workspace { margin-left:0; background:transparent; }
 .v6-page { width:min(100%, 1320px); padding:36px clamp(22px,4vw,64px) 56px; }
 .v6-page h1 { font-size:clamp(26px,3vw,34px); font-weight:720; letter-spacing:-.045em; }
 .v6-page > p { color:var(--ink-soft); }
@@ -109,9 +109,9 @@
   .v6-editor form > fieldset > section:first-child,.v6-editor form > fieldset > section:last-of-type { grid-column:auto; }
   .v6-maps { padding:14px 12px 16px; }
 }
-@media (min-width:681px) { .ledger-shell > [role='status'] { margin-left:248px; } }
+@media (min-width:681px) { .ledger-shell > [role='status'] { margin-left:0; } }
 .v6-create { text-decoration:none; }
-@media (max-width:900px) and (min-width:681px) { .ledger-shell > [role='status'] { margin-left:218px; } }
+@media (max-width:900px) and (min-width:681px) { .ledger-shell > [role='status'] { margin-left:0; } }
 
 /* Keep the V5 Paper Pop personality in the new workspace navigation. */
 .v6-brand-mark { background:var(--acc); color:#fff; box-shadow:2px 2px 0 var(--hard); }
