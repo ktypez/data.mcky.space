@@ -4,14 +4,13 @@ import path from 'node:path'
 
 const read = (file: string) => readFileSync(path.resolve(import.meta.dirname, '..', file), 'utf8')
 const app = read('src/App.svelte')
-// V6 monochrome shell replaces the previous V4 ledger.css shell (rail + header + bottom nav)
-// with the component classes in v6-primitives.css; the shell rules live there now.
-const shell = read('src/styles/v6-primitives.css')
+const shell = read('src/styles/v5-ui.css')
+const layout = read('src/styles/workspace-layout.css')
 const catalog = read('src/pages/Catalog.svelte')
 const maps = read('src/pages/Maps.svelte')
 const settings = read('src/pages/Settings.svelte')
 
-describe('locked application viewport', () => {
+describe('V5 application viewport', () => {
   it('keeps page overscroll available while giving long pages an internal scroll area', () => {
     expect(shell).toContain('body:has(.ledger-shell)')
     expect(shell).toContain('overscroll-behavior-y: auto')
@@ -19,52 +18,38 @@ describe('locked application viewport', () => {
     expect(shell).toMatch(/body:has\(\.ledger-shell\)\s*\{[^}]*\}/s)
     expect(shell.match(/body:has\(\.ledger-shell\)\s*\{[^}]*\}/s)?.[0]).not.toContain('overflow: hidden')
     expect(shell).toContain('#root:has(.ledger-shell)')
-    // The scroll container must NOT contain overscroll, or the gesture never
-    // chains to the root scroller and the browser's pull-to-refresh dies.
     expect(app).toContain('flex-1 overflow-y-auto')
     expect(app).not.toContain('overscroll-contain')
     expect(catalog).not.toContain('overscroll-contain')
   })
 
-  it('fills the dynamic mobile viewport instead of stopping at the smallest one', () => {
-    // 100dvh tracks the visible viewport, so the shell grows back when the
-    // mobile browser chrome hides. Capping at 100svh used to leave a dead strip
-    // at the bottom on phones (the app looked letterboxed).
+  it('fills the dynamic mobile viewport and respects safe areas', () => {
     expect(shell).toMatch(/\.ledger-shell\s*\{[^}]*height:\s*100dvh/s)
     expect(shell).not.toMatch(/\.ledger-shell\s*\{[^}]*max-height:\s*100s?vh/s)
-    // Standalone PWA paints edge to edge (viewport-fit=cover) and insets the
-    // shell so content stays clear of the notch / home indicator.
-    expect(app.length).toBeGreaterThan(0)
     expect(read('index.html')).toContain('viewport-fit=cover')
     expect(shell).toMatch(/\.ledger-shell\s*\{[^}]*safe-area-inset-bottom/s)
     expect(shell).toMatch(/\.ledger-shell\s*\{[^}]*safe-area-inset-top/s)
   })
 
-  it('keeps navigation in flow and fits full-height pages to the main area', () => {
+  it('uses the shared horizontal V5 top navigation and keeps map pages full height', () => {
     expect(app).toContain('TopBar')
+    expect(app).toContain('app-workspace')
     expect(settings).toContain('DATA Ledger')
-    // Maps still fills <main> exactly — it is a map, not a document.
     expect(maps).toContain('flex h-full max-w-6xl flex-col')
+    expect(layout).toContain('.page-shell--maps')
+    expect(layout).not.toContain('v6-')
   })
 
   it('scrolls the catalog with the page instead of inside its own card', () => {
-    // The catalog is one long page: the card no longer owns a scroll box, so
-    // the whole document scrolls (and pull-to-refresh reaches the browser).
     expect(catalog).not.toContain('flex h-full max-w-6xl flex-col')
     expect(catalog).not.toMatch(/bind:this=\{parentRef\}[^>]*overflow-(?:auto|scroll)/)
-    // The virtualiser therefore measures against <main>, the only scroller,
-    // using scrollMargin to compensate for the header above the list.
     expect(catalog).toContain("document.getElementById('ledger-main')")
     expect(catalog).toContain('scrollMargin')
-    // The search field stays reachable while the rows scroll underneath.
     expect(catalog).toMatch(/class="[^"]*sticky[^"]*"/)
-    // Route changes reset <main>, or the catalog reopens mid-scroll.
     expect(app).toContain("document.getElementById('ledger-main')?.scrollTo")
   })
 
-  it('uses px type tokens and ≥44px touch targets', () => {
-    // V6 keeps the 75% root font-size removed: sizing is px-based via the text-*
-    // tokens in index.css, so the touch-target floor is stated in px too.
+  it('uses px type tokens and maintains 44px interactive targets', () => {
     expect(shell).toContain(".ledger-shell :is(button, a[href], [role='button'], [role='tab'], [role='option'], [role='switch'])")
     expect(shell).toMatch(/min-height:\s*44px/)
     expect(shell).toContain('select { min-height: 44px; font-size: 14px; }')
@@ -74,14 +59,13 @@ describe('locked application viewport', () => {
     expect(indexCss).toContain('--text-base: 16px;')
   })
 
-  it('keeps the search field and filter button as separate controls', () => {
+  it('keeps search and filter controls separate and has no V6 shell remnants', () => {
     expect(catalog).toContain('name="q"')
     expect(catalog).toContain('aria-pressed={filter === choice.key}')
     expect(catalog).not.toContain('ledger-field')
     expect(catalog).not.toContain('รีเฟรชหน้า')
-    // The nav is a sticky top bar in flow with its own primary action.
     expect(app).toContain('TopBar')
-    expect(shell).toContain('.ledger-shell')
-    expect(shell).not.toContain('lg-nav-dist')
+    expect(layout).not.toContain('v6-')
+    expect(shell).not.toContain('v6-')
   })
 })

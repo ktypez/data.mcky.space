@@ -19,12 +19,9 @@ export interface AppThemeState {
 const THEME_STORE_KEY = 'data-ledger-ui'
 const MODE_KEY = 'data-ledger-mode'
 const V5_KEY = 'data-ledger-v5'
-const STYLESHEET_ID = 'app-theme-stylesheet'
-const FONT_LINK_ID = 'app-theme-fonts'
 const listeners = new Set<() => void>()
 
 let activeState: AppThemeState | null = null
-let stylesheetRequest = 0
 
 export function normaliseAppMode(value: unknown): AppMode | null {
   if (value === 'system') return 'auto'
@@ -174,54 +171,10 @@ function commitDom(theme: Theme, state: AppThemeState): void {
   window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: state }))
 }
 
-function ensureFontLink(theme: Theme): void {
-  if (!theme.fontUrl) return
-  let link = document.getElementById(FONT_LINK_ID) as HTMLLinkElement | null
-  if (!link) {
-    link = document.createElement('link')
-    link.id = FONT_LINK_ID
-    link.rel = 'stylesheet'
-    document.head.appendChild(link)
-  }
-  const nextHref = new URL(theme.fontUrl, window.location.origin).toString()
-  if (link.href !== nextHref) link.href = nextHref
-}
-
-function applyStylesheet(theme: Theme, state: AppThemeState): void {
-  ensureFontLink(theme)
-  const current = document.getElementById(STYLESHEET_ID) as HTMLLinkElement | null
-  if (current?.dataset.appTheme === theme.id) {
-    commitDom(theme, state)
-    return
-  }
-
-  const href = theme.staticCss
-  if (!href) {
-    commitDom(theme, state)
-    return
-  }
-
-  const request = ++stylesheetRequest
-  const next = document.createElement('link')
-  next.rel = 'stylesheet'
-  next.dataset.appTheme = theme.id
-  const finish = () => {
-    next.onload = null
-    next.onerror = null
-    if (request !== stylesheetRequest) {
-      next.remove()
-      return
-    }
-    document.querySelectorAll<HTMLLinkElement>('link[data-app-theme]').forEach(link => {
-      if (link !== next) link.remove()
-    })
-    commitDom(theme, state)
-    next.id = STYLESHEET_ID
-  }
-  next.onload = finish
-  next.onerror = finish
-  next.href = href
-  document.head.appendChild(next)
+function applyThemeToDom(theme: Theme, state: AppThemeState): void {
+  // V5 palette and mode are CSS attribute variants from @mcky/ui.
+  document.querySelectorAll<HTMLLinkElement>('link[data-app-theme]').forEach(link => link.remove())
+  commitDom(theme, state)
 }
 
 export function applyAppTheme(themeId: string, mode: AppMode, shouldPersist = true): AppThemeState {
@@ -229,7 +182,7 @@ export function applyAppTheme(themeId: string, mode: AppMode, shouldPersist = tr
   const next = makeState(theme.id, mode)
   if (shouldPersist) persist(next)
   setActiveState(next)
-  if (typeof document !== 'undefined') applyStylesheet(theme, next)
+  if (typeof document !== 'undefined') applyThemeToDom(theme, next)
   return next
 }
 
@@ -243,7 +196,6 @@ export function initAppTheme(): void {
   if (initialised || typeof window === 'undefined') return
   initialised = true
   const current = getSnapshot()
-  ensureFontLink(getTheme(current.themeId))
   applyAppTheme(current.themeId, current.mode, false)
 
   const media = window.matchMedia('(prefers-color-scheme: dark)')
