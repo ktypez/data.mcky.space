@@ -124,7 +124,7 @@
 {:else if !isAdmin}
   <div class="p-8 text-center text-sm text-ink-soft" role="status">กำลังนำกลับ…</div>
 {:else}
-  <section class="v6-page v6-trash mx-auto w-full max-w-3xl px-4 pb-16 pt-8 sm:px-6">
+  <section class="page-shell page-shell--trash mx-auto w-full max-w-3xl px-4 pb-16 pt-8 sm:px-6">
     <div class="flex items-center gap-4">
       <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">ถังขยะ</h1>
       <CountSticker n={items.length} label="พักอยู่" rot={-2} />

@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:full": "npm run typecheck && vite build",
-    "build:functions": "echo 'functions/ removed — Pages does not use Workers Functions'",
+    "build:functions": "echo 'functions/ removed \u2014 Pages does not use Workers Functions'",
     "typecheck": "svelte-check --tsconfig ./tsconfig.app.json",
     "lint:jsx-nesting": "node scripts/lint-jsx-nesting.mjs",
     "lint": "npm run typecheck && npm run lint:jsx-nesting",
@@ -27,7 +27,7 @@
   "dependencies": {
     "@clerk/clerk-js": "^6.39.0",
     "@elysiajs/eden": "^1.4.9",
-    "@mcky/ui": "git+https://github.com/ktypez/mcky-ui.git#main",
+    "@mcky/ui": "git+https://github.com/ktypez/mcky-ui.git#36c994fe2fb019669ecf0033a94ac9148c8f4e2b",
     "@protomaps/basemaps": "^5.7.2",
     "@tanstack/svelte-virtual": "^3.13.0",
     "class-variance-authority": "^0.7.1",

@@ -65,7 +65,7 @@
   })
   let searchResults = $derived(filteredForMap.slice(0, 5))
 
-  // Legend counts for the monochrome chip row (credit / pay-daily / other).
+  // Legend counts for the neutral chip row (credit / pay-daily / other).
   let legendCounts = $derived({
     credit: pins.filter((c) => c.badge === 'credit').length,
     penpay: pins.filter((c) => c.badge === 'penpay').length,
@@ -279,7 +279,7 @@
     </div>
   </section>
 {:else}
-  <section class="v6-page v6-maps mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pb-4 pt-4 sm:px-8">
+  <section class="page-shell page-shell--maps mx-auto flex h-full max-w-6xl flex-col overflow-hidden px-3 pb-4 pt-4 sm:px-8">
     {#if loadError}
       <div class="mb-4 flex shrink-0 items-center justify-between gap-3 rounded-[10px] border-[1.5px] border-banana/60 bg-banana/15 px-3 py-2 text-sm text-ink" role="status">
         <span>{loadError}</span>

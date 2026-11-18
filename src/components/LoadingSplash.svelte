@@ -4,7 +4,7 @@
   const shapes = ['star', 'hexagon', 'circle', 'triangle'] as const
   let shape = $state<(typeof shapes)[number]>('circle')
   let visible = $state(true)
-  let reducedMotion = false
+  let reducedMotion = $state(false)
 
   onMount(() => {
     // Pick once per full page entry; never change shape during the animation.
