@@ -1,5 +1,4 @@
-/* DATA compatibility adapter: canonical palette and semantic values live in mcky-ui. */
-@import '@mcky/ui/v5-tokens.css';
+/* DATA compatibility aliases. Canonical V5 tokens are loaded by @mcky/ui/core.css in index.css. */
 
 :root {
   /* DATA-specific aliases retained while feature styles finish their migration. */

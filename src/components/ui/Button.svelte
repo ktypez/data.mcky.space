@@ -1,51 +1,35 @@
 <script lang="ts">
-  import { cva, type VariantProps } from 'class-variance-authority'
+  import { Button as SharedButton } from '@mcky/ui/svelte'
   import { cn } from '@/lib/utils'
   import type { Snippet } from 'svelte'
   import type { HTMLButtonAttributes } from 'svelte/elements'
 
-  // V5 “paper pop” button: hard-shadow pill. Legacy variant names
-  // (default/outline/secondary/destructive/link) stay accepted as aliases
-  // so older call sites keep working.
-  const buttonVariants = cva(
-    `btn`,
-    {
-      variants: {
-        variant: {
-          acc: 'btn-acc',
-          pop: 'btn-pop',
-          ghost: 'btn-ghost',
-          danger: 'btn-danger',
-          // legacy aliases
-          default: 'btn-acc',
-          outline: 'btn-pop',
-          secondary: 'btn-pop',
-          destructive: 'btn-danger',
-          link: 'btn-ghost',
-        },
-        size: {
-          default: '',
-          sm: '!px-3.5 !py-2 text-[13px]',
-          xs: '!px-3 !py-1.5 text-[12.5px]',
-          lg: '!px-5 !py-3',
-          icon: '!p-0 size-11',
-          'icon-sm': '!p-0 size-9',
-          'icon-xs': '!p-0 size-7',
-        },
-      },
-      defaultVariants: { variant: 'acc', size: 'default' },
-    },
-  )
+  type Variant = 'acc' | 'pop' | 'ghost' | 'danger' | 'default' | 'outline' | 'secondary' | 'destructive' | 'link'
+  type Size = 'default' | 'sm' | 'xs' | 'lg' | 'icon' | 'icon-sm' | 'icon-xs'
+
+  const variants: Record<Variant, 'primary' | 'secondary' | 'ghost' | 'pop' | 'danger'> = {
+    acc: 'primary', default: 'primary', pop: 'pop', ghost: 'ghost', danger: 'danger',
+    outline: 'secondary', secondary: 'secondary', destructive: 'danger', link: 'ghost',
+  }
+  const sizes: Record<Size, string> = {
+    default: '', sm: '!px-3.5 !py-2 text-[13px]', xs: '!px-3 !py-1.5 text-[12.5px]',
+    lg: '!px-5 !py-3', icon: '!p-0 size-11', 'icon-sm': '!p-0 size-9', 'icon-xs': '!p-0 size-7',
+  }
 
   let {
-    class: className,
-    variant,
-    size,
-    children,
-    ...rest
-  }: HTMLButtonAttributes & VariantProps<typeof buttonVariants> & { children?: Snippet } = $props()
+    class: className = '', variant = 'acc', size = 'default', type = 'button', children, ...rest
+  }: Omit<HTMLButtonAttributes, 'type'> & { type?: 'button' | 'submit' | 'reset'; class?: string; variant?: Variant; size?: Size; children?: Snippet } = $props()
+
+  let sharedVariant = $derived(variants[variant])
+  let variantClass = $derived(variant === 'outline' ? 'ui-button--outline' : variant === 'secondary' ? 'ui-button--secondary' : '')
+  let sharedClass = $derived(cn(sizes[size], variantClass, className))
 </script>
 
-<button data-slot="button" class={cn(buttonVariants({ variant, size, className }))} {...rest}>
+<SharedButton variant={sharedVariant} {type} class={sharedClass} {...rest}>
   {@render children?.()}
-</button>
+</SharedButton>
+
+<style>
+  :global(.ui-button--outline) { background: var(--card); border-color: var(--rule-2); box-shadow: var(--sh-sm); }
+  :global(.ui-button--secondary) { background: var(--paper-2); border-color: var(--rule); }
+</style>

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@mcky/ui/core.css';
 @import './styles/v5-tokens.css';
 @import './styles/v5-ui.css';
 @import './styles/workspace-layout.css';

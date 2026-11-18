@@ -27,7 +27,7 @@
   "dependencies": {
     "@clerk/clerk-js": "^6.39.0",
     "@elysiajs/eden": "^1.4.9",
-    "@mcky/ui": "git+https://github.com/ktypez/mcky-ui.git#36c994fe2fb019669ecf0033a94ac9148c8f4e2b",
+    "@mcky/ui": "git+https://github.com/ktypez/mcky-ui.git#712d2d3054dc21bbcc09472d4ced32ac32d48212",
     "@protomaps/basemaps": "^5.7.2",
     "@tanstack/svelte-virtual": "^3.13.0",
     "class-variance-authority": "^0.7.1",
