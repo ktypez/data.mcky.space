@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button as SharedButton } from '@mcky/ui/svelte'
+  import SharedButton from '@mcky/ui/button'
   import { cn } from '@/lib/utils'
   import type { Snippet } from 'svelte'
   import type { HTMLButtonAttributes } from 'svelte/elements'

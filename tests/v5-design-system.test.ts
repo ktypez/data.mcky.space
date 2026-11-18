@@ -54,10 +54,10 @@ describe('shared V5 component adapters', () => {
   it('routes generic buttons and count stickers through mcky-ui', async () => {
     const button = await read('../src/components/ui/Button.svelte')
     const sticker = await read('../src/components/ui/CountSticker.svelte')
-    expect(button).toContain("@mcky/ui/svelte")
+    expect(button).toContain("@mcky/ui/button")
     expect(button).toContain('variant={sharedVariant}')
     expect(button).toContain("outline: 'secondary'")
-    expect(sticker).toContain("@mcky/ui/svelte")
+    expect(sticker).toContain("@mcky/ui/count-sticker")
     expect(sticker).toContain('value={n}')
   })
 })

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CountSticker as SharedCountSticker } from '@mcky/ui/svelte'
+  import SharedCountSticker from '@mcky/ui/count-sticker'
   let { n, label, rot = -2, class: className = '' }: { n: number | string; label: string; rot?: number; class?: string } = $props()
 </script>
 
