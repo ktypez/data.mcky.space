@@ -15,8 +15,8 @@ importers:
         specifier: ^1.4.9
         version: 1.4.9(elysia@1.4.32(@sinclair/typebox@0.34.52)(exact-mirror@0.2.9(@sinclair/typebox@0.34.52))(file-type@22.3.0(supports-color@10.2.2))(openapi-types@12.1.3)(typescript@6.0.3))
       '@mcky/ui':
-        specifier: git+https://github.com/ktypez/mcky-ui.git#36c994fe2fb019669ecf0033a94ac9148c8f4e2b
-        version: https://codeload.github.com/ktypez/mcky-ui/tar.gz/36c994fe2fb019669ecf0033a94ac9148c8f4e2b(svelte@5.57.3)
+        specifier: git+https://github.com/ktypez/mcky-ui.git#712d2d3054dc21bbcc09472d4ced32ac32d48212
+        version: https://codeload.github.com/ktypez/mcky-ui/tar.gz/712d2d3054dc21bbcc09472d4ced32ac32d48212(svelte@5.57.3)
       '@protomaps/basemaps':
         specifier: ^5.7.2
         version: 5.7.2
@@ -1151,12 +1151,15 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@mcky/ui@https://codeload.github.com/ktypez/mcky-ui/tar.gz/36c994fe2fb019669ecf0033a94ac9148c8f4e2b':
-    resolution: {gitHosted: true, integrity: sha512-ZeAfbFtLa6OMNKnWdyWKBLNFsekcOrpAfBhNdoP29N36WyMsSaEEqnOj7Z7wdt9CawZrbgX6q/eu5q6GMMJr3A==, tarball: https://codeload.github.com/ktypez/mcky-ui/tar.gz/36c994fe2fb019669ecf0033a94ac9148c8f4e2b}
+  '@mcky/ui@https://codeload.github.com/ktypez/mcky-ui/tar.gz/712d2d3054dc21bbcc09472d4ced32ac32d48212':
+    resolution: {gitHosted: true, integrity: sha512-zKMT5Gzi2WWuKY9sib69WKf3UpQ+VIg1whpXCi5jfU9hzZ8cEmpHBhR1I249J+ZCpkOjxohr9CrEiUM6qzC9zQ==, tarball: https://codeload.github.com/ktypez/mcky-ui/tar.gz/712d2d3054dc21bbcc09472d4ced32ac32d48212}
     version: 0.2.0
     engines: {node: '>=20.19.0'}
     peerDependencies:
       svelte: ^5.0.0
+    peerDependenciesMeta:
+      svelte:
+        optional: true
 
   '@napi-rs/wasm-runtime@1.2.6':
     resolution: {integrity: sha512-mRyDmEw9/fCDXCGfL1sbgIw/GUK0PVxRW4YwgPN61F3LQ+fSyoBFarJVzgGyhF6kRzEQZ0FejDqm4WLXSeqQmw==}
@@ -4494,8 +4497,8 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.3
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@mcky/ui@https://codeload.github.com/ktypez/mcky-ui/tar.gz/36c994fe2fb019669ecf0033a94ac9148c8f4e2b(svelte@5.57.3)':
-    dependencies:
+  '@mcky/ui@https://codeload.github.com/ktypez/mcky-ui/tar.gz/712d2d3054dc21bbcc09472d4ced32ac32d48212(svelte@5.57.3)':
+    optionalDependencies:
       svelte: 5.57.3
 
   '@napi-rs/wasm-runtime@1.2.6(@emnapi/core@2.0.0-beta.2)(@emnapi/runtime@2.0.0-beta.2)':
