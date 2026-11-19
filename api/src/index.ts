@@ -13,7 +13,7 @@ import { clientDataEtag, clientDataResponse, clientCorsHeaders, etagMatches } fr
 // CORS — frontend runs on data.mcky.space, API on data-api.fall3n.workers.dev
 // ----------------------------------------------------------------------------
 
-const ALLOWED_ORIGIN = 'https://data.mcky.space'
+const ALLOWED_ORIGINS = ['https://data.mcky.space', 'https://work.mcky.space']
 
 // ----------------------------------------------------------------------------
 // Schema (identical to functions/lib/schema.ts)
@@ -447,7 +447,7 @@ function isClientsRead(request: Request): boolean {
 
 const app = new Elysia({ adapter: CloudflareAdapter })
   .use(cors({
-    origin: ALLOWED_ORIGIN,
+    origin: ALLOWED_ORIGINS,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     ...clientCorsHeaders,
     maxAge: 86400,
