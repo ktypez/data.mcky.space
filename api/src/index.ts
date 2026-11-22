@@ -70,15 +70,34 @@ function createDb() {
 }
 
 // ----------------------------------------------------------------------------
-// Auth (Clerk only — any valid session is admin, no email allowlist)
+// Auth (Portal Custom OIDC + legacy Clerk during the transition — any valid app session is admin)
 // ----------------------------------------------------------------------------
 
-const CLERK_ISSUER = 'https://clerk.mcky.space'
+const PORTAL_ISSUER = 'https://me.mcky.space'
+const TRUSTED_ISSUERS = [
+  { issuer: PORTAL_ISSUER, jwksUrl: `${PORTAL_ISSUER}/.well-known/jwks.json` },
+  { issuer: 'https://clerk.mcky.space', jwksUrl: 'https://clerk.mcky.space/.well-known/jwks.json' },
+  { issuer: 'https://clerk.com', jwksUrl: 'https://clerk.mcky.space/.well-known/jwks.json' },
+  { issuer: 'https://clerk.com/v1', jwksUrl: 'https://clerk.mcky.space/.well-known/jwks.json' },
+]
 
-let _jwks: ReturnType<typeof createRemoteJWKSet> | null = null
-function jwks() {
-  if (!_jwks) _jwks = createRemoteJWKSet(new URL(`${CLERK_ISSUER}/.well-known/jwks.json`))
-  return _jwks
+const remoteJwks = new Map<string, ReturnType<typeof createRemoteJWKSet>>()
+function jwksFor(url: string) {
+  let jwks = remoteJwks.get(url)
+  if (!jwks) {
+    jwks = createRemoteJWKSet(new URL(url))
+    remoteJwks.set(url, jwks)
+  }
+  return jwks
+}
+
+async function verifyTokenByIssuer(token: string, issuer: string, jwksUrl: string): Promise<string | null> {
+  const { payload } = await jwtVerify(token, jwksFor(jwksUrl), {
+    issuer,
+    ...(issuer === PORTAL_ISSUER ? { audience: ['data', 'work'] } : {}),
+    clockTolerance: 60,
+  })
+  return typeof payload.sub === 'string' && payload.sub !== '' ? payload.sub : null
 }
 
 async function isAdminReq(request: Request): Promise<boolean> {
@@ -91,13 +110,18 @@ async function isAdminReq(request: Request): Promise<boolean> {
   const now = Date.now()
   const hit = verifiedTokens.get(token)
   if (hit && hit > now) return true
-  try {
-    const { payload } = await jwtVerify(token, jwks(), { issuer: CLERK_ISSUER })
-    if (typeof payload.sub !== 'string' || payload.sub === '') return false
-    verifiedTokens.set(token, now + 60_000)
-    if (verifiedTokens.size > 1000) verifiedTokens.delete(verifiedTokens.keys().next().value!)
-    return true
-  } catch { return false }
+  for (const trusted of TRUSTED_ISSUERS) {
+    try {
+      const subject = await verifyTokenByIssuer(token, trusted.issuer, trusted.jwksUrl)
+      if (!subject) continue
+      verifiedTokens.set(token, now + 60_000)
+      if (verifiedTokens.size > 1000) verifiedTokens.delete(verifiedTokens.keys().next().value!)
+      return true
+    } catch {
+      // Try the next explicitly trusted issuer while legacy Clerk sessions drain out.
+    }
+  }
+  return false
 }
 const verifiedTokens = new Map<string, number>()
 
