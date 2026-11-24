@@ -1,9 +1,18 @@
-/* V5 Paper Pop page layout. Navigation belongs to the shared top-aligned TopBar. */
+/* V6 Work Shell page layout. Navigation belongs to the shared top-aligned TopBar. */
 .app-workspace { margin-left: 0; background: transparent; }
 .page-shell {
   width: min(100%, 1320px);
   padding: 36px clamp(22px, 4vw, 64px) 56px;
   color: var(--ink);
+}
+/* The painted scenery shows in the gutters; each page reads as a cream V6
+   window shell sitting above it. */
+.mcky-v6-scenery-content .page-shell {
+  margin-block: 18px;
+  background: color-mix(in srgb, var(--mcky-v6-cream) 94%, transparent);
+  border: var(--mcky-v6-outline);
+  border-radius: var(--mcky-v6-radius);
+  box-shadow: var(--mcky-v6-shadow-sm);
 }
 .page-shell h1 { font-size: clamp(26px, 3vw, 34px); font-weight: 720; letter-spacing: -.045em; }
 .page-shell > p { color: var(--ink-soft); }
@@ -67,6 +76,7 @@
 }
 @media (max-width: 680px) {
   .page-shell { padding: 24px 16px 34px; }
+  .mcky-v6-scenery-content .page-shell { margin-block: 12px; }
   .page-shell h1, .page-shell--catalog > div:first-child h1 { font-size: 27px; }
   .page-shell--catalog { padding-top: 23px; }
   .page-shell--catalog > div:first-child { align-items: flex-start; gap: 12px; }

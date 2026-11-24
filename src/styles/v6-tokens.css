@@ -1,0 +1,102 @@
+/* DATA semantic adapter — V6 is the active visual language.
+ *
+ * Canonical day tokens and the twilight night ramp live in
+ * @mcky/ui/v6-base.css (which imports v6-theme.css + v6-motion.css). This file
+ * only re-names those tokens to the semantic variables the existing DATA
+ * components already use. Derived tints/inks are colour-mixed, so no palette
+ * hex is duplicated here.
+ */
+
+:root {
+  /* Surfaces and ink — the canonical V6 ramp supplies every colour. */
+  --paper: var(--mcky-v6-cream);
+  --paper-2: color-mix(in srgb, var(--mcky-v6-cream) 82%, var(--mcky-v6-ink));
+  --card: var(--mcky-v6-paper);
+  --ink: var(--mcky-v6-ink);
+  --ink-soft: var(--mcky-v6-muted);
+  --ink-faint: var(--mcky-v6-subtle);
+  --rule: color-mix(in srgb, var(--mcky-v6-ink) 26%, transparent);
+  --rule-2: color-mix(in srgb, var(--mcky-v6-ink) 48%, transparent);
+  --hard: var(--mcky-v6-ink);
+
+  /* V6 Work Shell edges/elevation reused by the V5-shaped component classes. */
+  --border-w: 2.5px;
+  --shadow-pop: var(--mcky-v6-shadow-sm);
+  --sh-sm: var(--mcky-v6-shadow-sm);
+  --sh-md: var(--mcky-v6-shadow);
+  --radius: var(--mcky-v6-radius);
+  --r1: var(--mcky-v6-radius-sm);
+  --r2: 16px;
+  --r3: var(--mcky-v6-radius);
+  --r4: 28px;
+  --ring: color-mix(in srgb, var(--acc) 28%, transparent);
+
+  /* Accents. Palette ids only pick a V6 hue; derived values stay in sync. */
+  --acc: var(--mcky-v6-blue);
+  --acc-strong: color-mix(in srgb, var(--acc) 76%, var(--mcky-v6-ink));
+  --acc-tint: color-mix(in srgb, var(--acc) 12%, var(--mcky-v6-paper));
+  --acc-ink: color-mix(in srgb, var(--acc) 55%, var(--mcky-v6-ink));
+  --pop: var(--mcky-v6-purple);
+  --pop-tint: color-mix(in srgb, var(--pop) 12%, var(--mcky-v6-paper));
+  --pop-ink: color-mix(in srgb, var(--pop) 55%, var(--mcky-v6-ink));
+  --credit: var(--mcky-v6-blue);
+  --credit-tint: color-mix(in srgb, var(--credit) 12%, var(--mcky-v6-paper));
+  --credit-ink: color-mix(in srgb, var(--credit) 55%, var(--mcky-v6-ink));
+  --penpay: var(--mcky-v6-yellow);
+  --penpay-tint: color-mix(in srgb, var(--penpay) 12%, var(--mcky-v6-paper));
+  --penpay-ink: color-mix(in srgb, var(--penpay) 55%, var(--mcky-v6-ink));
+  --danger: var(--mcky-v6-red);
+  --danger-tint: color-mix(in srgb, var(--danger) 12%, var(--mcky-v6-paper));
+  --danger-ink: color-mix(in srgb, var(--danger) 55%, var(--mcky-v6-ink));
+
+  /* Local-only V5 names retained for feature CSS. */
+  --tint: var(--acc-tint);
+  --pen: var(--penpay);
+  --pen-tint: var(--penpay-tint);
+  --pen-ink: var(--penpay-ink);
+  --banana: var(--mcky-v6-yellow);
+  --sky: var(--mcky-v6-sky);
+  --pin-color: var(--acc);
+
+  /* V6 font stack; no remote stylesheet is pulled in by this entry. */
+  --font-ui: var(--mcky-v6-font-body);
+  --font-mono: var(--mcky-v6-font-mono);
+  --theme-font-display: var(--mcky-v6-font-display);
+  --theme-font-body: var(--mcky-v6-font-body);
+}
+
+/* The four legacy palette ids remain pickable, now as V6 accent hues. */
+:root[data-palette='matcha'] {
+  --acc: var(--mcky-v6-scenery-hill-alt);
+  --pop: var(--mcky-v6-orange);
+}
+:root[data-palette='coral'] {
+  --acc: var(--mcky-v6-orange);
+  --pop: var(--mcky-v6-red);
+}
+:root[data-palette='blueberry'] {
+  --acc: var(--mcky-v6-blue);
+  --pop: var(--mcky-v6-purple);
+}
+:root[data-palette='butter'] {
+  --acc: var(--mcky-v6-yellow);
+  --pop: var(--mcky-v6-purple);
+}
+:root[data-v6-mode='dark'][data-palette='matcha'],
+:root[data-mode='dark'][data-palette='matcha'] {
+  --acc: var(--mcky-v6-success);
+}
+
+/* Texture toggle now dots the shared painted sky, above the scenery layer but
+   below the routed content (which uses .mcky-v6-scenery-content). */
+.mcky-v6-scenery::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image: radial-gradient(var(--mcky-v6-dot) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+  opacity: 0.8;
+}
+:root[data-texture='off'] .mcky-v6-scenery::after { opacity: 0; }
