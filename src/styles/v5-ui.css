@@ -29,7 +29,7 @@ body::before {
 }
 :root[data-texture="off"] body::before { opacity: 0; }
 
-::selection { background: var(--acc); color: #fff; }
+::selection { background: var(--acc); color: var(--mcky-v6-on-accent); }
 :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -79,7 +79,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
 }
-.ledger-shell ::selection { background: var(--acc); color: #fff; }
+.ledger-shell ::selection { background: var(--acc); color: var(--mcky-v6-on-accent); }
 .ledger-shell h1,
 .ledger-shell h2,
 .ledger-shell h3,
@@ -135,7 +135,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
     border: var(--border-w) solid transparent; cursor: pointer; user-select: none;
     transition: transform .16s ease, box-shadow .16s ease, background .16s ease, color .16s ease, border-color .16s ease;
   }
-  .btn-acc { background: var(--acc); color: #fff; border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
+  .btn-acc { background: var(--acc); color: var(--mcky-v6-on-accent); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
   .btn-acc:hover { background: var(--acc-strong); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--hard); }
   .btn-acc:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--hard); }
   .btn-pop, .btn-line { background: var(--card); color: var(--ink); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
@@ -230,13 +230,13 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
 .lp {
   width: 24px; height: 24px;
   background: var(--pin, var(--acc));
-  border: 2px solid #fff;
+  border: 2px solid var(--mcky-v6-paper);
   border-radius: 999px 999px 999px 3px;
   transform: rotate(-45deg);
   box-shadow: 0 2px 5px rgb(20 20 30 / .35), 0 0 0 1px rgb(20 20 30 / .1);
   transition: transform .15s ease;
 }
-.lp::after { content: ""; position: absolute; inset: 6.5px; border-radius: 999px; background: #fff; }
+.lp::after { content: ""; position: absolute; inset: 6.5px; border-radius: 999px; background: var(--mcky-v6-paper); }
 .lp:hover { transform: rotate(-45deg) scale(1.18); }
 
 .ledger-pop .leaflet-popup-content-wrapper {

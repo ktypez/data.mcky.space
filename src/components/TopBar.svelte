@@ -1,18 +1,16 @@
 <script lang="ts">
-  import { ListBullets, MapTrifold, Trash, Gear, Plus, Sun, Moon, SignIn, SignOut } from 'phosphor-svelte'
+  import { ListBullets, MapTrifold, Trash, Gear, Plus, SignIn, SignOut } from 'phosphor-svelte'
   import { push, router } from 'svelte-spa-router'
+  import ModeToggle from '@mcky/ui/mode-toggle'
   import { useAuthStore, logout } from '@/stores/auth-store'
-  import { appTheme, setMode } from '@/lib/app-theme'
   import { getClerk } from '@/lib/clerk'
   import { useFilterStore } from '@/stores/filter-store'
   import { FilterKey } from '@/types/index'
   import { isFormDirty, askLeave } from '@/lib/form-dirty'
   import Squiggle from '@/components/ui/Squiggle.svelte'
 
-  let theme = $derived($appTheme)
   let isAdmin = $derived($useAuthStore.isAdmin)
   let signedIn = $derived($useAuthStore.isSignedIn)
-  let isDark = $derived(theme.resolvedMode === 'dark')
 
   // Clerk identity for the account menu (name + email + monogram).
   let account = $state<{ name: string; email: string }>({ name: '', email: '' })
@@ -88,7 +86,7 @@
 <header class="sticky top-0 z-50 border-b-[1.5px] border-ink bg-paper">
   <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
     <a href="#/" onclick={handleHomeClick} aria-label="DATA Ledger หน้าแรก" class="group flex items-center gap-2.5">
-      <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-white transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
+      <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-[var(--mcky-v6-on-accent)] transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
         <span class="font-mono text-[13px] font-extrabold tracking-tight">DATA</span>
       </span>
       <span class="flex flex-col leading-none">
@@ -125,21 +123,16 @@
     </nav>
 
     <div class="flex items-center gap-2.5">
-      <button
-        type="button"
-        onclick={() => setMode(isDark ? 'light' : 'dark')}
-        aria-label={isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'}
-        class="grid size-11 shrink-0 place-items-center rounded-full border-[1.5px] border-ink bg-card text-ink-soft shadow-[2px_2px_0_0_var(--hard)] transition-all hover:-translate-y-px hover:text-ink"
-      >
-        {#if isDark}<Sun size={17} weight="bold" aria-hidden="true" />{:else}<Moon size={17} weight="bold" aria-hidden="true" />{/if}
-      </button>
+      <!-- Shared V6 toggle; app-theme.ts folds its choice back into the
+           existing data-ledger-mode key so Settings' auto option still works. -->
+      <ModeToggle />
 
       {#if signedIn}
         <div class="relative" bind:this={menuRef}>
           <button
             type="button"
             onclick={() => (menuOpen = !menuOpen)}
-            class="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border-[1.5px] border-ink bg-acc font-mono text-[14px] font-bold text-white shadow-[2px_2px_0_0_var(--hard)] transition-transform hover:-translate-y-px"
+            class="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border-[1.5px] border-ink bg-acc font-mono text-[14px] font-bold text-[var(--mcky-v6-on-accent)] shadow-[2px_2px_0_0_var(--hard)] transition-transform hover:-translate-y-px"
             aria-label="เมนูบัญชี"
             aria-expanded={menuOpen}
             aria-haspopup="menu"

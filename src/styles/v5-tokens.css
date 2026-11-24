@@ -1,4 +1,5 @@
-/* DATA compatibility aliases. Canonical V5 tokens are loaded by @mcky/ui/core.css in index.css. */
+/* DATA compatibility aliases. Canonical V6 tokens are loaded by
+   @mcky/ui/v6-base.css and re-named by ./v6-tokens.css in index.css. */
 
 :root {
   /* DATA-specific aliases retained while feature styles finish their migration. */
@@ -16,7 +17,7 @@
   --popover: var(--card);
   --popover-foreground: var(--ink);
   --primary: var(--acc);
-  --primary-foreground: #ffffff;
+  --primary-foreground: var(--mcky-v6-on-accent);
   --secondary: var(--paper-2);
   --secondary-foreground: var(--ink);
   --muted: var(--paper-2);
@@ -24,13 +25,13 @@
   --accent: var(--pop);
   --accent-foreground: var(--pop-ink);
   --destructive: var(--danger);
-  --destructive-foreground: #ffffff;
+  --destructive-foreground: var(--mcky-v6-on-accent);
   --success: var(--acc);
-  --success-foreground: #ffffff;
+  --success-foreground: var(--mcky-v6-on-accent);
   --warning: var(--banana);
   --warning-foreground: var(--ink);
   --info: var(--sky);
-  --info-foreground: #ffffff;
+  --info-foreground: var(--mcky-v6-on-accent);
   --border: var(--rule);
   --input: var(--rule);
   --ring: var(--acc);

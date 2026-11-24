@@ -10,6 +10,7 @@
   import { flushClientMutations } from '@/lib/offline-mutations'
   import TopBar from '@/components/TopBar.svelte'
   import LoadingSplash from '@/components/LoadingSplash.svelte'
+  import Scenery from '@mcky/ui/scenery'
 
   import Login from './pages/Login.svelte'
 
@@ -62,12 +63,14 @@
   const wantsLogin = $derived(router.location === '/login' || loginOpen)
 </script>
 
+<!-- One fixed painted layer for the whole app; routed content sits above it. -->
+<Scenery />
 <LoadingSplash />
 
 {#if wantsLogin && !checking && !signedIn}
   <Login />
 {:else}
-  <div class="ledger-shell" data-mode={theme.resolvedMode}>
+  <div class="ledger-shell mcky-v6-scenery-content" data-mode={theme.resolvedMode}>
     <a href="#ledger-main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-card focus:px-4 focus:py-3 focus:text-ink">ข้ามไปเนื้อหา</a>
     <TopBar />
     {#if offline}

@@ -10,7 +10,7 @@ const catalog = read('src/pages/Catalog.svelte')
 const maps = read('src/pages/Maps.svelte')
 const settings = read('src/pages/Settings.svelte')
 
-describe('V5 application viewport', () => {
+describe('Application viewport (V6 Work Shell)', () => {
   it('keeps page overscroll available while giving long pages an internal scroll area', () => {
     expect(shell).toContain('body:has(.ledger-shell)')
     expect(shell).toContain('overscroll-behavior-y: auto')
@@ -37,7 +37,7 @@ describe('V5 application viewport', () => {
     expect(settings).toContain('DATA Ledger')
     expect(maps).toContain('flex h-full max-w-6xl flex-col')
     expect(layout).toContain('.page-shell--maps')
-    expect(layout).not.toContain('v6-')
+    expect(layout).toContain('.mcky-v6-scenery-content .page-shell')
   })
 
   it('scrolls the catalog with the page instead of inside its own card', () => {
@@ -59,13 +59,14 @@ describe('V5 application viewport', () => {
     expect(indexCss).toContain('--text-base: 16px;')
   })
 
-  it('keeps search and filter controls separate and has no V6 shell remnants', () => {
+  it('keeps search and filter controls separate with the V6 shell in place', () => {
     expect(catalog).toContain('name="q"')
     expect(catalog).toContain('aria-pressed={filter === choice.key}')
     expect(catalog).not.toContain('ledger-field')
     expect(catalog).not.toContain('รีเฟรชหน้า')
     expect(app).toContain('TopBar')
-    expect(layout).not.toContain('v6-')
-    expect(shell).not.toContain('v6-')
+    expect(app).toContain('mcky-v6-scenery-content')
+    expect(layout).toContain('.mcky-v6-scenery-content .page-shell')
+    expect(shell).toContain('var(--mcky-v6-')
   })
 })

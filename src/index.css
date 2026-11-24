@@ -1,12 +1,16 @@
 @import 'tailwindcss';
+/* Shared V5 primitives stay for the adapter components; V6 is the active skin. */
 @import '@mcky/ui/core.css';
+@import '@mcky/ui/v6-base.css';
 @import './styles/v5-tokens.css';
+@import './styles/v6-tokens.css';
 @import './styles/v5-ui.css';
 @import './styles/workspace-layout.css';
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* ——— V5 “paper pop” tokens as Tailwind utilities ——— */
+  /* ——— V6 semantic tokens as Tailwind utilities ———
+     The local adapter maps these names onto canonical --mcky-v6-* values. */
   --color-paper: var(--paper);
   --color-paper-2: var(--paper-2);
   --color-card: var(--card);
@@ -36,16 +40,15 @@
   --font-sans: var(--font-ui);
   --font-mono: var(--font-mono);
 
-  /* ——— legacy shadcn-ish aliases (spec §2) ———
-     Nothing breaks mid-port: leaflet/pwa/photo CSS and older class names
-     keep resolving while the V5 classes roll out. */
+  /* ——— legacy shadcn-ish aliases ———
+     Older class names keep resolving while the V6 adapter supplies the skin. */
   --color-background: var(--paper);
   --color-foreground: var(--ink);
   --color-card-foreground: var(--ink);
   --color-popover: var(--card);
   --color-popover-foreground: var(--ink);
   --color-primary: var(--acc);
-  --color-primary-foreground: #ffffff;
+  --color-primary-foreground: var(--mcky-v6-on-accent);
   --color-secondary: var(--paper-2);
   --color-secondary-foreground: var(--ink);
   --color-muted: var(--paper-2);
@@ -53,13 +56,13 @@
   --color-accent: var(--pop);
   --color-accent-foreground: var(--pop-ink);
   --color-destructive: var(--danger);
-  --color-destructive-foreground: #ffffff;
+  --color-destructive-foreground: var(--mcky-v6-on-accent);
   --color-success: var(--acc);
-  --color-success-foreground: #ffffff;
+  --color-success-foreground: var(--mcky-v6-on-accent);
   --color-warning: var(--banana);
   --color-warning-foreground: var(--ink);
   --color-info: var(--sky);
-  --color-info-foreground: #ffffff;
+  --color-info-foreground: var(--mcky-v6-on-accent);
   --color-border: var(--rule);
   --color-input: var(--rule);
   --color-ring: var(--acc);

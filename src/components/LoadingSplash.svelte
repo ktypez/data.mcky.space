@@ -47,7 +47,7 @@
 
 <style>
   .entry-reveal {
-    --entry-color: var(--acc, #158068);
+    --entry-color: var(--acc, var(--mcky-v6-blue));
     position: fixed;
     inset: 0;
     z-index: 10000;
@@ -55,7 +55,7 @@
     pointer-events: none;
     isolation: isolate;
     contain: strict;
-    background: var(--paper, #f6f2e9);
+    background: var(--paper, var(--mcky-v6-cream));
     /* Fade begins before the shape finishes expanding: no pause at full size. */
     animation: overlay-whoosh 250ms ease-in 950ms both;
   }
@@ -99,11 +99,11 @@
   }
 
   .mascot-eye {
-    fill: var(--paper, #f6f2e9);
+    fill: var(--paper, var(--mcky-v6-cream));
   }
 
   .mascot-mouth {
-    stroke: var(--paper, #f6f2e9);
+    stroke: var(--paper, var(--mcky-v6-cream));
     stroke-width: 3.5;
   }
 

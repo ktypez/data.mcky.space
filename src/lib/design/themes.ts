@@ -2,7 +2,7 @@ import type { Theme, ThemeGroup } from './tokens'
 
 export type { Theme, ThemeGroup } from './tokens'
 
-/** Palette metadata only. Actual colors come from @mcky/ui/v5-tokens.css. */
+/** Palette metadata only. Actual colours come from @mcky/ui/v6-base.css via the local adapter. */
 export const themes: Theme[] = [
   { id: 'matcha', label: 'Matcha', description: 'กระดาษอุ่นโทนชามัทฉะ, เขียวเป็นสีหลักและคอรัลเป็นสีป๊อป (ค่าเริ่มต้น)', modes: ['light', 'dark'] },
   { id: 'coral', label: 'Coral', description: 'คอรัลส้มแดงเป็นสีหลักและทีลเข้มเป็นสีป๊อป', modes: ['light', 'dark'] },
@@ -10,12 +10,12 @@ export const themes: Theme[] = [
   { id: 'butter', label: 'Butter', description: 'ส้มเนยเป็นสีหลักและม่วงไอริสเป็นสีป๊อป', modes: ['light', 'dark'] },
 ]
 
-/** Picker swatches; runtime semantic colors are not sourced from this list. */
+/** Picker swatches point at canonical V6 tokens; runtime colours are not sourced from this list. */
 export const V5_PALETTES: Array<{ key: string; name: string; acc: string; pop: string; tint: string }> = [
-  { key: 'matcha', name: 'Matcha', acc: '#158068', pop: '#f2593f', tint: '#e2f2e8' },
-  { key: 'coral', name: 'Coral', acc: '#e8503a', pop: '#17918c', tint: '#fce7e1' },
-  { key: 'blueberry', name: 'Blueberry', acc: '#3e63dd', pop: '#f2a93b', tint: '#e7ecfc' },
-  { key: 'butter', name: 'Butter', acc: '#c77d0a', pop: '#6d5bd0', tint: '#faedd3' },
+  { key: 'matcha', name: 'Matcha', acc: 'var(--mcky-v6-scenery-hill-alt)', pop: 'var(--mcky-v6-orange)', tint: 'var(--acc-tint)' },
+  { key: 'coral', name: 'Coral', acc: 'var(--mcky-v6-orange)', pop: 'var(--mcky-v6-red)', tint: 'var(--acc-tint)' },
+  { key: 'blueberry', name: 'Blueberry', acc: 'var(--mcky-v6-blue)', pop: 'var(--mcky-v6-purple)', tint: 'var(--acc-tint)' },
+  { key: 'butter', name: 'Butter', acc: 'var(--mcky-v6-yellow)', pop: 'var(--mcky-v6-purple)', tint: 'var(--acc-tint)' },
 ]
 
 const defaultTheme: Theme = themes.find((theme) => theme.id === 'matcha') ?? themes[0]
