@@ -151,7 +151,7 @@
             onclick={() => setTexture(!texture)}
             class="v5-switch relative h-7 w-12 shrink-0 rounded-full border-[1.5px] border-ink transition-colors {texture ? 'bg-acc' : 'bg-paper-2'}"
           >
-            <span class="absolute top-[2.5px] size-[18px] rounded-full bg-[var(--mcky-v6-paper)] shadow transition-all duration-200 {texture ? 'left-[24px]' : 'left-[3px]'}"></span>
+            <span class="absolute top-[2.5px] size-[18px] rounded-full bg-card shadow transition-all duration-200 {texture ? 'left-[24px]' : 'left-[3px]'}"></span>
           </button>
         </div>
       </section>
@@ -187,7 +187,7 @@
               style="rotate: {i % 2 === 0 ? -1.2 : 1.2}deg;"
             >
               {#if active}
-                <span class="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full border-[1.5px] border-ink bg-acc text-[var(--mcky-v6-on-accent)]">
+                <span class="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full border-[1.5px] border-ink bg-acc text-[var(--on-accent)]">
                   <Check size={12} weight="bold" aria-hidden="true" />
                 </span>
               {/if}
@@ -197,7 +197,7 @@
                 <span class="size-5 rounded-full border border-ink/15" style="background: {p.tint}"></span>
               </span>
               <span class="mt-2.5 block text-[13px] font-bold text-ink">{p.name}</span>
-              <span class="mono block text-[10.5px] text-ink-faint">{p.acc.replace('var(--mcky-v6-', 'v6: ').replace(')', '')}</span>
+              <span class="mono block text-[10.5px] text-ink-faint">{p.key}</span>
             </button>
           {/each}
         </div>

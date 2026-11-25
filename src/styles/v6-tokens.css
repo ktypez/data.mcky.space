@@ -1,102 +1,92 @@
-/* DATA semantic adapter — V6 is the active visual language.
- *
- * Canonical day tokens and the twilight night ramp live in
- * @mcky/ui/v6-base.css (which imports v6-theme.css + v6-motion.css). This file
- * only re-names those tokens to the semantic variables the existing DATA
- * components already use. Derived tints/inks are colour-mixed, so no palette
- * hex is duplicated here.
- */
-
+/* DATA Ledger theme tokens adapted from the attached Mochi Ledger reference.
+   This file is self-contained: theme and palette controls remain app-owned. */
 :root {
-  /* Surfaces and ink — the canonical V6 ramp supplies every colour. */
-  --paper: var(--mcky-v6-cream);
-  --paper-2: color-mix(in srgb, var(--mcky-v6-cream) 82%, var(--mcky-v6-ink));
-  --card: var(--mcky-v6-paper);
-  --ink: var(--mcky-v6-ink);
-  --ink-soft: var(--mcky-v6-muted);
-  --ink-faint: var(--mcky-v6-subtle);
-  --rule: color-mix(in srgb, var(--mcky-v6-ink) 26%, transparent);
-  --rule-2: color-mix(in srgb, var(--mcky-v6-ink) 48%, transparent);
-  --hard: var(--mcky-v6-ink);
-
-  /* V6 Work Shell edges/elevation reused by the V5-shaped component classes. */
-  --border-w: 2.5px;
-  --shadow-pop: var(--mcky-v6-shadow-sm);
-  --sh-sm: var(--mcky-v6-shadow-sm);
-  --sh-md: var(--mcky-v6-shadow);
-  --radius: var(--mcky-v6-radius);
-  --r1: var(--mcky-v6-radius-sm);
-  --r2: 16px;
-  --r3: var(--mcky-v6-radius);
-  --r4: 28px;
-  --ring: color-mix(in srgb, var(--acc) 28%, transparent);
-
-  /* Accents. Palette ids only pick a V6 hue; derived values stay in sync. */
-  --acc: var(--mcky-v6-blue);
-  --acc-strong: color-mix(in srgb, var(--acc) 76%, var(--mcky-v6-ink));
-  --acc-tint: color-mix(in srgb, var(--acc) 12%, var(--mcky-v6-paper));
-  --acc-ink: color-mix(in srgb, var(--acc) 55%, var(--mcky-v6-ink));
-  --pop: var(--mcky-v6-purple);
-  --pop-tint: color-mix(in srgb, var(--pop) 12%, var(--mcky-v6-paper));
-  --pop-ink: color-mix(in srgb, var(--pop) 55%, var(--mcky-v6-ink));
-  --credit: var(--mcky-v6-blue);
-  --credit-tint: color-mix(in srgb, var(--credit) 12%, var(--mcky-v6-paper));
-  --credit-ink: color-mix(in srgb, var(--credit) 55%, var(--mcky-v6-ink));
-  --penpay: var(--mcky-v6-yellow);
-  --penpay-tint: color-mix(in srgb, var(--penpay) 12%, var(--mcky-v6-paper));
-  --penpay-ink: color-mix(in srgb, var(--penpay) 55%, var(--mcky-v6-ink));
-  --danger: var(--mcky-v6-red);
-  --danger-tint: color-mix(in srgb, var(--danger) 12%, var(--mcky-v6-paper));
-  --danger-ink: color-mix(in srgb, var(--danger) 55%, var(--mcky-v6-ink));
-
-  /* Local-only V5 names retained for feature CSS. */
-  --tint: var(--acc-tint);
-  --pen: var(--penpay);
-  --pen-tint: var(--penpay-tint);
-  --pen-ink: var(--penpay-ink);
-  --banana: var(--mcky-v6-yellow);
-  --sky: var(--mcky-v6-sky);
-  --pin-color: var(--acc);
-
-  /* V6 font stack; no remote stylesheet is pulled in by this entry. */
-  --font-ui: var(--mcky-v6-font-body);
-  --font-mono: var(--mcky-v6-font-mono);
-  --theme-font-display: var(--mcky-v6-font-display);
-  --theme-font-body: var(--mcky-v6-font-body);
+  --hue-pri: 158;
+  --hue-acc: 338;
+  --hue-sec: 190;
+  --paper: #fffdf8;
+  --paper-2: #ffffff;
+  --paper-3: #f7f2ea;
+  --ink: #322a42;
+  --ink-soft: #6b6383;
+  --ink-faint: #a39bb8;
+  --rule: #efe9df;
+  --rule-2: #e2d9cb;
+  --scrim: rgb(50 42 66 / .4);
+  --shadow-rgb: 50 42 66;
+  --s-pri: 58%; --l-pri: 55%; --l-pri-fill: 80%; --l-pri-fill-hov: 74%; --l-pri-soft: 94%; --l-pri-ink: 30%;
+  --s-acc: 65%; --l-acc: 56%; --l-acc-fill: 84%; --l-acc-fill-hov: 78%; --l-acc-soft: 94%; --l-acc-ink: 32%;
+  --pri: hsl(var(--hue-pri) var(--s-pri) var(--l-pri));
+  --pri-strong: hsl(var(--hue-pri) var(--s-pri) calc(var(--l-pri) - 8%));
+  --pri-fill: hsl(var(--hue-pri) calc(var(--s-pri) + 4%) var(--l-pri-fill));
+  --pri-fill-hov: hsl(var(--hue-pri) calc(var(--s-pri) + 4%) var(--l-pri-fill-hov));
+  --pri-soft: hsl(var(--hue-pri) calc(var(--s-pri) - 4%) var(--l-pri-soft));
+  --pri-ink: hsl(var(--hue-pri) calc(var(--s-pri) + 2%) var(--l-pri-ink));
+  --acc: hsl(var(--hue-acc) var(--s-acc) var(--l-acc));
+  --acc-strong: hsl(var(--hue-acc) var(--s-acc) calc(var(--l-acc) - 8%));
+  --acc-tint: hsl(var(--hue-acc) calc(var(--s-acc) + 5%) var(--l-acc-soft));
+  --acc-fill: hsl(var(--hue-acc) calc(var(--s-acc) + 5%) var(--l-acc-fill));
+  --acc-fill-hov: hsl(var(--hue-acc) calc(var(--s-acc) + 5%) var(--l-acc-fill-hov));
+  --acc-soft: hsl(var(--hue-acc) calc(var(--s-acc) + 5%) var(--l-acc-soft));
+  --acc-ink: hsl(var(--hue-acc) calc(var(--s-acc) - 8%) var(--l-acc-ink));
+  --sec: hsl(var(--hue-sec) 55% 58%);
+  --pop: var(--acc);
+  --pop-tint: var(--acc-tint);
+  --pop-ink: var(--acc-ink);
+  --credit: var(--pri); --credit-tint: var(--pri-soft); --credit-ink: var(--pri-ink);
+  --penpay: hsl(45 88% 62%); --penpay-tint: hsl(45 90% 92%); --penpay-ink: hsl(38 70% 28%);
+  --danger: hsl(4 66% 58%); --danger-tint: hsl(4 75% 94%); --danger-ink: hsl(4 60% 35%);
+  --banana: hsl(45 88% 65%); --sky: hsl(198 72% 72%); --pin-color: var(--pri);
+  --on-accent: #fff;
+  --font-ui: 'Itim', 'Prompt', ui-sans-serif, system-ui, 'Noto Sans Thai', sans-serif;
+  --font-display: 'Itim', 'Prompt', ui-sans-serif, system-ui, 'Noto Sans Thai', sans-serif;
+  --font-fun: 'Mali', 'Itim', cursive;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --theme-font-display: 'Itim', 'Prompt', ui-sans-serif, system-ui, 'Noto Sans Thai', sans-serif;
+  --theme-font-body: var(--font-ui);
+  --fs-2xs: 11px; --fs-xs: 12px; --fs-sm: 13px; --fs-md: 15px; --fs-lg: 17px; --fs-xl: 20px; --fs-2xl: 26px; --fs-3xl: 34px;
+  --mochi-radius-sm: 12px; --mochi-radius-md: 16px; --mochi-radius-lg: 24px;
+  --r1: 8px; --r2: 16px; --r3: 22px; --r4: 28px; --radius: 22px; --border-w: 1px;
+  --mochi-ease-spring: cubic-bezier(.34, 1.56, .64, 1); --mochi-ease-out: cubic-bezier(.22, 1, .36, 1);
+  --mochi-duration-fast: 120ms; --mochi-duration: 200ms;
+  --mochi-shadow-sticker: 0 3px 0 color-mix(in srgb, var(--rule-2) 85%, transparent), 0 5px 12px rgb(var(--shadow-rgb) / .08);
+  --mochi-focus-ring: 0 0 0 3px var(--card), 0 0 0 5px color-mix(in srgb, var(--pri) 72%, transparent);
+  --sh-sm: 0 1px 2px rgb(var(--shadow-rgb) / calc(.06 * var(--elev))), 0 1px 3px rgb(var(--shadow-rgb) / calc(.05 * var(--elev)));
+  --sh-md: 0 calc(6px * var(--elev)) calc(18px * var(--elev)) rgb(var(--shadow-rgb) / calc(.10 * var(--elev))), 0 calc(2px * var(--elev)) calc(5px * var(--elev)) rgb(var(--shadow-rgb) / calc(.06 * var(--elev)));
+  --shadow-pop: var(--mochi-shadow-sticker);
+  --ring: color-mix(in srgb, var(--pri) 28%, transparent);
+  --tint: var(--acc-tint); --pen: var(--penpay); --pen-tint: var(--penpay-tint); --pen-ink: var(--penpay-ink);
+  --pad-card: 20px; --rowh: 64px; --elev: 1;
+  --background: var(--paper); --foreground: var(--ink); --card-foreground: var(--ink); --popover: var(--card); --popover-foreground: var(--ink);
+  --primary: var(--pri); --primary-foreground: var(--on-accent); --secondary: var(--paper-3); --secondary-foreground: var(--ink);
+  --muted: var(--paper-3); --muted-foreground: var(--ink-soft); --accent: var(--acc); --accent-foreground: var(--acc-ink);
+  --destructive: var(--danger); --destructive-foreground: #fff; --success: var(--pri); --success-foreground: var(--on-accent);
+  --warning: var(--banana); --warning-foreground: var(--ink); --info: var(--sky); --info-foreground: var(--ink);
+  --border: var(--rule); --input: var(--rule-2); --ring: var(--pri); --sidebar: var(--card); --sidebar-foreground: var(--ink);
+  --sidebar-accent: var(--paper-3); --sidebar-accent-foreground: var(--ink); --sidebar-border: var(--rule); --sidebar-ring: var(--pri);
 }
-
-/* The four legacy palette ids remain pickable, now as V6 accent hues. */
-:root[data-palette='matcha'] {
-  --acc: var(--mcky-v6-scenery-hill-alt);
-  --pop: var(--mcky-v6-orange);
+:root[data-mode='light'] {
+  color-scheme: light;
 }
-:root[data-palette='coral'] {
-  --acc: var(--mcky-v6-orange);
-  --pop: var(--mcky-v6-red);
+:root[data-mode='dark'] {
+  --paper: #17131f; --paper-2: #211b2c; --paper-3: #2a2338;
+  --ink: #f4eff9; --ink-soft: #c9c1dc; --ink-faint: #948baa;
+  --rule: #332b45; --rule-2: #443a5c; --scrim: rgb(8 5 16 / .6); --shadow-rgb: 0 0 0;
+  --s-pri: 55%; --l-pri: 76%; --l-pri-fill: 35%; --l-pri-fill-hov: 42%; --l-pri-soft: 25%; --l-pri-ink: 84%;
+  --s-acc: 62%; --l-acc: 78%; --l-acc-fill: 35%; --l-acc-fill-hov: 42%; --l-acc-soft: 25%; --l-acc-ink: 88%;
+  --penpay-tint: hsl(45 55% 20%); --penpay-ink: hsl(45 80% 78%); --danger-tint: hsl(4 40% 23%); --danger-ink: hsl(4 80% 78%);
+  --on-accent: #24172b;
+  color-scheme: dark;
 }
-:root[data-palette='blueberry'] {
-  --acc: var(--mcky-v6-blue);
-  --pop: var(--mcky-v6-purple);
-}
-:root[data-palette='butter'] {
-  --acc: var(--mcky-v6-yellow);
-  --pop: var(--mcky-v6-purple);
-}
-:root[data-v6-mode='dark'][data-palette='matcha'],
-:root[data-mode='dark'][data-palette='matcha'] {
-  --acc: var(--mcky-v6-success);
-}
-
-/* Texture toggle now dots the shared painted sky, above the scenery layer but
-   below the routed content (which uses .mcky-v6-scenery-content). */
-.mcky-v6-scenery::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background-image: radial-gradient(var(--mcky-v6-dot) 1.2px, transparent 1.2px);
-  background-size: 22px 22px;
-  opacity: 0.8;
-}
-:root[data-texture='off'] .mcky-v6-scenery::after { opacity: 0; }
+:root[data-palette='matcha'] { --hue-pri: 158; --hue-acc: 338; --hue-sec: 190; }
+:root[data-palette='coral'] { --hue-pri: 16; --hue-acc: 338; --hue-sec: 158; }
+:root[data-palette='blueberry'] { --hue-pri: 222; --hue-acc: 190; --hue-sec: 280; }
+:root[data-palette='butter'] { --hue-pri: 45; --hue-acc: 256; --hue-sec: 190; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: var(--font-ui); font-size: var(--fs-md); line-height: 1.5; color: var(--ink); background: var(--paper); }
+body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(var(--rule) 1px, transparent 1.1px); background-size: 22px 22px; opacity: .65; }
+:root[data-texture='off'] body::before { opacity: 0; }
+::selection { background: var(--pri-soft); color: var(--pri-ink); }
+:focus-visible { outline: none; box-shadow: var(--mochi-focus-ring); }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important; } }

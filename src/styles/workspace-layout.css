@@ -1,47 +1,47 @@
-/* V6 Work Shell page layout. Navigation belongs to the shared top-aligned TopBar. */
+/* Mochi Ledger paper layout. Navigation belongs to the shared TopBar. */
 .app-workspace { margin-left: 0; background: transparent; }
 .page-shell {
   width: min(100%, 1320px);
   padding: 36px clamp(22px, 4vw, 64px) 56px;
   color: var(--ink);
 }
-/* The painted scenery shows in the gutters; each page reads as a cream V6
-   window shell sitting above it. */
-.mcky-v6-scenery-content .page-shell {
+/* Page surfaces follow the supplied paper and pastel design. */
+.ledger-shell .page-shell {
   margin-block: 18px;
-  background: color-mix(in srgb, var(--mcky-v6-cream) 94%, transparent);
-  border: var(--mcky-v6-outline);
-  border-radius: var(--mcky-v6-radius);
-  box-shadow: var(--mcky-v6-shadow-sm);
+  background-color: var(--paper-2);
+  border: 1px solid color-mix(in srgb, var(--acc) 16%, var(--rule));
+  border-radius: var(--mochi-radius-md);
+  box-shadow: var(--sh-sm);
 }
-.page-shell h1 { font-size: clamp(26px, 3vw, 34px); font-weight: 720; letter-spacing: -.045em; }
+.page-shell h1 { font-family: var(--theme-font-display); font-size: clamp(26px, 3vw, 34px); font-weight: 700; letter-spacing: -.02em; }
 .page-shell > p { color: var(--ink-soft); }
 .page-shell .squiggle { display: block; }
 .page-shell .card {
-  border: 1px solid var(--rule) !important;
-  border-radius: var(--r3) !important;
+  border: 1px solid color-mix(in srgb, var(--acc) 14%, var(--rule)) !important;
+  border-radius: var(--mochi-radius-md) !important;
   background: var(--card);
   box-shadow: var(--sh-sm) !important;
 }
 .page-shell .sticker {
-  border: 1.5px solid var(--hard) !important;
-  border-radius: var(--r2) !important;
-  box-shadow: 3px 3px 0 var(--hard) !important;
+  border: 1px solid color-mix(in srgb, var(--acc) 40%, var(--rule-2)) !important;
+  border-radius: var(--mochi-radius-sm) !important;
+  box-shadow: var(--mochi-shadow-sticker) !important;
 }
 .page-shell .field { border: 1.5px solid var(--rule-2) !important; border-radius: var(--r2) !important; box-shadow: none; }
 .page-shell .btn, .page-shell button.btn { border-radius: 999px; }
 .page-shell .btn-acc, .page-shell .btn-line, .page-shell .btn-pop {
-  border: 1.5px solid var(--hard);
-  box-shadow: 2.5px 2.5px 0 var(--hard);
+  border: 1px solid color-mix(in srgb, var(--acc) 30%, var(--hard));
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--acc) 24%, var(--hard));
 }
 
 .page-shell--catalog { max-width: 1440px; padding-top: 42px; }
+.page-shell--catalog .card { border-radius: var(--mochi-radius-md); }
 .page-shell--catalog > div:first-child { align-items: center; padding-bottom: 22px; }
 .page-shell--catalog > div:first-child p { margin-top: 7px; font-size: 13px; }
 .page-shell--catalog > div:first-child h1 { font-size: 34px; }
-.page-shell--catalog .count-sticker { border: 0; background: var(--paper-2); box-shadow: none; }
+.page-shell--catalog .count-sticker { border: 1px solid var(--rule); background: var(--paper-2); box-shadow: var(--sh-sm); }
 .page-shell--catalog [bind\:this] { scroll-margin-top: 12px; }
-.page-shell--catalog .sticky { top: 0; margin: 18px 0 0; padding: 12px 0; border: 0; background: var(--paper); }
+.page-shell--catalog .sticky { top: 0; margin: 18px 0 0; padding: 12px 0; border: 0; background: var(--paper-2); }
 .page-shell--catalog .sticky .field { min-height: 50px; border-color: var(--rule); border-radius: var(--r2); background: var(--card); box-shadow: none; }
 .page-shell--catalog .sticky .btn { border: 1px solid var(--rule); border-radius: 999px; box-shadow: none; }
 .page-shell--catalog .chip { border-radius: 999px; }
@@ -64,10 +64,17 @@
 .page-shell--editor form > fieldset > section:last-of-type { grid-column: 1 / -1; }
 .page-shell--settings, .page-shell--trash { max-width: 1050px; }
 .page-shell--settings #settings-panel { max-width: 820px; }
-.page-shell--settings #settings-panel > section { border-radius: var(--r3); }
-.page-shell--trash > .card { border-radius: var(--r3); }
+.page-shell--settings #settings-panel > section { border-radius: var(--mochi-radius-md); }
+.page-shell--trash > .card { border-radius: var(--mochi-radius-md); }
 .page-shell--maps { max-width: none; padding: 22px 30px 26px; }
 .page-shell--maps .field { border-radius: var(--r2); box-shadow: none; }
+
+/* Login and routed empty/error views do not always use page-shell, so keep
+   their controls aligned with the same theme and focus language. */
+.ledger-shell :is(button, a, input, textarea, select, [role='button'], [role='tab'], [role='switch']):focus-visible {
+  outline: none;
+  box-shadow: var(--mochi-focus-ring);
+}
 
 @media (max-width: 900px) {
   .page-shell { padding-inline: 24px; }
@@ -76,7 +83,7 @@
 }
 @media (max-width: 680px) {
   .page-shell { padding: 24px 16px 34px; }
-  .mcky-v6-scenery-content .page-shell { margin-block: 12px; }
+  .ledger-shell .page-shell { margin-block: 12px; }
   .page-shell h1, .page-shell--catalog > div:first-child h1 { font-size: 27px; }
   .page-shell--catalog { padding-top: 23px; }
   .page-shell--catalog > div:first-child { align-items: flex-start; gap: 12px; }

@@ -34,7 +34,7 @@
     aria-hidden="true">soft delete ♻</span>
 
   <div class="mb-7 flex items-center justify-center gap-2.5">
-    <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-[var(--mcky-v6-on-accent)]">
+    <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-[var(--on-accent)]">
       <span class="font-mono text-[13px] font-extrabold tracking-tight">DATA</span>
     </span>
     <span class="flex flex-col leading-none">
@@ -46,7 +46,7 @@
   </div>
 
   <div class="sticker pop-dots w-full max-w-md rounded-3xl p-8 text-center shadow-[6px_6px_0_0_var(--hard)] sm:p-10">
-    <span class="sticker mx-auto grid size-16 place-items-center rounded-2xl bg-acc text-[var(--mcky-v6-on-accent)] shadow-[4px_4px_0_0_var(--hard)]" aria-hidden="true">
+    <span class="sticker mx-auto grid size-16 place-items-center rounded-2xl bg-acc text-[var(--on-accent)] shadow-[4px_4px_0_0_var(--hard)]" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" class="size-8" aria-hidden="true">
         <path d="M12 3v18M4.3 7.5l15.4 9M19.7 7.5l-15.4 9" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
       </svg>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ListBullets, MapTrifold, Trash, Gear, Plus, SignIn, SignOut } from 'phosphor-svelte'
   import { push, router } from 'svelte-spa-router'
-  import ModeToggle from '@mcky/ui/mode-toggle'
+  import { appTheme, setMode } from '@/lib/app-theme'
   import { useAuthStore, logout } from '@/stores/auth-store'
   import { getClerk } from '@/lib/clerk'
   import { useFilterStore } from '@/stores/filter-store'
@@ -11,6 +11,7 @@
 
   let isAdmin = $derived($useAuthStore.isAdmin)
   let signedIn = $derived($useAuthStore.isSignedIn)
+  let theme = $derived($appTheme)
 
   // Clerk identity for the account menu (name + email + monogram).
   let account = $state<{ name: string; email: string }>({ name: '', email: '' })
@@ -86,7 +87,7 @@
 <header class="sticky top-0 z-50 border-b-[1.5px] border-ink bg-paper">
   <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
     <a href="#/" onclick={handleHomeClick} aria-label="DATA Ledger หน้าแรก" class="group flex items-center gap-2.5">
-      <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-[var(--mcky-v6-on-accent)] transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
+      <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-[var(--on-accent)] transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
         <span class="font-mono text-[13px] font-extrabold tracking-tight">DATA</span>
       </span>
       <span class="flex flex-col leading-none">
@@ -123,16 +124,16 @@
     </nav>
 
     <div class="flex items-center gap-2.5">
-      <!-- Shared V6 toggle; app-theme.ts folds its choice back into the
-           existing data-ledger-mode key so Settings' auto option still works. -->
-      <ModeToggle />
+      <button type="button" class="mode-toggle" aria-label={theme.resolvedMode === 'dark' ? 'ใช้โหมดสว่าง' : 'ใช้โหมดมืด'} title={theme.resolvedMode === 'dark' ? 'โหมดสว่าง' : 'โหมดมืด'} onclick={() => setMode(theme.resolvedMode === 'dark' ? 'light' : 'dark')}>
+        {#if theme.resolvedMode === 'dark'}<span aria-hidden="true">☀</span>{:else}<span aria-hidden="true">☾</span>{/if}
+      </button>
 
       {#if signedIn}
         <div class="relative" bind:this={menuRef}>
           <button
             type="button"
             onclick={() => (menuOpen = !menuOpen)}
-            class="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border-[1.5px] border-ink bg-acc font-mono text-[14px] font-bold text-[var(--mcky-v6-on-accent)] shadow-[2px_2px_0_0_var(--hard)] transition-transform hover:-translate-y-px"
+            class="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border-[1.5px] border-ink bg-acc font-mono text-[14px] font-bold text-[var(--on-accent)] shadow-[2px_2px_0_0_var(--hard)] transition-transform hover:-translate-y-px"
             aria-label="เมนูบัญชี"
             aria-expanded={menuOpen}
             aria-haspopup="menu"
@@ -195,3 +196,8 @@
     {/if}
   </nav>
 </header>
+
+<style>
+  .mode-toggle { display:grid; place-items:center; width:36px; height:36px; flex:none; border:1px solid var(--rule); border-radius:999px; background:var(--card); color:var(--acc-ink); font-size:19px; transition:transform var(--mochi-duration-fast) var(--mochi-ease-spring), background var(--mochi-duration) var(--mochi-ease-out); }
+  .mode-toggle:hover { transform:rotate(-10deg) scale(1.06); background:var(--acc-tint); }
+</style>

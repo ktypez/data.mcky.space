@@ -1,10 +1,9 @@
 /* ————————————————————————————————————————————————
-   DATA Ledger — V5 “paper pop” component classes
-   Ported from design/v5/src/index.css (@layer components block,
-   keyframes, leaflet overrides) plus the spec §2 class vocabulary:
+   DATA Ledger — Mochi Ledger component classes adapted from the supplied
+   paper, sticker and motion system:
    .card .sticker .btn .btn-acc .btn-pop .chip .kbd .field .label
    .seg .seg-item .count-sticker .squiggle .row .row:hover .mono .pop-dots
-   Also carries the V5 shell layout that replaces styles/ledger.css.
+   Also carries the app shell layout.
    ———————————————————————————————————————————————— */
 
 html { scrollbar-width: thin; scrollbar-color: var(--rule-2) transparent; }
@@ -29,7 +28,7 @@ body::before {
 }
 :root[data-texture="off"] body::before { opacity: 0; }
 
-::selection { background: var(--acc); color: var(--mcky-v6-on-accent); }
+::selection { background: var(--acc); color: var(--on-accent); }
 :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -79,7 +78,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
 }
-.ledger-shell ::selection { background: var(--acc); color: var(--mcky-v6-on-accent); }
+.ledger-shell ::selection { background: var(--acc); color: var(--on-accent); }
 .ledger-shell h1,
 .ledger-shell h2,
 .ledger-shell h3,
@@ -135,17 +134,17 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
     border: var(--border-w) solid transparent; cursor: pointer; user-select: none;
     transition: transform .16s ease, box-shadow .16s ease, background .16s ease, color .16s ease, border-color .16s ease;
   }
-  .btn-acc { background: var(--acc); color: var(--mcky-v6-on-accent); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
-  .btn-acc:hover { background: var(--acc-strong); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--hard); }
-  .btn-acc:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--hard); }
-  .btn-pop, .btn-line { background: var(--card); color: var(--ink); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--hard); }
-  .btn-pop:hover, .btn-line:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--hard); }
-  .btn-pop:active, .btn-line:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--hard); }
+  .btn-acc { background: var(--acc); color: var(--on-accent); border-color: color-mix(in srgb,var(--acc) 35%,var(--rule-2)); box-shadow: 0 2px 0 color-mix(in srgb,var(--acc) 35%,var(--rule-2)); }
+  .btn-acc:hover { background: var(--acc-strong); transform: translateY(-1px); box-shadow: 0 3px 0 color-mix(in srgb,var(--acc) 42%,var(--rule-2)); }
+  .btn-acc:active { transform: scale(.97); box-shadow: none; }
+  .btn-pop, .btn-line { background: var(--card); color: var(--ink); border-color: var(--rule-2); box-shadow: var(--sh-sm); }
+  .btn-pop:hover, .btn-line:hover { transform: translateY(-1px); box-shadow: var(--sh-md); }
+  .btn-pop:active, .btn-line:active { transform: scale(.97); box-shadow: none; }
   .btn-ghost { color: var(--ink-soft); border-color: transparent; }
   .btn-ghost:hover { background: var(--acc-tint); color: var(--acc-ink); }
-  .btn-danger { background: var(--card); color: var(--danger-ink); border-color: var(--hard); box-shadow: 2.5px 2.5px 0 0 var(--danger); }
-  .btn-danger:hover { background: var(--danger-tint); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--danger); }
-  .btn-danger:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--danger); }
+  .btn-danger { background: var(--card); color: var(--danger-ink); border-color: var(--danger); box-shadow: var(--sh-sm); }
+  .btn-danger:hover { background: var(--danger-tint); transform: translateY(-1px); box-shadow: var(--sh-md); }
+  .btn-danger:active { transform: scale(.97); box-shadow: none; }
   .btn[disabled] { opacity: .5; pointer-events: none; }
 
   .chip {
@@ -176,7 +175,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
 
   .seg {
     display: inline-flex; gap: 4px; padding: 4px;
-    background: var(--paper-2); border: 1px solid var(--rule);
+    background: var(--paper-3); border: 1px solid var(--rule);
     border-radius: 999px;
   }
   .seg > button, .seg-item {
@@ -184,7 +183,7 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
     color: var(--ink-soft); cursor: pointer; transition: all .15s ease;
   }
   .seg > button:hover, .seg-item:hover { color: var(--ink); }
-  .seg > button[aria-pressed="true"], .seg-item[aria-pressed="true"] { background: var(--card); color: var(--ink); border: var(--border-w) solid var(--hard); box-shadow: 2px 2px 0 0 var(--hard); }
+  .seg > button[aria-pressed="true"], .seg-item[aria-pressed="true"] { background: var(--card); color: var(--pri-ink); border: 1px solid var(--rule); box-shadow: var(--sh-sm); }
 
   .count-sticker {
     display: inline-flex; align-items: baseline; gap: 6px;
@@ -230,13 +229,13 @@ html:has(.ledger-shell[data-mode='dark']):root { color-scheme: dark; }
 .lp {
   width: 24px; height: 24px;
   background: var(--pin, var(--acc));
-  border: 2px solid var(--mcky-v6-paper);
+  border: 2px solid var(--paper-2);
   border-radius: 999px 999px 999px 3px;
   transform: rotate(-45deg);
   box-shadow: 0 2px 5px rgb(20 20 30 / .35), 0 0 0 1px rgb(20 20 30 / .1);
   transition: transform .15s ease;
 }
-.lp::after { content: ""; position: absolute; inset: 6.5px; border-radius: 999px; background: var(--mcky-v6-paper); }
+.lp::after { content: ""; position: absolute; inset: 6.5px; border-radius: 999px; background: var(--paper-2); }
 .lp:hover { transform: rotate(-45deg) scale(1.18); }
 
 .ledger-pop .leaflet-popup-content-wrapper {
