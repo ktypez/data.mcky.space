@@ -171,9 +171,9 @@ function persistPreferences(state: AppThemeState): void {
   }
 }
 
-function commitDom(theme: Theme, state: AppThemeState): void {
+function commitDom(_theme: Theme, state: AppThemeState): void {
   const root = document.documentElement
-  root.dataset.theme = theme.id
+  root.dataset.theme = state.resolvedMode
   root.dataset.palette = state.palette
   root.dataset.mode = state.resolvedMode
   root.dataset.density = state.density

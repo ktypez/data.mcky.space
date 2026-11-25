@@ -35,7 +35,7 @@
           if (['mochi', 'matcha', 'soda', 'sakura'].indexOf(savedPalette) !== -1) palette = savedPalette;
         } catch (e) {}
         var root = document.documentElement;
-        root.setAttribute('data-theme', palette);
+        root.setAttribute('data-theme', dark ? 'dark' : 'light');
         root.setAttribute('data-palette', palette);
         root.setAttribute('data-mode', dark ? 'dark' : 'light');
         root.classList.toggle('dark', dark);

@@ -2,8 +2,8 @@
    This file is self-contained: theme and palette controls remain app-owned. */
 :root {
   --hue-pri: 256;
-  --hue-acc: 158;
-  --hue-sec: 190;
+  --hue-acc: 330;
+  --hue-sec: 165;
   --paper: #fffdf8;
   --paper-2: #ffffff;
   --paper-3: #f7f2ea;
@@ -69,10 +69,10 @@
   --border: var(--rule); --input: var(--rule-2); --ring: var(--pri); --sidebar: var(--card); --sidebar-foreground: var(--ink);
   --sidebar-accent: var(--paper-3); --sidebar-accent-foreground: var(--ink); --sidebar-border: var(--rule); --sidebar-ring: var(--pri);
 }
-:root[data-mode='light'] {
+:root[data-theme='light'], :root[data-mode='light'] {
   color-scheme: light;
 }
-:root[data-mode='dark'] {
+:root[data-theme='dark'], :root[data-mode='dark'] {
   --paper: #17131f; --paper-2: #211b2c; --paper-3: #2a2338; --card: #211b2c;
   --ink: #f4eff9; --ink-soft: #c9c1dc; --ink-faint: #948baa;
   --rule: #332b45; --rule-2: #443a5c; --scrim: rgb(8 5 16 / .6); --shadow-rgb: 0 0 0;
@@ -82,10 +82,10 @@
   --on-accent: #24172b;
   color-scheme: dark;
 }
-:root[data-palette='mochi'] { --hue-pri: 256; --hue-acc: 338; --hue-sec: 190; }
-:root[data-palette='matcha'] { --hue-pri: 158; --hue-acc: 338; --hue-sec: 190; }
+:root[data-palette='mochi'] { --hue-pri: 256; --hue-acc: 330; --hue-sec: 165; }
+:root[data-palette='matcha'] { --hue-pri: 158; --hue-acc: 84; --hue-sec: 200; }
 :root[data-palette='soda'] { --hue-pri: 222; --hue-acc: 190; --hue-sec: 280; }
-:root[data-palette='sakura'] { --hue-pri: 338; --hue-acc: 16; --hue-sec: 158; }
+:root[data-palette='sakura'] { --hue-pri: 338; --hue-acc: 16; --hue-sec: 300; }
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body { font-family: var(--font-ui); font-size: var(--fs-md); line-height: 1.5; color: var(--ink); background: var(--paper); }

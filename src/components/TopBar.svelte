@@ -90,9 +90,9 @@ import { appTheme, setMode, setPalette } from '@/lib/app-theme'
 </script>
 
 <header class="sticky top-0 z-50 border-b border-rule bg-paper">
-  <div class="mx-auto flex min-h-[var(--topbar-h)] max-w-[var(--maxw)] items-center justify-between gap-3 px-4 sm:px-6">
+  <div class="mx-auto flex min-h-[var(--topbar-h)] max-w-[var(--maxw)] items-center gap-3 px-4 sm:px-6">
     <a href="#/" onclick={handleHomeClick} aria-label="DATA Ledger หน้าแรก" class="group flex items-center gap-2.5">
-      <span class="brand-mark grid size-8 place-items-center rounded-[10px] bg-pri-fill text-pri-ink transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
+        <span class="brand-mark grid size-8 place-items-center rounded-[10px] bg-pri-fill text-pri-ink transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
         <span class="font-mono text-[16px] font-bold">✳</span>
       </span>
       <span class="flex flex-col leading-none">
@@ -128,7 +128,7 @@ import { appTheme, setMode, setPalette } from '@/lib/app-theme'
       {/if}
     </nav>
 
-    <div class="flex shrink-0 items-center gap-2">
+    <div class="topbar-actions ml-auto flex shrink-0 items-center gap-2">
       <div class="palette-dots hidden items-center gap-1.5 rounded-full border border-rule bg-paper-3 p-1.5 sm:flex" role="group" aria-label="เปลี่ยนชุดสี">
         {#each palettes as palette}
           <button type="button" class="palette-dot" class:active={theme.palette === palette.id} style={`--dot:${palette.color}`} title={palette.label} aria-label={`ใช้ชุดสี ${palette.label}`} aria-pressed={theme.palette === palette.id} onclick={() => setPalette(palette.id)}></button>
@@ -194,6 +194,7 @@ import { appTheme, setMode, setPalette } from '@/lib/app-theme'
 
 <style>
   header { background:color-mix(in srgb,var(--paper) 88%,transparent); backdrop-filter:blur(12px); border-color:var(--rule); }
+  header > div { min-height:54px; }
   .topbar-nav { padding:3px; border:1px solid var(--rule); border-radius:999px; background:var(--paper-3); }
   .brand-mark { box-shadow:0 3px 10px color-mix(in srgb,var(--pri) 24%,transparent); }
   .mode-toggle,.command-trigger { display:inline-flex; align-items:center; justify-content:center; gap:7px; height:36px; flex:none; border:1px solid var(--rule); border-radius:999px; background:var(--card); color:var(--ink-soft); transition:transform var(--mochi-duration-fast) var(--mochi-ease-spring),background var(--mochi-duration) var(--mochi-ease-out),color var(--mochi-duration) var(--mochi-ease-out); }
@@ -204,5 +205,6 @@ import { appTheme, setMode, setPalette } from '@/lib/app-theme'
   .palette-dot:hover { transform:scale(1.18); }
   .palette-dot.active { border-color:var(--ink); box-shadow:0 0 0 2px var(--card); }
   @media (max-width:800px) { .topbar-nav { gap:0; } .nav-link { padding-inline:9px; } }
-  @media (max-width:640px) { .nav-link { font-size:0; gap:0; padding:9px; } .nav-link :global(svg) { width:18px; height:18px; } .brand-mark { width:30px; height:30px; } .command-trigger { width:36px; padding:0; } }
+  @media (max-width:860px) { header > div { flex-wrap:wrap; padding-block:8px; } .topbar-nav { order:3; flex:1 0 100%; justify-content:center; } .topbar-actions { margin-left:auto; } }
+  @media (max-width:640px) { .nav-link { font-size:0; gap:0; padding:9px; } .nav-link :global(svg) { width:18px; height:18px; } .brand-mark { width:30px; height:30px; } .command-trigger { width:36px; padding:0; } .topbar-actions { gap:5px; } .palette-dots { padding:4px; gap:3px; } .palette-dot { width:12px;height:12px; } }
 </style>

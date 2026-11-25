@@ -63,7 +63,7 @@ describe('app-owned Mochi Ledger design system', () => {
     ])
     expect(html).toContain("root.setAttribute('data-mode', dark ? 'dark' : 'light')")
     expect(html).toContain("root.setAttribute('data-palette', palette)")
-    expect(html).toContain("root.setAttribute('data-theme', palette)")
+    expect(html).toContain("root.setAttribute('data-theme', dark ? 'dark' : 'light')")
     expect(html).toContain("root.setAttribute('data-texture', texture)")
     expect(html).toContain('fonts.googleapis.com')
     expect(html).not.toContain('data-v6-mode')

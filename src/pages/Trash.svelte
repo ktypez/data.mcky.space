@@ -8,8 +8,6 @@
   import AppImage from '@/components/AppImage.svelte'
   import AppDialog from '@/components/AppDialog.svelte'
   import Asterisk from '@/components/ui/Asterisk.svelte'
-  import CountSticker from '@/components/ui/CountSticker.svelte'
-  import Squiggle from '@/components/ui/Squiggle.svelte'
   import { formatDateTime } from '@/lib/utils'
 
   interface TrashItem {
@@ -124,12 +122,8 @@
 {:else if !isAdmin}
   <div class="p-8 text-center text-sm text-ink-soft" role="status">กำลังนำกลับ…</div>
 {:else}
-  <section class="page-shell page-shell--trash mx-auto w-full max-w-3xl px-4 pb-16 pt-8 sm:px-6">
-    <div class="flex items-center gap-4">
-      <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">ถังขยะ</h1>
-      <CountSticker n={items.length} label="พักอยู่" rot={-2} />
-    </div>
-    <Squiggle class="mt-2 h-[6px] w-32 text-danger" />
+  <section class="page-shell page-shell--trash trash-page">
+    <header class="trash-head"><div><span class="eyebrow">DATA LEDGER · ARCHIVE</span><h1>ถังขยะ</h1><p>รายการที่ลบและยังสามารถกู้คืนได้</p></div><strong class="trash-count">{items.length} <small>รายการ</small></strong></header>
 
     <div class="sticker mt-7 flex items-start gap-3 rounded-2xl !border-pri bg-tint p-4 shadow-sm">
       <Info size={17} weight="bold" class="mt-0.5 shrink-0 text-acc-ink" aria-hidden="true" />
@@ -145,11 +139,12 @@
       <p role="alert" class="mt-4 rounded-xl border-[1.5px] border-danger bg-danger-tint px-4 py-3 text-sm font-medium text-danger-ink">{error}</p>
     {/if}
 
-    <div role="list" aria-label="รายการถังขยะ" class="card mt-4 overflow-hidden">
+    <div role="list" aria-label="รายการถังขยะ" class="trash-list mt-4">
+      <div class="trash-list-head"><span>รายการ</span><span>วันหมดอายุ</span><span>การทำงาน</span></div>
       {#if loading}
         <div class="p-8 text-center text-sm text-ink-soft" role="status">กำลังโหลดถังขยะ…</div>
       {:else if items.length === 0 && !error}
-        <div class="flex flex-col items-center gap-3 p-10 text-center">
+        <div class="empty-trash">
           <span class="sticker grid size-16 place-items-center rounded-2xl bg-tint text-acc-ink shadow-sm" aria-hidden="true">
             <Asterisk class="size-8" />
           </span>
@@ -205,3 +200,15 @@
     </AppDialog>
   </section>
 {/if}
+
+<style>
+  .trash-page { max-width:var(--maxw);padding-top:24px;padding-bottom:56px; }
+  .trash-head { display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:16px;border-bottom:2px solid var(--rule-2); }
+  .eyebrow { color:var(--pri);font:700 11px var(--font-mono);letter-spacing:.12em; }.trash-head h1 { margin-top:4px; }.trash-head p { margin-top:4px;color:var(--ink-faint);font-size:var(--fs-sm); }
+  .trash-count { color:var(--pri);font:700 var(--fs-xl) var(--font-display);white-space:nowrap; }.trash-count small { color:var(--ink-faint);font:var(--fs-sm) var(--font-ui); }
+  .trash-list { overflow:hidden;border:1px solid var(--rule);border-radius:var(--r-md);background:var(--paper-2); }
+  .trash-list-head { display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;padding:9px 16px;border-bottom:1px solid var(--rule);background:var(--paper-3);color:var(--ink-faint);font-size:var(--fs-2xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase; }
+  .trash-list .row { min-height:62px;border-bottom:1px solid var(--rule); }.trash-list .row:last-child { border-bottom:0; }
+  .empty-trash { display:flex;flex-direction:column;align-items:center;gap:10px;padding:42px 20px;text-align:center; }.empty-trash > span { width:54px;height:54px;border-radius:var(--r-md); }
+  @media(max-width:620px) { .trash-list-head { grid-template-columns:minmax(0,1fr) auto; }.trash-list-head span:nth-child(2) { display:none; } }
+</style>
