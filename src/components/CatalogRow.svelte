@@ -41,7 +41,7 @@
   {style}
   role="presentation"
   onmouseenter={onFocus}
-  class="row grid-cols-[minmax(0,1fr)_auto] px-4 sm:px-5 {active ? 'is-active' : ''}"
+  class="prototype-row grid-cols-[minmax(0,1fr)_auto] px-4 sm:px-5 {active ? 'is-active' : ''}"
 >
   <button type="button" onclick={onOpen} onfocus={onFocus} class="flex min-w-0 items-center gap-3 py-2 text-left">
     {#if client.images[0]}
@@ -80,3 +80,9 @@
     <RowCopy {client} focused={active} />
   </div>
 </div>
+
+<style>
+  .prototype-row { min-height:60px; border-bottom:1px solid var(--rule); background:var(--paper-2); transition:background-color var(--mochi-duration-fast) var(--mochi-ease-out); }
+  .prototype-row:hover,.prototype-row.is-active { background:color-mix(in srgb,var(--pri) 5%,var(--paper-2)); }
+  .prototype-row:last-child { border-bottom:0; }
+</style>

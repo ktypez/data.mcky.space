@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { MagnifyingGlass, X, ArrowsClockwise, Clock, TextAa } from 'phosphor-svelte'
+  import { MagnifyingGlass, X, ArrowsClockwise, Clock, TextAa, Asterisk } from 'phosphor-svelte'
   import { push } from 'svelte-spa-router'
   import { createVirtualizer } from '@tanstack/svelte-virtual'
   import { useClientStore } from '@/stores/client-store'
@@ -10,8 +10,6 @@
   import { trackField } from '@/lib/restore-field'
   import { clientListTitle } from '@/lib/clientNames'
   import CatalogRow from '@/components/CatalogRow.svelte'
-  import CountSticker from '@/components/ui/CountSticker.svelte'
-  import Squiggle from '@/components/ui/Squiggle.svelte'
   import Chip from '@/components/ui/Chip.svelte'
 
   let clients = $derived($useClientStore.clients)
@@ -73,7 +71,6 @@
   // everything rendered above it (header, chips, sticky search, error).
   let parentRef: HTMLDivElement | undefined = $state()
   let topRef: HTMLDivElement | undefined = $state()
-  let barRef: HTMLDivElement | undefined = $state()
   let vstore: ReturnType<typeof createVirtualizer<HTMLElement, HTMLDivElement>> | undefined = $state()
   let scrollMargin = $state(0)
   let appliedMargin = -1
@@ -118,7 +115,7 @@
   }
 
   $effect(() => {
-    const boxes = [topRef, barRef].filter((n): n is HTMLDivElement => !!n)
+    const boxes = [topRef].filter((n): n is HTMLDivElement => !!n)
     if (!boxes.length || !parentRef) return
     const ro = new ResizeObserver(syncMargin)
     for (const box of boxes) ro.observe(box)
@@ -171,25 +168,24 @@
   }
 </script>
 
-<div class="page-shell page-shell--catalog mx-auto flex max-w-6xl flex-col px-3 pb-8 pt-3 sm:px-8 sm:pt-5">
-  <div class="flex shrink-0 flex-wrap items-end justify-between gap-3 pb-4">
-    <div class="min-w-0">
-      <div class="flex flex-wrap items-center gap-3">
-        <h1 class="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">รายการ</h1>
-        <span role="status"><CountSticker n={counts.total.toLocaleString('th-TH')} label="รายการ" /></span>
-      </div>
-      <Squiggle class="mt-2 h-[6px] w-36 text-acc" />
-      <p class="mt-2 text-sm text-ink-soft">ทุกรายการในสมุดทะเบียน — ค้นหา กรอง เปิด และคัดลอก</p>
+<section class="catalog wrap page-shell page-shell--catalog">
+  <header class="catalog-head">
+    <div><span class="eyebrow"><Asterisk size={13} weight="fill" aria-hidden="true" /> สมุดทะเบียน</span><h1>รายการทั้งหมด</h1></div>
+    <div class="head-count"><strong class="tnum">{filtered.length}</strong><span>จาก {counts.total} รายการ</span></div>
+  </header>
+  <div class="toolbar">
+    <div class="search-wrap sticky">
+      <span class="search-icon"><MagnifyingGlass aria-hidden="true" /></span>
+      <input use:trackField={readSearch} value={search} oninput={(e) => { setSearch(e.currentTarget.value); focused = 0 }} onkeydown={onKeyDown} placeholder="ค้นหาชื่อร้าน, ลูกค้า, โน้ต…" aria-label="ค้นหาชื่อร้าน ลูกค้า หรือโน้ต" name="q" autocomplete="off" spellcheck="false" />
+      {#if search}<button type="button" class="clear-search" aria-label="ล้างคำค้น" onclick={() => { setSearch(''); focused = 0 }}><X size={15} /></button>{:else}<kbd>⌘ K</kbd>{/if}
     </div>
-    <div class="ml-auto flex min-w-0 items-center gap-2 overflow-x-auto scrollbar-none">
-      <div class="seg shrink-0" role="group" aria-label="เรียงลำดับรายการ">
-        <button type="button" class="seg-item" aria-pressed={sort === 'updated'} onclick={() => (sort = 'updated')}><Clock size={13} class="mr-1 inline -translate-y-px" weight="bold" aria-hidden="true" /> ล่าสุด</button>
-        <button type="button" class="seg-item" aria-pressed={sort === 'name'} onclick={() => (sort = 'name')}><TextAa size={13} class="mr-1 inline -translate-y-px" weight="bold" aria-hidden="true" /> ชื่อ</button>
-      </div>
+    <div class="seg shrink-0" role="group" aria-label="เรียงลำดับรายการ">
+      <button type="button" class="seg-item" aria-pressed={sort === 'updated'} onclick={() => (sort = 'updated')}><Clock size={13} aria-hidden="true" /> ล่าสุด</button>
+      <button type="button" class="seg-item" aria-pressed={sort === 'name'} onclick={() => (sort = 'name')}><TextAa size={13} aria-hidden="true" /> ชื่อ</button>
     </div>
+    <button type="button" onclick={handleRefresh} disabled={refreshing} aria-label="รีเฟรชรายการ" class="refresh-btn"><ArrowsClockwise size={16} class={refreshing ? 'spin' : ''} /></button>
   </div>
-
-  <div bind:this={topRef} class="-mx-3 flex flex-wrap gap-2 px-3 pb-1 sm:mx-0 sm:px-0" role="group" aria-label="ตัวกรองรายการ">
+  <div bind:this={topRef} class="chips" role="group" aria-label="ตัวกรองรายการ">
     {#each FILTER_CHOICES as choice}
       <Chip
         active={filter === choice.key}
@@ -199,40 +195,8 @@
     {/each}
   </div>
 
-  <!-- Sticky: the list scrolls with the page, so the search field has to stay
-       reachable instead of scrolling away with the header. It is a direct
-       child of the page column — nesting it inside a short wrapper would cap
-       how far it can stick. -->
-  <div bind:this={barRef} class="sticky top-0 z-20 -mx-3 mt-3 flex gap-2 border-b border-rule/70 bg-paper px-3 py-2.5 sm:-mx-8 sm:px-8">
-    <div class="relative min-w-0 flex-1">
-      <MagnifyingGlass class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" aria-hidden="true" />
-      <input
-        use:trackField={readSearch}
-        value={search}
-        oninput={(e) => {
-          setSearch(e.currentTarget.value)
-          focused = 0
-        }}
-        onkeydown={onKeyDown}
-        placeholder="ค้นหาชื่อ ร้าน หรือ ID…"
-        aria-label="ค้นหาชื่อ ร้าน หรือ ID"
-        name="q"
-        autocomplete="off"
-        spellcheck="false"
-        class="field !py-3 !pl-11 !pr-20 shadow-sm"
-      />
-      {#if search}
-        <button type="button" onclick={() => { setSearch(''); focused = 0 }} class="absolute right-1 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full text-ink-faint hover:bg-paper-2 hover:text-ink" aria-label="ล้างการค้นหา">
-          <X class="h-3.5 w-3.5" weight="bold" aria-hidden="true" />
-        </button>
-      {:else}
-        <span class="absolute right-3 top-1/2 hidden -translate-y-1/2 md:block"><kbd class="kbd">⌘K</kbd></span>
-      {/if}
-    </div>
-    <button type="button" onclick={handleRefresh} disabled={refreshing} aria-label="รีเฟรชรายการ" class="btn btn-pop grid size-12 shrink-0 place-items-center !p-0">
-      <ArrowsClockwise class="h-5 w-5 {refreshing ? 'spin' : ''}" weight="bold" aria-hidden="true" />
-    </button>
-  </div>
+  <!-- Search/filter composition follows the attached Ledger view. -->
+
 
   {#if error && filtered.length === 0}
     <div class="mt-3 flex items-center justify-between gap-3 rounded-[10px] border-[1.5px] border-danger bg-danger-tint px-3 py-2 text-sm text-danger-ink" role="alert">
@@ -241,11 +205,9 @@
     </div>
   {/if}
 
-  <div class="mt-4">
-    <div class="card overflow-hidden">
-      <div class="hidden shrink-0 items-center gap-3 border-b border-rule bg-paper-2/50 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-ink-faint sm:flex" aria-hidden="true">
-        <span class="w-11">รูป</span><span class="flex-1">ลูกค้า</span><span class="w-[72px]">ชำระ</span><span class="w-12">มี</span><span class="hidden w-24 text-right md:block">อัปเดต</span><span class="w-11"></span>
-      </div>
+  <div class="list-shell">
+    <div class="list-head" aria-hidden="true"><span>ลูกค้า</span><span>สถานะ</span><span class="right">อัปเดต</span><span></span></div>
+    <div class="list-body">
       {#if loading && filtered.length === 0}
         <div role="status" aria-label="กำลังโหลดรายการ" class="p-2">
           {#each Array(6) as _, i (i)}
@@ -253,10 +215,7 @@
           {/each}
         </div>
       {:else if filtered.length === 0}
-        <div class="flex flex-col items-center justify-center gap-3 px-8 py-20 text-center">
-          <Squiggle class="h-1.5 w-24 text-rule-2" />
-          <p class="text-sm text-ink-soft">{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ — ลองล้างการค้นหาหรือเปลี่ยนตัวกรอง'}</p>
-        </div>
+        <div class="empty-state"><div class="empty-art"><MagnifyingGlass size={26} /></div><h2>{error ? 'โหลดรายการไม่สำเร็จ' : 'ไม่พบรายการ'}</h2><p>ลองเปลี่ยนคำค้นหา หรือยกเลิกตัวกรองดูสิ</p><button type="button" onclick={() => { setSearch(''); setFilter(FilterKey.All) }}>ล้างทั้งหมด</button></div>
       {:else}
         <div bind:this={parentRef} class="relative">
           <div style="height: {$vstore?.getTotalSize() ?? 0}px; position: relative;">
@@ -281,6 +240,31 @@
         </div>
       {/if}
     </div>
-
   </div>
-</div>
+</section>
+
+<style>
+  .catalog { padding-top:22px; padding-bottom:60px; }
+  .catalog-head { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; padding-bottom:16px; border-bottom:2px solid var(--rule-2); }
+  .eyebrow { display:inline-flex; align-items:center; gap:6px; color:var(--pri); font-size:var(--fs-xs); font-weight:700; letter-spacing:.08em; }
+  .catalog-head h1 { margin-top:4px; font-family:var(--font-display); font-size:var(--fs-2xl); font-weight:700; }
+  .head-count { display:flex; align-items:baseline; gap:6px; white-space:nowrap; color:var(--ink-faint); font-size:var(--fs-sm); }
+  .head-count strong { color:var(--pri); font-family:var(--font-display); font-size:var(--fs-xl); }
+  .toolbar { display:flex; align-items:center; gap:10px; margin-top:14px; }
+  .search-wrap { display:flex; align-items:center; gap:9px; min-width:0; flex:1; height:40px; padding:0 10px 0 13px; border:1px solid var(--rule-2); border-radius:var(--r-pill); background:var(--card); }
+  .search-icon { width:16px; flex:none; color:var(--ink-faint); }
+  .search-wrap input { min-width:0; flex:1; border:0; outline:0; background:transparent; color:var(--ink); font:inherit; font-size:var(--fs-sm); }
+  .search-wrap input::placeholder { color:var(--ink-faint); }
+  .search-wrap kbd { flex:none; border:1px solid var(--rule); border-radius:6px; padding:1px 5px; color:var(--ink-faint); font:11px var(--font-mono); }
+  .clear-search,.refresh-btn { display:grid; place-items:center; width:36px; height:36px; flex:none; border:1px solid var(--rule); border-radius:50%; background:var(--card); color:var(--ink-soft); }
+  .chips { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+  .list-shell { margin-top:16px; overflow:hidden; border:1px solid var(--rule); border-radius:var(--r-md); background:var(--paper-2); }
+  .list-head { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) 96px 34px; gap:14px; padding:9px 16px; border-bottom:1px solid var(--rule); background:var(--paper-3); color:var(--ink-faint); font-size:var(--fs-2xs); font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+  .list-head .right { text-align:right; }
+  .empty-state { display:flex; flex-direction:column; align-items:center; gap:8px; padding:48px 20px; text-align:center; color:var(--ink-soft); }
+  .empty-art { display:grid; place-items:center; width:58px; height:58px; margin-bottom:4px; border-radius:var(--r-md); background:var(--paper-3); color:var(--pri); }
+  .empty-state h2 { color:var(--ink); font-family:var(--font-display); font-size:var(--fs-lg); }
+  .empty-state p { font-size:var(--fs-sm); }
+  .empty-state button { border:0; background:none; color:var(--pri); font-size:var(--fs-sm); font-weight:700; }
+  @media(max-width:680px) { .catalog { padding-inline:14px; } .catalog-head { align-items:flex-start; } .toolbar { flex-wrap:wrap; } .search-wrap { flex-basis:calc(100% - 48px); } .list-head { grid-template-columns:minmax(0,1fr) 30px; } .list-head span:nth-child(2),.list-head .right { display:none; } }
+</style>

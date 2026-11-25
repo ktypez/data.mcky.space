@@ -13,8 +13,6 @@
   import type { Client } from '@/types/index'
   import ClientNames from '@/components/ClientNames.svelte'
   import AppImage from '@/components/AppImage.svelte'
-  import CountSticker from '@/components/ui/CountSticker.svelte'
-  import Squiggle from '@/components/ui/Squiggle.svelte'
   import Monogram from '@/components/ui/Monogram.svelte'
   import Button from '@/components/ui/Button.svelte'
 
@@ -287,18 +285,14 @@
       </div>
     {/if}
 
-      <div class="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">แผนที่</h1>
-          <CountSticker n={pins.length.toLocaleString('th-TH')} label="หมุด" />
-          <Squiggle class="hidden h-1 w-24 text-acc sm:block" />
-        </div>
+      <header class="maps-head mb-4 flex shrink-0 flex-wrap items-end justify-between gap-3">
+        <div><span class="eyebrow">DATA LEDGER · MAP</span><h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">แผนที่</h1><p class="mt-1 text-sm text-ink-soft">แสดงระเบียนที่บันทึกพิกัดไว้ <b class="text-pri">{pins.length.toLocaleString('th-TH')} หมุด</b></p></div>
         <div class="flex flex-wrap items-center gap-2" role="group" aria-label="คำอธิบายสัญลักษณ์">
           <span class="chip border-credit-ink/20 bg-credit-tint text-credit-ink"><span class="size-2 rounded-full bg-credit" aria-hidden="true"></span>บัตรเครดิต · {legendCounts.credit}</span>
           <span class="chip border-pen-ink/20 bg-pen-tint text-pen-ink"><span class="size-2 rounded-full bg-pen" aria-hidden="true"></span>จ่ายในวัน · {legendCounts.penpay}</span>
           <span class="chip border-rule bg-paper-2/60 text-ink-faint"><span class="size-2 rounded-full bg-acc" aria-hidden="true"></span>อื่นๆ · {legendCounts.other}</span>
         </div>
-      </div>
+      </header>
 
     <div class="relative mb-4 shrink-0">
       <MagnifyingGlass class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" aria-hidden="true" />
@@ -395,3 +389,9 @@
     {/if}
   </section>
 {/if}
+
+<style>
+  .maps-head { padding-bottom:14px; border-bottom:2px solid var(--rule-2); }
+  .eyebrow { color:var(--pri); font:700 11px var(--font-mono); letter-spacing:.12em; }
+  .page-shell--maps .chip { border-radius:var(--r-pill); }
+</style>

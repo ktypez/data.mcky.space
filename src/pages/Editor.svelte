@@ -19,7 +19,6 @@
   import Input from '@/components/ui/Input.svelte'
   import Label from '@/components/ui/Label.svelte'
   import Button from '@/components/ui/Button.svelte'
-  import Squiggle from '@/components/ui/Squiggle.svelte'
 
   let { params }: { params?: { id?: string } } = $props()
   let id = $derived(params?.id ?? '')
@@ -267,14 +266,12 @@
     <h1 class="sr-only">{editing ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
     <button type="button" onclick={onBack} class="btn btn-ghost -ml-2 !px-3 text-[13px]"><ArrowLeft class="inline h-3.5 w-3.5" aria-hidden="true" /> กลับ</button>
 
-    <div class="mt-4 flex flex-wrap items-center gap-3">
-      <h2 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{editing ? 'แก้ไขรายการ' : 'รายการใหม่'}</h2>
+    <header class="editor-head">
+      <div><span class="eyebrow">DATA LEDGER · {editing ? 'EDIT RECORD' : 'NEW RECORD'}</span><h2>{editing ? 'แก้ไขรายการ' : 'รายการใหม่'}</h2>
+        <p>{#if editing}กำลังแก้ไขระเบียนนี้ — ระบบเก็บข้อมูลเดิมไว้{:else}เพิ่มระเบียนใหม่ในสมุดทะเบียน — รหัสจะถูกกำหนดตอนบันทึก{/if}</p>
+      </div>
       {#if dirty && !readOnly}<span role="status" class="chip border-pop-ink/20 bg-pop-tint text-pop-ink">ยังไม่บันทึก</span>{/if}
-    </div>
-    <Squiggle class="mt-2 h-[6px] w-32 text-acc" />
-    <p class="mt-2 text-[13px] leading-relaxed text-ink-soft">
-      {#if editing}กำลังแก้ไขระเบียนนี้ — ระบบเก็บข้อมูลเดิมไว้{:else}บรรทัดใหม่ในสมุดทะเบียน — โคดจะถูกกำหนดตอนบันทึก{/if}
-    </p>
+    </header>
 
     {#if loadError}
       <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[10px] border-[1.5px] border-banana/60 bg-banana/15 px-4 py-3 text-sm text-ink" role="status">
@@ -374,3 +371,11 @@
     </form>
   </div>
 {/if}
+
+<style>
+  .editor-head { display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-top:18px;padding-bottom:16px;border-bottom:2px solid var(--rule-2); }
+  .editor-head .eyebrow { color:var(--pri);font:700 11px var(--font-mono);letter-spacing:.12em; }
+  .editor-head h2 { margin-top:4px;font-family:var(--font-display);font-size:var(--fs-2xl);font-weight:700; }
+  .editor-head p { margin-top:5px;color:var(--ink-faint);font-size:var(--fs-sm); }
+  @media(max-width:560px) { .editor-head { align-items:flex-start;flex-direction:column; } }
+</style>
