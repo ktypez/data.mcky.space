@@ -14,6 +14,9 @@ export interface AppThemeState {
   palette: string
   density: Density
   texture: boolean
+  elevation: number
+  radiusScale: number
+  fontId: string
 }
 
 const THEME_STORE_KEY = 'data-ledger-ui'
@@ -98,6 +101,14 @@ function readTexture(): boolean {
   }
 }
 
+function readPreference<T>(key: string, fallback: T, valid: (value: unknown) => value is T): T {
+  try {
+    const saved = JSON.parse(readPreferences() ?? '{}') as { state?: Record<string, unknown> }
+    const value = saved.state?.[key]
+    return valid(value) ? value : fallback
+  } catch { return fallback }
+}
+
 function makeState(themeId: string, mode: AppMode): AppThemeState {
   const theme = getTheme(themeId)
   const supportedMode = themeSupportsMode(theme, mode) ? mode : 'auto'
@@ -108,6 +119,9 @@ function makeState(themeId: string, mode: AppMode): AppThemeState {
     palette: theme.id,
     density: readDensity(),
     texture: readTexture(),
+    elevation: readPreference('elevation', 1, (v): v is number => typeof v === 'number' && v >= 0 && v <= 2),
+    radiusScale: readPreference('radiusScale', 1, (v): v is number => typeof v === 'number' && v >= .4 && v <= 1.6),
+    fontId: readPreference('fontId', 'google', (v): v is string => ['google', 'itim', 'prompt'].includes(String(v))),
   }
 }
 
@@ -123,6 +137,9 @@ function setActiveState(next: AppThemeState): void {
     activeState.palette === next.palette &&
     activeState.density === next.density &&
     activeState.texture === next.texture
+    && activeState.elevation === next.elevation
+    && activeState.radiusScale === next.radiusScale
+    && activeState.fontId === next.fontId
   ) return
   activeState = next
   listeners.forEach(listener => listener())
@@ -164,7 +181,7 @@ function persistPreferences(state: AppThemeState): void {
       : {}
     localStorage.setItem(PREFERENCES_KEY, JSON.stringify({
       ...saved,
-      state: { ...savedState, density: state.density, texture: state.texture },
+      state: { ...savedState, density: state.density, texture: state.texture, elevation: state.elevation, radiusScale: state.radiusScale, fontId: state.fontId },
     }))
   } catch {
     /* storage unavailable — the DOM attributes still apply */
@@ -178,6 +195,7 @@ function commitDom(_theme: Theme, state: AppThemeState): void {
   root.dataset.mode = state.resolvedMode
   root.dataset.density = state.density
   root.dataset.texture = state.texture ? 'on' : 'off'
+  applyDesignProperties(state)
   root.classList.toggle('dark', state.resolvedMode === 'dark')
   root.style.colorScheme = state.resolvedMode
   window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: state }))
@@ -259,3 +277,26 @@ export function setTexture(texture: boolean): void {
     window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: next }))
   }
 }
+
+function applyDesignProperties(state: AppThemeState): void {
+  const root = document.documentElement
+  root.style.setProperty('--elev', String(state.elevation))
+  root.style.setProperty('--r-scale', String(state.radiusScale))
+  const font = state.fontId === 'prompt' ? "'Prompt', ui-sans-serif, system-ui, 'Noto Sans Thai', sans-serif" : state.fontId === 'itim' ? "'Itim', ui-sans-serif, system-ui, 'Noto Sans Thai', sans-serif" : "'Itim', 'Prompt', ui-sans-serif, system-ui, 'Noto Sans Thai', sans-serif"
+  root.style.setProperty('--font-ui', font)
+  root.style.setProperty('--font-display', 'var(--font-ui)')
+}
+
+function updateDesignPreference(patch: Partial<Pick<AppThemeState, 'elevation' | 'radiusScale' | 'fontId'>>): void {
+  const next = { ...getSnapshot(), ...patch }
+  setActiveState(next)
+  persistPreferences(next)
+  if (typeof document !== 'undefined') {
+    applyDesignProperties(next)
+    window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: next }))
+  }
+}
+
+export const setElevation = (elevation: number) => updateDesignPreference({ elevation: Math.max(0, Math.min(2, elevation)) })
+export const setRadiusScale = (radiusScale: number) => updateDesignPreference({ radiusScale: Math.max(.4, Math.min(1.6, radiusScale)) })
+export const setFontId = (fontId: string) => updateDesignPreference({ fontId: ['google', 'itim', 'prompt'].includes(fontId) ? fontId : 'google' })

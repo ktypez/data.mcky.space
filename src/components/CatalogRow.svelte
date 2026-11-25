@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CreditCard, NotePencil, Image as ImageIcon } from 'phosphor-svelte'
+  import { NotePencil, Image as ImageIcon } from 'phosphor-svelte'
   import type { Client } from '@/types/index'
   import ClientNames from '@/components/ClientNames.svelte'
   import AppImage from '@/components/AppImage.svelte'
@@ -41,48 +41,36 @@
   {style}
   role="presentation"
   onmouseenter={onFocus}
-  class="prototype-row grid-cols-[minmax(0,1fr)_auto] px-4 sm:px-5 {active ? 'is-active' : ''}"
+  class="prototype-row grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_96px_34px] {active ? 'is-active' : ''}"
 >
-  <button type="button" onclick={onOpen} onfocus={onFocus} class="flex min-w-0 items-center gap-3 py-2 text-left">
-    {#if client.images[0]}
-      <AppImage src={client.thumb ?? client.images[0]} fallbackSrc={client.thumb ? client.images[0] : undefined} alt="" width={44} height={44} className="size-11 shrink-0 rounded-xl border-[1.5px] border-rule object-cover" />
-    {:else}
-      <span aria-hidden="true" class="flex size-11 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-rule bg-tint text-base font-bold text-acc-ink">{initial}</span>
-    {/if}
-    <span class="min-w-0 flex-1">
-      <ClientNames
-        {client}
-        variant="list"
-        titleClassName="truncate py-0.5 text-[14.5px] font-bold leading-6 text-ink"
-        subClassName="truncate py-0.5 text-xs leading-5 text-ink-faint"
-      />
-    </span>
-    {#if client.badge === 'credit'}
-      <span data-credit="true" title="ประเภทชำระ: บัตรเครดิต" class="chip shrink-0 border-credit-ink/20 bg-credit-tint whitespace-nowrap text-credit-ink">
-        <CreditCard size={12} weight="fill" aria-hidden="true" />
-        บัตรเครดิต
-      </span>
-    {:else if client.badge === 'penpay'}
-      <span class="chip hidden shrink-0 border-rule bg-paper-2/60 whitespace-nowrap text-ink-faint sm:inline-flex">จ่ายในวัน</span>
-    {/if}
-    <span class="hidden shrink-0 items-center gap-2 text-ink-faint sm:flex">
-      <span class="inline-flex" class:opacity-30={!hasNote} title={hasNote ? (client.notes?.trim() || 'มีโน้ต') : 'ไม่มีโน้ต'}>
-        <NotePencil size={16} aria-hidden="true" /><span class="sr-only">{hasNote ? 'มีโน้ต' : 'ไม่มีโน้ต'}</span>
-      </span>
-      <span class="inline-flex" class:opacity-30={!client.images[0]} title={client.images[0] ? 'มีรูป' : 'ไม่มีรูป'}>
-        <ImageIcon size={16} aria-hidden="true" /><span class="sr-only">{client.images[0] ? 'มีรูป' : 'ไม่มีรูป'}</span>
-      </span>
-    </span>
-    <span class="mono hidden w-24 shrink-0 text-right text-xs text-ink-faint md:block">{formatDate(client.updatedAt)}</span>
-    {#if hasNote}<span class="sr-only sm:hidden">มีโน้ต</span>{/if}
+  {#if client.images[0]}
+    <AppImage src={client.thumb ?? client.images[0]} fallbackSrc={client.thumb ? client.images[0] : undefined} alt="" width={40} height={40} className="row-avatar size-10 rounded-full object-cover" />
+  {:else}
+    <span aria-hidden="true" class="row-avatar grid size-10 place-items-center rounded-full bg-paper-3 font-bold text-pri">{initial}</span>
+  {/if}
+  <button type="button" onclick={onOpen} onfocus={onFocus} class="row-names min-w-0 text-left">
+    <span class="row-title"><ClientNames {client} variant="list" titleClassName="truncate font-semibold text-ink" subClassName="truncate text-ink-faint" /></span>
   </button>
-  <div class="flex items-center pr-3">
+  <span class="row-status">
+    {#if client.badge === 'credit'}<span class="chip border-credit-ink/20 bg-credit-tint text-credit-ink">บัตรเครดิต</span>
+    {:else if client.badge === 'penpay'}<span class="chip border-pen-ink/20 bg-pen-tint text-pen-ink">จ่ายในวัน</span>{:else}<span class="chip border-rule bg-paper-3 text-ink-faint">ทั่วไป</span>{/if}
+    {#if hasNote}<span class="row-indicator" title="มีโน้ต"><NotePencil size={15} /></span>{/if}
+    {#if client.images.length > 0}<span class="row-indicator" title="มีรูป"><ImageIcon size={15} /></span>{/if}
+  </span>
+  <time class="mono">{formatDate(client.updatedAt)}</time>
+  <div class="row-copy" onfocusin={onFocus}>
     <RowCopy {client} focused={active} />
   </div>
 </div>
 
 <style>
-  .prototype-row { min-height:60px; border-bottom:1px solid var(--rule); background:var(--paper-2); transition:background-color var(--mochi-duration-fast) var(--mochi-ease-out); }
+  .prototype-row { display:grid;align-items:center;gap:14px;min-height:60px;padding:9px 16px;border-bottom:1px solid var(--rule); background:var(--paper-2); transition:background-color var(--mochi-duration-fast) var(--mochi-ease-out); }
   .prototype-row:hover,.prototype-row.is-active { background:color-mix(in srgb,var(--pri) 5%,var(--paper-2)); }
   .prototype-row:last-child { border-bottom:0; }
+  .row-avatar { flex:none;overflow:hidden;border:1px solid var(--rule); }
+  .row-names { width:100%;padding:0;border:0;background:none;font-size:var(--fs-md); }.row-title :global(span) { display:block; }
+  .row-status { display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden; }.row-status .chip { flex:none;white-space:nowrap; }.row-indicator { display:inline-flex;flex:none;color:var(--ink-faint); }
+  .prototype-row time { color:var(--ink-faint);font-size:var(--fs-2xs);text-align:right;white-space:nowrap; }
+  .row-copy { display:flex;align-items:center;justify-content:center; }.row-copy :global(button) { width:30px;height:30px;min-height:30px;opacity:0; }.prototype-row:hover .row-copy :global(button),.prototype-row:focus-within .row-copy :global(button) { opacity:1; }
+  @media(max-width:760px) { .prototype-row { grid-template-columns:40px minmax(0,1fr) 84px 30px;gap:10px;padding:9px 12px; }.row-status { display:none; }.prototype-row time { display:block; } }
 </style>
