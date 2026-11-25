@@ -9,7 +9,7 @@
 <div class="mx-auto flex min-h-0 w-full max-w-xl flex-col items-center justify-center px-4 py-16 text-center">
   <div transition:fly={{ y: 14, duration: 450 }}>
     <span
-      class="sticker grid size-20 rotate-3 place-items-center rounded-3xl bg-tint text-acc-ink shadow-[5px_5px_0_0_var(--acc)] floaty"
+      class="sticker grid size-20 rotate-3 place-items-center rounded-3xl bg-tint text-acc-ink shadow-sm floaty"
       style="--rot: 3deg"
       aria-hidden="true"
     >

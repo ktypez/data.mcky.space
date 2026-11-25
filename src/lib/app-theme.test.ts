@@ -2,17 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { getTheme, themeGroups, themes } from '@/lib/design/themes'
 import { normaliseAppMode, resolveThemeMode, themeSupportsMode } from '@/lib/app-theme'
 
-const PRESET_IDS = ['matcha', 'coral', 'blueberry', 'butter']
+const PRESET_IDS = ['mochi', 'matcha', 'soda', 'sakura']
 
 describe('shared app theme mode', () => {
-  it('registers exactly the 4 V5 palettes, with no custom theme', () => {
+  it('registers exactly the four prototype palettes, with no custom theme', () => {
     expect(new Set(themes.map(theme => theme.id)).size).toBe(themes.length)
     expect(themes.map(theme => theme.id)).toEqual(PRESET_IDS)
-    expect(getTheme('custom').id).toBe('matcha')
-    expect(getTheme('nope').id).toBe('matcha')
-    // Stale pre-V5 preset ids migrate to the matcha default.
-    expect(getTheme('ledger').id).toBe('matcha')
-    expect(getTheme('terminal').id).toBe('matcha')
+    expect(getTheme('custom').id).toBe('mochi')
+    expect(getTheme('nope').id).toBe('mochi')
+    expect(getTheme('ledger').id).toBe('mochi')
+    expect(getTheme('terminal').id).toBe('mochi')
   })
 
   it('partitions every preset into exactly one mode group', () => {
@@ -29,7 +28,7 @@ describe('shared app theme mode', () => {
 
   it('buckets by supported mode, not by a hand-assigned field', () => {
     const bucket = (id: string) => themeGroups.find(group => group.matches(getTheme(id)))?.id
-    // All 4 V5 palettes are dual-mode.
+    // All four palettes support both display modes.
     for (const id of PRESET_IDS) {
       expect(bucket(id)).toBe('dual')
       expect(getTheme(id).modes).toEqual(['light', 'dark'])

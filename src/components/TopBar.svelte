@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { ListBullets, MapTrifold, Trash, Gear, Plus, SignIn, SignOut } from 'phosphor-svelte'
+import { ListBullets, MapTrifold, Trash, Gear, Plus, SignIn, SignOut, MagnifyingGlass } from 'phosphor-svelte'
   import { push, router } from 'svelte-spa-router'
-  import { appTheme, setMode } from '@/lib/app-theme'
+import { appTheme, setMode, setPalette } from '@/lib/app-theme'
   import { useAuthStore, logout } from '@/stores/auth-store'
   import { getClerk } from '@/lib/clerk'
   import { useFilterStore } from '@/stores/filter-store'
   import { FilterKey } from '@/types/index'
   import { isFormDirty, askLeave } from '@/lib/form-dirty'
-  import Squiggle from '@/components/ui/Squiggle.svelte'
 
   let isAdmin = $derived($useAuthStore.isAdmin)
   let signedIn = $derived($useAuthStore.isSignedIn)
@@ -52,6 +51,12 @@
     { to: '/trash', label: 'ถังขยะ', icon: Trash },
     { to: '/settings', label: 'ตั้งค่า', icon: Gear },
   ]
+  const palettes = [
+    { id: 'mochi', label: 'Mochi', color: 'hsl(256 58% 68%)' },
+    { id: 'matcha', label: 'Matcha', color: 'hsl(158 58% 48%)' },
+    { id: 'soda', label: 'Soda', color: 'hsl(222 58% 64%)' },
+    { id: 'sakura', label: 'Sakura', color: 'hsl(338 65% 68%)' },
+  ]
   const isActive = (to: string) => (to === '/' ? router.location === '/' : router.location.startsWith(to))
 
   let lastHomeTap = 0
@@ -84,26 +89,26 @@
   const monogram = $derived((account.name || '?').trim().charAt(0).toUpperCase() || '?')
 </script>
 
-<header class="sticky top-0 z-50 border-b-[1.5px] border-ink bg-paper">
-  <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+<header class="sticky top-0 z-50 border-b border-rule bg-paper">
+  <div class="mx-auto flex min-h-[var(--topbar-h)] max-w-[var(--maxw)] items-center justify-between gap-3 px-4 sm:px-6">
     <a href="#/" onclick={handleHomeClick} aria-label="DATA Ledger หน้าแรก" class="group flex items-center gap-2.5">
-      <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-[var(--on-accent)] transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
-        <span class="font-mono text-[13px] font-extrabold tracking-tight">DATA</span>
+      <span class="brand-mark grid size-8 place-items-center rounded-[10px] bg-pri-fill text-pri-ink transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
+        <span class="font-mono text-[16px] font-bold">✳</span>
       </span>
       <span class="flex flex-col leading-none">
-        <span class="text-[15px] font-bold tracking-tight text-ink">Ledger</span>
-        <Squiggle class="mt-1 h-[5px] w-[54px] text-acc" />
+        <span class="text-[14px] font-bold tracking-[.04em] text-ink">DATA</span>
+        <span class="mt-0.5 text-[9px] font-semibold uppercase tracking-[.12em] text-ink-faint">Ledger</span>
       </span>
     </a>
 
-    <nav class="hidden items-center gap-1 sm:flex" aria-label="เมนูหลัก">
+    <nav class="topbar-nav flex items-center gap-1" aria-label="เมนูหลัก">
       {#each navItems as item}
         <a
           href={`#${item.to}`}
           aria-current={isActive(item.to) ? 'page' : undefined}
           onclick={(e) => guard(e, item.to)}
-          class="flex items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-semibold whitespace-nowrap transition-all duration-150 {isActive(item.to)
-            ? 'border-[1.5px] border-ink bg-acc-tint text-acc-ink shadow-[2.5px_2.5px_0_0_var(--acc)]'
+          class="nav-link flex items-center gap-2 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap transition-all duration-150 {isActive(item.to)
+            ? 'bg-card text-pri shadow-sm'
             : 'text-ink-soft hover:bg-paper-2 hover:text-ink'}"
         >
           <item.icon size={15} weight="bold" aria-hidden="true" />
@@ -118,14 +123,25 @@
           class="btn btn-acc ml-1 !px-3.5 !py-2 text-[13px]"
         >
           <Plus size={15} weight="bold" aria-hidden="true" />
-          เพิ่มรายการ
+          <span class="hidden sm:inline">เพิ่มรายการ</span>
         </a>
       {/if}
     </nav>
 
-    <div class="flex items-center gap-2.5">
+    <div class="flex shrink-0 items-center gap-2">
+      <div class="palette-dots hidden items-center gap-1.5 rounded-full border border-rule bg-paper-3 p-1.5 sm:flex" role="group" aria-label="เปลี่ยนชุดสี">
+        {#each palettes as palette}
+          <button type="button" class="palette-dot" class:active={theme.palette === palette.id} style={`--dot:${palette.color}`} title={palette.label} aria-label={`ใช้ชุดสี ${palette.label}`} aria-pressed={theme.palette === palette.id} onclick={() => setPalette(palette.id)}></button>
+        {/each}
+      </div>
       <button type="button" class="mode-toggle" aria-label={theme.resolvedMode === 'dark' ? 'ใช้โหมดสว่าง' : 'ใช้โหมดมืด'} title={theme.resolvedMode === 'dark' ? 'โหมดสว่าง' : 'โหมดมืด'} onclick={() => setMode(theme.resolvedMode === 'dark' ? 'light' : 'dark')}>
         {#if theme.resolvedMode === 'dark'}<span aria-hidden="true">☀</span>{:else}<span aria-hidden="true">☾</span>{/if}
+      </button>
+
+      <button type="button" class="command-trigger" onclick={() => window.dispatchEvent(new Event('open-command-palette'))} aria-label="ค้นหารายการ (⌘K)">
+        <MagnifyingGlass size={16} aria-hidden="true" />
+        <span class="hidden md:inline">ค้นหา</span>
+        <kbd class="kbd hidden lg:inline-flex">⌘K</kbd>
       </button>
 
       {#if signedIn}
@@ -133,7 +149,7 @@
           <button
             type="button"
             onclick={() => (menuOpen = !menuOpen)}
-            class="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border-[1.5px] border-ink bg-acc font-mono text-[14px] font-bold text-[var(--on-accent)] shadow-[2px_2px_0_0_var(--hard)] transition-transform hover:-translate-y-px"
+            class="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border border-rule-2 bg-acc font-mono text-[14px] font-bold text-acc-ink shadow-sm transition-transform hover:-translate-y-px"
             aria-label="เมนูบัญชี"
             aria-expanded={menuOpen}
             aria-haspopup="menu"
@@ -174,30 +190,19 @@
     </div>
   </div>
 
-  <nav class="flex gap-1 overflow-x-auto px-4 pb-2.5 sm:hidden" aria-label="เมนูหลัก">
-    {#each navItems as item}
-      <a
-        href={`#${item.to}`}
-        aria-current={isActive(item.to) ? 'page' : undefined}
-        onclick={(e) => guard(e, item.to)}
-        class="flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-semibold whitespace-nowrap transition-all duration-150 {isActive(item.to)
-          ? 'border-[1.5px] border-ink bg-acc-tint text-acc-ink shadow-[2.5px_2.5px_0_0_var(--acc)]'
-          : 'text-ink-soft hover:bg-paper-2 hover:text-ink'}"
-      >
-        <item.icon size={15} weight="bold" aria-hidden="true" />
-        {item.label}
-      </a>
-    {/each}
-    {#if isAdmin}
-      <a href="#/add" onclick={(e) => guard(e, '/add')} class="btn btn-acc shrink-0 !px-3.5 !py-2 text-[13px]">
-        <Plus size={15} weight="bold" aria-hidden="true" />
-        เพิ่มรายการ
-      </a>
-    {/if}
-  </nav>
 </header>
 
 <style>
-  .mode-toggle { display:grid; place-items:center; width:36px; height:36px; flex:none; border:1px solid var(--rule); border-radius:999px; background:var(--card); color:var(--acc-ink); font-size:19px; transition:transform var(--mochi-duration-fast) var(--mochi-ease-spring), background var(--mochi-duration) var(--mochi-ease-out); }
-  .mode-toggle:hover { transform:rotate(-10deg) scale(1.06); background:var(--acc-tint); }
+  header { background:color-mix(in srgb,var(--paper) 88%,transparent); backdrop-filter:blur(12px); border-color:var(--rule); }
+  .topbar-nav { padding:3px; border:1px solid var(--rule); border-radius:999px; background:var(--paper-3); }
+  .brand-mark { box-shadow:0 3px 10px color-mix(in srgb,var(--pri) 24%,transparent); }
+  .mode-toggle,.command-trigger { display:inline-flex; align-items:center; justify-content:center; gap:7px; height:36px; flex:none; border:1px solid var(--rule); border-radius:999px; background:var(--card); color:var(--ink-soft); transition:transform var(--mochi-duration-fast) var(--mochi-ease-spring),background var(--mochi-duration) var(--mochi-ease-out),color var(--mochi-duration) var(--mochi-ease-out); }
+  .mode-toggle { width:36px; color:var(--pri); font-size:19px; }
+  .command-trigger { padding:0 10px 0 12px; font-size:13px; font-weight:600; }
+  .mode-toggle:hover,.command-trigger:hover { transform:translateY(-1px); background:var(--pri-soft); color:var(--pri-ink); }
+  .palette-dot { width:15px; height:15px; flex:none; border:2px solid transparent; border-radius:50%; background:var(--dot); transition:transform var(--mochi-duration-fast) var(--mochi-ease-spring); }
+  .palette-dot:hover { transform:scale(1.18); }
+  .palette-dot.active { border-color:var(--ink); box-shadow:0 0 0 2px var(--card); }
+  @media (max-width:800px) { .topbar-nav { gap:0; } .nav-link { padding-inline:9px; } }
+  @media (max-width:640px) { .nav-link { font-size:0; gap:0; padding:9px; } .nav-link :global(svg) { width:18px; height:18px; } .brand-mark { width:30px; height:30px; } .command-trigger { width:36px; padding:0; } }
 </style>

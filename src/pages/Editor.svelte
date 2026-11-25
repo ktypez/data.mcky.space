@@ -357,7 +357,7 @@
       {/if}
 
       <!--Sticky action bar — cancel stays reachable while the form is read-only.-->
-      <div class="sticky bottom-4 z-20 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-[1.5px] border-ink bg-paper/90 p-3 backdrop-blur-md" style="box-shadow: 4px 4px 0 0 var(--hard);">
+      <div class="sticky bottom-4 z-20 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rule-2 bg-card/95 p-3 shadow-md backdrop-blur-md">
         <button type="button" class="btn btn-ghost" onclick={onBack}>ยกเลิก</button>
         <div class="flex flex-wrap items-center gap-3">
           {#if dirty && !readOnly}<span class="chip border-pop-ink/20 bg-pop-tint text-pop-ink">ยังไม่บันทึก</span>{/if}

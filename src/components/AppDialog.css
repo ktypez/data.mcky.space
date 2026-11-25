@@ -1,4 +1,4 @@
-/* V5 “paper pop” dialog skin — sticker panel, hard shadow, dashed rules.
+/* Paper dialog skin — soft sticker panel, dotted surface, and calm shadow.
    Variants: dialog (default) · drawer · lightbox · sheet. */
 .app-dialog {
   width: min(32rem, calc(100vw - 2rem));
@@ -80,8 +80,8 @@
   box-shadow: 2px 2px 0 0 var(--hard);
 }
 .app-dialog-close:hover {
-  color: var(--acc-ink);
-  background: var(--acc-tint);
+  color: var(--pri-ink);
+  background: var(--pri-soft);
 }
 @media (max-width: 560px) {
   .app-dialog {

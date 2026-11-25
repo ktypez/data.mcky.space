@@ -127,7 +127,7 @@
           onfocus={() => (focused = index)}
           onmouseenter={() => (focused = index)}
           onclick={() => onSelect(client)}
-          class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {index === focused ? 'bg-tint text-ink shadow-[inset_3px_0_0_0_var(--acc)]' : 'hover:bg-paper-2'}"
+          class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {index === focused ? 'bg-tint text-ink shadow-[inset_3px_0_0_0_var(--pri)]' : 'hover:bg-paper-2'}"
         >
           {#if client.images[0] || client.thumb}
             <AppImage src={client.thumb ?? client.images[0]} fallbackSrc={client.thumb ? client.images[0] : undefined} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-full object-cover border border-rule" />

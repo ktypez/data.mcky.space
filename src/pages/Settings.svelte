@@ -8,7 +8,7 @@
   import { treatyClient, treatyHeaders } from '@/lib/treaty'
   import { formatDateTime } from '@/lib/utils'
   import { useFilterStore } from '@/stores/filter-store'
-  import { getTheme, V5_PALETTES } from '@/lib/design/themes'
+  import { getTheme, DESIGN_PALETTES } from '@/lib/design/themes'
   import { appTheme, setMode, setPalette, setDensity, setTexture, themeSupportsMode } from '@/lib/app-theme'
   import CountSticker from '@/components/ui/CountSticker.svelte'
   import Squiggle from '@/components/ui/Squiggle.svelte'
@@ -93,10 +93,10 @@
 <section class="page-shell page-shell--settings mx-auto w-full max-w-4xl px-4 pb-16 pt-8 sm:px-6">
   <div class="flex flex-wrap items-center gap-4">
     <h1 class="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">ตั้งค่า</h1>
-    <CountSticker n="5.0" label="paper pop" rot={2} />
+    <CountSticker n="4" label="ชุดสี" />
   </div>
   <Squiggle class="mt-2 h-[6px] w-36 text-acc" />
-  <p class="mt-2 text-sm text-ink-soft">ปรับลุกสมุดทะเบียน ตรวจข้อมูล และจัดการบัญชี</p>
+  <p class="mt-2 text-sm text-ink-soft">ปรับธีมและการแสดงผล ตรวจข้อมูล และจัดการบัญชี</p>
 
   <div class="-mx-1 mt-7 overflow-x-auto px-1">
     <div role="tablist" aria-label="หมวดการตั้งค่า" class="seg">
@@ -108,6 +108,41 @@
 
   <div id="settings-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} class="mt-5 min-w-0 space-y-5">
     {#if tab === 'look'}
+      <section class="card card-pad">
+        <h2 class="label !mb-4">ชุดสี</h2>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4" role="radiogroup" aria-label="เลือกชุดสี">
+          {#each DESIGN_PALETTES as p, i}
+            {@const active = theme.palette === p.key}
+            <button
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onclick={() => setPalette(p.key)}
+              class="relative rounded-2xl border p-3.5 text-left transition-all duration-150 {active
+                ? 'border-pri bg-card shadow-sm'
+                : 'border-rule bg-card hover:border-rule-2'}"
+              style="rotate: {i % 2 === 0 ? -0.5 : 0.5}deg;"
+            >
+              {#if active}
+                <span class="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full border border-pri bg-pri-fill text-pri-ink">
+                  <Check size={12} weight="bold" aria-hidden="true" />
+                </span>
+              {/if}
+              <span class="flex gap-1.5">
+                <span class="size-5 rounded-full border border-ink/15" style="background: {p.acc}"></span>
+                <span class="size-5 rounded-full border border-ink/15" style="background: {p.pop}"></span>
+                <span class="size-5 rounded-full border border-ink/15" style="background: {p.tint}"></span>
+              </span>
+              <span class="mt-2.5 block text-[13px] font-bold text-ink">{p.name}</span>
+              <span class="mono block text-[10.5px] text-ink-faint">{p.key}</span>
+            </button>
+          {/each}
+        </div>
+        <p class="mt-4 text-[11.5px] leading-relaxed text-ink-faint">
+          แต่ละชุดมีสีหลักและสีเน้นของตัวเอง โดยยังคงสีแสดงประเภทการชำระเงินให้สังเกตได้เหมือนเดิม
+        </p>
+      </section>
+
       <section class="card card-pad">
         <h2 class="label !mb-4">โหมด</h2>
         <div class="seg w-full" role="group" aria-label="เลือกโหมดสี">
@@ -149,7 +184,7 @@
             aria-checked={texture}
             aria-label="สลับกระดาษจุด"
             onclick={() => setTexture(!texture)}
-            class="v5-switch relative h-7 w-12 shrink-0 rounded-full border-[1.5px] border-ink transition-colors {texture ? 'bg-acc' : 'bg-paper-2'}"
+            class="switch-control relative h-7 w-12 shrink-0 rounded-full border border-rule-2 transition-colors {texture ? 'bg-pri-fill' : 'bg-paper-3'}"
           >
             <span class="absolute top-[2.5px] size-[18px] rounded-full bg-card shadow transition-all duration-200 {texture ? 'left-[24px]' : 'left-[3px]'}"></span>
           </button>
@@ -171,40 +206,7 @@
         </div>
       </section>
 
-      <section class="card card-pad">
-        <h2 class="label !mb-4">ชุดสี</h2>
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4" role="radiogroup" aria-label="เลือกชุดสี">
-          {#each V5_PALETTES as p, i}
-            {@const active = theme.palette === p.key}
-            <button
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onclick={() => setPalette(p.key)}
-              class="relative rounded-2xl border-[1.5px] p-3.5 text-left transition-all duration-150 {active
-                ? 'border-ink bg-card shadow-[3px_3px_0_0_var(--acc)]'
-                : 'border-rule bg-card hover:border-rule-2'}"
-              style="rotate: {i % 2 === 0 ? -1.2 : 1.2}deg;"
-            >
-              {#if active}
-                <span class="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full border-[1.5px] border-ink bg-acc text-[var(--on-accent)]">
-                  <Check size={12} weight="bold" aria-hidden="true" />
-                </span>
-              {/if}
-              <span class="flex gap-1.5">
-                <span class="size-5 rounded-full border border-ink/15" style="background: {p.acc}"></span>
-                <span class="size-5 rounded-full border border-ink/15" style="background: {p.pop}"></span>
-                <span class="size-5 rounded-full border border-ink/15" style="background: {p.tint}"></span>
-              </span>
-              <span class="mt-2.5 block text-[13px] font-bold text-ink">{p.name}</span>
-              <span class="mono block text-[10.5px] text-ink-faint">{p.key}</span>
-            </button>
-          {/each}
-        </div>
-        <p class="mt-4 text-[11.5px] leading-relaxed text-ink-faint">
-          แต่ละชุดสลับ <span class="mono">--acc</span> · <span class="mono">--pop</span> และโทน tints — สีของบัตรเครดิต/จ่ายในวันคงที่ทุกชุด
-        </p>
-      </section>
+
     {/if}
 
     {#if tab === 'data'}
@@ -214,7 +216,7 @@
           <span class="chip border-rule bg-tint font-mono text-acc-ink">{recentDays} วัน</span>
         </div>
         <p class="mb-3 mt-1.5 text-[13px] text-ink-soft">ใช้กับตัวกรอง “ล่าสุด” ในหน้ารายการ</p>
-        <input id="recent-days" type="range" min="7" max="120" step="1" value={recentDays} oninput={(e) => $useFilterStore.setRecentDays(Number(e.currentTarget.value))} class="w-full accent-[var(--acc)]" />
+        <input id="recent-days" type="range" min="7" max="120" step="1" value={recentDays} oninput={(e) => $useFilterStore.setRecentDays(Number(e.currentTarget.value))} class="w-full accent-[var(--pri)]" />
         <div class="mt-1 flex justify-between font-mono text-[10px] text-ink-faint"><span>7</span><span>120</span></div>
       </section>
       <section class="card card-pad">
@@ -261,7 +263,7 @@
       <section class="card card-pad">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 class="label !mb-0">แอปและบัญชี</h2>
-          <span class="mono text-[10px] tracking-[0.14em] text-ink-faint uppercase">DATA Ledger · V5</span>
+          <span class="mono text-[10px] tracking-[0.14em] text-ink-faint uppercase">DATA Ledger</span>
         </div>
         <div class="space-y-1">
           <button type="button" onclick={() => (pwa.isIOS ? undefined : (pwa.canInstall ? void pwa.install() : undefined))} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm text-ink transition-colors hover:bg-paper-2">

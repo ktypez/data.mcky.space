@@ -1,14 +1,16 @@
 @import 'tailwindcss';
-/* Shared V5 primitives stay for the adapter components; V6 is the active skin. */
-@import './styles/v5-tokens.css';
-@import './styles/v6-tokens.css';
-@import './styles/v5-ui.css';
-@import './styles/workspace-layout.css';
+/* App-owned Mochi design system. */
+@import './styles/design-tokens.css';
+@import './styles/semantic-aliases.css';
+@import './styles/design-system.css';
+@import './styles/app-layout.css';
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* ——— V6 semantic tokens as Tailwind utilities ———
-     App-owned semantic tokens map onto the attached paper pastel system. */
+  /* App-owned semantic tokens mapped to the paper pastel palette. */
+  --color-pri: var(--pri);
+  --color-pri-fill: var(--pri-fill);
+  --color-pri-ink: var(--pri-ink);
   --color-paper: var(--paper);
   --color-paper-2: var(--paper-2);
   --color-card: var(--card);
@@ -17,13 +19,13 @@
   --color-ink-faint: var(--ink-faint);
   --color-rule: var(--rule);
   --color-rule-2: var(--rule-2);
-  --color-acc: var(--acc);
-  --color-acc-strong: var(--acc-strong);
-  --color-tint: var(--acc-tint);
-  --color-acc-ink: var(--acc-ink);
-  --color-pop: var(--pop);
-  --color-pop-tint: var(--pop-tint);
-  --color-pop-ink: var(--pop-ink);
+  --color-acc: var(--pri);
+  --color-acc-strong: var(--pri-strong);
+  --color-tint: var(--pri-soft);
+  --color-acc-ink: var(--pri-ink);
+  --color-pop: var(--acc);
+  --color-pop-tint: var(--acc-tint);
+  --color-pop-ink: var(--acc-ink);
   --color-credit: var(--credit);
   --color-credit-tint: var(--credit-tint);
   --color-credit-ink: var(--credit-ink);
@@ -38,15 +40,14 @@
   --font-sans: var(--font-ui);
   --font-mono: var(--font-mono);
 
-  /* ——— legacy shadcn-ish aliases ———
-     Older class names keep resolving while the V6 adapter supplies the skin. */
+  /* Semantic aliases used by existing form and map controls. */
   --color-background: var(--paper);
   --color-foreground: var(--ink);
   --color-card-foreground: var(--ink);
   --color-popover: var(--card);
   --color-popover-foreground: var(--ink);
-  --color-primary: var(--acc);
-  --color-primary-foreground: var(--on-accent);
+  --color-primary: var(--pri);
+  --color-primary-foreground: var(--pri-ink);
   --color-secondary: var(--paper-2);
   --color-secondary-foreground: var(--ink);
   --color-muted: var(--paper-2);
@@ -55,21 +56,21 @@
   --color-accent-foreground: var(--pop-ink);
   --color-destructive: var(--danger);
   --color-destructive-foreground: #fff;
-  --color-success: var(--acc);
-  --color-success-foreground: var(--on-accent);
+  --color-success: var(--pri);
+  --color-success-foreground: var(--pri-ink);
   --color-warning: var(--banana);
   --color-warning-foreground: var(--ink);
   --color-info: var(--sky);
   --color-info-foreground: var(--ink);
   --color-border: var(--rule);
   --color-input: var(--rule);
-  --color-ring: var(--acc);
+  --color-ring: var(--pri);
   --color-sidebar: var(--card);
   --color-sidebar-foreground: var(--ink);
   --color-sidebar-accent: var(--paper-2);
   --color-sidebar-accent-foreground: var(--ink);
   --color-sidebar-border: var(--rule);
-  --color-sidebar-ring: var(--acc);
+  --color-sidebar-ring: var(--pri);
   --color-pin: var(--pin-color);
   --font-serif: var(--font-ui);
   --radius-sm: calc(var(--radius) - 4px);
@@ -87,21 +88,19 @@
 }
 
 :root {
-  /* Base shadows (Tailwind shadow-* utilities resolve against these). */
-  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.15);
+  /* Tailwind shadows use the reference elevation scale. */
+  --shadow-xs: var(--sh-sm);
+  --shadow-sm: var(--sh-sm);
+  --shadow-md: var(--sh-md);
+  --shadow-lg: var(--sh-md);
+  --shadow-xl: var(--sh-md);
+  --shadow-2xl: var(--sh-md);
 }
 
-/* Hide native scrollbars globally — custom indicators handle visual feedback */
-*::-webkit-scrollbar {
-  display: none !important;
-}
+/* Keep native scroll affordances visible and usable. */
 :root {
-  scrollbar-width: none !important;
+  scrollbar-color: color-mix(in srgb, var(--ink-faint) 35%, transparent) transparent;
+  scrollbar-width: thin;
 
   /* Scroll indicator defaults — themes override these */
   --scroll-indicator-color: oklch(0.5 0 0 / 0.2);
@@ -115,8 +114,6 @@
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 
-  /* Frame border-radius — themes override for square vs rounded */
-  --frame-radius: 0.5rem;
 }
 
 @layer base {
@@ -182,36 +179,6 @@
 }
 .copy-press:active {
   transform: translateY(1px) scale(0.97);
-}
-
-@utility app-viewport {
-  @apply mx-auto flex flex-col gap-1.5;
-  position: fixed;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  height: calc(100dvh - 16px);
-  border-radius: var(--frame-radius);
-  overflow: hidden;
-}
-/* Desktop: sidebar offset */
-@media (min-width: 768px) {
-  .app-viewport {
-    left: 236px;
-  }
-}
-@media (min-width: 1536px) {
-  .app-viewport {
-    left: 236px;
-    right: 0;
-    max-width: calc(1400px - 220px);
-    box-shadow: 0 0 60px -20px color-mix(in oklch, var(--foreground) 20%, transparent);
-  }
-}
-
-@utility app-frame {
-  @apply flex-1 flex flex-col bg-background border border-border overflow-y-auto;
-  border-radius: var(--frame-radius);
 }
 
 @keyframes slide-up {

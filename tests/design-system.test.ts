@@ -7,20 +7,20 @@ describe('app-owned Mochi Ledger design system', () => {
   it('loads local semantic tokens without importing the shared UI package', async () => {
     const [index, tokens, packageJson, lockfile] = await Promise.all([
       read('../src/index.css'),
-      read('../src/styles/v6-tokens.css'),
+      read('../src/styles/design-tokens.css'),
       read('../package.json'),
       read('../package-lock.json'),
     ])
 
-    expect(index).toContain("@import './styles/v6-tokens.css'")
+    expect(index).toContain("@import './styles/design-tokens.css'")
     expect(index).not.toContain('@mcky/ui')
     expect(tokens).toContain('--paper: #fffdf8')
     expect(tokens).toContain("--font-ui: 'Itim', 'Prompt'")
     expect(tokens).toContain('--mochi-ease-spring')
     expect(tokens).toContain("data-palette='matcha'")
-    expect(tokens).toContain("data-palette='coral'")
-    expect(tokens).toContain("data-palette='blueberry'")
-    expect(tokens).toContain("data-palette='butter'")
+    expect(tokens).toContain("data-palette='mochi'")
+    expect(tokens).toContain("data-palette='soda'")
+    expect(tokens).toContain("data-palette='sakura'")
     expect(tokens).toContain(":root[data-mode='dark']")
     expect(packageJson).not.toContain('@mcky/ui')
     expect(lockfile).not.toContain('@mcky/ui')
@@ -29,7 +29,7 @@ describe('app-owned Mochi Ledger design system', () => {
   it('keeps routed pages in the app shell with app-owned theme controls', async () => {
     const [app, layout, topBar] = await Promise.all([
       read('../src/App.svelte'),
-      read('../src/styles/workspace-layout.css'),
+      read('../src/styles/app-layout.css'),
       read('../src/components/TopBar.svelte'),
     ])
 
@@ -37,7 +37,7 @@ describe('app-owned Mochi Ledger design system', () => {
     expect(app).not.toContain('<Scenery />')
     expect(app).toContain('class="ledger-shell"')
     expect(app).toContain('id="ledger-main"')
-    expect(layout).toContain('.ledger-shell .page-shell')
+    expect(layout).toContain('.page-shell')
     expect(layout).toContain('--mochi-radius-md')
     expect(topBar).not.toContain('@mcky/ui')
     expect(topBar).toContain('setMode(')
@@ -74,7 +74,7 @@ describe('app-owned Mochi Ledger design system', () => {
   it('keeps every existing routed page inside the shared layout contract', async () => {
     const [app, layout, pages] = await Promise.all([
       read('../src/App.svelte'),
-      read('../src/styles/workspace-layout.css'),
+      read('../src/styles/app-layout.css'),
       Promise.all(
         ['Catalog.svelte', 'Editor.svelte', 'Maps.svelte', 'Record.svelte', 'Settings.svelte', 'Trash.svelte']
           .map((file) => read(`../src/pages/${file}`)),

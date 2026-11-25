@@ -10,7 +10,7 @@ export interface AppThemeState {
   themeId: string
   mode: AppMode
   resolvedMode: ResolvedMode
-  /** V5 palette id — mirrors themeId (matcha · coral · blueberry · butter). */
+  /** Active palette id; mirrors themeId. */
   palette: string
   density: Density
   texture: boolean
@@ -18,10 +18,16 @@ export interface AppThemeState {
 
 const THEME_STORE_KEY = 'data-ledger-ui'
 const MODE_KEY = 'data-ledger-mode'
-const V5_KEY = 'data-ledger-v5'
+const PREFERENCES_KEY = 'data-ledger-preferences'
+const LEGACY_PREFERENCES_KEY = 'data-ledger-v5'
 const listeners = new Set<() => void>()
 
 let activeState: AppThemeState | null = null
+
+function readPreferences(): string | null {
+  if (typeof localStorage === 'undefined') return null
+  return localStorage.getItem(PREFERENCES_KEY) ?? localStorage.getItem(LEGACY_PREFERENCES_KEY)
+}
 
 export function normaliseAppMode(value: unknown): AppMode | null {
   if (value === 'system') return 'auto'
@@ -55,10 +61,16 @@ function readPersistedThemeId(): unknown {
   }
 }
 
-// A stale/unknown id (including the 6 pre-V5 preset ids) falls back to the
-// default palette inside getTheme() — i.e. stale ids migrate to matcha.
+// Map saved choices from the previous palette set to their closest new palette.
+const PALETTE_MIGRATIONS: Record<string, string> = {
+  coral: 'sakura',
+  blueberry: 'soda',
+  butter: 'mochi',
+}
+
 function readThemeId(value?: unknown): string {
-  return typeof value === 'string' ? getTheme(value).id : getTheme(null).id
+  const id = typeof value === 'string' ? PALETTE_MIGRATIONS[value] ?? value : undefined
+  return getTheme(id).id
 }
 
 function readMode(): AppMode {
@@ -69,7 +81,7 @@ function readMode(): AppMode {
 function readDensity(): Density {
   if (typeof localStorage === 'undefined') return 'cozy'
   try {
-    const saved = JSON.parse(localStorage.getItem(V5_KEY) ?? '{}') as { state?: { density?: unknown } }
+    const saved = JSON.parse(readPreferences() ?? '{}') as { state?: { density?: unknown } }
     return saved.state?.density === 'compact' ? 'compact' : 'cozy'
   } catch {
     return 'cozy'
@@ -79,7 +91,7 @@ function readDensity(): Density {
 function readTexture(): boolean {
   if (typeof localStorage === 'undefined') return true
   try {
-    const saved = JSON.parse(localStorage.getItem(V5_KEY) ?? '{}') as { state?: { texture?: unknown } }
+    const saved = JSON.parse(readPreferences() ?? '{}') as { state?: { texture?: unknown } }
     return saved.state?.texture !== false
   } catch {
     return true
@@ -143,14 +155,14 @@ function persist(state: AppThemeState): void {
   }
 }
 
-function persistV5(state: AppThemeState): void {
+function persistPreferences(state: AppThemeState): void {
   if (typeof localStorage === 'undefined') return
   try {
-    const saved = JSON.parse(localStorage.getItem(V5_KEY) ?? '{}') as Record<string, unknown>
+    const saved = JSON.parse(localStorage.getItem(PREFERENCES_KEY) ?? '{}') as Record<string, unknown>
     const savedState = typeof saved.state === 'object' && saved.state !== null
       ? saved.state as Record<string, unknown>
       : {}
-    localStorage.setItem(V5_KEY, JSON.stringify({
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify({
       ...saved,
       state: { ...savedState, density: state.density, texture: state.texture },
     }))
@@ -203,7 +215,7 @@ export function initAppTheme(): void {
     if (latest.mode === 'auto') applyAppTheme(latest.themeId, 'auto', false)
   }
   const onStorage = (event: StorageEvent) => {
-    if (![THEME_STORE_KEY, MODE_KEY, V5_KEY].includes(event.key ?? '')) return
+    if (![THEME_STORE_KEY, MODE_KEY, PREFERENCES_KEY, LEGACY_PREFERENCES_KEY].includes(event.key ?? '')) return
     applyAppTheme(readThemeId(readPersistedThemeId()), readMode(), false)
   }
   media.addEventListener('change', onSystemChange)
@@ -217,7 +229,7 @@ export function setThemeId(themeId: string): void {
   applyAppTheme(theme.id, mode, true)
 }
 
-/** V5 palette selection — the palette id IS the theme id. */
+/** The palette id is the theme id. */
 export function setPalette(palette: string): void {
   setThemeId(palette)
 }
@@ -230,7 +242,7 @@ export function setDensity(density: Density): void {
   const current = getSnapshot()
   const next: AppThemeState = { ...current, density }
   setActiveState(next)
-  persistV5(next)
+  persistPreferences(next)
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.density = next.density
     window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: next }))
@@ -241,7 +253,7 @@ export function setTexture(texture: boolean): void {
   const current = getSnapshot()
   const next: AppThemeState = { ...current, texture }
   setActiveState(next)
-  persistV5(next)
+  persistPreferences(next)
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.texture = next.texture ? 'on' : 'off'
     window.dispatchEvent(new CustomEvent<AppThemeState>('app-theme-change', { detail: next }))

@@ -243,10 +243,10 @@
     <p role="alert" class="mt-4 rounded-[10px] border-[1.5px] border-danger bg-danger-tint px-4 py-3 text-sm text-danger-ink">{err}</p>
   {/if}
 
-  <div class="sticker mt-4 flex min-w-0 items-start gap-4 rounded-3xl p-5" style="box-shadow: 5px 5px 0 0 var(--hard);">
+  <div class="sticker mt-4 flex min-w-0 items-start gap-4 rounded-3xl p-5">
     <div class="shrink-0">
       {#if client!.thumb ?? client!.images[0]}
-        <div class="size-[72px] overflow-hidden rounded-[18px] border-[1.5px] border-ink">
+        <div class="size-[72px] overflow-hidden rounded-[18px] border border-rule-2">
           <AppImage src={client!.thumb ?? client!.images[0]} fallbackSrc={client!.thumb ? client!.images[0] : undefined} alt="" className="size-full object-cover" />
         </div>
       {:else}

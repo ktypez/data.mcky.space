@@ -2,21 +2,21 @@
 
 :root {
   /* DATA-specific aliases retained while feature styles finish their migration. */
-  --border-w: 1.5px;
-  --shadow-pop: 3px 3px 0 0 var(--hard);
-  --tint: var(--acc-tint);
+  --border-w: 1px;
+  --shadow-pop: var(--mochi-shadow-sticker);
+  --tint: var(--pri-soft);
   --pen: var(--penpay);
   --pen-tint: var(--penpay-tint);
   --pen-ink: var(--penpay-ink);
 
-  /* Legacy Tailwind/shadcn names map to the shared V5 semantic tokens. */
+  /* Semantic Tailwind names keep form and map controls on the app palette. */
   --background: var(--paper);
   --foreground: var(--ink);
   --card-foreground: var(--ink);
   --popover: var(--card);
   --popover-foreground: var(--ink);
-  --primary: var(--acc);
-  --primary-foreground: var(--on-accent);
+  --primary: var(--pri);
+  --primary-foreground: var(--pri-ink);
   --secondary: var(--paper-2);
   --secondary-foreground: var(--ink);
   --muted: var(--paper-2);
@@ -25,23 +25,22 @@
   --accent-foreground: var(--pop-ink);
   --destructive: var(--danger);
   --destructive-foreground: #fff;
-  --success: var(--acc);
-  --success-foreground: var(--on-accent);
+  --success: var(--pri);
+  --success-foreground: var(--pri-ink);
   --warning: var(--banana);
   --warning-foreground: var(--ink);
   --info: var(--sky);
   --info-foreground: var(--ink);
   --border: var(--rule);
   --input: var(--rule);
-  --ring: var(--acc);
+  --ring: var(--pri);
   --sidebar: var(--card);
   --sidebar-foreground: var(--ink);
   --sidebar-accent: var(--paper-2);
   --sidebar-accent-foreground: var(--ink);
   --sidebar-border: var(--rule);
-  --sidebar-ring: var(--acc);
-  --radius: 0.625rem;
-  --pin-color: var(--acc);
+  --sidebar-ring: var(--pri);
+  --pin-color: var(--pri);
   --theme-font-display: var(--font-ui);
   --theme-font-body: var(--font-ui);
   --theme-font-mono: var(--font-mono);
