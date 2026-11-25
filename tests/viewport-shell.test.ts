@@ -10,7 +10,7 @@ const catalog = read('src/pages/Catalog.svelte')
 const maps = read('src/pages/Maps.svelte')
 const settings = read('src/pages/Settings.svelte')
 
-describe('Application viewport (V6 Work Shell)', () => {
+describe('Application viewport (Mochi Ledger shell)', () => {
   it('keeps page overscroll available while giving long pages an internal scroll area', () => {
     expect(shell).toContain('body:has(.ledger-shell)')
     expect(shell).toContain('overscroll-behavior-y: auto')
@@ -37,7 +37,7 @@ describe('Application viewport (V6 Work Shell)', () => {
     expect(settings).toContain('DATA Ledger')
     expect(maps).toContain('flex h-full max-w-6xl flex-col')
     expect(layout).toContain('.page-shell--maps')
-    expect(layout).toContain('.mcky-v6-scenery-content .page-shell')
+    expect(layout).toContain('.ledger-shell .page-shell')
   })
 
   it('scrolls the catalog with the page instead of inside its own card', () => {
@@ -59,14 +59,15 @@ describe('Application viewport (V6 Work Shell)', () => {
     expect(indexCss).toContain('--text-base: 16px;')
   })
 
-  it('keeps search and filter controls separate with the V6 shell in place', () => {
+  it('keeps search and filter controls separate with the app-owned theme in place', () => {
     expect(catalog).toContain('name="q"')
     expect(catalog).toContain('aria-pressed={filter === choice.key}')
     expect(catalog).not.toContain('ledger-field')
     expect(catalog).not.toContain('รีเฟรชหน้า')
     expect(app).toContain('TopBar')
-    expect(app).toContain('mcky-v6-scenery-content')
-    expect(layout).toContain('.mcky-v6-scenery-content .page-shell')
-    expect(shell).toContain('var(--mcky-v6-')
+    expect(app).toContain('class="ledger-shell"')
+    expect(layout).toContain('.ledger-shell .page-shell')
+    expect(shell).toContain('var(--paper)')
+    expect(shell).not.toContain('mcky-v6')
   })
 })
