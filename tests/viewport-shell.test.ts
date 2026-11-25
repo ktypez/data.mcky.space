@@ -4,8 +4,8 @@ import path from 'node:path'
 
 const read = (file: string) => readFileSync(path.resolve(import.meta.dirname, '..', file), 'utf8')
 const app = read('src/App.svelte')
-const shell = read('src/styles/v5-ui.css')
-const layout = read('src/styles/workspace-layout.css')
+const shell = read('src/styles/design-system.css')
+const layout = read('src/styles/app-layout.css')
 const catalog = read('src/pages/Catalog.svelte')
 const maps = read('src/pages/Maps.svelte')
 const settings = read('src/pages/Settings.svelte')
@@ -31,13 +31,14 @@ describe('Application viewport (Mochi Ledger shell)', () => {
     expect(shell).toMatch(/\.ledger-shell\s*\{[^}]*safe-area-inset-top/s)
   })
 
-  it('uses the shared horizontal V5 top navigation and keeps map pages full height', () => {
+  it('uses the shared horizontal prototype navigation and keeps map pages full height', () => {
     expect(app).toContain('TopBar')
     expect(app).toContain('app-workspace')
     expect(settings).toContain('DATA Ledger')
     expect(maps).toContain('flex h-full max-w-6xl flex-col')
     expect(layout).toContain('.page-shell--maps')
-    expect(layout).toContain('.ledger-shell .page-shell')
+    expect(layout).toContain('.page-shell--maps')
+    expect(layout).toContain('.page-shell')
   })
 
   it('scrolls the catalog with the page instead of inside its own card', () => {
@@ -61,12 +62,12 @@ describe('Application viewport (Mochi Ledger shell)', () => {
 
   it('keeps search and filter controls separate with the app-owned theme in place', () => {
     expect(catalog).toContain('name="q"')
-    expect(catalog).toContain('aria-pressed={filter === choice.key}')
+    expect(catalog).toContain('active={filter === choice.key}')
     expect(catalog).not.toContain('ledger-field')
     expect(catalog).not.toContain('รีเฟรชหน้า')
     expect(app).toContain('TopBar')
     expect(app).toContain('class="ledger-shell"')
-    expect(layout).toContain('.ledger-shell .page-shell')
+    expect(layout).toContain('.page-shell')
     expect(shell).toContain('var(--paper)')
     expect(shell).not.toContain('mcky-v6')
   })
