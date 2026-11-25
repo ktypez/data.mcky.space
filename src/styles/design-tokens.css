@@ -48,7 +48,8 @@
   --theme-font-body: var(--font-ui);
   --fs-2xs: 11px; --fs-xs: 12px; --fs-sm: 13px; --fs-md: 15px; --fs-lg: 17px; --fs-xl: 20px; --fs-2xl: 26px; --fs-3xl: 34px;
   --mochi-radius-sm: 12px; --mochi-radius-md: 16px; --mochi-radius-lg: 24px;
-  --r1: 8px; --r2: 16px; --r3: 22px; --r4: 28px; --radius: 22px; --border-w: 1px;
+  --r-scale: 1;
+  --r1: calc(8px * var(--r-scale)); --r2: calc(16px * var(--r-scale)); --r3: calc(22px * var(--r-scale)); --r4: calc(28px * var(--r-scale)); --radius: calc(22px * var(--r-scale)); --border-w: 1px;
   --r-pill: 999px; --topbar-h: 58px; --maxw: 1080px;
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px; --sp-7: 32px; --sp-8: 40px; --sp-9: 52px; --sp-10: 64px;
   --mochi-ease-spring: cubic-bezier(.34, 1.56, .64, 1); --mochi-ease-out: cubic-bezier(.22, 1, .36, 1);
