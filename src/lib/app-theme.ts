@@ -1,5 +1,4 @@
 import { writable } from 'svelte/store'
-import { applyV6Mode, onV6ModeChange, V6_MODE_STORAGE_KEY, type V6Preference } from '@mcky/ui/theme'
 import { getTheme } from '@/lib/design/themes'
 import type { Theme } from '@/lib/design/tokens'
 
@@ -21,11 +20,6 @@ const THEME_STORE_KEY = 'data-ledger-ui'
 const MODE_KEY = 'data-ledger-mode'
 const V5_KEY = 'data-ledger-v5'
 const listeners = new Set<() => void>()
-
-// The V6 helper has its own in-memory preference; the app's `data-ledger-mode`
-// remains the only persisted source of truth. This guard stops the two wrappers
-// from re-applying each other's changes.
-let syncingV6 = false
 
 let activeState: AppThemeState | null = null
 
@@ -170,9 +164,6 @@ function commitDom(theme: Theme, state: AppThemeState): void {
   root.dataset.theme = theme.id
   root.dataset.palette = state.palette
   root.dataset.mode = state.resolvedMode
-  // V6 reads the explicit attribute first and falls back to data-mode. Keeping
-  // both in sync makes the shared theme CSS and <Scenery /> agree with the app.
-  root.dataset.v6Mode = state.resolvedMode
   root.dataset.density = state.density
   root.dataset.texture = state.texture ? 'on' : 'off'
   root.classList.toggle('dark', state.resolvedMode === 'dark')
@@ -183,28 +174,6 @@ function commitDom(theme: Theme, state: AppThemeState): void {
 function applyThemeToDom(theme: Theme, state: AppThemeState): void {
   document.querySelectorAll<HTMLLinkElement>('link[data-app-theme]').forEach(link => link.remove())
   commitDom(theme, state)
-  if (!syncingV6) {
-    syncingV6 = true
-    try { applyV6Mode(state.mode) } finally { syncingV6 = false }
-  }
-}
-
-/** ModeToggle lives in @mcky/ui; fold its choice back into the app's mode. */
-function handleV6ModeChange(_mode: 'light' | 'dark', preference: V6Preference): void {
-  if (syncingV6) return
-  try {
-    // The shared component persists its own key on click. Remove it so the
-    // app's stored mode stays authoritative on the next reload.
-    localStorage.removeItem(V6_MODE_STORAGE_KEY)
-  } catch {
-    /* storage unavailable — the in-memory preference still applies */
-  }
-  syncingV6 = true
-  try {
-    setMode(preference)
-  } finally {
-    syncingV6 = false
-  }
 }
 
 export function applyAppTheme(themeId: string, mode: AppMode, shouldPersist = true): AppThemeState {
@@ -225,14 +194,6 @@ let initialised = false
 export function initAppTheme(): void {
   if (initialised || typeof window === 'undefined') return
   initialised = true
-  onV6ModeChange(handleV6ModeChange)
-  try {
-    // Discard any stale shared key before the helper reads it; the existing
-    // data-ledger-mode (mirrored into data-v6-mode at boot) is canonical.
-    localStorage.removeItem(V6_MODE_STORAGE_KEY)
-  } catch {
-    /* storage unavailable — boot attributes already carry the mode */
-  }
   const current = getSnapshot()
   applyAppTheme(current.themeId, current.mode, false)
 

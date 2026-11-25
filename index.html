@@ -8,17 +8,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#9DD2F7" />
+    <meta name="theme-color" content="#FFFDF8" />
     <title>DATA Ledger</title>
-    <!-- V6 uses the canonical font stack; no remote font stylesheet is loaded. -->
+    <!-- Load the attached reference's Thai and Latin families without blocking first paint. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Itim&family=Mali:wght@500;600&family=Prompt:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Itim&family=Mali:wght@500;600&family=Prompt:wght@300;400;500;600;700&display=swap" /></noscript>
     <link rel="preconnect" href="https://data-api.fall3n.workers.dev" />
     <link rel="dns-prefetch" href="https://pub-462db07575b84a13b83ba0f2632f6ec2.r2.dev" />
     <!-- NOTE: leaflet is NOT loaded globally. MapPreview and
       MapPicker import the npm bundle (shared `map` chunk) only
       on pages that render a map, so the catalog pays zero map cost. -->
     <script>
-      // V6 pre-paint boot: mirror DATA's stored mode into data-v6-mode before
-      // the shared theme CSS and <Scenery /> render.
+      // Apply the app-owned theme before first paint.
       (function () {
         var mode = null;
         try { mode = localStorage.getItem('data-ledger-mode'); } catch (e) {}
@@ -33,11 +36,10 @@
         root.setAttribute('data-theme', palette);
         root.setAttribute('data-palette', palette);
         root.setAttribute('data-mode', dark ? 'dark' : 'light');
-        root.setAttribute('data-v6-mode', dark ? 'dark' : 'light');
         root.classList.toggle('dark', dark);
         root.style.colorScheme = dark ? 'dark' : 'light';
         var themeColor = document.querySelector('meta[name="theme-color"]');
-        if (themeColor) themeColor.setAttribute('content', dark ? '#1b2440' : '#9DD2F7');
+        if (themeColor) themeColor.setAttribute('content', dark ? '#17131f' : '#FFFDF8');
         var density = 'cozy';
         var texture = 'on';
         try {

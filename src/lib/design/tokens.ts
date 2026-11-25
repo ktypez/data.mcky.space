@@ -1,4 +1,4 @@
-/** A selectable V5 palette. Palette colors are owned by @mcky/ui CSS tokens. */
+/** Selectable app-owned palette. */
 export interface Theme {
   id: string
   label: string
