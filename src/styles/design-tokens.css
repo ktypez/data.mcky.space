@@ -1,17 +1,19 @@
 /* DATA Ledger theme tokens adapted from the attached Mochi Ledger reference.
    This file is self-contained: theme and palette controls remain app-owned. */
 :root {
-  --hue-pri: 158;
-  --hue-acc: 338;
+  --hue-pri: 256;
+  --hue-acc: 158;
   --hue-sec: 190;
   --paper: #fffdf8;
   --paper-2: #ffffff;
   --paper-3: #f7f2ea;
+  --card: #ffffff;
   --ink: #322a42;
   --ink-soft: #6b6383;
   --ink-faint: #a39bb8;
   --rule: #efe9df;
   --rule-2: #e2d9cb;
+  --hard: color-mix(in srgb, var(--rule-2) 86%, transparent);
   --scrim: rgb(50 42 66 / .4);
   --shadow-rgb: 50 42 66;
   --s-pri: 58%; --l-pri: 55%; --l-pri-fill: 80%; --l-pri-fill-hov: 74%; --l-pri-soft: 94%; --l-pri-ink: 30%;
@@ -47,6 +49,8 @@
   --fs-2xs: 11px; --fs-xs: 12px; --fs-sm: 13px; --fs-md: 15px; --fs-lg: 17px; --fs-xl: 20px; --fs-2xl: 26px; --fs-3xl: 34px;
   --mochi-radius-sm: 12px; --mochi-radius-md: 16px; --mochi-radius-lg: 24px;
   --r1: 8px; --r2: 16px; --r3: 22px; --r4: 28px; --radius: 22px; --border-w: 1px;
+  --r-pill: 999px; --topbar-h: 58px; --maxw: 1080px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px; --sp-7: 32px; --sp-8: 40px; --sp-9: 52px; --sp-10: 64px;
   --mochi-ease-spring: cubic-bezier(.34, 1.56, .64, 1); --mochi-ease-out: cubic-bezier(.22, 1, .36, 1);
   --mochi-duration-fast: 120ms; --mochi-duration: 200ms;
   --mochi-shadow-sticker: 0 3px 0 color-mix(in srgb, var(--rule-2) 85%, transparent), 0 5px 12px rgb(var(--shadow-rgb) / .08);
@@ -55,12 +59,12 @@
   --sh-md: 0 calc(6px * var(--elev)) calc(18px * var(--elev)) rgb(var(--shadow-rgb) / calc(.10 * var(--elev))), 0 calc(2px * var(--elev)) calc(5px * var(--elev)) rgb(var(--shadow-rgb) / calc(.06 * var(--elev)));
   --shadow-pop: var(--mochi-shadow-sticker);
   --ring: color-mix(in srgb, var(--pri) 28%, transparent);
-  --tint: var(--acc-tint); --pen: var(--penpay); --pen-tint: var(--penpay-tint); --pen-ink: var(--penpay-ink);
+  --tint: var(--pri-soft); --pen: var(--penpay); --pen-tint: var(--penpay-tint); --pen-ink: var(--penpay-ink);
   --pad-card: 20px; --rowh: 64px; --elev: 1;
   --background: var(--paper); --foreground: var(--ink); --card-foreground: var(--ink); --popover: var(--card); --popover-foreground: var(--ink);
-  --primary: var(--pri); --primary-foreground: var(--on-accent); --secondary: var(--paper-3); --secondary-foreground: var(--ink);
+  --primary: var(--pri); --primary-foreground: var(--pri-ink); --secondary: var(--paper-3); --secondary-foreground: var(--ink);
   --muted: var(--paper-3); --muted-foreground: var(--ink-soft); --accent: var(--acc); --accent-foreground: var(--acc-ink);
-  --destructive: var(--danger); --destructive-foreground: #fff; --success: var(--pri); --success-foreground: var(--on-accent);
+  --destructive: var(--danger); --destructive-foreground: #fff; --success: var(--pri); --success-foreground: var(--pri-ink);
   --warning: var(--banana); --warning-foreground: var(--ink); --info: var(--sky); --info-foreground: var(--ink);
   --border: var(--rule); --input: var(--rule-2); --ring: var(--pri); --sidebar: var(--card); --sidebar-foreground: var(--ink);
   --sidebar-accent: var(--paper-3); --sidebar-accent-foreground: var(--ink); --sidebar-border: var(--rule); --sidebar-ring: var(--pri);
@@ -69,7 +73,7 @@
   color-scheme: light;
 }
 :root[data-mode='dark'] {
-  --paper: #17131f; --paper-2: #211b2c; --paper-3: #2a2338;
+  --paper: #17131f; --paper-2: #211b2c; --paper-3: #2a2338; --card: #211b2c;
   --ink: #f4eff9; --ink-soft: #c9c1dc; --ink-faint: #948baa;
   --rule: #332b45; --rule-2: #443a5c; --scrim: rgb(8 5 16 / .6); --shadow-rgb: 0 0 0;
   --s-pri: 55%; --l-pri: 76%; --l-pri-fill: 35%; --l-pri-fill-hov: 42%; --l-pri-soft: 25%; --l-pri-ink: 84%;
@@ -78,10 +82,10 @@
   --on-accent: #24172b;
   color-scheme: dark;
 }
+:root[data-palette='mochi'] { --hue-pri: 256; --hue-acc: 338; --hue-sec: 190; }
 :root[data-palette='matcha'] { --hue-pri: 158; --hue-acc: 338; --hue-sec: 190; }
-:root[data-palette='coral'] { --hue-pri: 16; --hue-acc: 338; --hue-sec: 158; }
-:root[data-palette='blueberry'] { --hue-pri: 222; --hue-acc: 190; --hue-sec: 280; }
-:root[data-palette='butter'] { --hue-pri: 45; --hue-acc: 256; --hue-sec: 190; }
+:root[data-palette='soda'] { --hue-pri: 222; --hue-acc: 190; --hue-sec: 280; }
+:root[data-palette='sakura'] { --hue-pri: 338; --hue-acc: 16; --hue-sec: 158; }
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body { font-family: var(--font-ui); font-size: var(--fs-md); line-height: 1.5; color: var(--ink); background: var(--paper); }

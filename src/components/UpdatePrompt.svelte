@@ -113,9 +113,9 @@
       aria-labelledby="update-title"
       aria-describedby="update-body"
       class="sticker pop-dots w-full max-w-[20rem] rounded-3xl p-6 text-center"
-      style="box-shadow: 6px 6px 0 0 var(--hard);"
+      style="box-shadow: var(--mochi-shadow-sticker);"
     >
-      <span class="mx-auto grid size-11 place-items-center rounded-full border-[1.5px] border-ink bg-tint text-acc-ink shadow-[2.5px_2.5px_0_0_var(--acc)]">
+      <span class="mx-auto grid size-11 place-items-center rounded-full border border-rule-2 bg-tint text-acc-ink shadow-sm">
         <ArrowClockwise class="size-5" weight="bold" aria-hidden="true" />
       </span>
       <h2 id="update-title" class="mt-3 text-lg font-extrabold tracking-tight text-ink">มีเวอร์ชันใหม่</h2>

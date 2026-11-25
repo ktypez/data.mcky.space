@@ -58,7 +58,7 @@
   disabled={loading}
   aria-label={`${message ? `${message} ` : ''}${copied ? 'คัดลอกแล้ว' : `คัดลอก ${client.shopName[0] || client.name[0] || client.id}`}`}
   title={message ?? undefined}
-  class="btn-inline flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xs transition-colors disabled:cursor-wait disabled:opacity-60 {copied ? 'bg-acc text-[var(--on-accent)]' : focused ? 'bg-card text-ink' : 'text-ink-faint hover:bg-paper-2 hover:text-ink'}"
+  class="btn-inline flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xs transition-colors disabled:cursor-wait disabled:opacity-60 {copied ? 'bg-acc text-acc-ink' : focused ? 'bg-card text-ink' : 'text-ink-faint hover:bg-paper-2 hover:text-ink'}"
 >
   {#if loading}
     <span class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" aria-label="กำลังคัดลอก"></span>

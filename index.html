@@ -21,16 +21,18 @@
       MapPicker import the npm bundle (shared `map` chunk) only
       on pages that render a map, so the catalog pays zero map cost. -->
     <script>
-      // Apply the app-owned theme before first paint.
+      // Apply the app-owned design tokens before first paint.
       (function () {
         var mode = null;
         try { mode = localStorage.getItem('data-ledger-mode'); } catch (e) {}
         var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        var palette = 'matcha';
+        var palette = 'mochi';
         try {
           var savedTheme = JSON.parse(localStorage.getItem('data-ledger-ui') || '{}');
           var savedPalette = savedTheme && savedTheme.state && savedTheme.state.theme;
-          if (['matcha', 'coral', 'blueberry', 'butter'].indexOf(savedPalette) !== -1) palette = savedPalette;
+          var migrations = { coral: 'sakura', blueberry: 'soda', butter: 'mochi' };
+          savedPalette = migrations[savedPalette] || savedPalette;
+          if (['mochi', 'matcha', 'soda', 'sakura'].indexOf(savedPalette) !== -1) palette = savedPalette;
         } catch (e) {}
         var root = document.documentElement;
         root.setAttribute('data-theme', palette);
@@ -43,10 +45,10 @@
         var density = 'cozy';
         var texture = 'on';
         try {
-          var v5 = JSON.parse(localStorage.getItem('data-ledger-v5') || '{}');
-          if (v5 && v5.state) {
-            if (v5.state.density === 'compact') density = 'compact';
-            if (v5.state.texture === false) texture = 'off';
+        var preferences = JSON.parse(localStorage.getItem('data-ledger-preferences') || localStorage.getItem('data-ledger-v5') || '{}');
+          if (preferences && preferences.state) {
+            if (preferences.state.density === 'compact') density = 'compact';
+            if (preferences.state.texture === false) texture = 'off';
           }
         } catch (e) {}
         root.setAttribute('data-density', density);

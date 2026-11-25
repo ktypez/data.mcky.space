@@ -1,7 +1,7 @@
 <script lang="ts">
   // Deterministic monogram: same name → same tint/ink pair, every render.
-  const TINTS = ['var(--acc-tint)', 'var(--pop-tint)', 'var(--credit-tint)', 'var(--penpay-tint)']
-  const INKS = ['var(--acc-ink)', 'var(--pop-ink)', 'var(--credit-ink)', 'var(--penpay-ink)']
+  const TINTS = ['var(--pri-soft)', 'var(--pop-tint)', 'var(--credit-tint)', 'var(--penpay-tint)']
+  const INKS = ['var(--pri-ink)', 'var(--pop-ink)', 'var(--credit-ink)', 'var(--penpay-ink)']
 
   let { name, size = 40, class: className = '' }: { name: string; size?: number; class?: string } = $props()
 

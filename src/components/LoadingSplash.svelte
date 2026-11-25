@@ -47,7 +47,7 @@
 
 <style>
   .entry-reveal {
-    --entry-color: var(--acc, var(--pri));
+    --entry-color: var(--pri);
     position: fixed;
     inset: 0;
     z-index: 10000;

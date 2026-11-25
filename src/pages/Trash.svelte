@@ -131,7 +131,7 @@
     </div>
     <Squiggle class="mt-2 h-[6px] w-32 text-danger" />
 
-    <div class="sticker mt-7 flex -rotate-[0.6deg] items-start gap-3 rounded-2xl !border-acc bg-tint p-4 shadow-[3px_3px_0_0_var(--acc)]">
+    <div class="sticker mt-7 flex items-start gap-3 rounded-2xl !border-pri bg-tint p-4 shadow-sm">
       <Info size={17} weight="bold" class="mt-0.5 shrink-0 text-acc-ink" aria-hidden="true" />
       <p class="text-[13.5px] font-medium leading-relaxed text-acc-ink">รายการที่ลบจะอยู่ที่นี่ 30 วัน แล้วถูกลบถาวร</p>
     </div>
@@ -150,7 +150,7 @@
         <div class="p-8 text-center text-sm text-ink-soft" role="status">กำลังโหลดถังขยะ…</div>
       {:else if items.length === 0 && !error}
         <div class="flex flex-col items-center gap-3 p-10 text-center">
-          <span class="sticker grid size-16 place-items-center rounded-2xl bg-tint text-acc-ink shadow-[4px_4px_0_0_var(--acc)]" aria-hidden="true">
+          <span class="sticker grid size-16 place-items-center rounded-2xl bg-tint text-acc-ink shadow-sm" aria-hidden="true">
             <Asterisk class="size-8" />
           </span>
           <p class="text-lg font-bold text-ink">ถังขยะว่าง</p>

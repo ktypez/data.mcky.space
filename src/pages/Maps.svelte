@@ -24,10 +24,10 @@
     return (m.default ?? m) as LL
   }
   function clusterHtml(count: number, size: number): string {
-    return `<div style="width:${size}px;height:${size}px;border-radius:999px;background:var(--acc);color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:${size > 40 ? 13 : 12}px;font-weight:800;border:2px solid var(--ink);box-shadow:2px 2px 0 0 var(--hard);">${count}</div>`
+    return `<div style="width:${size}px;height:${size}px;border-radius:999px;background:var(--pri-fill);color:var(--pri-ink);display:flex;align-items:center;justify-content:center;font-size:${size > 40 ? 13 : 12}px;font-weight:800;border:1px solid var(--rule-2);box-shadow:var(--sh-sm);">${count}</div>`
   }
   function dotHtml(): string {
-    return `<div style="width:12px;height:12px;border-radius:999px;background:var(--acc);border:2px solid var(--ink);box-shadow:1px 1px 0 0 var(--hard);"></div>`
+    return `<div style="width:12px;height:12px;border-radius:999px;background:var(--pri);border:2px solid var(--card);box-shadow:var(--sh-sm);"></div>`
   }
 
   let storeClients = $derived($useClientStore.clients)
@@ -310,7 +310,7 @@
         onblur={() => (inputFocused = false)}
         placeholder="ค้นหาในแผนที่ — ชื่อ ร้าน ที่อยู่…"
         aria-label="ค้นหาในแผนที่"
-        class="field !py-3 !pl-11 !pr-12 shadow-[2.5px_2.5px_0_0_var(--rule)]"
+        class="field !py-3 !pl-11 !pr-12 shadow-sm"
         autocomplete="off"
         spellcheck="false"
       />
@@ -320,7 +320,7 @@
         </button>
       {/if}
       {#if inputFocused && search.trim()}
-        <div class="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border-[1.5px] border-ink bg-card shadow-[4px_4px_0_0_var(--hard)]">
+        <div class="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-rule-2 bg-card shadow-md">
           {#if searchResults.length > 0}
             {#each searchResults as client}
               <button type="button" onmousedown={(e) => e.preventDefault()} onclick={() => { inputFocused = false; selected = client; map?.setView([client.lat as number, client.lng as number], 15) }} class="flex w-full items-center gap-3 border-b border-dashed border-rule px-4 py-2.5 text-left last:border-b-0 hover:bg-paper-2">
@@ -342,7 +342,7 @@
       {/if}
     </div>
 
-    <div class="relative min-h-0 flex-1 overflow-hidden rounded-2xl border-[1.5px] border-ink shadow-[4px_4px_0_0_var(--hard)]">
+    <div class="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-rule-2 shadow-sm">
       <div bind:this={containerRef} class="h-full w-full z-0"></div>
       <div class="absolute bottom-1 right-1 z-[400] flex items-center gap-1">
         {#if attrOpen}
@@ -351,7 +351,7 @@
         <button type="button" onclick={(e) => { e.stopPropagation(); attrOpen = !attrOpen }} aria-label={attrOpen ? 'ซ่อนเครดิต' : 'แสดงเครดิต'} class="flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-[10px] font-bold text-white backdrop-blur hover:bg-black/70">©</button>
       </div>
       {#if loading}
-        <div class="absolute inset-0 z-10 flex items-center justify-center bg-paper/60 backdrop-blur-[2px]"><span class="chip border-[1.5px] border-ink bg-card px-4 py-2 text-xs font-bold text-ink shadow-[2px_2px_0_0_var(--hard)]" role="status">กำลังโหลดแผนที่…</span></div>
+        <div class="absolute inset-0 z-10 flex items-center justify-center bg-paper/60 backdrop-blur-[2px]"><span class="chip border border-rule-2 bg-card px-4 py-2 text-xs font-bold text-ink shadow-sm" role="status">กำลังโหลดแผนที่…</span></div>
       {/if}
       {#if !loading && pins.length === 0 && !loadError}
         <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-card/85 p-6 text-center">
@@ -363,10 +363,10 @@
       {/if}
       {#if selected}
         <div class="absolute bottom-3 left-3 right-3 z-20">
-          <div class="sticker rounded-2xl p-3" style="box-shadow: 4px 4px 0 0 var(--hard);">
+          <div class="sticker rounded-2xl p-3">
             <div class="flex gap-3">
               {#if selected.images[0] || selected.thumb}
-                <AppImage src={selected.thumb ?? selected.images[0]} fallbackSrc={selected.images[0]} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover border-[1.5px] border-ink" />
+                <AppImage src={selected.thumb ?? selected.images[0]} fallbackSrc={selected.images[0]} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover border border-rule-2" />
               {:else}
                 <Monogram name={selected.shopName[0] || selected.name[0] || '·'} size={48} />
               {/if}

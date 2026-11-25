@@ -34,7 +34,7 @@
     aria-hidden="true">soft delete ♻</span>
 
   <div class="mb-7 flex items-center justify-center gap-2.5">
-    <span class="sticker grid size-9 -rotate-3 place-items-center rounded-xl bg-acc text-[var(--on-accent)]">
+    <span class="sticker grid size-9 place-items-center rounded-[10px] bg-acc text-acc-ink">
       <span class="font-mono text-[13px] font-extrabold tracking-tight">DATA</span>
     </span>
     <span class="flex flex-col leading-none">
@@ -45,8 +45,8 @@
     </span>
   </div>
 
-  <div class="sticker pop-dots w-full max-w-md rounded-3xl p-8 text-center shadow-[6px_6px_0_0_var(--hard)] sm:p-10">
-    <span class="sticker mx-auto grid size-16 place-items-center rounded-2xl bg-acc text-[var(--on-accent)] shadow-[4px_4px_0_0_var(--hard)]" aria-hidden="true">
+  <div class="sticker pop-dots w-full max-w-md rounded-3xl p-8 text-center shadow-[var(--mochi-shadow-sticker)] sm:p-10">
+    <span class="sticker mx-auto grid size-16 place-items-center rounded-2xl bg-acc text-acc-ink shadow-sm" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" class="size-8" aria-hidden="true">
         <path d="M12 3v18M4.3 7.5l15.4 9M19.7 7.5l-15.4 9" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
       </svg>
@@ -64,5 +64,5 @@
     <p class="mt-2.5 text-sm leading-7 text-ink-soft">ค้นหา แก้ไข และดูตำแหน่งร้านบนแผนที่ ทั้งบนมือถือและเดสก์ท็อป ข้อมูลที่ลบจะอยู่ในถังขยะ 30 วันก่อนหายไปถาวร</p>
   </div>
 
-  <p class="mt-10 font-mono text-[11px] text-ink-faint">data.mcky.space · Paper Pop</p>
+  <p class="mt-10 font-mono text-[11px] text-ink-faint">DATA Ledger · Mochi</p>
 </main>

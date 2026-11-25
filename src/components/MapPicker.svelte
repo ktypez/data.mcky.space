@@ -124,7 +124,7 @@
 {#if mapFailed}
   <div class="w-full h-48 rounded-xl overflow-hidden border-[1.5px] border-dashed border-rule-2 bg-paper-2/50 flex items-center justify-center text-ink-faint text-xs">ไม่สามารถโหลดแผนที่ได้</div>
 {:else}
-  <div class="w-full h-48 rounded-xl overflow-hidden border-[1.5px] border-ink relative">
+  <div class="w-full h-48 rounded-xl overflow-hidden border border-rule-2 relative shadow-sm">
     <div bind:this={containerRef} class="w-full h-full z-0"></div>
     {#if lat != null && lng != null}
       <div class="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-md bg-paper/85 backdrop-blur-sm text-[13px] font-mono text-ink whitespace-nowrap pointer-events-none flex items-center gap-1.5">

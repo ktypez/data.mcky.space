@@ -6,7 +6,7 @@
 
 <AppDialog open={$leaveRequest !== null} onClose={cancelLeave} title="มีการเปลี่ยนแปลงที่ยังไม่บันทึก" showHeader={false}>
   <div class="p-6">
-    <span class="grid size-11 place-items-center rounded-xl border-[1.5px] border-acc bg-tint text-acc-ink" style="box-shadow: 2px 2px 0 0 var(--acc);" aria-hidden="true">
+    <span class="grid size-11 place-items-center rounded-xl border border-pri bg-tint text-acc-ink shadow-sm" aria-hidden="true">
       <Asterisk class="size-5" />
     </span>
     <p class="mt-3 text-[17px] font-bold text-ink">มีการเปลี่ยนแปลงที่ยังไม่บันทึก</p>

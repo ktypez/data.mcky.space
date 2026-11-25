@@ -28,8 +28,8 @@
   :global(.ui-button:hover:not(:disabled)) { transform: translateY(-1px); }
   :global(.ui-button:active:not(:disabled)) { transform: scale(.97); }
   :global(.ui-button:disabled) { opacity: .5; cursor: not-allowed; }
-  :global(.ui-button:not(.ui-button--outline, .ui-button--secondary)) { background: var(--acc); color: var(--on-accent); border-color: color-mix(in srgb, var(--acc) 70%, var(--ink)); box-shadow: 0 2px 0 color-mix(in srgb, var(--acc) 42%, var(--ink)); }
-  :global(.ui-button:not(.ui-button--outline, .ui-button--secondary):hover:not(:disabled)) { background: var(--acc-strong); }
+  :global(.ui-button:not(.ui-button--outline, .ui-button--secondary)) { background: var(--pri-fill); color: var(--pri-ink); border-color: color-mix(in srgb, var(--pri) 28%, var(--rule-2)); box-shadow: var(--sh-sm); }
+  :global(.ui-button:not(.ui-button--outline, .ui-button--secondary):hover:not(:disabled)) { background: var(--pri-fill-hov); }
   :global(.ui-button--outline) { background: var(--card); border-color: var(--rule-2); box-shadow: var(--sh-sm); }
   :global(.ui-button--secondary) { background: var(--paper-2); border-color: var(--rule); }
 </style>

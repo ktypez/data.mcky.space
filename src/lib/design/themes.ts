@@ -2,23 +2,23 @@ import type { Theme, ThemeGroup } from './tokens'
 
 export type { Theme, ThemeGroup } from './tokens'
 
-/** Palette metadata; colour ramps are defined locally in styles/v6-tokens.css. */
+/** Palette metadata; colour ramps are defined in the app design tokens. */
 export const themes: Theme[] = [
-  { id: 'matcha', label: 'Matcha', description: 'กระดาษอุ่นโทนชามัทฉะ, เขียวเป็นสีหลักและคอรัลเป็นสีป๊อป (ค่าเริ่มต้น)', modes: ['light', 'dark'] },
-  { id: 'coral', label: 'Coral', description: 'คอรัลส้มแดงเป็นสีหลักและทีลเข้มเป็นสีป๊อป', modes: ['light', 'dark'] },
-  { id: 'blueberry', label: 'Blueberry', description: 'น้ำเงินบลูเบอร์รีเป็นสีหลักและเหลืองอำพันเป็นสีป๊อป', modes: ['light', 'dark'] },
-  { id: 'butter', label: 'Butter', description: 'ส้มเนยเป็นสีหลักและม่วงไอริสเป็นสีป๊อป', modes: ['light', 'dark'] },
+  { id: 'mochi', label: 'Mochi', description: 'ม่วงโมจินุ่มตัดชมพูซากุระ', modes: ['light', 'dark'] },
+  { id: 'matcha', label: 'Matcha', description: 'เขียวมัทฉะตัดชมพูซากุระ', modes: ['light', 'dark'] },
+  { id: 'soda', label: 'Soda', description: 'น้ำเงินโซดาตัดฟ้าใส', modes: ['light', 'dark'] },
+  { id: 'sakura', label: 'Sakura', description: 'ชมพูซากุระตัดคอรัล', modes: ['light', 'dark'] },
 ]
 
-/** Picker swatches use the app-owned semantic palette tokens. */
-export const V5_PALETTES: Array<{ key: string; name: string; acc: string; pop: string; tint: string }> = [
-  { key: 'matcha', name: 'Matcha', acc: 'var(--pri)', pop: 'var(--acc)', tint: 'var(--pri-soft)' },
-  { key: 'coral', name: 'Coral', acc: 'hsl(16 72% 59%)', pop: 'var(--acc)', tint: 'var(--pri-soft)' },
-  { key: 'blueberry', name: 'Blueberry', acc: 'var(--pri)', pop: 'var(--acc)', tint: 'var(--pri-soft)' },
-  { key: 'butter', name: 'Butter', acc: 'hsl(45 78% 58%)', pop: 'var(--acc)', tint: 'var(--pri-soft)' },
+/** Colour swatches follow the four palettes in the supplied prototype. */
+export const DESIGN_PALETTES: Array<{ key: string; name: string; acc: string; pop: string; tint: string }> = [
+  { key: 'mochi', name: 'Mochi', acc: 'hsl(256 58% 55%)', pop: 'hsl(338 65% 56%)', tint: 'hsl(256 54% 94%)' },
+  { key: 'matcha', name: 'Matcha', acc: 'hsl(158 58% 48%)', pop: 'hsl(338 65% 56%)', tint: 'hsl(158 54% 92%)' },
+  { key: 'soda', name: 'Soda', acc: 'hsl(222 58% 55%)', pop: 'hsl(190 65% 52%)', tint: 'hsl(222 54% 94%)' },
+  { key: 'sakura', name: 'Sakura', acc: 'hsl(338 65% 56%)', pop: 'hsl(16 65% 56%)', tint: 'hsl(338 54% 94%)' },
 ]
 
-const defaultTheme: Theme = themes.find((theme) => theme.id === 'matcha') ?? themes[0]
+const defaultTheme: Theme = themes.find((theme) => theme.id === 'mochi') ?? themes[0]
 
 export function getTheme(id: string | undefined | null): Theme {
   return themes.find((theme) => theme.id === id) ?? defaultTheme
