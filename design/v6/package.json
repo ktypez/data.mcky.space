@@ -1,0 +1,17 @@
+{
+  "name": "mochi-ledger",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A fun, minimal, decorative redesign of the DATA ledger (data.mcky.space), built with Svelte.",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.1.2",
+    "svelte": "^4.2.19",
+    "vite": "^5.4.10"
+  }
+}
