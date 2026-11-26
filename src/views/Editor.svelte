@@ -10,6 +10,9 @@
   import Asterisk from '../components/Asterisk.svelte';
   import Button from '../components/Button.svelte';
   import Segmented from '../components/Segmented.svelte';
+  import MapPicker from '../components/MapPicker.svelte';
+  import LocationSection from '../components/LocationSection.svelte';
+  import PhotoUploadModal from '../components/PhotoUploadModal.svelte';
 
   let name = [''];
   let shopName = [''];
@@ -18,6 +21,9 @@
   let lat = '';
   let lng = '';
   let images = [];
+  let thumbs = {};
+  let photoModal = false;
+  const MAX_IMAGES = 2;
   let originalImages = [];
   let badge = null;
   let notes = '';
@@ -47,6 +53,7 @@
     lng = source.lng != null ? String(source.lng) : '';
     images = asList(source.images).filter((x) => typeof x === 'string' && x);
     originalImages = [...images];
+    thumbs = {};
     badge = source.badge || null;
     notes = source.notes || '';
   });
@@ -60,15 +67,16 @@
     list[i] = value;
     if (which === 'name') name = list; else shopName = list;
   }
-  function pickPhotos(e) {
-    [...(e.target.files || [])].forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => { images = [...images, String(reader.result)]; };
-      reader.readAsDataURL(file);
-    });
-    e.target.value = '';
+  function setCoords(a, b) { lat = String(a); lng = String(b); }
+  function removePhoto(i) {
+    const removed = images[i];
+    images = images.filter((_, idx) => idx !== i);
+    if (removed && removed in thumbs) {
+      const next = { ...thumbs };
+      delete next[removed];
+      thumbs = next;
+    }
   }
-  function removePhoto(i) { images = images.filter((_, idx) => idx !== i); }
 
   async function save() {
     if (saving || !$auth.signedIn) return;
@@ -84,6 +92,7 @@
         lat: lat !== '' ? Number(lat) : null,
         lng: lng !== '' ? Number(lng) : null,
         images,
+        thumbs,
         originalImages,
         badge,
         notes: notes.trim() || null,
@@ -136,14 +145,22 @@
     <div class="grid2">
       <div class="field"><span class="label">สาขา</span><input bind:value={branch} placeholder="สาขา" /></div>
       <div class="field"><span class="label">ที่อยู่</span><input bind:value={address} placeholder="ที่อยู่" /></div>
-      <div class="field"><span class="label">ละติจูด</span><input bind:value={lat} placeholder="เช่น 16.4322" inputmode="decimal" /></div>
-      <div class="field"><span class="label">ลองจิจูด</span><input bind:value={lng} placeholder="เช่น 102.8490" inputmode="decimal" /></div>
+    </div>
+
+    <div class="field">
+      <span class="label">ตำแหน่ง</span>
+      <MapPicker lat={lat !== '' ? Number(lat) : null} lng={lng !== '' ? Number(lng) : null} onChange={setCoords} />
+      <LocationSection lat={lat !== '' ? Number(lat) : null} lng={lng !== '' ? Number(lng) : null} onChange={setCoords} />
+      <div class="grid2">
+        <div class="field"><span class="label">ละติจูด</span><input bind:value={lat} placeholder="เช่น 16.4322" inputmode="decimal" /></div>
+        <div class="field"><span class="label">ลองจิจูด</span><input bind:value={lng} placeholder="เช่น 102.8490" inputmode="decimal" /></div>
+      </div>
     </div>
 
     <div class="field">
       <span class="label">ประเภทชำระ</span>
       <Segmented
-        options={[{ id: 'none', label: 'วางบิล' }, { id: 'penpay', label: 'จ่ายในวัน' }, { id: 'credit', label: 'บัตรเครดิต' }]}
+        options={[{ id: 'none', label: 'เก็บเงิน' }, { id: 'penpay', label: 'วางบิล' }, { id: 'credit', label: 'บัตรเครดิต' }]}
         value={badge || 'none'}
         on:change={(e) => (badge = e.detail === 'none' ? null : e.detail)}
       />
@@ -163,8 +180,11 @@
             <button class="rm" aria-label="ลบรูป" on:click={() => removePhoto(i)}><Icon name="x" size={13} /></button>
           </div>
         {/each}
-        <label class="upload"><Icon name="plus" size={18} /><span>เพิ่มรูป</span><input type="file" accept="image/*" multiple on:change={pickPhotos} /></label>
+        {#if images.length < MAX_IMAGES}
+          <button class="upload" on:click={() => (photoModal = true)}><Icon name="photo" size={18} /><span>{images.length}/{MAX_IMAGES}</span></button>
+        {/if}
       </div>
+      <PhotoUploadModal open={photoModal} onClose={() => (photoModal = false)} onCompressed={(data, thumb) => { if (images.length < MAX_IMAGES) { images = [...images, data]; thumbs = { ...thumbs, [data]: thumb }; } }} />
     </div>
 
     {#if error}<p class="err">{error}</p>{/if}

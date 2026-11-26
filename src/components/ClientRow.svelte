@@ -43,7 +43,7 @@
 
   <span class="flags">
     {#if client.payment === 'day'}
-      <Badge tone="pri" icon="bolt" size="sm">จ่ายในวัน</Badge>
+      <Badge tone="pri" icon="bolt" size="sm">วางบิล</Badge>
     {:else if client.payment === 'card'}
       <Badge tone="info" icon="check" size="sm">บัตรเครดิต</Badge>
     {/if}

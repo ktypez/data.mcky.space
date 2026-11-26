@@ -101,7 +101,7 @@
               <b>ลาบ ก้อย สโมสร</b>
               <small class="dim">ศักดิ์ชาย บุญชาญ</small>
             </div>
-            <Badge tone="pri" icon="bolt" size="sm">จ่ายในวัน</Badge>
+            <Badge tone="pri" icon="bolt" size="sm">วางบิล</Badge>
           </div>
           <div class="pv-actions">
             <Button size="sm">เปิด</Button>
