@@ -40,7 +40,21 @@
 
   onMount(() => {
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    // Deep link: ?c=<id> opens that record in the side sheet once data loads.
+    let unsub = () => {};
+    const id = new URLSearchParams(window.location.search).get('c');
+    if (id) {
+      let opened = false;
+      unsub = clients.subscribe((list) => {
+        if (opened) return;
+        const match = list.find((c) => c.id === id);
+        if (match) { opened = true; openRecord(match); }
+      });
+    }
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      unsub();
+    };
   });
 </script>
 

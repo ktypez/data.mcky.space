@@ -28,11 +28,14 @@
     clearTimeout(timer);
     timer = setTimeout(() => (popOn = false), 260);
     if (burst) {
-      const r = e.currentTarget.getBoundingClientRect();
-      boom(r.left + r.width / 2, r.top + r.height / 2, {
-        tone: burstTone,
-        size: Math.max(r.width, r.height) * 0.95
-      });
+      const el = e?.currentTarget || e?.target;
+      if (el?.getBoundingClientRect) {
+        const r = el.getBoundingClientRect();
+        boom(r.left + r.width / 2, r.top + r.height / 2, {
+          tone: burstTone,
+          size: Math.max(r.width, r.height) * 0.95
+        });
+      }
     }
     dispatch('click', e);
   }
