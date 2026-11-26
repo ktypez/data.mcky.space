@@ -6,9 +6,10 @@
   import { auth, login, logout } from '../lib/auth.js';
   import { burstAt } from '../lib/effects.js';
 
-  const nav = [
+  $: nav = [
     { id: 'ledger', label: 'สมุดทะเบียน', icon: 'book' },
-    { id: 'settings', label: 'ตั้งค่า', icon: 'settings' }
+    { id: 'settings', label: 'ตั้งค่า', icon: 'settings' },
+    ...($auth.signedIn ? [{ id: 'trash', label: 'ถังขยะ', icon: 'trash' }] : [])
   ];
 </script>
 

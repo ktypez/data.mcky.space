@@ -1,7 +1,7 @@
 import { writable, get } from 'svelte/store';
 
 // Which surface is showing
-export const view = writable('ledger'); // 'ledger' | 'settings' | 'tokens' | 'editor'
+export const view = writable('ledger'); // 'ledger' | 'settings' | 'tokens' | 'editor' | 'trash'
 export function setView(v) { view.set(v); }
 
 // Editor target: null = add new, otherwise a raw client to edit

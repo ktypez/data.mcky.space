@@ -79,6 +79,22 @@ export async function saveClient(client) {
   return { ...client, id, images };
 }
 
+/** Fetch soft-deleted clients still inside the 30-day trash window. */
+export async function fetchTrash() {
+  const res = await fetch(`${API_BASE}/api/clients/trash`, { headers: await headers() });
+  return json(res);
+}
+
+/** action: 'restore' | 'force-delete' (same admin-gated endpoint as the old UI). */
+export async function trashAction(id, action) {
+  const res = await fetch(`${API_BASE}/api/clients/trash?action=${action}`, {
+    method: 'POST',
+    headers: await headers(),
+    body: JSON.stringify({ id }),
+  });
+  return json(res);
+}
+
 /** Fetch one raw client row for the editor. */
 export async function fetchClient(id) {
   const res = await fetch(`${API_BASE}/api/clients/${encodeURIComponent(id)}?raw=true`);
