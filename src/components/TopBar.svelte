@@ -1,18 +1,14 @@
 <script>
-  import { PALETTES, palette, setPalette, toggleTheme } from '../lib/theme.js';
-  import { view, setView, openCmd } from '../lib/ui.js';
+  import { view, setView } from '../lib/ui.js';
   import Icon from './Icon.svelte';
-  import Kbd from './Kbd.svelte';
   import Asterisk from './Asterisk.svelte';
-  import { theme } from '../lib/theme.js';
+  import { theme, toggleTheme } from '../lib/theme.js';
   import { auth, login, logout } from '../lib/auth.js';
 
   const nav = [
     { id: 'ledger', label: 'สมุดทะเบียน', icon: 'book' },
     { id: 'settings', label: 'ตั้งค่า', icon: 'settings' }
   ];
-
-  function pickPalette(id) { setPalette(id); }
 </script>
 
 <header class="bar">
@@ -35,26 +31,8 @@
     </nav>
 
     <div class="actions">
-      <div class="pal-dots" role="group" aria-label="เปลี่ยนธีม">
-        {#each PALETTES as p}
-          <button
-            class="dot {p.id === $palette ? 'on' : ''}"
-            style="--h:{p.hue}"
-            title={p.label}
-            aria-label={p.label}
-            on:click={() => pickPalette(p.id)}
-          ></button>
-        {/each}
-      </div>
-
       <button class="icon-btn" on:click={toggleTheme} aria-label="สลับโหมด">
         <Icon name={$theme === 'dark' ? 'sun' : 'moon'} size={18} />
-      </button>
-
-      <button class="cmd-btn" on:click={openCmd}>
-        <Icon name="search" size={16} />
-        <span class="cmd-label">ค้นหา</span>
-        <Kbd keys={['⌘', 'K']} />
       </button>
 
       {#if $auth.signedIn}
@@ -100,13 +78,6 @@
   .nav-btn.on { background: var(--paper-2); color: var(--pri); box-shadow: var(--shadow-sm); }
 
   .actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-  .pal-dots { display: flex; gap: 5px; background: var(--paper-3); border: 1px solid var(--line); padding: 5px; border-radius: var(--r-pill); }
-  .dot {
-    width: 15px; height: 15px; border-radius: 50%; border: 2px solid transparent;
-    background: hsl(var(--h) 62% 78%); cursor: pointer; transition: transform var(--dur-fast) var(--ease-spring);
-  }
-  .dot:hover { transform: scale(1.18); }
-  .dot.on { border-color: var(--ink); box-shadow: 0 0 0 2px var(--paper-2); }
 
   .icon-btn {
     width: 34px; height: 34px; border-radius: var(--r-pill); border: 1px solid var(--line);
@@ -114,16 +85,6 @@
     transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
   }
   .icon-btn:hover { color: var(--pri); border-color: color-mix(in srgb, var(--pri) 40%, transparent); transform: translateY(-1px); }
-
-  .cmd-btn {
-    display: inline-flex; align-items: center; gap: 8px; padding: 0 10px 0 12px; height: 34px;
-    border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--paper-2); color: var(--ink-2);
-    font-weight: 600; font-size: var(--fs-sm);
-    transition: border-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
-  }
-  .cmd-btn:hover { border-color: var(--pri); color: var(--pri); transform: translateY(-1px); }
-  .cmd-label { display: none; }
-  @media (min-width: 560px) { .cmd-label { display: inline; } }
 
   .auth-btn {
     display: inline-flex; align-items: center; gap: 6px; height: 34px;
@@ -133,11 +94,10 @@
   }
   .auth-btn:hover { background: var(--pri-fill-hov); transform: translateY(-1px); }
   .auth-btn .who { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  @media (max-width: 560px) { .auth-btn .who { max-width: 84px; } }
-
   @media (max-width: 560px) {
     .nav-btn { font-size: 0; gap: 0; padding: 9px; }
     .nav-btn :global(svg) { width: 18px; height: 18px; }
     .word small { display: none; }
+    .auth-btn .who { max-width: 84px; }
   }
 </style>

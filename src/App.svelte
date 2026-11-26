@@ -63,5 +63,11 @@
 <Toaster />
 
 <style>
-  main { min-height: calc(100vh - var(--topbar-h)); }
+  main {
+    height: calc(100dvh - var(--topbar-h));
+    min-height: 0;
+    overflow-y: auto;
+    /* main is the scroll container so the in-page search can be sticky
+       directly under the top bar (same recipe as the old ledger). */
+  }
 </style>
