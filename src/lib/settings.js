@@ -1,12 +1,10 @@
 import { writable } from 'svelte/store';
 
-/* Font choices — "โมจิ-สไตล์" (Itim) is the default; the real Moji font
-   can be dropped in at public/fonts/Moji-Regular.ttf and picked here. */
+/* Font choices — the four moji-style web fonts are the only options. */
 export const FONTS = [
   { id: 'itim',   label: 'โมจิ-สไตล์', note: 'น่ารัก ลายมือ',      stack: '"Itim", "Prompt", ui-sans-serif, system-ui, "Noto Sans Thai", sans-serif' },
   { id: 'mali',   label: 'มาลี',       note: 'สดใส แบบเด็ก ๆ',      stack: '"Mali", "Itim", "Prompt", ui-sans-serif, system-ui, "Noto Sans Thai", sans-serif' },
-  { id: 'prompt', label: 'ธรรมดา',     note: 'เรียบร้อย อ่านง่าย',  stack: '"Prompt", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif' },
-  { id: 'moji',   label: 'โมจิ',       note: 'ใส่ไฟล์เอง · public/fonts', stack: '"Moji", "Itim", "Prompt", ui-sans-serif, system-ui, "Noto Sans Thai", sans-serif' }
+  { id: 'prompt', label: 'ธรรมดา',     note: 'เรียบร้อย อ่านง่าย',  stack: '"Prompt", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif' }
 ];
 
 export const ELEV_STEPS = ['แบน', 'บาง', 'ปกติ', 'นุ่ม', 'ฟู'];
@@ -30,9 +28,7 @@ export function initSettings() {
 
 function apply(s) {
   const el = document.documentElement;
-  // elevation: slider 0–4 → CSS factor 0–2 (1 = default look)
   el.style.setProperty('--elev', String(s.elev / 2));
-  // radius: slider 0–100 → scale 0.4–1.6 (50 = 1.0)
   el.style.setProperty('--r-scale', (0.4 + (s.radius / 100) * 1.2).toFixed(3));
   const f = FONTS.find((x) => x.id === s.font) || FONTS[0];
   el.style.setProperty('--font-sans', f.stack);

@@ -1,6 +1,7 @@
 <script>
   import { query, counts, FILTERS, clients, loading, errorMsg, total, loadClients } from '../lib/data.js';
-  import { openRecord } from '../lib/ui.js';
+  import { openRecord, openEditor } from '../lib/ui.js';
+  import { auth } from '../lib/auth.js';
   import SearchInput from '../components/SearchInput.svelte';
   import Segmented from '../components/Segmented.svelte';
   import Chip from '../components/Chip.svelte';
@@ -21,6 +22,9 @@
   $: list = query({ q, filter: filterId, sort: sortId }, $clients);
 
   function onOpen(e) { openRecord(e.detail); }
+
+  let filterOpen = false;
+  function chooseFilter(id) { filterId = id; filterOpen = false; }
 </script>
 
 <section class="wrap page">
@@ -38,14 +42,6 @@
   <div class="toolbar">
     <div class="grow"><SearchInput bind:value={q} placeholder="ค้นหาชื่อร้าน, ลูกค้า, โน้ต…" hint={['⌘', 'K']} /></div>
     <Segmented options={sortOptions} bind:value={sortId} />
-  </div>
-
-  <div class="chips">
-    {#each FILTERS as f}
-      <Chip active={filterId === f.id} count={cnt[f.id]} on:click={() => (filterId = f.id)}>
-        {f.label}
-      </Chip>
-    {/each}
   </div>
 
   {#if $loading}
@@ -81,6 +77,25 @@
       {/each}
     </div>
   {/if}
+
+  <div class="fabs">
+    {#if filterOpen}
+      <div class="filter-panel" role="group" aria-label="ตัวกรอง">
+        <div class="filter-title">ตัวกรอง</div>
+        {#each FILTERS as f}
+          <Chip active={filterId === f.id} count={cnt[f.id]} on:click={() => chooseFilter(f.id)}>{f.label}</Chip>
+        {/each}
+      </div>
+    {/if}
+    <button class="fab filter {filterOpen ? 'on' : ''}" on:click={() => (filterOpen = !filterOpen)} aria-label="ตัวกรอง" title="ตัวกรอง">
+      <Icon name="filter" size={20} />
+    </button>
+    {#if $auth.signedIn}
+      <button class="fab add" on:click={() => openEditor(null)} aria-label="เพิ่มรายการ" title="เพิ่มรายการ">
+        <Icon name="plus" size={22} />
+      </button>
+    {/if}
+  </div>
 </section>
 
 <style>
@@ -112,7 +127,24 @@
   }
   .grow { flex: 1; min-width: 0; }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+  .fabs { position: fixed; right: 22px; bottom: 22px; z-index: 500; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .fab {
+    width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
+    border: 1px solid var(--line); cursor: pointer;
+    background: var(--paper-2); color: var(--ink-2); box-shadow: var(--shadow-pop);
+    transition: transform var(--dur-fast) var(--ease-spring), background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+  }
+  .fab:hover { transform: translateY(-2px) scale(1.04); }
+  .fab.filter.on { background: var(--pri); color: var(--pri-ink); }
+  .fab.add { width: 58px; height: 58px; background: var(--pri-fill); color: var(--pri-ink); }
+  .filter-panel {
+    display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px;
+    max-width: min(440px, calc(100vw - 44px)); padding: 12px;
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+  }
+  .filter-title { flex: 1 0 100%; text-align: right; font-size: var(--fs-2xs); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+  @media (max-width: 560px) { .fabs { right: 14px; bottom: 14px; } }
 
   .list {
     margin-top: 16px;

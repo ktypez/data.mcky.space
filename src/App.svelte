@@ -1,12 +1,15 @@
 <script>
   import { onMount } from 'svelte';
-  import { view, cmdOpen, selected, setView, toggleCmd, closeCmd, openRecord, closeRecord } from './lib/ui.js';
+  import { view, cmdOpen, selected, setView, toggleCmd, closeCmd, openRecord, closeRecord, openEditor } from './lib/ui.js';
   import { toggleTheme, cyclePalette } from './lib/theme.js';
   import { clients } from './lib/data.js';
+  import { auth } from './lib/auth.js';
 
   import TopBar from './components/TopBar.svelte';
   import Ledger from './views/Ledger.svelte';
   import Settings from './views/Settings.svelte';
+  import Tokens from './views/Tokens.svelte';
+  import Editor from './views/Editor.svelte';
   import Record from './components/Record.svelte';
   import CommandPalette from './components/CommandPalette.svelte';
   import EffectLayer from './components/EffectLayer.svelte';
@@ -42,8 +45,18 @@
     window.addEventListener('keydown', onKey);
     // Deep link: ?c=<id> opens that record in the side sheet once data loads.
     let unsub = () => {};
-    const id = new URLSearchParams(window.location.search).get('c');
-    if (id) {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('c');
+    if (params.get('view') === 'tokens') setView('tokens');
+    const editId = params.get('edit');
+    if (editId && $auth.signedIn) {
+      let openedEdit = false;
+      unsub = clients.subscribe((list) => {
+        if (openedEdit) return;
+        const match = list.find((c) => c.id === editId);
+        if (match) { openedEdit = true; openEditor(match); }
+      });
+    } else if (id) {
       let opened = false;
       unsub = clients.subscribe((list) => {
         if (opened) return;
@@ -63,8 +76,12 @@
 <main>
   {#if $view === 'ledger'}
     <Ledger />
-  {:else}
+  {:else if $view === 'settings'}
     <Settings />
+  {:else if $view === 'tokens'}
+    <Tokens />
+  {:else if $view === 'editor'}
+    <Editor />
   {/if}
 </main>
 
