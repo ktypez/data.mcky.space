@@ -151,10 +151,6 @@
       <span class="label">ตำแหน่ง</span>
       <MapPicker lat={lat !== '' ? Number(lat) : null} lng={lng !== '' ? Number(lng) : null} onChange={setCoords} />
       <LocationSection lat={lat !== '' ? Number(lat) : null} lng={lng !== '' ? Number(lng) : null} onChange={setCoords} />
-      <div class="grid2">
-        <div class="field"><span class="label">ละติจูด</span><input bind:value={lat} placeholder="เช่น 16.4322" inputmode="decimal" /></div>
-        <div class="field"><span class="label">ลองจิจูด</span><input bind:value={lng} placeholder="เช่น 102.8490" inputmode="decimal" /></div>
-      </div>
     </div>
 
     <div class="field">
