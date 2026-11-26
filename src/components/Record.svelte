@@ -16,10 +16,16 @@
 
   let imgOk = true;
   let lightbox = null;
+  let photoIndex = 0;
+  let lastId = null;
+  let startX = null;
+  let startY = null;
   let copiedAll = false;
   let copiedLink = false;
 
-  $: photo = client.photos[0];
+  $: photos = Array.isArray(client.photos) ? client.photos : [];
+  $: if (client && client.id !== lastId) { lastId = client.id; photoIndex = 0; imgOk = true; }
+  $: photo = photos[photoIndex];
   $: pay = client.payment ? PAYMENT[client.payment] : null;
   $: hasCoords = typeof client.lat === 'number' && typeof client.lng === 'number';
   $: mapsUrl = hasCoords
@@ -31,6 +37,22 @@
     if (!el || !el.getBoundingClientRect) return;
     const r = el.getBoundingClientRect();
     boom(r.left + r.width / 2, r.top + r.height / 2, { tone, size: 40, n: 8 });
+  }
+
+  function step(delta) {
+    if (!photos.length) return;
+    photoIndex = (photoIndex + delta + photos.length) % photos.length;
+    imgOk = true;
+  }
+  function onDown(e) { startX = e.clientX; startY = e.clientY; }
+  function onUp(e) {
+    if (startX === null) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    startX = null;
+    startY = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { step(dx < 0 ? 1 : -1); return; }
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && photo) lightbox = photoIndex;
   }
 
   async function copyAll(e) {
@@ -60,11 +82,16 @@
     <button class="close" on:click={() => dispatch('close')} aria-label="ปิด"><Icon name="close" size={18} /></button>
     <span class="deco"><Asterisk size={26} color="var(--acc)" /></span>
 
-    <div class="media">
+    <div class="media" on:pointerdown={onDown} on:pointerup={onUp} role="presentation">
       {#if photo && imgOk}
         <img src={photo} alt={client.name} on:error={() => (imgOk = false)} />
       {:else}
         <div class="mono-fill"><Monogram name={client.name} size={96} /></div>
+      {/if}
+      {#if photos.length > 1}
+        <button class="slide prev" on:click|stopPropagation={() => step(-1)} aria-label="รูปก่อนหน้า"><Icon name="chevron-right" size={20} /></button>
+        <button class="slide next" on:click|stopPropagation={() => step(1)} aria-label="รูปถัดไป"><Icon name="chevron-right" size={20} /></button>
+        <span class="slide-count">{photoIndex + 1} / {photos.length}</span>
       {/if}
     </div>
 
@@ -113,19 +140,6 @@
         </div>
       {/if}
 
-      {#if client.photos.length}
-        <div class="section">
-          <h3>รูปภาพ · {client.photos.length}</h3>
-          <div class="gallery" class:single={client.photos.length === 1}>
-            {#each client.photos as src, i}
-              <button class="thumb" on:click={() => (lightbox = i)} aria-label={`ดูรูปที่ ${i + 1}`}>
-                <img {src} alt={`รูปที่ ${i + 1}`} loading="lazy" />
-              </button>
-            {/each}
-          </div>
-        </div>
-      {/if}
-
       <div class="actions">
         <Button icon="copy" on:click={copyAll}>{copiedAll ? 'คัดลอกแล้ว' : 'คัดลอกข้อมูล'}</Button>
         <Button icon="link" on:click={copyLink}>{copiedLink ? 'คัดลอกแล้ว' : 'ลิงก์'}</Button>
@@ -155,9 +169,9 @@
   <div class="lightbox" role="presentation" on:click={(e) => e.target === e.currentTarget && (lightbox = null)}>
     <img src={client.photos[lightbox]} alt={`รูปที่ ${lightbox + 1}`} />
     {#if client.photos.length > 1}
-      <button class="lb-nav prev" aria-label="รูปก่อนหน้า" on:click={() => (lightbox = (lightbox - 1 + client.photos.length) % client.photos.length)}>‹</button>
-      <button class="lb-nav next" aria-label="รูปถัดไป" on:click={() => (lightbox = (lightbox + 1) % client.photos.length)}>›</button>
-      <span class="lb-count">{lightbox + 1} / {client.photos.length}</span>
+      <button class="lb-nav prev" aria-label="รูปก่อนหน้า" on:click={() => step(-1)}>‹</button>
+      <button class="lb-nav next" aria-label="รูปถัดไป" on:click={() => step(1)}>›</button>
+      <span class="lb-count">{photoIndex + 1} / {photos.length}</span>
     {/if}
     <button class="lb-close" on:click={() => (lightbox = null)} aria-label="ปิดรูป">ปิด</button>
   </div>
@@ -196,10 +210,25 @@
   }
   .close:hover { background: var(--pri); color: var(--pri-ink); transform: rotate(90deg); }
 
-  .media {
-    width: 100%; aspect-ratio: 16 / 11; background: var(--paper-3); overflow: hidden;
-  }
+  .media { position: relative; width: 100%; aspect-ratio: 16 / 11; background: var(--paper-3); overflow: hidden; cursor: zoom-in; touch-action: pan-y; }
   .media img { width: 100%; height: 100%; object-fit: cover; }
+  .slide {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 34px; display: grid; place-items: center;
+    border: 1px solid var(--line); border-radius: 50%;
+    background: color-mix(in srgb, var(--paper) 82%, transparent); color: var(--ink);
+    box-shadow: var(--shadow-sm); cursor: pointer;
+  }
+  .slide.prev { left: 10px; }
+  .slide.prev :global(svg) { transform: rotate(180deg); }
+  .slide.next { right: 10px; }
+  .slide:hover { background: var(--pri); color: var(--pri-ink); }
+  .slide-count {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    padding: 3px 9px; border-radius: var(--r-pill);
+    background: color-mix(in srgb, var(--paper) 85%, transparent); color: var(--ink-2);
+    font-family: var(--font-fun); font-size: var(--fs-2xs); pointer-events: none;
+  }
   .mono-fill {
     width: 100%; height: 100%; display: grid; place-items: center;
     background:
@@ -240,11 +269,6 @@
     border: 1px solid color-mix(in srgb, var(--acc) 25%, transparent);
   }
   .note p { margin: 0; font-size: var(--fs-sm); line-height: 1.55; white-space: pre-wrap; }
-
-  .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-  .gallery.single { grid-template-columns: 1fr; }
-  .thumb { padding: 0; border: none; background: var(--paper-3); aspect-ratio: 1; overflow: hidden; border-radius: var(--r-xs); }
-  .thumb img { width: 100%; height: 100%; object-fit: cover; }
 
   .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
   .foot { margin: 18px 0 0; font-size: var(--fs-2xs); color: var(--ink-3); font-family: var(--font-fun); overflow-wrap: anywhere; }
