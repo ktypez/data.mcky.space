@@ -10,6 +10,7 @@
   import Settings from './views/Settings.svelte';
   import Tokens from './views/Tokens.svelte';
   import Editor from './views/Editor.svelte';
+  import Trash from './views/Trash.svelte';
   import Record from './components/Record.svelte';
   import CommandPalette from './components/CommandPalette.svelte';
   import EffectLayer from './components/EffectLayer.svelte';
@@ -22,6 +23,7 @@
   $: commands = [
     { id: 'go-ledger', label: 'ไปที่ สมุดทะเบียน', icon: 'book', group: 'นำทาง', hint: ['G', 'L'], run: () => setView('ledger') },
     { id: 'go-settings', label: 'ไปที่ ตั้งค่า', icon: 'settings', group: 'นำทาง', hint: ['G', 'S'], run: () => setView('settings') },
+    ...($auth.signedIn ? [{ id: 'go-trash', label: 'ไปที่ ถังขยะ', icon: 'trash', group: 'นำทาง', hint: ['G', 'T'], run: () => setView('trash') }] : []),
     { id: 'toggle-theme', label: 'สลับโหมด สว่าง / มืด', icon: 'moon', group: 'ธีม', hint: ['T'], run: () => toggleTheme() },
     { id: 'cycle-pal', label: 'เปลี่ยนธีมสีถัดไป', icon: 'palette', group: 'ธีม', hint: ['P'], run: () => cyclePalette() },
     ...recents.map(c => ({
@@ -52,6 +54,7 @@
     const params = new URLSearchParams(window.location.search);
     const id = params.get('c');
     if (params.get('view') === 'tokens') setView('tokens');
+    if (params.get('view') === 'trash' && $auth.signedIn) setView('trash');
     const editId = params.get('edit');
     if (editId && $auth.signedIn) {
       let openedEdit = false;
@@ -88,6 +91,8 @@
     <Tokens />
   {:else if $view === 'editor'}
     <Editor />
+  {:else if $view === 'trash'}
+    <Trash />
   {/if}
 </main>
 
