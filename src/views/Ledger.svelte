@@ -26,7 +26,16 @@
 
   let filterOpen = false;
   function chooseFilter(id) { filterId = id; filterOpen = false; }
+
+  function onWindowDown(e) {
+    if (!filterOpen) return;
+    const el = e.target;
+    if (el instanceof Element && el.closest('.fabs')) return;
+    filterOpen = false;
+  }
 </script>
+
+<svelte:window on:pointerdown={onWindowDown} />
 
 <section class="wrap page">
   <header class="head">
