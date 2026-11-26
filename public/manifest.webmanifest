@@ -1,0 +1,31 @@
+{
+  "id": "/",
+  "name": "DATA Ledger",
+  "short_name": "DATA Ledger",
+  "description": "สมุดทะเบียนลูกค้า ร้านค้า ที่อยู่ พิกัด และรูปภาพ",
+  "lang": "th",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "prefer_related_applications": false,
+  "background_color": "#FFFDF8",
+  "theme_color": "#FFFDF8",
+  "categories": ["business", "productivity", "finance"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "รายการลูกค้า",
+      "short_name": "รายการ",
+      "description": "เปิดสมุดทะเบียน",
+      "url": "/",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
