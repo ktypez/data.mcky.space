@@ -95,6 +95,15 @@ export async function trashAction(id, action) {
   return json(res);
 }
 
+/** Soft-delete a client (moves it to the 30-day trash). */
+export async function deleteClient(id) {
+  const res = await fetch(`${API_BASE}/api/clients/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: await headers(),
+  });
+  return json(res);
+}
+
 /** Fetch one raw client row for the editor. */
 export async function fetchClient(id) {
   const res = await fetch(`${API_BASE}/api/clients/${encodeURIComponent(id)}?raw=true`);

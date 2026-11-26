@@ -5,6 +5,8 @@
   import { PAYMENT } from '../lib/data.js';
   import { auth } from '../lib/auth.js';
   import { openEditor } from '../lib/ui.js';
+  import { deleteClient } from '../lib/write.js';
+  import { loadClients } from '../lib/data.js';
   import Monogram from './Monogram.svelte';
   import Icon from './Icon.svelte';
   import Badge from './Badge.svelte';
@@ -22,6 +24,8 @@
   let startY = null;
   let copiedAll = false;
   let copiedLink = false;
+  let confirmDelete = false;
+  let deleting = false;
 
   $: photos = Array.isArray(client.photos) ? client.photos : [];
   $: if (client && client.id !== lastId) { lastId = client.id; photoIndex = 0; imgOk = true; }
@@ -75,6 +79,21 @@
       setTimeout(() => (copiedLink = false), 1800);
     }
     toast(ok ? 'คัดลอกลิงก์แล้ว' : 'คัดลอกไม่สำเร็จ', { tone: ok ? 'ok' : 'warn', icon: ok ? 'check' : 'info' });
+  }
+  async function softDelete() {
+    if (deleting) return;
+    deleting = true;
+    try {
+      await deleteClient(client.id);
+      toast('ย้ายไปถังขยะแล้ว (กู้คืนได้ 30 วัน)', { tone: 'warn', icon: 'trash' });
+      void loadClients(true).catch(() => {});
+      confirmDelete = false;
+      dispatch('close');
+    } catch (e) {
+      toast('ลบไม่สำเร็จ', { tone: 'warn', icon: 'info' });
+    } finally {
+      deleting = false;
+    }
   }
 </script>
 
@@ -158,6 +177,9 @@
             notes: client.note,
           })}>แก้ไข</Button>
         {/if}
+        {#if $auth.signedIn}
+          <Button variant="soft" icon="trash" on:click={(e) => { burstAt(e, { tone: 'warn', size: 36 }); confirmDelete = true; }}>ลบ</Button>
+        {/if}
         <Button variant="ghost" iconRight="arrow-right" on:click={() => dispatch('close')}>ปิด</Button>
       </div>
 
@@ -165,6 +187,20 @@
     </div>
   </section>
 </div>
+
+{#if confirmDelete}
+  <div class="confirm-scrim" role="presentation" on:click={(e) => e.target === e.currentTarget && !deleting && (confirmDelete = false)}>
+    <div class="confirm" role="alertdialog" aria-modal="true" aria-label="ลบรายการ">
+      <span class="confirm-icon"><Icon name="trash" size={22} /></span>
+      <h2>ย้ายไปถังขยะ?</h2>
+      <p>“{client.name}” จะย้ายไปถังขยะ และกู้คืนได้ภายใน 30 วัน</p>
+      <div class="confirm-actions">
+        <Button variant="ghost" size="sm" disabled={deleting} on:click={() => (confirmDelete = false)}>ยกเลิก</Button>
+        <Button variant="soft" size="sm" icon="trash" disabled={deleting} on:click={softDelete}>{deleting ? 'กำลังลบ…' : 'ย้ายไปถังขยะ'}</Button>
+      </div>
+    </div>
+  </div>
+{/if}
 
 {#if lightbox !== null && client.photos[lightbox]}
   <div class="lightbox" role="presentation" on:click={(e) => e.target === e.currentTarget && (lightbox = null)}>
@@ -274,6 +310,15 @@
 
   .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
   .foot { margin: 18px 0 0; font-size: var(--fs-2xs); color: var(--ink-3); font-family: var(--font-fun); overflow-wrap: anywhere; }
+
+  .confirm-scrim { position: fixed; inset: 0; z-index: 9200; display: grid; place-items: center; padding: 20px; background: var(--scrim); animation: fade .18s var(--ease-out) both; }
+  .confirm { width: min(92vw, 340px); padding: 22px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--paper); text-align: center; box-shadow: var(--shadow-lg); }
+  .confirm-icon { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-md); background: hsl(38 95% 92%); color: hsl(32 80% 38%); }
+  :global([data-theme="dark"]) .confirm-icon { background: hsl(36 60% 24%); color: hsl(36 90% 74%); }
+  .confirm h2 { margin: 12px 0 6px; font-size: var(--fs-xl); }
+  .confirm p { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); }
+  .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  @media (prefers-reduced-motion: reduce) { .confirm-scrim { animation: none; } }
 
   .lightbox {
     position: fixed; inset: 0; z-index: 9000; background: var(--scrim);
