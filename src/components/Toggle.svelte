@@ -1,9 +1,11 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import { burstAt } from '../lib/effects.js';
   export let checked = false;
   export let label = '';
   const dispatch = createEventDispatcher();
-  function toggle() {
+  function toggle(e) {
+    burstAt(e, { tone: 'acc', size: 30, n: 6 });
     checked = !checked;
     dispatch('change', checked);
   }

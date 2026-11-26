@@ -3,7 +3,7 @@
   import { settings } from '../lib/settings.js';
   import { theme } from '../lib/theme.js';
   import { copyText } from '../lib/format.js';
-  import { toast } from '../lib/effects.js';
+  import { toast, burstAt } from '../lib/effects.js';
   import { setView } from '../lib/ui.js';
   import Button from '../components/Button.svelte';
   import Chip from '../components/Chip.svelte';
@@ -38,14 +38,7 @@
   let rating = 4;
   let demoSearch = '';
   function burstDemo(e) {
-    const r = e.currentTarget.getBoundingClientRect();
-    // local burst without importing effects
-    const dot = document.createElement('span');
-    dot.textContent = '✳';
-    dot.style.cssText = `position:fixed;left:${r.left + r.width/2}px;top:${r.top + r.height/2}px;z-index:9999;color:var(--acc);font-size:24px;pointer-events:none;transition:transform .5s,opacity .5s`;
-    document.body.appendChild(dot);
-    requestAnimationFrame(() => { dot.style.transform = 'translate(-50%,-50%) scale(2.2)'; dot.style.opacity = '0'; });
-    setTimeout(() => dot.remove(), 550);
+    burstAt(e, { tone: 'acc', size: 70, n: 12 });
   }
   async function copyTokens() {
     const ok = await copyText(':root{\n  --pri: ' + (vals['--pri'] || '') + ';\n  --pri-fill: ' + (vals['--pri-fill'] || '') + ';\n  --acc: ' + (vals['--acc'] || '') + ';\n  --elev: ' + ($settings.elev / 2) + ';\n  --r-scale: ' + (0.4 + ($settings.radius / 100) * 1.2).toFixed(2) + ';\n}');

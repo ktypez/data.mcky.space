@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { boom, toast } from '../lib/effects.js';
+  import { boom, toast, burstAt } from '../lib/effects.js';
   import { fmtDateFull, fmtDateTime, copyText, clientClip } from '../lib/format.js';
   import { PAYMENT } from '../lib/data.js';
   import { auth } from '../lib/auth.js';
@@ -39,8 +39,9 @@
     boom(r.left + r.width / 2, r.top + r.height / 2, { tone, size: 40, n: 8 });
   }
 
-  function step(delta) {
+  function step(delta, e) {
     if (!photos.length) return;
+    if (e) burstAt(e, { tone: 'acc', size: 34, n: 8 });
     photoIndex = (photoIndex + delta + photos.length) % photos.length;
     imgOk = true;
   }
@@ -79,7 +80,7 @@
 
 <div class="scrim" on:click={(e) => e.target === e.currentTarget && dispatch('close')} role="presentation">
   <section class="sheet" role="dialog" aria-modal="true" aria-label="รายละเอียดลูกค้า">
-    <button class="close" on:click={() => dispatch('close')} aria-label="ปิด"><Icon name="close" size={18} /></button>
+    <button class="close" on:click={(e) => { burstAt(e, { tone: 'pri', size: 34 }); dispatch('close'); }} aria-label="ปิด"><Icon name="close" size={18} /></button>
     <span class="deco"><Asterisk size={26} color="var(--acc)" /></span>
 
     <div class="media" on:pointerdown={onDown} on:pointerup={onUp} role="presentation">
@@ -89,8 +90,8 @@
         <div class="mono-fill"><Monogram name={client.name} size={96} /></div>
       {/if}
       {#if photos.length > 1}
-        <button class="slide prev" on:click|stopPropagation={() => step(-1)} aria-label="รูปก่อนหน้า"><Icon name="chevron-right" size={20} /></button>
-        <button class="slide next" on:click|stopPropagation={() => step(1)} aria-label="รูปถัดไป"><Icon name="chevron-right" size={20} /></button>
+        <button class="slide prev" on:click|stopPropagation={(e) => step(-1, e)} aria-label="รูปก่อนหน้า"><Icon name="chevron-right" size={20} /></button>
+        <button class="slide next" on:click|stopPropagation={(e) => step(1, e)} aria-label="รูปถัดไป"><Icon name="chevron-right" size={20} /></button>
         <span class="slide-count">{photoIndex + 1} / {photos.length}</span>
       {/if}
     </div>
@@ -169,11 +170,11 @@
   <div class="lightbox" role="presentation" on:click={(e) => e.target === e.currentTarget && (lightbox = null)}>
     <img src={client.photos[lightbox]} alt={`รูปที่ ${lightbox + 1}`} />
     {#if client.photos.length > 1}
-      <button class="lb-nav prev" aria-label="รูปก่อนหน้า" on:click={() => step(-1)}>‹</button>
-      <button class="lb-nav next" aria-label="รูปถัดไป" on:click={() => step(1)}>›</button>
+      <button class="lb-nav prev" aria-label="รูปก่อนหน้า" on:click={(e) => step(-1, e)}>‹</button>
+      <button class="lb-nav next" aria-label="รูปถัดไป" on:click={(e) => step(1, e)}>›</button>
       <span class="lb-count">{photoIndex + 1} / {photos.length}</span>
     {/if}
-    <button class="lb-close" on:click={() => (lightbox = null)} aria-label="ปิดรูป">ปิด</button>
+    <button class="lb-close" on:click={(e) => { burstAt(e, { tone: 'pri', size: 34 }); lightbox = null; }} aria-label="ปิดรูป">ปิด</button>
   </div>
 {/if}
 
@@ -188,7 +189,7 @@
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
   .sheet {
     position: relative;
-    width: min(94vw, 460px);
+    width: min(90vw, 360px);
     height: 100%;
     background: var(--paper);
     border-left: 1px solid var(--line);
@@ -223,6 +224,7 @@
   .slide.prev :global(svg) { transform: rotate(180deg); }
   .slide.next { right: 10px; }
   .slide:hover { background: var(--pri); color: var(--pri-ink); }
+  .slide:active, .lb-nav:active, .lb-close:active { transform: scale(.9); }
   .slide-count {
     position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
     padding: 3px 9px; border-radius: var(--r-pill);

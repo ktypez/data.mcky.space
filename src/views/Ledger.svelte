@@ -8,6 +8,7 @@
   import ClientRow from '../components/ClientRow.svelte';
   import Icon from '../components/Icon.svelte';
   import Asterisk from '../components/Asterisk.svelte';
+  import { burstAt } from '../lib/effects.js';
 
   let q = '';
   let filterId = 'all';
@@ -54,14 +55,14 @@
       <div class="empty-art"><Icon name="info" size={28} /></div>
       <h3>โหลดข้อมูลไม่สำเร็จ</h3>
       <p class="muted">{$errorMsg}</p>
-      <button class="link-btn" on:click={() => loadClients(true)}>ลองใหม่</button>
+      <button class="link-btn" on:click={(e) => { burstAt(e, { tone: 'acc', size: 34 }); loadClients(true); }}>ลองใหม่</button>
     </div>
   {:else if list.length === 0}
     <div class="empty">
       <div class="empty-art"><Icon name="search" size={28} /></div>
       <h3>ไม่พบรายการ</h3>
       <p class="muted">ลองเปลี่ยนคำค้นหา หรือยกเลิกตัวกรองดูสิ</p>
-      <button class="link-btn" on:click={() => { q = ''; filterId = 'all'; }}>ล้างทั้งหมด</button>
+      <button class="link-btn" on:click={(e) => { burstAt(e, { tone: 'pri', size: 34 }); q = ''; filterId = 'all'; }}>ล้างทั้งหมด</button>
     </div>
   {:else}
     <div class="list">
@@ -87,11 +88,11 @@
         {/each}
       </div>
     {/if}
-    <button class="fab filter {filterOpen ? 'on' : ''}" on:click={() => (filterOpen = !filterOpen)} aria-label="ตัวกรอง" title="ตัวกรอง">
+    <button class="fab filter {filterOpen ? 'on' : ''}" on:click={(e) => { burstAt(e, { tone: filterOpen ? 'pri' : 'acc', size: 44, n: 8 }); filterOpen = !filterOpen; }} aria-label="ตัวกรอง" title="ตัวกรอง">
       <Icon name="filter" size={20} />
     </button>
     {#if $auth.signedIn}
-      <button class="fab add" on:click={() => openEditor(null)} aria-label="เพิ่มรายการ" title="เพิ่มรายการ">
+      <button class="fab add" on:click={(e) => { burstAt(e, { tone: 'pri', size: 50, n: 10 }); openEditor(null); }} aria-label="เพิ่มรายการ" title="เพิ่มรายการ">
         <Icon name="plus" size={22} />
       </button>
     {/if}
@@ -135,6 +136,7 @@
     transition: transform var(--dur-fast) var(--ease-spring), background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
   }
   .fab:hover { transform: translateY(-2px) scale(1.04); }
+  .fab:active { transform: scale(.9); }
   .fab.filter.on { background: var(--pri); color: var(--pri-ink); }
   .fab.add { width: 58px; height: 58px; background: var(--pri-fill); color: var(--pri-ink); }
   .filter-panel {

@@ -6,6 +6,7 @@
   import { saveClient } from '../lib/write.js';
   import { loadClients, clients } from '../lib/data.js';
   import { toast } from '../lib/effects.js';
+  import { burstAt } from '../lib/effects.js';
   import Icon from '../components/Icon.svelte';
   import Asterisk from '../components/Asterisk.svelte';
   import Button from '../components/Button.svelte';
@@ -58,7 +59,8 @@
     notes = source.notes || '';
   });
 
-  function addToList(which) {
+  function addToList(which, e) {
+    burstAt(e, { tone: 'acc', size: 26, n: 6 });
     if (which === 'name') name = [...name, ''];
     else shopName = [...shopName, ''];
   }
@@ -68,7 +70,8 @@
     if (which === 'name') name = list; else shopName = list;
   }
   function setCoords(a, b) { lat = String(a); lng = String(b); }
-  function removePhoto(i) {
+  function removePhoto(i, e) {
+    burstAt(e, { tone: 'warn', size: 28, n: 6 });
     const removed = images[i];
     images = images.filter((_, idx) => idx !== i);
     if (removed && removed in thumbs) {
@@ -125,10 +128,10 @@
       {#each name as n, i}
         <div class="input-row">
           <input value={n} on:input={(e) => setAt('name', i, e.currentTarget.value)} placeholder="ชื่อลูกค้า" />
-          {#if name.length > 1}<button class="mini" aria-label="ลบชื่อ" on:click={() => (name = name.filter((_, x) => x !== i))}><Icon name="x" size={14} /></button>{/if}
+          {#if name.length > 1}<button class="mini" aria-label="ลบชื่อ" on:click={(e) => { burstAt(e, { tone: 'warn', size: 24, n: 5 }); name = name.filter((_, x) => x !== i); }}><Icon name="x" size={14} /></button>{/if}
         </div>
       {/each}
-      <button class="add" on:click={() => addToList('name')}><Icon name="plus" size={14} /> เพิ่มชื่อ</button>
+      <button class="add" on:click={(e) => addToList('name', e)}><Icon name="plus" size={14} /> เพิ่มชื่อ</button>
     </div>
 
     <div class="field">
@@ -136,10 +139,10 @@
       {#each shopName as s, i}
         <div class="input-row">
           <input value={s} on:input={(e) => setAt('shopName', i, e.currentTarget.value)} placeholder="ชื่อร้าน" />
-          {#if shopName.length > 1}<button class="mini" aria-label="ลบชื่อร้าน" on:click={() => (shopName = shopName.filter((_, x) => x !== i))}><Icon name="x" size={14} /></button>{/if}
+          {#if shopName.length > 1}<button class="mini" aria-label="ลบชื่อร้าน" on:click={(e) => { burstAt(e, { tone: 'warn', size: 24, n: 5 }); shopName = shopName.filter((_, x) => x !== i); }}><Icon name="x" size={14} /></button>{/if}
         </div>
       {/each}
-      <button class="add" on:click={() => addToList('shopName')}><Icon name="plus" size={14} /> เพิ่มชื่อร้าน</button>
+      <button class="add" on:click={(e) => addToList('shopName', e)}><Icon name="plus" size={14} /> เพิ่มชื่อร้าน</button>
     </div>
 
     <div class="grid2">
@@ -173,11 +176,11 @@
         {#each images as src, i}
           <div class="photo">
             <img {src} alt={`รูป ${i + 1}`} />
-            <button class="rm" aria-label="ลบรูป" on:click={() => removePhoto(i)}><Icon name="x" size={13} /></button>
+            <button class="rm" aria-label="ลบรูป" on:click={(e) => removePhoto(i, e)}><Icon name="x" size={13} /></button>
           </div>
         {/each}
         {#if images.length < MAX_IMAGES}
-          <button class="upload" on:click={() => (photoModal = true)}><Icon name="photo" size={18} /><span>{images.length}/{MAX_IMAGES}</span></button>
+          <button class="upload" on:click={(e) => { burstAt(e, { tone: 'acc', size: 40 }); photoModal = true; }}><Icon name="photo" size={18} /><span>{images.length}/{MAX_IMAGES}</span></button>
         {/if}
       </div>
       <PhotoUploadModal open={photoModal} onClose={() => (photoModal = false)} onCompressed={(data, thumb) => { if (images.length < MAX_IMAGES) { images = [...images, data]; thumbs = { ...thumbs, [data]: thumb }; } }} />
@@ -207,6 +210,7 @@
   input:focus, textarea:focus { border-color: var(--pri); box-shadow: var(--ring); }
   .input-row { display: flex; gap: 6px; }
   .mini, .rm { border: none; background: var(--paper-3); color: var(--ink-2); border-radius: var(--r-xs); display: grid; place-items: center; padding: 6px; cursor: pointer; }
+  .mini:active, .add:active, .rm:active, .upload:active { transform: scale(.9); }
   .add { align-self: flex-start; border: none; background: none; color: var(--pri); font-weight: 700; font-size: var(--fs-xs); display: inline-flex; align-items: center; gap: 4px; padding: 2px 0; cursor: pointer; }
   .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
   .photo { position: relative; aspect-ratio: 1; border: 1px solid var(--line); border-radius: var(--r-xs); overflow: hidden; background: var(--paper-3); }

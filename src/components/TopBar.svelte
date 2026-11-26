@@ -4,6 +4,7 @@
   import Asterisk from './Asterisk.svelte';
   import { theme, toggleTheme } from '../lib/theme.js';
   import { auth, login, logout } from '../lib/auth.js';
+  import { burstAt } from '../lib/effects.js';
 
   const nav = [
     { id: 'ledger', label: 'สมุดทะเบียน', icon: 'book' },
@@ -13,7 +14,7 @@
 
 <header class="bar">
   <div class="wrap bar-inner">
-    <button class="brand" on:click={() => setView('ledger')}>
+    <button class="brand" on:click={(e) => { burstAt(e, { tone: 'pri', size: 34 }); setView('ledger'); }}>
       <span class="logo"><Asterisk size={16} color="var(--pri-ink)" /></span>
       <span class="word">
         <b>DATA</b>
@@ -23,7 +24,7 @@
 
     <nav class="nav">
       {#each nav as n}
-        <button class="nav-btn {n.id === $view ? 'on' : ''}" on:click={() => setView(n.id)}>
+        <button class="nav-btn {n.id === $view ? 'on' : ''}" on:click={(e) => { burstAt(e, { tone: 'pri', size: 34 }); setView(n.id); }}>
           <Icon name={n.icon} size={16} />
           {n.label}
         </button>
@@ -31,17 +32,17 @@
     </nav>
 
     <div class="actions">
-      <button class="icon-btn" on:click={toggleTheme} aria-label="สลับโหมด">
+      <button class="icon-btn" on:click={(e) => { burstAt(e, { tone: 'acc', size: 34 }); toggleTheme(); }} aria-label="สลับโหมด">
         <Icon name={$theme === 'dark' ? 'sun' : 'moon'} size={18} />
       </button>
 
       {#if $auth.signedIn}
-        <button class="auth-btn" on:click={logout} title={$auth.email || 'ออกจากระบบ'}>
+        <button class="auth-btn" on:click={(e) => { burstAt(e, { tone: 'pri', size: 40 }); logout(); }} title={$auth.email || 'ออกจากระบบ'}>
           <span class="who">{$auth.name || 'ผู้ใช้'}</span>
           <Icon name="arrow-right" size={15} />
         </button>
       {:else if !$auth.checking}
-        <button class="auth-btn" on:click={() => login()} title="เข้าสู่ระบบด้วยบัญชี mcky">
+        <button class="auth-btn" on:click={(e) => { burstAt(e, { tone: 'pri', size: 40 }); login(); }} title="เข้าสู่ระบบด้วยบัญชี mcky">
           <span class="who">เข้าสู่ระบบ</span>
         </button>
       {/if}
@@ -76,6 +77,7 @@
     transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
   }
   .nav-btn.on { background: var(--paper-2); color: var(--pri); box-shadow: var(--shadow-sm); }
+  .nav-btn:active, .brand:active { transform: scale(.96); }
 
   .actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 
@@ -85,6 +87,7 @@
     transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
   }
   .icon-btn:hover { color: var(--pri); border-color: color-mix(in srgb, var(--pri) 40%, transparent); transform: translateY(-1px); }
+  .icon-btn:active, .auth-btn:active { transform: scale(.94); }
 
   .auth-btn {
     display: inline-flex; align-items: center; gap: 6px; height: 34px;

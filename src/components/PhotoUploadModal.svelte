@@ -1,5 +1,6 @@
 <script>
   import { compressImage, makeThumbDataUrl } from '../lib/compressImage.js';
+  import { burstAt } from '../lib/effects.js';
   import Icon from './Icon.svelte';
   import Button from './Button.svelte';
 
@@ -23,7 +24,7 @@
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     originalSize = 0; compressedSize = 0; previewUrl = null; dataUrl = null; thumbUrl = null; compressing = false; error = '';
   }
-  function close() { reset(); onClose(); }
+  function close(e) { if (e) burstAt(e, { tone: 'pri', size: 30 }); reset(); onClose(); }
 
   async function handleFile(f) {
     if (!looksImage(f)) { error = 'ไฟล์นี้ไม่ใช่รูปภาพ — เลือก JPEG, PNG หรือ WebP'; return; }
@@ -51,7 +52,7 @@
 {#if open}
   <div class="scrim" on:click={(e) => e.target === e.currentTarget && close()} role="presentation">
     <section class="modal" role="dialog" aria-modal="true" aria-label="เพิ่มรูปร้านค้า">
-      <button class="close" on:click={close} aria-label="ปิด"><Icon name="close" size={16} /></button>
+      <button class="close" on:click={(e) => close(e)} aria-label="ปิด"><Icon name="close" size={16} /></button>
       <h2>เพิ่มรูปร้านค้า</h2>
       {#if !dataUrl && !compressing}
         <label class="drop" class:over={dragOver} on:dragover={(e) => { e.preventDefault(); dragOver = true; }} on:dragleave={() => (dragOver = false)} on:drop={(e) => { e.preventDefault(); dragOver = false; const f = e.dataTransfer?.files?.[0]; if (f) handleFile(f); }}>
@@ -68,7 +69,7 @@
       {/if}
       {#if error}<p class="err">{error}</p>{/if}
       <div class="actions">
-        <Button variant="ghost" on:click={close}>ยกเลิก</Button>
+        <Button variant="ghost" on:click={() => close()}>ยกเลิก</Button>
         {#if dataUrl && !compressing}<Button icon="check" on:click={confirm}>เพิ่มรูป</Button>{/if}
       </div>
     </section>

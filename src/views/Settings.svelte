@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { palette, theme, PALETTES, MODES, setPalette, setTheme } from '../lib/theme.js';
   import { settings, update, resetSettings, FONTS, ELEV_STEPS } from '../lib/settings.js';
-  import { boom, toast } from '../lib/effects.js';
+  import { boom, toast, burstAt } from '../lib/effects.js';
   import { setView } from '../lib/ui.js';
 
   import Button from '../components/Button.svelte';
@@ -23,10 +23,12 @@
     boom(r.left + r.width / 2, r.top + r.height / 2, { tone: 'pri', size: 46 });
     toast('เปลี่ยนพาสเทลเป็น ' + (PALETTES.find(p => p.id === id)?.label || id), { tone: 'pri' });
   }
-  function pickTheme(t, e) {
+  function pickTheme(t) {
     setTheme(t);
-    const r = e.currentTarget.getBoundingClientRect();
-    boom(r.left + r.width / 2, r.top + r.height / 2, { tone: 'acc', size: 40 });
+  }
+  function pickFont(id, e) {
+    burstAt(e, { tone: 'acc', size: 36, n: 7 });
+    update({ font: id });
   }
   function doReset() {
     resetSettings();
@@ -123,7 +125,7 @@
     <h2 class="block-title">ฟอนต์</h2>
     <div class="font-grid">
       {#each FONTS as f}
-        <button class="font-card {$settings.font === f.id ? 'on' : ''}" on:click={() => update({ font: f.id })}>
+        <button class="font-card {$settings.font === f.id ? 'on' : ''}" on:click={(e) => pickFont(f.id, e)}>
           <span class="fv" style="font-family:{f.stack}">สวัสดี Aa กขค 0123</span>
           <span class="fm"><b>{f.label}</b><small class="dim">{f.note}</small></span>
           {#if $settings.font === f.id}<span class="pal-check"><Icon name="check" size={12} /></span>{/if}
@@ -146,6 +148,7 @@
   @media (max-width: 640px) { .pal-grid { grid-template-columns: repeat(2, 1fr); } }
   .pal-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: var(--r-sm); border: 1.5px solid var(--line); background: var(--paper-2); text-align: left; transition: transform var(--dur) var(--ease-spring), border-color var(--dur) var(--ease-out); }
   .pal-card:hover { transform: translateY(-2px); }
+  .pal-card:active, .font-card:active { transform: scale(.97); }
   .pal-card.on { border-color: var(--pri); box-shadow: 0 0 0 2px var(--pri-soft); }
   .pal-swatches { display: flex; gap: 4px; }
   .pal-swatches i { flex: 1; height: 26px; border-radius: 6px; }

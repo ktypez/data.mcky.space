@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Icon from './Icon.svelte';
+  import { burstAt } from '../lib/effects.js';
 
   export let options = [];      // [{ id, label, icon? }]
   export let value = options[0]?.id;
@@ -9,8 +10,9 @@
   $: index = Math.max(0, options.findIndex(o => o.id === value));
   $: n = options.length || 1;
 
-  function pick(o) {
+  function pick(o, e) {
     if (o.disabled) return;
+    burstAt(e, { tone: 'pri', size: 34, n: 7 });
     value = o.id;
     dispatch('change', o.id);
   }
@@ -23,7 +25,7 @@
       class="opt {o.id === value ? 'on' : ''}"
       role="tab"
       aria-selected={o.id === value}
-      on:click={() => pick(o)}
+      on:click={(e) => pick(o, e)}
     >
       {#if o.icon}<Icon name={o.icon} size={16} />{/if}
       {o.label}
@@ -73,4 +75,5 @@
   }
   .opt.on { color: var(--pri); }
   .opt:hover:not(.on) { color: var(--ink); }
+  .opt:active { transform: scale(.96); }
 </style>
