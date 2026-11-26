@@ -73,7 +73,7 @@ export async function loadClients(force = false) {
 }
 
 export const PAYMENT = {
-  day:  { id: 'day',  label: 'จ่ายในวัน',     short: 'จ่ายวัน',  tone: 'ok' },
+  day:  { id: 'day',  label: 'วางบิล',       short: 'วางบิล',  tone: 'ok' },
   card: { id: 'card', label: 'บัตรเครดิต',    short: 'บัตร',     tone: 'info' }
 };
 
@@ -83,7 +83,7 @@ export const FILTERS = [
   { id: 'nophoto', label: 'ไม่มีรูป',    test: c => c.photos.length === 0 },
   { id: 'note',    label: 'มีโน้ต',     test: c => !!c.note },
   { id: 'recent',  label: 'ล่าสุด',     test: c => c.updatedTs >= recentCutoff },
-  { id: 'day',     label: 'จ่ายในวัน',  test: c => c.payment === 'day' },
+  { id: 'day',     label: 'วางบิล',     test: c => c.payment === 'day' },
   { id: 'card',    label: 'บัตรเครดิต', test: c => c.payment === 'card' }
 ];
 

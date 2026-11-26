@@ -88,7 +88,7 @@
           <div><dt>อัปเดตล่าสุด</dt><dd>{fmtDateTime(client.updatedTs)}</dd></div>
           <div><dt>ลูกค้า</dt><dd>{client.customer || '—'}</dd></div>
           {#if client.branch}<div><dt>สาขา</dt><dd>{client.branch}</dd></div>{/if}
-          <div><dt>การชำระ</dt><dd>{pay ? pay.label : 'วางบิล'}</dd></div>
+          <div><dt>การชำระ</dt><dd>{pay ? pay.label : 'เก็บเงิน'}</dd></div>
           <div><dt>รหัส</dt><dd class="mono-id">{client.id}</dd></div>
         </dl>
       </div>

@@ -82,11 +82,11 @@
     <h2 class="block-title">Components</h2>
     <div class="gal">
       <div class="g-cell"><h3>Button</h3><div class="row gap wrap"><Button>Solid</Button><Button variant="soft">Soft</Button><Button variant="outline">Outline</Button><Button variant="ghost">Ghost</Button><Button tone="acc" size="sm">Accent</Button></div></div>
-      <div class="g-cell"><h3>Chip</h3><div class="row gap wrap"><Chip active={true} count={512}>มีรูป</Chip><Chip count={30}>มีโน้ต</Chip><Chip count={84}>จ่ายในวัน</Chip></div></div>
+      <div class="g-cell"><h3>Chip</h3><div class="row gap wrap"><Chip active={true} count={512}>มีรูป</Chip><Chip count={30}>มีโน้ต</Chip><Chip count={84}>วางบิล</Chip></div></div>
       <div class="g-cell"><h3>Segmented</h3><Segmented options={[{ id: 'one', label: 'ล่าสุด' }, { id: 'two', label: 'ชื่อ' }, { id: 'three', label: 'มีรูป' }]} bind:value={seg} /></div>
       <div class="g-cell"><h3>Toggle / Rating</h3><div class="row gap"><Toggle bind:checked={toggled} /><Rating bind:value={rating} /></div></div>
       <div class="g-cell"><h3>Progress</h3><Progress value={72} /></div>
-      <div class="g-cell"><h3>Badge</h3><div class="row gap wrap"><Badge tone="pri" icon="bolt" size="sm">จ่ายในวัน</Badge><Badge tone="ok" icon="check" size="sm">โอเค</Badge><Badge tone="info" icon="info" size="sm">บัตรเครดิต</Badge><Badge tone="warn" icon="bolt" size="sm">ด่วน</Badge></div></div>
+      <div class="g-cell"><h3>Badge</h3><div class="row gap wrap"><Badge tone="pri" icon="bolt" size="sm">วางบิล</Badge><Badge tone="ok" icon="check" size="sm">โอเค</Badge><Badge tone="info" icon="info" size="sm">บัตรเครดิต</Badge><Badge tone="warn" icon="bolt" size="sm">ด่วน</Badge></div></div>
       <div class="g-cell"><h3>Search</h3><SearchInput bind:value={demoSearch} placeholder="ค้นหา…" hint={['⌘', 'K']} /></div>
       <div class="g-cell"><h3>Motion</h3><div class="row gap"><Button size="sm" on:click={burstDemo}>Impact Burst</Button><Button size="sm" variant="outline" on:click={() => toast('นี่คือโทสต์ตัวอย่าง', { tone: 'ok', icon: 'check' })}>Toast</Button></div></div>
     </div>

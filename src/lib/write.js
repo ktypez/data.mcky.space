@@ -26,7 +26,7 @@ async function json(res) {
 }
 
 /** Upload new base64 photos to R2; returns the full merged image list. */
-async function uploadPhotos(clientId, base64Images, deletedImages = []) {
+async function uploadPhotos(clientId, base64Images, deletedImages = [], thumbs = {}) {
   const res = await fetch(`${API_BASE}/api/photo-request`, {
     method: 'POST',
     headers: await headers(),
@@ -34,7 +34,7 @@ async function uploadPhotos(clientId, base64Images, deletedImages = []) {
       clientId,
       images: base64Images,
       deletedImages,
-      thumbs: base64Images.map(() => null),
+      thumbs: base64Images.map((u) => thumbs[u] ?? null),
     }),
   });
   const data = await json(res);
@@ -73,8 +73,8 @@ export async function saveClient(client) {
   let images = clean;
   if (base64.length) {
     // For edits, drop R2 images the user removed from the gallery.
-    const deleted = isEdit ? clean.filter((u) => !client.originalImages?.includes(u)) : [];
-    images = await uploadPhotos(id, base64, deleted);
+    const deleted = isEdit ? client.originalImages?.filter((u) => !clean.includes(u)) ?? [] : [];
+    images = await uploadPhotos(id, base64, deleted, client.thumbs || {});
   }
   return { ...client, id, images };
 }
