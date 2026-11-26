@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { view, cmdOpen, selected, setView, toggleCmd, closeCmd, openRecord, closeRecord, openEditor } from './lib/ui.js';
+  import { view, cmdOpen, selected, editing, setView, toggleCmd, closeCmd, openRecord, closeRecord, openEditor } from './lib/ui.js';
   import { toggleTheme, cyclePalette } from './lib/theme.js';
   import { clients } from './lib/data.js';
   import { auth } from './lib/auth.js';
@@ -89,15 +89,17 @@
     <Settings />
   {:else if $view === 'tokens'}
     <Tokens />
-  {:else if $view === 'editor'}
-    <Editor />
   {:else if $view === 'trash'}
     <Trash />
   {/if}
 </main>
 
-{#if $selected}
+{#if $selected && !$editing}
   <Record client={$selected} on:close={closeRecord} />
+{/if}
+
+{#if $editing}
+  <Editor />
 {/if}
 
 <CommandPalette open={$cmdOpen} {commands} on:close={closeCmd} />

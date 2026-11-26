@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { editing, closeEditor, setView, openRecord } from '../lib/ui.js';
+  import { editing, closeEditor, openRecord } from '../lib/ui.js';
   import { auth } from '../lib/auth.js';
   import { saveClient } from '../lib/write.js';
   import { loadClients, clients } from '../lib/data.js';
@@ -44,7 +44,7 @@
   $: isEdit = !!source?.id;
 
   onMount(() => {
-    if (!$auth.signedIn) { setView('ledger'); return; }
+    if (!$auth.signedIn) { closeEditor(); return; }
     if (!source) return;
     name = parseNames(source.name);
     shopName = parseNames(source.shopName);
@@ -113,98 +113,133 @@
   }
 </script>
 
-<section class="wrap page">
-  <header class="head">
-    <div class="head-left">
+<div class="scrim" on:click={(e) => e.target === e.currentTarget && closeEditor()} role="presentation">
+  <section class="sheet" role="dialog" aria-modal="true" aria-label={isEdit ? 'แก้ไขลูกค้า' : 'เพิ่มลูกค้าใหม่'}>
+    <button class="close" on:click={(e) => { burstAt(e, { tone: 'pri', size: 34 }); closeEditor(); }} aria-label="ปิด">
+      <Icon name="close" size={18} />
+    </button>
+    <span class="deco"><Asterisk size={26} color="var(--acc)" /></span>
+
+    <header class="head">
       <span class="eyebrow"><Asterisk size={13} color="var(--pri)" /> {isEdit ? 'แก้ไข' : 'เพิ่มรายการ'}</span>
       <h1>{isEdit ? 'แก้ไขลูกค้า' : 'เพิ่มลูกค้าใหม่'}</h1>
-    </div>
-    <Button variant="ghost" size="sm" icon="close" on:click={closeEditor}>ยกเลิก</Button>
-  </header>
+    </header>
 
-  <div class="form">
-    <div class="field">
-      <span class="label">ชื่อลูกค้า</span>
-      {#each name as n, i}
-        <div class="input-row">
-          <input value={n} on:input={(e) => setAt('name', i, e.currentTarget.value)} placeholder="ชื่อลูกค้า" />
-          {#if name.length > 1}<button class="mini" aria-label="ลบชื่อ" on:click={(e) => { burstAt(e, { tone: 'warn', size: 24, n: 5 }); name = name.filter((_, x) => x !== i); }}><Icon name="x" size={14} /></button>{/if}
+    <div class="body">
+      <div class="form">
+        <div class="field">
+          <span class="label">ชื่อลูกค้า</span>
+          {#each name as n, i}
+            <div class="input-row">
+              <input value={n} on:input={(e) => setAt('name', i, e.currentTarget.value)} placeholder="ชื่อลูกค้า" />
+              {#if name.length > 1}<button class="mini" aria-label="ลบชื่อ" on:click={(e) => { burstAt(e, { tone: 'warn', size: 24, n: 5 }); name = name.filter((_, x) => x !== i); }}><Icon name="x" size={14} /></button>{/if}
+            </div>
+          {/each}
+          <button class="add" on:click={(e) => addToList('name', e)}><Icon name="plus" size={14} /> เพิ่มชื่อ</button>
         </div>
-      {/each}
-      <button class="add" on:click={(e) => addToList('name', e)}><Icon name="plus" size={14} /> เพิ่มชื่อ</button>
-    </div>
 
-    <div class="field">
-      <span class="label">ชื่อร้าน</span>
-      {#each shopName as s, i}
-        <div class="input-row">
-          <input value={s} on:input={(e) => setAt('shopName', i, e.currentTarget.value)} placeholder="ชื่อร้าน" />
-          {#if shopName.length > 1}<button class="mini" aria-label="ลบชื่อร้าน" on:click={(e) => { burstAt(e, { tone: 'warn', size: 24, n: 5 }); shopName = shopName.filter((_, x) => x !== i); }}><Icon name="x" size={14} /></button>{/if}
+        <div class="field">
+          <span class="label">ชื่อร้าน</span>
+          {#each shopName as s, i}
+            <div class="input-row">
+              <input value={s} on:input={(e) => setAt('shopName', i, e.currentTarget.value)} placeholder="ชื่อร้าน" />
+              {#if shopName.length > 1}<button class="mini" aria-label="ลบชื่อร้าน" on:click={(e) => { burstAt(e, { tone: 'warn', size: 24, n: 5 }); shopName = shopName.filter((_, x) => x !== i); }}><Icon name="x" size={14} /></button>{/if}
+            </div>
+          {/each}
+          <button class="add" on:click={(e) => addToList('shopName', e)}><Icon name="plus" size={14} /> เพิ่มชื่อร้าน</button>
         </div>
-      {/each}
-      <button class="add" on:click={(e) => addToList('shopName', e)}><Icon name="plus" size={14} /> เพิ่มชื่อร้าน</button>
-    </div>
 
-    <div class="grid2">
-      <div class="field"><span class="label">สาขา</span><input bind:value={branch} placeholder="สาขา" /></div>
-      <div class="field"><span class="label">ที่อยู่</span><input bind:value={address} placeholder="ที่อยู่" /></div>
-    </div>
+        <div class="grid2">
+          <div class="field"><span class="label">สาขา</span><input bind:value={branch} placeholder="สาขา" /></div>
+          <div class="field"><span class="label">ที่อยู่</span><input bind:value={address} placeholder="ที่อยู่" /></div>
+        </div>
 
-    <div class="field">
-      <span class="label">ตำแหน่ง</span>
-      <MapPicker lat={lat !== '' ? Number(lat) : null} lng={lng !== '' ? Number(lng) : null} onChange={setCoords} />
-      <LocationSection lat={lat !== '' ? Number(lat) : null} lng={lng !== '' ? Number(lng) : null} onChange={setCoords} />
-    </div>
+        <div class="field">
+          <span class="label">ตำแหน่ง</span>
+          <MapPicker lat={lat !== '' ? Number(lat) : null} lng={lng !== '' ? Number(lng) : null} onChange={setCoords} />
+          <LocationSection lat={lat !== '' ? Number(lat) : null} lng={lng !== '' ? Number(lng) : null} onChange={setCoords} />
+        </div>
 
-    <div class="field">
-      <span class="label">ประเภทชำระ</span>
-      <Segmented
-        options={[{ id: 'none', label: 'เก็บเงิน' }, { id: 'penpay', label: 'วางบิล' }, { id: 'credit', label: 'บัตรเครดิต' }]}
-        value={badge || 'none'}
-        on:change={(e) => (badge = e.detail === 'none' ? null : e.detail)}
-      />
-    </div>
+        <div class="field">
+          <span class="label">ประเภทชำระ</span>
+          <Segmented
+            options={[{ id: 'none', label: 'เก็บเงิน' }, { id: 'penpay', label: 'วางบิล' }, { id: 'credit', label: 'บัตรเครดิต' }]}
+            value={badge || 'none'}
+            on:change={(e) => (badge = e.detail === 'none' ? null : e.detail)}
+          />
+        </div>
 
-    <div class="field">
-      <span class="label">โน้ต</span>
-      <textarea bind:value={notes} rows="3" placeholder="โน้ตเพิ่มเติม"></textarea>
-    </div>
+        <div class="field">
+          <span class="label">โน้ต</span>
+          <textarea bind:value={notes} rows="3" placeholder="โน้ตเพิ่มเติม"></textarea>
+        </div>
 
-    <div class="field">
-      <span class="label">รูปภาพ</span>
-      <div class="photos">
-        {#each images as src, i}
-          <div class="photo">
-            <img {src} alt={`รูป ${i + 1}`} />
-            <button class="rm" aria-label="ลบรูป" on:click={(e) => removePhoto(i, e)}><Icon name="x" size={13} /></button>
+        <div class="field">
+          <span class="label">รูปภาพ</span>
+          <div class="photos">
+            {#each images as src, i}
+              <div class="photo">
+                <img {src} alt={`รูป ${i + 1}`} />
+                <button class="rm" aria-label="ลบรูป" on:click={(e) => removePhoto(i, e)}><Icon name="x" size={13} /></button>
+              </div>
+            {/each}
+            {#if images.length < MAX_IMAGES}
+              <button class="upload" on:click={(e) => { burstAt(e, { tone: 'acc', size: 40 }); photoModal = true; }}><Icon name="photo" size={18} /><span>{images.length}/{MAX_IMAGES}</span></button>
+            {/if}
           </div>
-        {/each}
-        {#if images.length < MAX_IMAGES}
-          <button class="upload" on:click={(e) => { burstAt(e, { tone: 'acc', size: 40 }); photoModal = true; }}><Icon name="photo" size={18} /><span>{images.length}/{MAX_IMAGES}</span></button>
-        {/if}
+          <PhotoUploadModal open={photoModal} onClose={() => (photoModal = false)} onCompressed={(data, thumb) => { if (images.length < MAX_IMAGES) { images = [...images, data]; thumbs = { ...thumbs, [data]: thumb }; } }} />
+        </div>
+
+        {#if error}<p class="err">{error}</p>{/if}
       </div>
-      <PhotoUploadModal open={photoModal} onClose={() => (photoModal = false)} onCompressed={(data, thumb) => { if (images.length < MAX_IMAGES) { images = [...images, data]; thumbs = { ...thumbs, [data]: thumb }; } }} />
     </div>
 
-    {#if error}<p class="err">{error}</p>{/if}
-
-    <div class="actions">
+    <div class="foot">
       <Button icon="check" on:click={save} disabled={saving}>{saving ? 'กำลังบันทึก…' : 'บันทึก'}</Button>
       <Button variant="ghost" on:click={closeEditor}>ยกเลิก</Button>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 
 <style>
-  .page { padding-top: 22px; padding-bottom: 60px; }
-  .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 2px solid var(--line-2); }
-  .head-left { display: flex; flex-direction: column; }
+  .scrim {
+    position: fixed; inset: 0; z-index: 8000;
+    display: flex; justify-content: flex-end;
+    background: var(--scrim);
+    animation: fade .2s var(--ease-out);
+  }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .sheet {
+    position: relative;
+    width: min(94vw, 440px);
+    height: 100%;
+    display: flex; flex-direction: column;
+    background: var(--paper);
+    border-left: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: slide .34s var(--ease-spring);
+  }
+  @keyframes slide { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .deco { position: absolute; top: 18px; right: 58px; opacity: .5; }
+  .close {
+    position: absolute; top: 16px; right: 16px; z-index: 2;
+    width: 36px; height: 36px; display: grid; place-items: center;
+    border: none; border-radius: var(--r-pill);
+    background: var(--paper-2); color: var(--ink-2); box-shadow: var(--shadow-sm);
+    transition: background var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
+  }
+  .close:hover { background: var(--pri); color: var(--pri-ink); transform: rotate(90deg); }
+  .close:active { transform: scale(.9); }
+
+  .head { flex: none; padding: 24px 22px 14px; border-bottom: 1px solid var(--line); }
   .eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); font-weight: 700; color: var(--pri); text-transform: uppercase; letter-spacing: .08em; }
   .head h1 { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 700; margin-top: 4px; }
-  .form { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; max-width: 760px; }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
-  .field { display: flex; flex-direction: column; gap: 6px; }
+  .body { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 22px 30px; }
+  .form { display: flex; flex-direction: column; gap: 18px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 420px) { .grid2 { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .label { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
   input, textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-xs); background: var(--paper-2); color: var(--ink); font: inherit; font-size: var(--fs-sm); outline: none; }
   input:focus, textarea:focus { border-color: var(--pri); box-shadow: var(--ring); }
@@ -217,7 +252,7 @@
   .photo img { width: 100%; height: 100%; object-fit: cover; }
   .rm { position: absolute; top: 4px; right: 4px; background: var(--paper); }
   .upload { aspect-ratio: 1; border: 1.5px dashed var(--line-2); border-radius: var(--r-xs); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--ink-2); font-size: var(--fs-xs); cursor: pointer; }
-  .upload input { display: none; }
   .err { color: #b33; font-size: var(--fs-sm); }
-  .actions { display: flex; gap: 10px; }
+  .foot { flex: none; display: flex; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--line); background: var(--paper); }
+  @media (prefers-reduced-motion: reduce) { .scrim, .sheet { animation: none; } }
 </style>
