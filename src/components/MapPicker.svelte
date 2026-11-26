@@ -78,9 +78,17 @@
     };
   });
 
+  let initialized = false;
   $: if (map && lat != null && lng != null) {
     if (marker) marker.setLatLng([lat, lng]);
     else place(lat, lng);
+    const first = !initialized;
+    initialized = true;
+    if (first) {
+      if (lat !== CENTER[0] || lng !== CENTER[1]) map.flyTo([lat, lng], PIN_ZOOM, { duration: 0.6 });
+    } else {
+      map.setView([lat, lng], Math.max(map.getZoom(), PIN_ZOOM), { animate: true, duration: 0.6 });
+    }
   }
 </script>
 
