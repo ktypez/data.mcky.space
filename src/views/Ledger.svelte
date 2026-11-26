@@ -157,7 +157,7 @@
   .fab:hover { transform: translateY(-2px) scale(1.04); }
   .fab:active { transform: scale(.9); }
   .fab.filter.on { background: var(--pri); color: var(--pri-ink); }
-  .fab.add { width: 58px; height: 58px; background: var(--pri-fill); color: var(--pri-ink); }
+  .fab.add { background: var(--pri-fill); color: var(--pri-ink); }
   .filter-panel {
     display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px;
     max-width: min(440px, calc(100vw - 44px)); padding: 12px;
