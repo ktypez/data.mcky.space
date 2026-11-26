@@ -90,6 +90,9 @@
 
   <div class="fabs">
     {#if filterOpen}
+      <button class="filter-scrim" aria-label="ปิดตัวกรอง" on:click={() => (filterOpen = false)}></button>
+    {/if}
+    {#if filterOpen}
       <div class="filter-panel" role="group" aria-label="ตัวกรอง">
         <div class="filter-title">ตัวกรอง</div>
         {#each FILTERS as f}
@@ -138,6 +141,13 @@
   .grow { flex: 1; min-width: 0; }
 
   .fabs { position: fixed; right: 22px; bottom: 22px; z-index: 500; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .filter-scrim {
+    position: fixed; inset: 0; z-index: 0;
+    width: 100vw; height: 100dvh;
+    border: none; padding: 0; margin: 0;
+    background: transparent; cursor: default;
+  }
+  .filter-panel, .fabs > .fab { position: relative; z-index: 1; }
   .fab {
     width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
     border: 1px solid var(--line); cursor: pointer;
