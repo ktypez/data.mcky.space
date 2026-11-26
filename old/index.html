@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#FFFDF8" />
+    <title>DATA Ledger</title>
+    <!-- Load the attached reference's Thai and Latin families without blocking first paint. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Itim&family=Mali:wght@500;600&family=Prompt:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Itim&family=Mali:wght@500;600&family=Prompt:wght@300;400;500;600;700&display=swap" /></noscript>
+    <link rel="preconnect" href="https://data-api.fall3n.workers.dev" />
+    <link rel="dns-prefetch" href="https://pub-462db07575b84a13b83ba0f2632f6ec2.r2.dev" />
+    <!-- NOTE: leaflet is NOT loaded globally. MapPreview and
+      MapPicker import the npm bundle (shared `map` chunk) only
+      on pages that render a map, so the catalog pays zero map cost. -->
+    <script>
+      // Apply the app-owned design tokens before first paint.
+      (function () {
+        var mode = null;
+        try { mode = localStorage.getItem('data-ledger-mode'); } catch (e) {}
+        var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var palette = 'mochi';
+        try {
+          var savedTheme = JSON.parse(localStorage.getItem('data-ledger-ui') || '{}');
+          var savedPalette = savedTheme && savedTheme.state && savedTheme.state.theme;
+          var migrations = { coral: 'sakura', blueberry: 'soda', butter: 'mochi' };
+          savedPalette = migrations[savedPalette] || savedPalette;
+          if (['mochi', 'matcha', 'soda', 'sakura'].indexOf(savedPalette) !== -1) palette = savedPalette;
+        } catch (e) {}
+        var root = document.documentElement;
+        root.setAttribute('data-theme', dark ? 'dark' : 'light');
+        root.setAttribute('data-palette', palette);
+        root.setAttribute('data-mode', dark ? 'dark' : 'light');
+        root.classList.toggle('dark', dark);
+        root.style.colorScheme = dark ? 'dark' : 'light';
+        var themeColor = document.querySelector('meta[name="theme-color"]');
+        if (themeColor) themeColor.setAttribute('content', dark ? '#17131f' : '#FFFDF8');
+        var density = 'cozy';
+        var texture = 'on';
+        try {
+        var preferences = JSON.parse(localStorage.getItem('data-ledger-preferences') || localStorage.getItem('data-ledger-v5') || '{}');
+          if (preferences && preferences.state) {
+            if (preferences.state.density === 'compact') density = 'compact';
+            if (preferences.state.texture === false) texture = 'off';
+          }
+        } catch (e) {}
+        root.setAttribute('data-density', density);
+        root.setAttribute('data-texture', texture);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

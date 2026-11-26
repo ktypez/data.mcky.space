@@ -1,111 +1,67 @@
-<script lang="ts">
-  import { onMount } from 'svelte'
-  import Router, { router } from 'svelte-spa-router'
-  import wrap from 'svelte-spa-router/wrap'
-  import { useAuthStore } from '@/stores/auth-store'
-  import { useClientStore } from '@/stores/client-store'
-  import { appTheme, initAppTheme } from '@/lib/app-theme'
-  import { initClerk } from '@/lib/clerk'
-  import '@/lib/pwa-install'
-  import { flushClientMutations } from '@/lib/offline-mutations'
-  import TopBar from '@/components/TopBar.svelte'
-  import LoadingSplash from '@/components/LoadingSplash.svelte'
+<script>
+  import { onMount } from 'svelte';
+  import { view, cmdOpen, selected, setView, toggleCmd, closeCmd, openRecord, closeRecord } from './lib/ui.js';
+  import { toggleTheme, cyclePalette } from './lib/theme.js';
+  import { clients } from './lib/data.js';
 
-  import Login from './pages/Login.svelte'
+  import TopBar from './components/TopBar.svelte';
+  import Ledger from './views/Ledger.svelte';
+  import Settings from './views/Settings.svelte';
+  import Record from './components/Record.svelte';
+  import CommandPalette from './components/CommandPalette.svelte';
+  import EffectLayer from './components/EffectLayer.svelte';
+  import Toaster from './components/Toaster.svelte';
 
-  // svelte-spa-router treats a bare function route as a *sync* component and
-  // wraps it in () => Promise.resolve(fn), so a lazy route must be passed
-  // through wrap({ asyncComponent }) or the loader itself gets mounted.
-  const routes = {
-    '/': wrap({ asyncComponent: () => import('./pages/Catalog.svelte') }),
-    '/add': wrap({ asyncComponent: () => import('./pages/Editor.svelte') }),
-    '/edit/:id': wrap({ asyncComponent: () => import('./pages/Editor.svelte') }),
-    '/trash': wrap({ asyncComponent: () => import('./pages/Trash.svelte') }),
-    '/maps': wrap({ asyncComponent: () => import('./pages/Maps.svelte') }),
-    '/settings': wrap({ asyncComponent: () => import('./pages/Settings.svelte') }),
-    '/c/:id': wrap({ asyncComponent: () => import('./pages/Record.svelte') }),
-    '/login': Login,
-    '*': wrap({ asyncComponent: () => import('./pages/NotFound.svelte') }),
+  $: recents = [...$clients].sort((a, b) => b.updatedTs - a.updatedTs).slice(0, 6);
+  $: commands = [
+    { id: 'go-ledger', label: 'ไปที่ สมุดทะเบียน', icon: 'book', group: 'นำทาง', hint: ['G', 'L'], run: () => setView('ledger') },
+    { id: 'go-settings', label: 'ไปที่ ตั้งค่า', icon: 'settings', group: 'นำทาง', hint: ['G', 'S'], run: () => setView('settings') },
+    { id: 'toggle-theme', label: 'สลับโหมด สว่าง / มืด', icon: 'moon', group: 'ธีม', hint: ['T'], run: () => toggleTheme() },
+    { id: 'cycle-pal', label: 'เปลี่ยนธีมสีถัดไป', icon: 'palette', group: 'ธีม', hint: ['P'], run: () => cyclePalette() },
+    ...recents.map(c => ({
+      id: 'c-' + c.id,
+      label: c.name,
+      icon: 'book',
+      group: 'ลูกค้า (ล่าสุด)',
+      keywords: c.customer || '',
+      run: () => { setView('ledger'); openRecord(c); }
+    }))
+  ];
+
+  function onKey(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      toggleCmd();
+    } else if (e.key === 'Escape') {
+      if ($cmdOpen) closeCmd();
+      else if ($selected) closeRecord();
+    }
   }
 
-  let theme = $derived($appTheme)
-  let checking = $derived($useAuthStore.checking)
-  let signedIn = $derived($useAuthStore.isSignedIn)
-  let loginOpen = $derived($useAuthStore.loginOpen)
-  let offline = $derived($useClientStore.offline)
-
   onMount(() => {
-    initAppTheme()
-    void initClerk()
-    void useClientStore.getState().initialize()
-    const flush = () => {
-      const userId = useAuthStore.getState().userId
-      if (userId) void flushClientMutations(userId)
-    }
-    window.addEventListener('online', flush)
-    flush()
-    return () => {
-      window.removeEventListener('online', flush)
-    }
-  })
-
-  // v5 replaced the `location` store with the runes-backed `router` object, so
-  // reset the scroll position in an effect that tracks router.location.
-  // <main> is the real scroller (not the window), so reset it too — otherwise
-  // the catalog re-opens wherever the previous page was scrolled to.
-  $effect(() => {
-    void router.location
-    window.scrollTo({ top: 0 })
-    document.getElementById('ledger-main')?.scrollTo({ top: 0 })
-  })
-
-  const wantsLogin = $derived(router.location === '/login' || loginOpen)
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 </script>
 
-<!-- One fixed painted layer for the whole app; routed content sits above it. -->
-<LoadingSplash />
+<TopBar />
 
-{#if wantsLogin && !checking && !signedIn}
-  <Login />
-{:else}
-  <div class="ledger-shell" data-mode={theme.resolvedMode}>
-    <a href="#ledger-main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-card focus:px-4 focus:py-3 focus:text-ink">ข้ามไปเนื้อหา</a>
-    <TopBar />
-    {#if offline}
-      <div role="status" class="flex shrink-0 items-center justify-center gap-2 border-b border-dashed border-rule bg-tint px-4 py-2 text-center text-[13px] font-semibold text-acc-ink">
-        <span class="size-1.5 rounded-full bg-acc" aria-hidden="true"></span>
-        <b>ออฟไลน์</b> · กำลังแสดงข้อมูลที่บันทึกไว้ การแก้ไขจะส่งเมื่อกลับมาออนไลน์
-      </div>
-    {/if}
-    <!-- Keep <main> as the scroll container so position:sticky in child pages
-         (e.g. the catalog search bar) sticks to that viewport rather than
-         being clipped by an ancestor. -->
-    <main id="ledger-main" class="app-workspace min-h-0 flex-1 overflow-y-auto">
-      <svelte:boundary onerror={(e) => console.error(e)}>
-        {#key router.location}
-          <div class="flex h-full min-h-0 flex-col">
-            <div class="min-h-0 flex-1">
-              <Router {routes} />
-            </div>
-          </div>
-        {/key}
-        {#snippet failed(error)}
-          <div class="p-8 text-sm text-danger-ink">{(error as Error)?.message ?? 'เกิดข้อผิดพลาด'}</div>
-        {/snippet}
-      </svelte:boundary>
-    </main>
-  </div>
-  {#await import('./components/CommandPalette.svelte') then { default: CommandPalette }}
-    <CommandPalette />
-  {/await}
-  {#await import('./components/Toaster.svelte') then { default: Toaster }}
-    <Toaster />
-  {/await}
-  {#await import('./components/LeaveDialog.svelte') then { default: LeaveDialog }}
-    <LeaveDialog />
-  {/await}
+<main>
+  {#if $view === 'ledger'}
+    <Ledger />
+  {:else}
+    <Settings />
+  {/if}
+</main>
+
+{#if $selected}
+  <Record client={$selected} on:close={closeRecord} />
 {/if}
 
-  {#await import('./components/UpdatePrompt.svelte') then { default: UpdatePrompt }}
-    <UpdatePrompt />
-  {/await}
+<CommandPalette open={$cmdOpen} {commands} on:close={closeCmd} />
+<EffectLayer />
+<Toaster />
+
+<style>
+  main { min-height: calc(100vh - var(--topbar-h)); }
+</style>
