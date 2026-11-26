@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { OpenLocationCode } from 'open-location-code';
   import Icon from './Icon.svelte';
+  import { boom } from '../lib/effects.js';
 
   export let lat = null;
   export let lng = null;
@@ -59,6 +60,10 @@
         layer = L.tileLayer(tileUrl(dark()), { maxZoom: 19, detectRetina: true, attribution: attribution() }).addTo(map);
         map.on('click', (e) => {
           const a = e.latlng.lat, b = e.latlng.lng;
+          if (holder?.getBoundingClientRect) {
+            const r = holder.getBoundingClientRect();
+            boom(r.left + r.width / 2, r.top + r.height / 2, { tone: 'acc', size: 40, n: 8 });
+          }
           callback(a, b);
           place(a, b);
           map.flyTo([a, b], Math.max(map.getZoom(), PIN_ZOOM), { duration: 0.6 });

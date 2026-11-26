@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   import Icon from './Icon.svelte';
   import Kbd from './Kbd.svelte';
+  import { burstAt } from '../lib/effects.js';
 
   export let open = false;
   export let commands = [];   // [{ id, label, icon, group, hint, keywords, run }]
@@ -36,8 +37,9 @@
     active = 0;
   }
   function close() { dispatch('close'); }
-  function choose(c) {
+  function choose(c, e) {
     if (!c) return;
+    if (e) burstAt(e, { tone: 'pri', size: 40, n: 8 });
     dispatch('close');
     if (c.run) c.run();
     q = '';
@@ -89,7 +91,7 @@
                 class="item {idx === active ? 'on' : ''}"
                 use:scrollActive={idx === active}
                 on:mousemove={() => (active = idx)}
-                on:click={() => choose(c)}
+                on:click={(e) => choose(c, e)}
               >
                 <span class="ic"><Icon name={c.icon || 'sparkles'} size={17} /></span>
                 <span class="label">{c.label}</span>
@@ -155,5 +157,6 @@
   .item .label { flex: 1; }
   .item.on { background: var(--pri-soft); color: var(--pri); }
   .item.on .ic { background: var(--pri); color: var(--pri-ink); }
+  .item:active { transform: scale(.98); }
   .empty { padding: 30px 16px; text-align: center; color: var(--ink-3); }
 </style>

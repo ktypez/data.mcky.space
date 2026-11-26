@@ -1,6 +1,7 @@
 <script>
   import { OpenLocationCode } from 'open-location-code';
   import Icon from './Icon.svelte';
+  import { burstAt } from '../lib/effects.js';
 
   export let lat = null;
   export let lng = null;
@@ -30,7 +31,8 @@
     return null;
   }
 
-  function search() {
+  function search(e) {
+    burstAt(e, { tone: 'acc', size: 30, n: 6 });
     const q = query.trim();
     if (!q) return;
     const coords = parseCoords(q);
@@ -56,7 +58,8 @@
     feedback = { ok: false, msg: 'ไม่รู้จักพิกัด — ลอง ละติจูด,ลองจิจูด หรือ Plus Code' };
   }
 
-  function locate() {
+  function locate(e) {
+    burstAt(e, { tone: 'acc', size: 34, n: 8 });
     if (!navigator.geolocation) { feedback = { ok: false, msg: 'อุปกรณ์นี้ไม่รองรับ Geolocation' }; return; }
     locating = true;
     navigator.geolocation.getCurrentPosition(
@@ -73,12 +76,12 @@
 
 <div class="loc">
   <div class="row">
-    <input bind:value={query} on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), search())} placeholder="ละติจูด, ลองจิจูด หรือ Plus Code" aria-label="ค้นหาตำแหน่ง" />
-    <button class="mini" on:click={search} aria-label="ค้นหาตำแหน่ง"><Icon name="search" size={16} /></button>
+    <input bind:value={query} on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), search(e))} placeholder="ละติจูด, ลองจิจูด หรือ Plus Code" aria-label="ค้นหาตำแหน่ง" />
+    <button class="mini" on:click={(e) => search(e)} aria-label="ค้นหาตำแหน่ง"><Icon name="search" size={16} /></button>
   </div>
   {#if feedback}<p class:fail={!feedback.ok}>{feedback.msg}</p>{/if}
   <div class="hint">
-    <button on:click={locate} disabled={locating}><Icon name="plus" size={14} /> {locating ? 'กำลังค้นหา…' : 'ใช้ตำแหน่งปัจจุบัน'}</button>
+    <button on:click={(e) => locate(e)} disabled={locating}><Icon name="plus" size={14} /> {locating ? 'กำลังค้นหา…' : 'ใช้ตำแหน่งปัจจุบัน'}</button>
     <span>หรือแตะบนแผนที่</span>
   </div>
 </div>
@@ -88,6 +91,7 @@
   .row { display: flex; gap: 6px; }
   input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--r-xs); background: var(--paper-2); color: var(--ink); font: inherit; font-size: var(--fs-sm); }
   input:focus { outline: none; border-color: var(--pri); box-shadow: var(--ring); }
+  .mini:active, .hint button:active { transform: scale(.92); }
   .mini { width: 38px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--r-xs); background: var(--paper-2); color: var(--ink-2); cursor: pointer; }
   p { margin: 0; font-size: var(--fs-xs); color: var(--pri); }
   p.fail { color: #b33; }

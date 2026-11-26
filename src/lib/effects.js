@@ -22,9 +22,14 @@ export function boom(x, y, opts = {}) {
   return b.id;
 }
 
-/* ---------------------------------------------------------------
-   Toasts
-   --------------------------------------------------------------- */
+/* Impact burst from a click/tap event (safe after async gaps). */
+export function burstAt(e, opts = {}) {
+  const el = e?.currentTarget || e?.target;
+  if (!el || typeof el.getBoundingClientRect !== 'function') return null;
+  const r = el.getBoundingClientRect();
+  return boom(r.left + r.width / 2, r.top + r.height / 2, opts);
+}
+
 export const toasts = writable([]);
 let tid = 0;
 

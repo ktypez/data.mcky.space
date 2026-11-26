@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { boom, toast } from '../lib/effects.js';
+  import { toast, burstAt } from '../lib/effects.js';
   import { fmtDate, clientClip, copyText } from '../lib/format.js';
   import Monogram from './Monogram.svelte';
   import Badge from './Badge.svelte';
@@ -14,18 +14,18 @@
 
   async function copyCustomer(e) {
     e.stopPropagation();
-    const r = e.currentTarget.getBoundingClientRect();
     const ok = await copyText(clientClip(client));
-    boom(r.left + r.width / 2, r.top + r.height / 2, { tone: ok ? 'ok' : 'warn', size: 34 });
+    burstAt(e, { tone: ok ? 'ok' : 'warn', size: 34 });
     toast(ok ? 'คัดลอกข้อมูลลูกค้าแล้ว' : 'คัดลอกไม่สำเร็จ', { tone: ok ? 'ok' : 'warn', icon: ok ? 'check' : 'info' });
   }
+  function open(e) { burstAt(e, { tone: 'pri', size: 34 }); dispatch('open', client); }
 </script>
 
 <div
   class="row"
   role="button"
   tabindex="0"
-  on:click={() => dispatch('open', client)}
+  on:click={open}
   on:keydown={(e) => e.key === 'Enter' && dispatch('open', client)}
 >
   <span class="ava">
@@ -76,6 +76,7 @@
   }
   .row:last-of-type { border-bottom: none; }
   .row:hover { background: color-mix(in srgb, var(--pri) 5%, var(--paper-2)); }
+  .row:active { background: var(--pri-soft); }
   .row:focus-visible { box-shadow: inset var(--ring); border-radius: 0; }
 
   .ava { width: 40px; height: 40px; overflow: hidden; border-radius: 50%; flex: none; background: var(--paper-3); }

@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   import Icon from './Icon.svelte';
   import Kbd from './Kbd.svelte';
+  import { burstAt } from '../lib/effects.js';
 
   export let value = '';
   export let placeholder = 'ค้นหา…';
@@ -30,7 +31,7 @@
     spellcheck="false"
   />
   {#if value}
-    <button class="clr" on:click={clear} aria-label="ล้าง"><Icon name="x" size={14} /></button>
+    <button class="clr" on:click={(e) => { burstAt(e, { tone: 'acc', size: 24, n: 6 }); clear(); }} aria-label="ล้าง"><Icon name="x" size={14} /></button>
   {/if}
   {#if hint}<Kbd keys={hint} />{/if}
 </div>
