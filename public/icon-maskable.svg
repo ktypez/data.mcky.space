@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- maskable: mark kept inside the safe zone (central 80%) -->
+  <rect width="512" height="512" fill="#6D4ACF"/>
+  <g stroke="#FFFDF8" stroke-width="23" stroke-linecap="round">
+    <path d="M256 178v156"/>
+    <path d="M184 215 328 297"/>
+    <path d="M184 297 328 215"/>
+  </g>
+  <circle cx="330" cy="182" r="14" fill="#D8468F"/>
+  <circle cx="182" cy="330" r="12" fill="#59CFB1"/>
+</svg>

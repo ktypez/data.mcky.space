@@ -14,6 +14,7 @@
   import CommandPalette from './components/CommandPalette.svelte';
   import EffectLayer from './components/EffectLayer.svelte';
   import Toaster from './components/Toaster.svelte';
+  import EntrySplash from './components/EntrySplash.svelte';
 
   $: recents = [...$clients].sort((a, b) => b.updatedTs - a.updatedTs).slice(0, 6);
   $: commands = [
@@ -72,6 +73,7 @@
 </script>
 
 <TopBar />
+<EntrySplash />
 
 <main>
   {#if $view === 'ledger'}
