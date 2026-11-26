@@ -98,17 +98,27 @@ export function counts(list = get(clients)) {
   return out;
 }
 
+/* Search: customer name + shop name (all aliases), plus note/branch.
+   Keywords are split on spaces and "+" — every token must match somewhere.
+   e.g. "ข้าว + ไก่" matches "ข้าวมันไก่". */
+function searchableText(c) {
+  const parts = [c.names, c.shopNames, c.name, c.customer, c.note, c.branch];
+  return parts
+    .flatMap((p) => Array.isArray(p) ? p : [p])
+    .filter((v) => typeof v === 'string' && v.trim())
+    .join(' ')
+    .toLowerCase();
+}
+
 export function query({ q = '', filter = 'all', sort = 'recent' } = {}, list = get(clients)) {
   const f = FILTERS.find(x => x.id === filter) || FILTERS[0];
   let result = list.filter(f.test);
-  const t = q.trim().toLowerCase();
-  if (t) {
-    result = result.filter(c =>
-      c.name.toLowerCase().includes(t) ||
-      (c.customer || '').toLowerCase().includes(t) ||
-      (c.note || '').toLowerCase().includes(t) ||
-      (c.branch || '').toLowerCase().includes(t)
-    );
+  const tokens = q.trim().toLowerCase().split(/[\s+]+/).filter(Boolean);
+  if (tokens.length) {
+    result = result.filter(c => {
+      const text = searchableText(c);
+      return tokens.every(t => text.includes(t));
+    });
   }
   const s = SORTS.find(x => x.id === sort) || SORTS[0];
   return result.slice().sort(s.cmp);
