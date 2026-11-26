@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { editing, closeEditor, openRecord } from '../lib/ui.js';
+  import { editing, closeEditor, swapToRecord } from '../lib/ui.js';
   import { auth } from '../lib/auth.js';
   import { saveClient } from '../lib/write.js';
   import { loadClients, clients } from '../lib/data.js';
@@ -102,9 +102,9 @@
       });
       await loadClients(true);
       toast('บันทึกระเบียนแล้ว', { tone: 'ok', icon: 'check' });
-      closeEditor();
       const found = get(clients).find((c) => c.id === saved.id);
-      if (found) openRecord(found);
+      if (found) swapToRecord(found);
+      else closeEditor();
     } catch (e) {
       error = e?.message || 'บันทึกไม่สำเร็จ';
     } finally {
