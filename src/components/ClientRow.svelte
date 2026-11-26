@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import { boom, toast } from '../lib/effects.js';
-  import { fmtDate } from '../lib/format.js';
+  import { fmtDate, clientClip, copyText } from '../lib/format.js';
   import Monogram from './Monogram.svelte';
   import Badge from './Badge.svelte';
   import Icon from './Icon.svelte';
@@ -12,16 +12,12 @@
 
   $: photo = client.photos && client.photos[0];
 
-  async function copyId(e) {
+  async function copyCustomer(e) {
     e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(String(client.id));
-      const r = e.currentTarget.getBoundingClientRect();
-      boom(r.left + r.width / 2, r.top + r.height / 2, { tone: 'pri', size: 34 });
-      toast('คัดลอก ID แล้ว', { tone: 'ok', icon: 'check' });
-    } catch {
-      toast('คัดลอกไม่สำเร็จ', { tone: 'warn', icon: 'info' });
-    }
+    const r = e.currentTarget.getBoundingClientRect();
+    const ok = await copyText(clientClip(client));
+    boom(r.left + r.width / 2, r.top + r.height / 2, { tone: ok ? 'ok' : 'warn', size: 34 });
+    toast(ok ? 'คัดลอกข้อมูลลูกค้าแล้ว' : 'คัดลอกไม่สำเร็จ', { tone: ok ? 'ok' : 'warn', icon: ok ? 'check' : 'info' });
   }
 </script>
 
@@ -61,7 +57,7 @@
 
   <time datetime={client.updatedAt}>{fmtDate(client.updatedAt)}</time>
 
-  <button class="copy" aria-label="คัดลอก ID" on:click={copyId}>
+  <button class="copy" aria-label="คัดลอกข้อมูลลูกค้า" title="คัดลอกข้อมูลลูกค้า" on:click={copyCustomer}>
     <Icon name="copy" size={15} />
   </button>
 </div>
@@ -106,7 +102,7 @@
     width: 30px; height: 30px; display: grid; place-items: center;
     border: none; background: transparent; color: var(--ink-3);
     border-radius: var(--r-xs);
-    opacity: 0;
+    opacity: .5;
     transition: opacity var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
   }
   .row:hover .copy, .row:focus-within .copy { opacity: 1; }

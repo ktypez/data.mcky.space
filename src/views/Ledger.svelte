@@ -103,7 +103,13 @@
   .count { font-family: var(--font-display); font-size: var(--fs-xl); font-weight: 700; color: var(--pri); }
   .head-right .dim { font-size: var(--fs-sm); }
 
-  .toolbar { display: flex; gap: 10px; align-items: center; margin-top: 14px; }
+  .toolbar {
+    position: sticky; top: 0; z-index: 60;
+    display: flex; gap: 10px; align-items: center; margin-top: 14px;
+    padding: 8px 0;
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    backdrop-filter: blur(8px);
+  }
   .grow { flex: 1; min-width: 0; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
