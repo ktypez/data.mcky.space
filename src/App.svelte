@@ -15,6 +15,8 @@
   import EffectLayer from './components/EffectLayer.svelte';
   import Toaster from './components/Toaster.svelte';
   import EntrySplash from './components/EntrySplash.svelte';
+  import UpdateModal from './components/UpdateModal.svelte';
+  import { startUpdater, stopUpdater } from './lib/updater.js';
 
   $: recents = [...$clients].sort((a, b) => b.updatedTs - a.updatedTs).slice(0, 6);
   $: commands = [
@@ -43,6 +45,7 @@
   }
 
   onMount(() => {
+    startUpdater();
     window.addEventListener('keydown', onKey);
     // Deep link: ?c=<id> opens that record in the side sheet once data loads.
     let unsub = () => {};
@@ -66,6 +69,7 @@
       });
     }
     return () => {
+      stopUpdater();
       window.removeEventListener('keydown', onKey);
       unsub();
     };
@@ -94,6 +98,7 @@
 <CommandPalette open={$cmdOpen} {commands} on:close={closeCmd} />
 <EffectLayer />
 <Toaster />
+<UpdateModal />
 
 <style>
   main {
