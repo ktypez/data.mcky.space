@@ -66,9 +66,10 @@
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--line);
   }
-  .bar-inner { display: flex; align-items: center; gap: 16px; height: var(--topbar-h); }
+  .bar-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; height: var(--topbar-h); }
   .brand {
     display: flex; align-items: center; gap: 10px; border: none; background: none; padding: 0;
+    justify-self: start;
   }
   .logo {
     width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center;
@@ -79,7 +80,7 @@
   .word b { font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: .04em; }
   .word small { font-size: 9px; color: var(--ink-3); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
 
-  .nav { display: flex; gap: 3px; background: var(--paper-3); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; }
+  .nav { display: flex; gap: 3px; background: var(--paper-3); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; justify-self: center; }
   .nav-btn {
     display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent;
     padding: 5px 12px; border-radius: var(--r-pill); color: var(--ink-2); font-weight: 600; font-size: var(--fs-xs);
@@ -87,7 +88,7 @@
   }
   .nav-btn.on { background: var(--paper-2); color: var(--pri); box-shadow: var(--shadow-sm); }
 
-  .actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .actions { display: flex; align-items: center; gap: 8px; justify-self: end; }
   .pal-dots { display: flex; gap: 5px; background: var(--paper-3); border: 1px solid var(--line); padding: 5px; border-radius: var(--r-pill); }
   .dot {
     width: 15px; height: 15px; border-radius: 50%; border: 2px solid transparent;

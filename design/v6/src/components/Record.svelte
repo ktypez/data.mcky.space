@@ -108,10 +108,8 @@
   .media img { width: 100%; height: 100%; object-fit: cover; }
   .mono-fill {
     width: 100%; height: 100%; display: grid; place-items: center;
-    background:
-      radial-gradient(120% 120% at 80% 0%, var(--pri-soft), transparent 60%),
-      radial-gradient(120% 120% at 0% 100%, var(--acc-soft), transparent 55%),
-      var(--paper-3);
+    background: var(--pri-soft);
+    border: 1px solid color-mix(in srgb, var(--pri) 22%, transparent);
   }
 
   .content { padding: 22px 24px; }

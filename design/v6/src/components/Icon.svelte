@@ -37,7 +37,6 @@
   };
 
   $: inner = ICONS[name] || ICONS.sparkles;
-  $: fw = filled ? 'none' : 'none';
 </script>
 
 <svg

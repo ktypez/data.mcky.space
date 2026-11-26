@@ -8,6 +8,8 @@
 
   $: index = Math.max(0, options.findIndex(o => o.id === value));
   $: n = options.length || 1;
+  // glider geometry: container has 4px padding each side and 4px gaps between n items
+  $: gw = `calc((100% - 8px - ${(n - 1) * 4}px) / ${n})`;
 
   function pick(o) {
     if (o.disabled) return;
@@ -17,7 +19,7 @@
 </script>
 
 <div class="seg" role="tablist">
-  <span class="glider" style="width:calc(100% / {n}); transform:translateX(calc({index} * 100%));"></span>
+  <span class="glider" style="--gw:{gw}; width:var(--gw); transform:translateX(calc({index} * (var(--gw) + 4px)));"></span>
   {#each options as o}
     <button
       class="opt {o.id === value ? 'on' : ''}"
@@ -46,7 +48,6 @@
     top: 4px;
     left: 4px;
     bottom: 4px;
-    width: calc(100% / 2 - 4px);
     border-radius: var(--r-pill);
     background: var(--paper-2);
     box-shadow: var(--shadow-sm);
