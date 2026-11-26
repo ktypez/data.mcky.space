@@ -64,6 +64,13 @@
     font-size: var(--fs-sm);
     color: var(--ink);
   }
+  /* Only the outer pill gets the focus ring — no second frame on the input. */
+  .search input:focus, .search input:focus-visible {
+    outline: none;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+  }
   .search input::placeholder { color: var(--ink-3); }
   .search input::-webkit-search-cancel-button { display: none; }
   .clr {
