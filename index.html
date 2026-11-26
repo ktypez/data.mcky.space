@@ -6,6 +6,18 @@
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#fffdf8" />
     <title>DATA · Mochi Ledger</title>
+    <script>
+      /* Resolve auto mode before first paint. */
+      (function () {
+        try {
+          var p = localStorage.getItem('mochi.palette') || 'mochi';
+          var t = localStorage.getItem('mochi.theme') || 'auto';
+          var dark = t === 'dark' || (t === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.setAttribute('data-palette', p);
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

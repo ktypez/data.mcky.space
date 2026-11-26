@@ -8,15 +8,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Itim&family=Mali:wght@500;600&family=Prompt:wght@300;400;500;600;700&display=swap');
 
-/* ฟอนต์โมจิ (Moji by Crafty Font) — ALL RIGHTS RESERVED, ดาวน์โหลดเองอย่างถูกต้อง
-   แล้ววางไฟล์ไว้ที่ public/fonts/Moji-Regular.ttf จะใช้เองอัตโนมัติ (ตัวเลือก "โมจิ" ใน Settings) */
-@font-face {
-  font-family: "Moji";
-  src: url("/fonts/Moji-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-
 /* ---------- 1. Primitives ---------- */
 :root {
   /* palette hues (overridden per [data-palette]) */

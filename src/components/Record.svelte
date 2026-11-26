@@ -3,6 +3,8 @@
   import { boom, toast } from '../lib/effects.js';
   import { fmtDateFull, fmtDateTime, copyText, clientClip } from '../lib/format.js';
   import { PAYMENT } from '../lib/data.js';
+  import { auth } from '../lib/auth.js';
+  import { openEditor } from '../lib/ui.js';
   import Monogram from './Monogram.svelte';
   import Icon from './Icon.svelte';
   import Badge from './Badge.svelte';
@@ -127,6 +129,20 @@
       <div class="actions">
         <Button icon="copy" on:click={copyAll}>{copiedAll ? 'คัดลอกแล้ว' : 'คัดลอกข้อมูล'}</Button>
         <Button icon="link" on:click={copyLink}>{copiedLink ? 'คัดลอกแล้ว' : 'ลิงก์'}</Button>
+        {#if $auth.signedIn}
+          <Button variant="soft" icon="edit" on:click={() => openEditor({
+            id: client.id,
+            name: client.names?.length ? client.names : [client.customer],
+            shopName: client.shopNames?.length ? client.shopNames : [client.name],
+            branch: client.branch,
+            address: client.address,
+            lat: client.lat,
+            lng: client.lng,
+            images: client.photos,
+            badge: client.payment === 'day' ? 'penpay' : client.payment === 'card' ? 'credit' : null,
+            notes: client.note,
+          })}>แก้ไข</Button>
+        {/if}
         <Button variant="ghost" iconRight="arrow-right" on:click={() => dispatch('close')}>ปิด</Button>
       </div>
 
