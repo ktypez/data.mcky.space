@@ -1,210 +1,143 @@
-<script lang="ts">
-import { ListBullets, MapTrifold, Trash, Gear, Plus, SignIn, SignOut, MagnifyingGlass } from 'phosphor-svelte'
-  import { push, router } from 'svelte-spa-router'
-import { appTheme, setMode, setPalette } from '@/lib/app-theme'
-  import { useAuthStore, logout } from '@/stores/auth-store'
-  import { getClerk } from '@/lib/clerk'
-  import { useFilterStore } from '@/stores/filter-store'
-  import { FilterKey } from '@/types/index'
-  import { isFormDirty, askLeave } from '@/lib/form-dirty'
+<script>
+  import { PALETTES, palette, setPalette, toggleTheme } from '../lib/theme.js';
+  import { view, setView, openCmd } from '../lib/ui.js';
+  import Icon from './Icon.svelte';
+  import Kbd from './Kbd.svelte';
+  import Asterisk from './Asterisk.svelte';
+  import { theme } from '../lib/theme.js';
+  import { auth, login, logout } from '../lib/auth.js';
 
-  let isAdmin = $derived($useAuthStore.isAdmin)
-  let signedIn = $derived($useAuthStore.isSignedIn)
-  let theme = $derived($appTheme)
+  const nav = [
+    { id: 'ledger', label: 'สมุดทะเบียน', icon: 'book' },
+    { id: 'settings', label: 'ตั้งค่า', icon: 'settings' }
+  ];
 
-  // Clerk identity for the account menu (name + email + monogram).
-  let account = $state<{ name: string; email: string }>({ name: '', email: '' })
-  $effect(() => {
-    if (!signedIn) {
-      account = { name: '', email: '' }
-      return
-    }
-    const user = getClerk()?.user
-    const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim()
-    account = {
-      name: name || user?.username || 'ผู้ใช้',
-      email: user?.primaryEmailAddress?.emailAddress ?? '',
-    }
-  })
-
-  let menuOpen = $state(false)
-  let menuRef: HTMLDivElement | undefined = $state()
-
-  // Outside-click + Escape close the account menu.
-  $effect(() => {
-    if (!menuOpen) return
-    const close = (e: MouseEvent) => {
-      if (!menuRef?.contains(e.target as Node)) menuOpen = false
-    }
-    const esc = (e: KeyboardEvent) => e.key === 'Escape' && (menuOpen = false)
-    document.addEventListener('mousedown', close)
-    document.addEventListener('keydown', esc)
-    return () => {
-      document.removeEventListener('mousedown', close)
-      document.removeEventListener('keydown', esc)
-    }
-  })
-
-  const navItems = [
-    { to: '/', label: 'รายการ', icon: ListBullets },
-    { to: '/maps', label: 'แผนที่', icon: MapTrifold },
-    { to: '/trash', label: 'ถังขยะ', icon: Trash },
-    { to: '/settings', label: 'ตั้งค่า', icon: Gear },
-  ]
-  const palettes = [
-    { id: 'mochi', label: 'Mochi', color: 'hsl(256 58% 68%)' },
-    { id: 'matcha', label: 'Matcha', color: 'hsl(158 58% 48%)' },
-    { id: 'soda', label: 'Soda', color: 'hsl(222 58% 64%)' },
-    { id: 'sakura', label: 'Sakura', color: 'hsl(338 65% 68%)' },
-  ]
-  const isActive = (to: string) => (to === '/' ? router.location === '/' : router.location.startsWith(to))
-
-  let lastHomeTap = 0
-  function handleHomeClick(event: MouseEvent) {
-    if (isFormDirty()) {
-      event.preventDefault()
-      event.stopPropagation()
-      askLeave(() => push('/'))
-      return
-    }
-    const now = Date.now()
-    if (now - lastHomeTap < 300) {
-      // Double tap: clear search and filter
-      useFilterStore.getState().setSearch('')
-      useFilterStore.getState().setFilter(FilterKey.All)
-      lastHomeTap = 0
-    } else {
-      push('/')
-      lastHomeTap = now
-    }
-  }
-
-  function guard(event: MouseEvent, to: string) {
-    if (!isFormDirty()) return
-    event.preventDefault()
-    event.stopPropagation()
-    askLeave(() => push(to))
-  }
-
-  const monogram = $derived((account.name || '?').trim().charAt(0).toUpperCase() || '?')
+  function pickPalette(id) { setPalette(id); }
 </script>
 
-<header class="sticky top-0 z-50 border-b border-rule bg-paper">
-  <div class="mx-auto flex min-h-[var(--topbar-h)] max-w-[var(--maxw)] items-center gap-3 px-4 sm:px-6">
-    <a href="#/" onclick={handleHomeClick} aria-label="DATA Ledger หน้าแรก" class="group flex items-center gap-2.5">
-        <span class="brand-mark grid size-8 place-items-center rounded-[10px] bg-pri-fill text-pri-ink transition-transform duration-200 group-hover:-rotate-6" aria-hidden="true">
-        <span class="font-mono text-[16px] font-bold">✳</span>
+<header class="bar">
+  <div class="wrap bar-inner">
+    <button class="brand" on:click={() => setView('ledger')}>
+      <span class="logo"><Asterisk size={16} color="var(--pri-ink)" /></span>
+      <span class="word">
+        <b>DATA</b>
+        <small>Ledger</small>
       </span>
-      <span class="flex flex-col leading-none">
-        <span class="text-[14px] font-bold tracking-[.04em] text-ink">DATA</span>
-        <span class="mt-0.5 text-[9px] font-semibold uppercase tracking-[.12em] text-ink-faint">Ledger</span>
-      </span>
-    </a>
+    </button>
 
-    <nav class="topbar-nav flex items-center gap-1" aria-label="เมนูหลัก">
-      {#each navItems as item}
-        <a
-          href={`#${item.to}`}
-          aria-current={isActive(item.to) ? 'page' : undefined}
-          onclick={(e) => guard(e, item.to)}
-          class="nav-link flex items-center gap-2 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap transition-all duration-150 {isActive(item.to)
-            ? 'bg-card text-pri shadow-sm'
-            : 'text-ink-soft hover:bg-paper-2 hover:text-ink'}"
-        >
-          <item.icon size={15} weight="bold" aria-hidden="true" />
-          {item.label}
-        </a>
+    <nav class="nav">
+      {#each nav as n}
+        <button class="nav-btn {n.id === $view ? 'on' : ''}" on:click={() => setView(n.id)}>
+          <Icon name={n.icon} size={16} />
+          {n.label}
+        </button>
       {/each}
-      {#if isAdmin}
-        <a
-          href="#/add"
-          aria-current={router.location === '/add' ? 'page' : undefined}
-          onclick={(e) => guard(e, '/add')}
-          class="btn btn-acc ml-1 !px-3.5 !py-2 text-[13px]"
-        >
-          <Plus size={15} weight="bold" aria-hidden="true" />
-          <span class="hidden sm:inline">เพิ่มรายการ</span>
-        </a>
-      {/if}
     </nav>
 
-    <div class="topbar-actions ml-auto flex shrink-0 items-center gap-2">
-      <div class="palette-dots hidden items-center gap-1.5 rounded-full border border-rule bg-paper-3 p-1.5 sm:flex" role="group" aria-label="เปลี่ยนชุดสี">
-        {#each palettes as palette}
-          <button type="button" class="palette-dot" class:active={theme.palette === palette.id} style={`--dot:${palette.color}`} title={palette.label} aria-label={`ใช้ชุดสี ${palette.label}`} aria-pressed={theme.palette === palette.id} onclick={() => setPalette(palette.id)}></button>
+    <div class="actions">
+      <div class="pal-dots" role="group" aria-label="เปลี่ยนธีม">
+        {#each PALETTES as p}
+          <button
+            class="dot {p.id === $palette ? 'on' : ''}"
+            style="--h:{p.hue}"
+            title={p.label}
+            aria-label={p.label}
+            on:click={() => pickPalette(p.id)}
+          ></button>
         {/each}
       </div>
-      <button type="button" class="mode-toggle" aria-label={theme.resolvedMode === 'dark' ? 'ใช้โหมดสว่าง' : 'ใช้โหมดมืด'} title={theme.resolvedMode === 'dark' ? 'โหมดสว่าง' : 'โหมดมืด'} onclick={() => setMode(theme.resolvedMode === 'dark' ? 'light' : 'dark')}>
-        {#if theme.resolvedMode === 'dark'}<span aria-hidden="true">☀</span>{:else}<span aria-hidden="true">☾</span>{/if}
+
+      <button class="icon-btn" on:click={toggleTheme} aria-label="สลับโหมด">
+        <Icon name={$theme === 'dark' ? 'sun' : 'moon'} size={18} />
       </button>
 
-      <button type="button" class="command-trigger" onclick={() => window.dispatchEvent(new Event('open-command-palette'))} aria-label="ค้นหารายการ (⌘K)">
-        <MagnifyingGlass size={16} aria-hidden="true" />
-        <span class="hidden md:inline">ค้นหา</span>
-        <kbd class="kbd hidden lg:inline-flex">⌘K</kbd>
+      <button class="cmd-btn" on:click={openCmd}>
+        <Icon name="search" size={16} />
+        <span class="cmd-label">ค้นหา</span>
+        <Kbd keys={['⌘', 'K']} />
       </button>
 
-      {#if signedIn}
-        <div class="relative" bind:this={menuRef}>
-          <button
-            type="button"
-            onclick={() => (menuOpen = !menuOpen)}
-            class="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border border-rule-2 bg-acc font-mono text-[14px] font-bold text-acc-ink shadow-sm transition-transform hover:-translate-y-px"
-            aria-label="เมนูบัญชี"
-            aria-expanded={menuOpen}
-            aria-haspopup="menu"
-          >
-            {monogram}
-          </button>
-          {#if menuOpen}
-            <div
-              role="menu"
-              aria-label="เมนูบัญชี"
-              class="sticker pop-dots absolute right-0 mt-2.5 w-56 rounded-2xl p-2"
-            >
-              <div class="border-b border-dashed border-rule px-3 pt-2 pb-3">
-                <p class="text-sm font-bold text-ink">{account.name}</p>
-                {#if account.email}<p class="mt-0.5 truncate font-mono text-[11px] text-ink-faint">{account.email}</p>{/if}
-                {#if isAdmin}<span class="chip mt-1.5 bg-tint text-acc-ink">ผู้ดูแล</span>{/if}
-              </div>
-              <button
-                type="button"
-                class="mt-2 flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-tint"
-                onclick={() => {
-                  menuOpen = false
-                  void logout()
-                }}
-              >
-                <SignOut size={15} weight="bold" aria-hidden="true" />
-                ออกจากระบบ
-              </button>
-            </div>
-          {/if}
-        </div>
-      {:else}
-        <button type="button" class="btn btn-pop !px-4 !py-2 text-[13px]" onclick={() => push('/login')}>
-          <SignIn size={15} weight="bold" aria-hidden="true" />
-          เข้าสู่ระบบ
+      {#if $auth.signedIn}
+        <button class="auth-btn" on:click={logout} title={$auth.email || 'ออกจากระบบ'}>
+          <span class="who">{$auth.name || 'ผู้ใช้'}</span>
+          <Icon name="arrow-right" size={15} />
+        </button>
+      {:else if !$auth.checking}
+        <button class="auth-btn" on:click={() => login()} title="เข้าสู่ระบบด้วยบัญชี mcky">
+          <span class="who">เข้าสู่ระบบ</span>
         </button>
       {/if}
     </div>
   </div>
-
 </header>
 
 <style>
-  header { background:color-mix(in srgb,var(--paper) 88%,transparent); backdrop-filter:blur(12px); border-color:var(--rule); }
-  header > div { min-height:54px; }
-  .topbar-nav { padding:3px; border:1px solid var(--rule); border-radius:999px; background:var(--paper-3); }
-  .brand-mark { box-shadow:0 3px 10px color-mix(in srgb,var(--pri) 24%,transparent); }
-  .mode-toggle,.command-trigger { display:inline-flex; align-items:center; justify-content:center; gap:7px; height:36px; flex:none; border:1px solid var(--rule); border-radius:999px; background:var(--card); color:var(--ink-soft); transition:transform var(--mochi-duration-fast) var(--mochi-ease-spring),background var(--mochi-duration) var(--mochi-ease-out),color var(--mochi-duration) var(--mochi-ease-out); }
-  .mode-toggle { width:36px; color:var(--pri); font-size:19px; }
-  .command-trigger { padding:0 10px 0 12px; font-size:13px; font-weight:600; }
-  .mode-toggle:hover,.command-trigger:hover { transform:translateY(-1px); background:var(--pri-soft); color:var(--pri-ink); }
-  .palette-dot { width:15px; height:15px; flex:none; border:2px solid transparent; border-radius:50%; background:var(--dot); transition:transform var(--mochi-duration-fast) var(--mochi-ease-spring); }
-  .palette-dot:hover { transform:scale(1.18); }
-  .palette-dot.active { border-color:var(--ink); box-shadow:0 0 0 2px var(--card); }
-  @media (max-width:800px) { .topbar-nav { gap:0; } .nav-link { padding-inline:9px; } }
-  @media (max-width:860px) { header > div { flex-wrap:wrap; padding-block:8px; } .topbar-nav { order:3; flex:1 0 100%; justify-content:center; } .topbar-actions { margin-left:auto; } }
-  @media (max-width:640px) { .nav-link { font-size:0; gap:0; padding:9px; } .nav-link :global(svg) { width:18px; height:18px; } .brand-mark { width:30px; height:30px; } .command-trigger { width:36px; padding:0; } .topbar-actions { gap:5px; } .palette-dots { padding:4px; gap:3px; } .palette-dot { width:12px;height:12px; } }
+  .bar {
+    position: sticky; top: 0; z-index: 100;
+    background: color-mix(in srgb, var(--paper) 82%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-inner { display: flex; align-items: center; gap: 16px; height: var(--topbar-h); }
+  .brand {
+    display: flex; align-items: center; gap: 10px; border: none; background: none; padding: 0;
+  }
+  .logo {
+    width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center;
+    background: var(--pri-fill); box-shadow: 0 3px 10px hsl(var(--hue-pri) 60% 78% / .5);
+    flex: none;
+  }
+  .word { display: flex; flex-direction: column; line-height: 1; text-align: left; }
+  .word b { font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: .04em; }
+  .word small { font-size: 9px; color: var(--ink-3); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+
+  .nav { display: flex; gap: 3px; background: var(--paper-3); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; }
+  .nav-btn {
+    display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent;
+    padding: 5px 12px; border-radius: var(--r-pill); color: var(--ink-2); font-weight: 600; font-size: var(--fs-xs);
+    transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+  }
+  .nav-btn.on { background: var(--paper-2); color: var(--pri); box-shadow: var(--shadow-sm); }
+
+  .actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .pal-dots { display: flex; gap: 5px; background: var(--paper-3); border: 1px solid var(--line); padding: 5px; border-radius: var(--r-pill); }
+  .dot {
+    width: 15px; height: 15px; border-radius: 50%; border: 2px solid transparent;
+    background: hsl(var(--h) 62% 78%); cursor: pointer; transition: transform var(--dur-fast) var(--ease-spring);
+  }
+  .dot:hover { transform: scale(1.18); }
+  .dot.on { border-color: var(--ink); box-shadow: 0 0 0 2px var(--paper-2); }
+
+  .icon-btn {
+    width: 34px; height: 34px; border-radius: var(--r-pill); border: 1px solid var(--line);
+    background: var(--paper-2); color: var(--ink-2); display: grid; place-items: center;
+    transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
+  }
+  .icon-btn:hover { color: var(--pri); border-color: color-mix(in srgb, var(--pri) 40%, transparent); transform: translateY(-1px); }
+
+  .cmd-btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 0 10px 0 12px; height: 34px;
+    border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--paper-2); color: var(--ink-2);
+    font-weight: 600; font-size: var(--fs-sm);
+    transition: border-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
+  }
+  .cmd-btn:hover { border-color: var(--pri); color: var(--pri); transform: translateY(-1px); }
+  .cmd-label { display: none; }
+  @media (min-width: 560px) { .cmd-label { display: inline; } }
+
+  .auth-btn {
+    display: inline-flex; align-items: center; gap: 6px; height: 34px;
+    padding: 0 12px; border-radius: var(--r-pill); border: 1px solid var(--line);
+    background: var(--pri-fill); color: var(--pri-ink); font-weight: 700; font-size: var(--fs-xs);
+    transition: background var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
+  }
+  .auth-btn:hover { background: var(--pri-fill-hov); transform: translateY(-1px); }
+  .auth-btn .who { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (max-width: 560px) { .auth-btn .who { max-width: 84px; } }
+
+  @media (max-width: 560px) {
+    .nav-btn { font-size: 0; gap: 0; padding: 9px; }
+    .nav-btn :global(svg) { width: 18px; height: 18px; }
+    .word small { display: none; }
+  }
 </style>
