@@ -43,7 +43,7 @@ export function copyText(text) {
 // --- clipboard text: same recipe as the old ledger ---
 const stripLabel = (v, label) => (v || '').trim().replace(new RegExp(`^${label}[\\s:]*\\s*`), '');
 const shopNameValue = (v) => stripLabel(v, 'ร้าน') || (v || '').trim();
-const branchValue = (v) => stripLabel(v, 'สาขา');
+export const branchValue = (v) => stripLabel(v, 'สาขา');
 const mapsUrl = (lat, lng) => `https://maps.google.com/?q=${lat},${lng}`;
 
 /** Name / shop / branch / address / maps — exactly the old copy output. */
