@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import { toast, burstAt } from '../lib/effects.js';
-  import { fmtDate, clientClip, copyText } from '../lib/format.js';
+  import { fmtDate, clientClip, copyText, branchValue } from '../lib/format.js';
   import Monogram from './Monogram.svelte';
   import Badge from './Badge.svelte';
   import Icon from './Icon.svelte';
@@ -11,6 +11,7 @@
   let imgOk = true;
 
   $: photo = client.photos && client.photos[0];
+  $: branch = branchValue(client.branch);
 
   async function copyCustomer(e) {
     e.stopPropagation();
@@ -39,6 +40,7 @@
   <span class="who">
     <span class="name">{client.name}</span>
     <span class="sub">{client.customer}</span>
+    {#if branch}<span class="branch" title={`สาขา · ${branch}`}>สาขา · {branch}</span>{/if}
   </span>
 
   <span class="flags">
@@ -89,6 +91,10 @@
   }
   .sub {
     font-size: var(--fs-xs); color: var(--ink-3);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .branch {
+    font-size: var(--fs-2xs); color: var(--pri); font-weight: 600;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
