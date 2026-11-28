@@ -5,7 +5,7 @@ import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker'
 import { env } from 'cloudflare:workers'
 import { drizzle } from 'drizzle-orm/d1'
 import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core'
-import { desc, eq, sql, like, and, or, lt } from 'drizzle-orm'
+import { desc, eq, sql, like, and, or, lt, inArray } from 'drizzle-orm'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { clientDataEtag, clientDataResponse, clientCorsHeaders, etagMatches } from './data-cache'
 
@@ -1036,6 +1036,6 @@ async function purgeExpiredTrash(db: ReturnType<typeof createDb>): Promise<numbe
     }
   }
   if (expired.length === 0) return 0
-  await db.delete(settingsTable).where(sql`${settingsTable.key} IN (${expired})`)
+  await db.delete(settingsTable).where(inArray(settingsTable.key, expired))
   return expired.length
 }
